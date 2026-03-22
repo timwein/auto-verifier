@@ -1707,6 +1707,124 @@ Be thorough. Score each sub-attribute. Output ONLY valid JSON."""
 # Scoring Engine
 # ============================================================================
 
+
+# ============================================================================
+# Independent Scoring Agent — isolated context window for adversarial grading
+# ============================================================================
+
+class ScoringAgent:
+    """Independent scoring agent with isolated context window.
+
+    The scorer operates as a separate adversarial auditor — it never sees
+    the generation prompt, task context, or prior attempts. It only sees:
+    1. The rubric criteria and scoring rules
+    2. The content to evaluate
+    3. Calibration instructions to avoid leniency bias
+
+    This is the core fix for the self-leniency problem: when Claude scores
+    its own work in the same context, it grades generously. A fresh context
+    with an adversarial system prompt produces honest scores.
+    """
+
+    SCORER_SYSTEM_PROMPT = """You are an independent quality auditor. Your job is to rigorously evaluate content against a scoring rubric.
+
+CRITICAL RULES:
+1. You are NOT the author of this content. You are an external auditor hired to find problems.
+2. NEVER give benefit of the doubt. If something is ambiguous, score it lower.
+3. A perfect score (100%) should be EXTREMELY rare — it means literally flawless work that a domain expert would praise.
+4. For each sub-attribute, you MUST provide specific evidence from the content justifying your score. "Looks good" is not evidence.
+5. If you cannot find concrete evidence of quality for a criterion, score it at 50% or below.
+6. Actively look for: missing elements, vague claims, unsupported assertions, structural problems, missed edge cases.
+7. Compare against what a TOP EXPERT in this domain would produce, not what is merely acceptable.
+
+SCORING CALIBRATION:
+- 90-100%: Exceptional. Would impress a domain expert. Specific, precise, no gaps.
+- 70-89%: Good but has clear room for improvement. Missing some depth or precision.
+- 50-69%: Adequate but mediocre. Hits the basics, misses nuance.
+- Below 50%: Significant problems. Missing key elements or fundamentally flawed.
+
+ANTI-LENIENCY PROTOCOL:
+Before scoring, identify at least 3 specific weaknesses or gaps in the content. Write them out.
+Then score each criterion. If your scores average above 85%, go back to your weakness list and
+verify you have adequately penalized for each one.
+
+If your initial assessment gives >90% on most criteria, STOP and re-examine with fresh eyes.
+Find at least 2 specific weaknesses before finalizing scores."""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic()  # Fresh client, separate from generator
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Scorer] {msg}")
+
+    def score(self, content: str, rubric, feedback_injector=None) -> dict:
+        """Score content against rubric in an isolated context.
+
+        Args:
+            content: the generated content to evaluate
+            rubric: the Rubric object with criteria
+            feedback_injector: optional FeedbackInjector for scoring calibration
+
+        Returns:
+            dict of criterion_id -> measurements
+        """
+        criteria_specs = format_criteria_for_measurement(rubric.criteria)
+
+        # Select domain-appropriate measurement prompt
+        if rubric.domain == "frontend_design":
+            prompt_template = FRONTEND_MEASUREMENT_PROMPT
+        else:
+            prompt_template = MEASUREMENT_PROMPT
+
+        prompt = prompt_template.format(
+            content=content[:20000],
+            criteria_specs=criteria_specs
+        )
+
+        # Add scoring calibration feedback if available
+        if feedback_injector:
+            criteria_ids = [c.id for c in rubric.criteria]
+            scoring_feedback = feedback_injector.format_for_scoring_prompt(
+                domain=rubric.domain, criteria_ids=criteria_ids
+            )
+            if scoring_feedback:
+                prompt += "\n" + scoring_feedback
+
+        self._log("Scoring content (isolated agent)...")
+
+        # FRESH context window: system prompt + single user message
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=4000,
+            system=self.SCORER_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        raw = response.content[0].text
+
+        # Parse JSON from response
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        if match:
+            raw = match.group(1)
+        raw = raw.strip()
+        try:
+            return json.loads(raw)
+        except Exception:
+            match = re.search(r'\{[\s\S]*\}', raw)
+            if match:
+                try:
+                    return json.loads(match.group())
+                except Exception:
+                    pass
+            self._log("Warning: could not parse scorer response as JSON")
+            return {}
+
+
 class ScoringEngine:
     """Calculates granular scores from measurements."""
 
@@ -2055,6 +2173,23 @@ RULES:
 - Every criterion needs pass_examples and fail_examples (1-2 each)
 - Be specific: "function handles edge cases" is bad. "Function handles empty input, mixed quoting, and trailing delimiters without crash" is good.
 - Criteria should be evaluatable from the output alone — don't require external validation
+
+RUBRIC HARDENING RULES (critical for discriminating quality):
+- At least 2 criteria must use penalty_based scoring with 4+ violations each
+- Every weighted_components criterion must have at least one sub-attribute that tests for SPECIFIC
+  technical accuracy, not just "is it present" but "is it correct and precise"
+- Include at least one "stretch" criterion that tests for expert-level quality (something a junior
+  would miss but a senior expert would catch). This should be worth 6-8 points.
+- Pass conditions must include CONCRETE thresholds: "at least 3 specific examples", "under 200 words",
+  "cites 2+ authoritative sources" — not vague standards like "thorough" or "well-written"
+- Measurements must produce a RANGE of scores, not binary. A measurement like "1.0 if present, 0.0 if
+  absent" is too coarse. Instead: "1.0 if specific + sourced, 0.7 if specific but unsourced, 0.4 if
+  vague, 0.0 if absent"
+- fail_examples should include PLAUSIBLE failures, not obviously terrible ones. Show what "almost good
+  enough but not quite" looks like — this calibrates the scorer.
+- The rubric should be hard enough that a first attempt scores 60-75%, not 90%+. If the task seems
+  easy, add harder criteria testing precision, depth, or expert-level nuance.
+
 - Output ONLY the JSON object, nothing else"""
 
 
@@ -2195,6 +2330,8 @@ class RubricGenerator:
         self.verbose = verbose
         self.learning_integrator = learning_integrator
         self.enable_research = enable_research
+        # Component 5: Independent scoring agent (isolated context)
+        self.scoring_agent = ScoringAgent(model=model, verbose=verbose)
         self.auto_improve_interval = auto_improve_interval
         self.auto_improve_min_uses = auto_improve_min_uses
         self.auto_improve_max_edits = auto_improve_max_edits
@@ -2379,7 +2516,7 @@ class RubricGenerator:
             pass
 
         # Try extracting from markdown fences
-        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
         if match:
             try:
                 return json.loads(match.group(1))
@@ -2387,7 +2524,7 @@ class RubricGenerator:
                 pass
 
         # Try finding the first { ... } block
-        match = re.search(r'\{[\s\S]*\}', text)
+            match = re.search(r'\{[\s\S]*\}', raw)
         if match:
             try:
                 return json.loads(match.group())
@@ -2545,7 +2682,7 @@ class RubricLoop:
         return response.content[0].text
 
     def _extract_json(self, text: str) -> dict:
-        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
         if match:
             text = match.group(1)
         text = text.strip()
@@ -2553,7 +2690,7 @@ class RubricLoop:
         try:
             return json.loads(text)
         except:
-            match = re.search(r'\{[\s\S]*\}', text)
+            match = re.search(r'\{[\s\S]*\}', raw)
             if match:
                 return json.loads(match.group())
             return {}
