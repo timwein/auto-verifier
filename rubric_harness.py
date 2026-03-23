@@ -2266,7 +2266,7 @@ INSTRUCTIONS:
 
 1. DECOMPOSE DEEPLY before writing criteria. For any broad quality dimension, break it into 2-4 atomic sub-criteria. Do NOT write a single criterion called "evidence quality" — instead write separate criteria for: primary source citation, chain of custody, cross-referencing between independent sources, quantitative vs qualitative evidence ratio, statistical significance of findings. Each becomes its own measurable criterion.
 
-2. Generate AS MANY criteria as needed to fully verify the output — not 4-7. Every distinct, verifiable dimension of quality gets its own criterion. A complex analytical task like forensic accounting may need 20+ criteria. Decompose exhaustively: if a broad dimension can be split into 2-4 atomic sub-criteria, split it. More criteria with smaller weights means it's much harder to score 100% across the board. A first attempt that "covers everything at a surface level" should score 55-65%, not 85%.
+2. Generate 8-12 criteria maximum. Focus on DEPTH over breadth — each criterion should test expert-level judgment that requires deep domain knowledge to satisfy. Fewer, harder criteria beat many shallow ones. A first attempt that "covers everything at a surface level" should score 40-50%. Each criterion should require genuine expertise to score well, not just comprehensive coverage.
 
 3. Assign max_points reflecting granularity: most criteria should be 3-5 points. Reserve 6-8 points ONLY for the most critical expert-level criteria. Do NOT use 10-12 point criteria — that makes the rubric too coarse.
 
@@ -2288,7 +2288,7 @@ INSTRUCTIONS:
    - Technical/analytical tasks: 0.75-0.80
    - Creative/writing tasks: 0.70-0.75
 
-8. EXPERT vs JUNIOR DELTA: For every criterion, ask: "Would a junior analyst satisfy this?" If yes, make it harder. Add a sub-attribute that tests for something juniors routinely miss. The rubric should have at least 3 criteria that a confident-but-shallow LLM response will fail.
+8. EXPERT vs JUNIOR DELTA: For every criterion, ask: "Would a junior analyst satisfy this?" If yes, make it harder. Add a sub-attribute that tests for something juniors routinely miss. The rubric should have at least 5 criteria that a confident-but-shallow LLM response will fail. Each criterion must have a pass_condition that requires specific technical knowledge, precise calculations, or domain expertise that cannot be faked with general knowledge.
 
 {examples_section}
 
@@ -2301,7 +2301,7 @@ OUTPUT FORMAT — valid JSON only, no markdown fences:
       "id": "<short_snake_case>",
       "category": "<category>",
       "description": "<what this criterion evaluates — be specific about what expert-level looks like>",
-      "pass_condition": "<concrete threshold: specific counts, named techniques, measurable standards — NOT vague words like 'thorough' or 'comprehensive'>",
+      "pass_condition": "<concrete threshold with NUMBERS: minimum counts (e.g. '3+ sources'), specific percentages (e.g. '80% accuracy'), named techniques (e.g. 'uses Monte Carlo simulation'), measurable standards — NO vague adjectives>",
       "scoring_method": "weighted_components|penalty_based|binary",
       "max_points": <int 3-8>,
       "sub_attributes": [
