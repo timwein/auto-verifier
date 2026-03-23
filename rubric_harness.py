@@ -3799,6 +3799,7 @@ class RubricLoop:
 
         editor = SelfEditor(
             store=self.rubric_store,
+            feedback_store=self.feedback_store,
             verbose=self.verbose,
         )
         return editor.auto_improve(
