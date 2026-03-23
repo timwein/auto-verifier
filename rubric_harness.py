@@ -2196,6 +2196,15 @@ def format_rubric_for_generation(rubric: Rubric) -> str:
         if c.fail_examples:
             lines.append("   FAIL: " + c.fail_examples[0])
 
+        if c.research_basis:
+            basis = c.research_basis[:120]
+            if c.research_basis.startswith("[HALLUCINATED"):
+                lines.append(f"   ⚠ RESEARCH: {basis}")
+            elif c.research_basis.startswith("[Partial"):
+                lines.append(f"   ◐ RESEARCH: {basis}")
+            else:
+                lines.append(f"   ✓ RESEARCH: {basis}")
+
     return "\n".join(lines)
 
 
@@ -2308,7 +2317,8 @@ OUTPUT FORMAT — valid JSON only, no markdown fences:
         ...
       }},
       "pass_examples": ["<specific example showing exactly what passing looks like — quote format, terminology, or structure>"],
-      "fail_examples": ["<plausible near-miss failure — what 'almost good enough but not quite' looks like, not an obviously terrible example>"]
+      "fail_examples": ["<plausible near-miss failure — what 'almost good enough but not quite' looks like, not an obviously terrible example>"],
+      "research_basis": "<REQUIRED: cite the specific research finding, professional standard, or expert practice that grounds this criterion. Format: '[Source/Standard] requires/recommends [specific requirement]'. Example: 'AICPA SSFS No. 1 §4.02 requires forensic accountants to document chain of custody for all evidence.' If no research was provided, state 'No research basis — criterion based on domain knowledge.' Criteria without research grounding will be flagged for review.>"
     }}
   ]
 }}
@@ -2470,7 +2480,8 @@ class RubricGenerator:
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True,
                  learning_integrator: LearningIntegrator = None,
                  enable_research: bool = True,
-                 research_model: str = "claude-sonnet-4-20250514"):
+                 research_model: str = "claude-sonnet-4-20250514",
+                 enable_tracing: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
         self.client = Anthropic()
@@ -2478,9 +2489,12 @@ class RubricGenerator:
         self.verbose = verbose
         self.learning_integrator = learning_integrator
         self.enable_research = enable_research
+        self.enable_tracing = enable_tracing
         # Component 5: Independent scoring agent (isolated context)
         self.scoring_agent = ScoringAgent(model=model, verbose=verbose)
         self.research_model = research_model
+        # Component 6: Research tracer (verifies rubric grounding)
+        self.tracer = ResearchTracer(model=model, verbose=verbose) if enable_tracing else None
 
     def _log(self, msg: str):
         if self.verbose:
@@ -2605,6 +2619,28 @@ class RubricGenerator:
         rubric = self._hydrate(task, spec)
         self._log(f"Generated: {len(rubric.criteria)} criteria, {rubric.total_points} max points, "
                   f"threshold: {rubric.pass_threshold:.0%}")
+
+        # Step 3: Research traceability audit — verify criteria are grounded
+        if self.enable_tracing and self.tracer and research_section:
+            self._log("Running research traceability audit...")
+            trace_result = self.tracer.trace(rubric, research_section)
+
+            # If grounding score is below 70%, patch the rubric
+            if trace_result.grounding_score < 0.70 or trace_result.ungrounded_criteria:
+                self._log(f"Grounding: {trace_result.grounding_score:.0%} — patching rubric")
+                rubric = self.tracer.patch_rubric(rubric, trace_result, research_section)
+                self._log(f"Patched: {len(rubric.criteria)} criteria, {rubric.total_points} max points")
+            else:
+                # Still update research_basis on well-grounded criteria
+                audit_map = {a.criterion_id: a for a in trace_result.criterion_audits}
+                for criterion in rubric.criteria:
+                    audit = audit_map.get(criterion.id)
+                    if audit and audit.research_quote and not criterion.research_basis:
+                        criterion.research_basis = audit.research_quote
+
+            # Store trace result on rubric for downstream use
+            rubric._trace_result = trace_result
+
         return rubric
 
     def _build_seed_section(self, task: str, seed_rubrics: list[Rubric] = None) -> str:
@@ -2695,6 +2731,7 @@ class RubricGenerator:
                 pass_examples=c_spec.get("pass_examples", []),
                 fail_examples=c_spec.get("fail_examples", []),
                 domain=spec.get("domain", "generated"),
+                research_basis=c_spec.get("research_basis", ""),
             )
             criteria.append(criterion)
 
@@ -2753,6 +2790,423 @@ class RubricGenerator:
 
 
 # ============================================================================
+# Research Tracer — verifies rubric criteria are grounded in research
+# ============================================================================
+
+TRACER_PROMPT = """You are a rubric auditor. Your job is to verify that each criterion in a generated rubric is properly grounded in the domain research that was conducted.
+
+DOMAIN RESEARCH (this is what was found via web search):
+{research}
+
+GENERATED RUBRIC CRITERIA:
+{criteria_summary}
+
+For EACH criterion, evaluate:
+
+1. GROUNDING STATUS — one of:
+   - GROUNDED: The criterion directly corresponds to a specific finding, standard, or practice mentioned in the research. Quote the relevant research passage.
+   - PARTIALLY_GROUNDED: The criterion relates to the research domain but isn't directly supported by a specific finding. The connection is inferential.
+   - UNGROUNDED: The criterion has no clear basis in the research. It may be generic quality padding or an LLM assumption.
+   - HALLUCINATED: The criterion cites a specific standard/source that does NOT appear in the research and may be fabricated.
+
+2. RESEARCH GAPS — identify specific findings in the research that are NOT covered by any criterion. These are missed opportunities.
+
+3. PATCH RECOMMENDATIONS — for each UNGROUNDED or HALLUCINATED criterion, suggest either:
+   - REPLACE: with a specific criterion grounded in an unused research finding
+   - STRENGTHEN: add a research_basis citation and adjust the criterion to align with research
+   - REMOVE: if the criterion is pure padding with no value
+
+Output as JSON:
+{{
+  "criterion_audits": [
+    {{
+      "criterion_id": "<id>",
+      "status": "GROUNDED|PARTIALLY_GROUNDED|UNGROUNDED|HALLUCINATED",
+      "research_quote": "<exact quote from research that grounds this, or empty>",
+      "issue": "<what's wrong if not GROUNDED>",
+      "recommendation": "<REPLACE|STRENGTHEN|REMOVE and specific action>"
+    }}
+  ],
+  "uncovered_research_findings": [
+    {{
+      "finding": "<specific research finding not covered by any criterion>",
+      "importance": "high|medium|low",
+      "suggested_criterion_id": "<snake_case_id>",
+      "suggested_description": "<what the criterion should test>"
+    }}
+  ],
+  "overall_grounding_score": <float 0.0-1.0 — fraction of criteria that are GROUNDED or PARTIALLY_GROUNDED>,
+  "summary": "<1-2 sentence assessment>"
+}}"""
+
+
+@dataclass
+class CriterionAudit:
+    """Result of auditing a single criterion against research."""
+    criterion_id: str
+    status: str  # GROUNDED, PARTIALLY_GROUNDED, UNGROUNDED, HALLUCINATED
+    research_quote: str = ""
+    issue: str = ""
+    recommendation: str = ""
+
+
+@dataclass
+class ResearchGap:
+    """A research finding not covered by any criterion."""
+    finding: str
+    importance: str  # high, medium, low
+    suggested_criterion_id: str = ""
+    suggested_description: str = ""
+
+
+@dataclass
+class TraceResult:
+    """Full result of research-to-rubric traceability audit."""
+    criterion_audits: list[CriterionAudit]
+    uncovered_findings: list[ResearchGap]
+    grounding_score: float
+    summary: str
+
+    @property
+    def ungrounded_criteria(self) -> list[CriterionAudit]:
+        return [a for a in self.criterion_audits if a.status in ("UNGROUNDED", "HALLUCINATED")]
+
+    @property
+    def high_priority_gaps(self) -> list[ResearchGap]:
+        return [g for g in self.uncovered_findings if g.importance == "high"]
+
+
+class ResearchTracer:
+    """Verifies that generated rubric criteria are grounded in domain research.
+
+    After the RubricGenerator produces a rubric from research, the tracer:
+    1. Audits each criterion for research provenance (GROUNDED → HALLUCINATED)
+    2. Identifies research findings not covered by any criterion
+    3. Patches the rubric: replaces ungrounded criteria with research-backed ones,
+       adds high-priority missing criteria, and records provenance
+
+    This closes the gap where the generator might ignore research or hallucinate
+    standards that weren't in the research.
+    """
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required")
+        self.client = Anthropic()
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Tracer] {msg}")
+
+    def trace(self, rubric: Rubric, research: str) -> TraceResult:
+        """Audit rubric criteria against the research that generated them.
+
+        Args:
+            rubric: the generated Rubric to audit
+            research: the raw research text from _research_best_practices()
+
+        Returns:
+            TraceResult with per-criterion audits and gap analysis
+        """
+        if not research or not research.strip():
+            self._log("No research to trace against — skipping")
+            return TraceResult(
+                criterion_audits=[],
+                uncovered_findings=[],
+                grounding_score=0.0,
+                summary="No research available for traceability audit"
+            )
+
+        # Build criteria summary for the auditor
+        criteria_lines = []
+        for c in rubric.criteria:
+            line = f"  {c.id}: {c.description}"
+            if c.research_basis:
+                line += f"\n    Research basis (claimed): {c.research_basis}"
+            if c.pass_condition:
+                line += f"\n    Pass condition: {c.pass_condition}"
+            criteria_lines.append(line)
+
+        criteria_summary = "\n".join(criteria_lines)
+
+        prompt = TRACER_PROMPT.format(
+            research=research[:12000],
+            criteria_summary=criteria_summary,
+        )
+
+        self._log(f"Auditing {len(rubric.criteria)} criteria against {len(research)} chars of research...")
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=8000,
+            temperature=0,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        raw = response.content[0].text
+
+        # Parse JSON
+        result_data = self._parse_json(raw)
+        if not result_data:
+            self._log("Warning: could not parse tracer response")
+            return TraceResult(
+                criterion_audits=[],
+                uncovered_findings=[],
+                grounding_score=0.0,
+                summary="Failed to parse tracer audit"
+            )
+
+        # Hydrate into dataclasses
+        audits = []
+        for a in result_data.get("criterion_audits", []):
+            audits.append(CriterionAudit(
+                criterion_id=a.get("criterion_id", ""),
+                status=a.get("status", "UNGROUNDED"),
+                research_quote=a.get("research_quote", ""),
+                issue=a.get("issue", ""),
+                recommendation=a.get("recommendation", ""),
+            ))
+
+        gaps = []
+        for g in result_data.get("uncovered_research_findings", []):
+            gaps.append(ResearchGap(
+                finding=g.get("finding", ""),
+                importance=g.get("importance", "medium"),
+                suggested_criterion_id=g.get("suggested_criterion_id", ""),
+                suggested_description=g.get("suggested_description", ""),
+            ))
+
+        trace_result = TraceResult(
+            criterion_audits=audits,
+            uncovered_findings=gaps,
+            grounding_score=result_data.get("overall_grounding_score", 0.0),
+            summary=result_data.get("summary", ""),
+        )
+
+        # Log results
+        grounded = sum(1 for a in audits if a.status == "GROUNDED")
+        partial = sum(1 for a in audits if a.status == "PARTIALLY_GROUNDED")
+        ungrounded = sum(1 for a in audits if a.status in ("UNGROUNDED", "HALLUCINATED"))
+        self._log(f"Audit: {grounded} grounded, {partial} partial, {ungrounded} ungrounded/hallucinated")
+        self._log(f"Grounding score: {trace_result.grounding_score:.0%}")
+        if trace_result.high_priority_gaps:
+            self._log(f"High-priority research gaps: {len(trace_result.high_priority_gaps)}")
+        self._log(f"Summary: {trace_result.summary}")
+
+        return trace_result
+
+    def patch_rubric(self, rubric: Rubric, trace_result: TraceResult, research: str) -> Rubric:
+        """Patch rubric based on traceability audit results.
+
+        Three actions:
+        1. Update research_basis on grounded criteria (add the actual quote)
+        2. Flag ungrounded criteria by prepending [UNGROUNDED] to their description
+        3. If there are high-priority gaps AND ungrounded criteria, replace the worst
+           ungrounded criteria with new research-backed ones
+
+        Args:
+            rubric: the original rubric
+            trace_result: the audit results
+            research: raw research text for generating replacement criteria
+
+        Returns:
+            Patched rubric (new object, original unchanged)
+        """
+        import copy
+        patched = copy.deepcopy(rubric)
+
+        # Build lookup
+        audit_map = {a.criterion_id: a for a in trace_result.criterion_audits}
+
+        # Step 1: Update research_basis on grounded/partial criteria
+        for criterion in patched.criteria:
+            audit = audit_map.get(criterion.id)
+            if not audit:
+                continue
+
+            if audit.status == "GROUNDED" and audit.research_quote:
+                criterion.research_basis = audit.research_quote
+
+            elif audit.status == "PARTIALLY_GROUNDED" and audit.research_quote:
+                criterion.research_basis = f"[Partial] {audit.research_quote}"
+
+            elif audit.status == "HALLUCINATED":
+                criterion.research_basis = f"[HALLUCINATED — claimed basis not found in research] {criterion.research_basis}"
+                self._log(f"  Flagged hallucinated: {criterion.id}")
+
+        # Step 2: Replace ungrounded criteria with high-priority research gaps
+        ungrounded = [a for a in trace_result.criterion_audits if a.status in ("UNGROUNDED", "HALLUCINATED")]
+        high_gaps = trace_result.high_priority_gaps
+
+        replacements_made = 0
+        max_replacements = min(len(ungrounded), len(high_gaps), 3)  # cap at 3 swaps
+
+        if max_replacements > 0 and high_gaps:
+            self._log(f"  Replacing up to {max_replacements} ungrounded criteria with research-backed ones")
+
+            # Generate replacement criteria via LLM
+            replacement_specs = self._generate_replacements(
+                rubric, ungrounded[:max_replacements], high_gaps[:max_replacements], research
+            )
+
+            if replacement_specs:
+                # Map old criterion IDs to remove
+                ids_to_remove = set()
+                for i, spec in enumerate(replacement_specs):
+                    if i < len(ungrounded):
+                        ids_to_remove.add(ungrounded[i].criterion_id)
+
+                # Remove ungrounded, add replacements
+                patched.criteria = [c for c in patched.criteria if c.id not in ids_to_remove]
+
+                for spec in replacement_specs:
+                    scoring = self._build_basic_scoring(spec)
+                    new_criterion = Criterion(
+                        id=spec.get("id", f"research_gap_{replacements_made}"),
+                        category=spec.get("category", "research_grounded"),
+                        description=spec.get("description", ""),
+                        pass_condition=spec.get("pass_condition", ""),
+                        scoring=scoring,
+                        source="research_tracer",
+                        pass_examples=spec.get("pass_examples", []),
+                        fail_examples=spec.get("fail_examples", []),
+                        domain=rubric.domain,
+                        research_basis=spec.get("research_basis", ""),
+                    )
+                    patched.criteria.append(new_criterion)
+                    replacements_made += 1
+                    self._log(f"  Replaced with: {new_criterion.id} (grounded: {new_criterion.research_basis[:80]}...)")
+
+        # Recalculate total points
+        patched.total_points = sum(c.scoring.max_points for c in patched.criteria)
+
+        # Step 3: Log provenance summary
+        grounded_count = sum(1 for c in patched.criteria if c.research_basis and not c.research_basis.startswith("["))
+        self._log(f"  Final: {grounded_count}/{len(patched.criteria)} criteria have research provenance")
+        self._log(f"  Replacements made: {replacements_made}")
+
+        return patched
+
+    def _generate_replacements(self, rubric, ungrounded_audits, gaps, research) -> list[dict]:
+        """Generate replacement criterion specs for ungrounded criteria."""
+        gap_descriptions = "\n".join(
+            f"  - {g.finding} (importance: {g.importance})"
+            f"\n    Suggested: {g.suggested_description}"
+            for g in gaps
+        )
+
+        prompt = f"""Generate {len(gaps)} replacement rubric criteria to fill these research-backed gaps.
+These criteria replace ungrounded ones that had no basis in domain research.
+
+DOMAIN: {rubric.domain}
+TASK: {rubric.task}
+
+RESEARCH GAPS TO FILL:
+{gap_descriptions}
+
+RESEARCH CONTEXT:
+{research[:6000]}
+
+For each replacement, output a criterion spec matching this format:
+{{
+  "id": "<snake_case>",
+  "category": "<category>",
+  "description": "<what this evaluates>",
+  "pass_condition": "<concrete threshold>",
+  "scoring_method": "weighted_components",
+  "max_points": 4,
+  "sub_attributes": [
+    {{"sub_id": "<id>", "description": "<desc>", "weight": 0.5, "measurement": "<scale>"}}
+  ],
+  "pass_examples": ["<example>"],
+  "fail_examples": ["<example>"],
+  "research_basis": "<exact quote or citation from research>"
+}}
+
+Output a JSON array of criterion specs. Output ONLY the JSON array."""
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4000,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text
+            parsed = self._parse_json(raw)
+            if isinstance(parsed, list):
+                return parsed
+            elif isinstance(parsed, dict) and "criteria" in parsed:
+                return parsed["criteria"]
+            return []
+        except Exception as e:
+            self._log(f"  Replacement generation failed: {e}")
+            return []
+
+    def _build_basic_scoring(self, spec: dict) -> ScoringRubric:
+        """Build a ScoringRubric from a replacement spec."""
+        method_str = spec.get("scoring_method", "weighted_components")
+        method_map = {
+            "weighted_components": ScoringMethod.WEIGHTED_COMPONENTS,
+            "penalty_based": ScoringMethod.PENALTY_BASED,
+            "binary": ScoringMethod.BINARY,
+        }
+        method = method_map.get(method_str, ScoringMethod.WEIGHTED_COMPONENTS)
+        max_points = spec.get("max_points", 4)
+
+        sub_attributes = []
+        if method == ScoringMethod.WEIGHTED_COMPONENTS:
+            for sub in spec.get("sub_attributes", []):
+                sub_attributes.append(SubAttribute(
+                    sub_id=sub["sub_id"],
+                    description=sub.get("description", ""),
+                    weight=sub.get("weight", 0.5),
+                    measurement=sub.get("measurement", ""),
+                ))
+            total_w = sum(s.weight for s in sub_attributes)
+            if sub_attributes and abs(total_w - 1.0) > 0.01:
+                for s in sub_attributes:
+                    s.weight = s.weight / total_w
+
+        penalties = {}
+        if method == ScoringMethod.PENALTY_BASED:
+            penalties = {k: -abs(v) for k, v in spec.get("penalties", {}).items()}
+
+        return ScoringRubric(method=method, max_points=max_points,
+                             sub_attributes=sub_attributes, penalties=penalties)
+
+    def _parse_json(self, text: str) -> dict | list | None:
+        text = text.strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        if match:
+            try:
+                return json.loads(match.group(1))
+            except json.JSONDecodeError:
+                pass
+        # Try array
+        match = re.search(r'\[[\s\S]*\]', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+        # Try object
+        match = re.search(r'\{[\s\S]*\}', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+        return None
+
+
+# ============================================================================
 # Main Harness
 # ============================================================================
 
@@ -2769,9 +3223,9 @@ class RubricLoop:
         repo_path: str = ".",
         enable_self_improve: bool = True,
         enable_research: bool = True,
-        auto_improve_interval: int = 10,
-        auto_improve_min_uses: int = 20,
-        auto_improve_max_edits: int = 2,
+        auto_improve_interval: int = 3,
+        auto_improve_min_uses: int = 10,
+        auto_improve_max_edits: int = 3,
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -3179,7 +3633,8 @@ class RubricLoop:
                 ],
                 scores=[
                     {"criterion_id": cs.criterion_id, "points_earned": cs.points_earned,
-                     "max_points": cs.max_points, "percentage": cs.percentage}
+                     "max_points": cs.max_points, "percentage": cs.percentage,
+                     "passed": cs.percentage >= 0.8}
                     for cs in result.history[-1].criterion_scores
                 ],
                 overall_score=result.final_percentage,
@@ -3269,8 +3724,14 @@ class RubricLoop:
         """Decide whether to trigger automatic self-improvement.
 
         Triggers every N runs (auto_improve_interval), but only if:
-        - At least 10 scored rubrics exist in the store
-        - At least one criterion has enough uses (auto_improve_min_uses)
+        - At least 3 scored rubrics exist in the store
+        - Total criterion evaluations across all runs meet threshold
+
+        Note: with generated rubrics, individual criterion IDs rarely repeat.
+        So we check TOTAL evaluations across all criteria, not per-criterion usage.
+        This means even with unique criterion IDs per run, the system accumulates
+        enough signal from aggregate patterns (e.g., all "methodology" criteria
+        tend to score high, all "precision" criteria tend to score low).
         """
         try:
             if not self.auto_improve_interval:
@@ -3281,21 +3742,22 @@ class RubricLoop:
             insights = learner.get_insights()
 
             total_evals = insights.get("total_evaluations", 0)
-            if total_evals < 10:
+            if total_evals < 3:
                 return False
 
             # Only trigger every Nth run
             if total_evals % self.auto_improve_interval != 0:
                 return False
 
-            # At least one criterion needs enough data points
+            # With generated rubrics, check total criterion data points
+            # rather than per-criterion usage (since IDs don't repeat)
             all_stats = insights.get("all_criteria_stats", [])
-            has_enough_data = any(
-                s.get("times_used", 0) >= self.auto_improve_min_uses
-                for s in all_stats
-            ) if all_stats else False
+            total_criterion_datapoints = sum(
+                s.get("times_used", 0) for s in all_stats
+            ) if all_stats else 0
 
-            return has_enough_data
+            # Need at least min_uses total data points across all criteria
+            return total_criterion_datapoints >= self.auto_improve_min_uses
         except Exception:
             return False
 
@@ -3442,7 +3904,7 @@ async def main():
         verbose=not args.quiet,
         enable_self_improve=not args.no_learn,
         enable_research=not args.no_research,
-        auto_improve_interval=0 if args.no_auto_improve else 10,
+        auto_improve_interval=0 if args.no_auto_improve else 3,
     )
 
     result = await loop.run(

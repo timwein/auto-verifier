@@ -92,6 +92,7 @@ class Criterion:
     pass_examples: list[str] = field(default_factory=list)
     fail_examples: list[str] = field(default_factory=list)
     domain: str = ""
+    research_basis: str = ""  # Research finding that grounds this criterion (e.g., "AICPA SSFS No. 1 requires...")
 
 
 @dataclass
