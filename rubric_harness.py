@@ -1836,6 +1836,7 @@ PERFECT SCORE PROHIBITION:
         response = self.client.messages.create(
             model=self.model,
             max_tokens=16000,
+            temperature=0,
             system=self.SCORER_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -2053,8 +2054,10 @@ STEP 4 — RUBRIC-ECHO DETECTION (before scoring each weighted sub-attribute):
 
 STEP 5 — MANDATORY CALIBRATION CHECK before writing JSON:
   Count: how many weighted_components sub-attributes did you score at 0.75?
-  Target: fewer than 20% of weighted sub-attributes should score 0.75. The rest should be 0.50 or below.
-  If you're above 20%: for each 0.75, write the sentence "This earns 0.75 because the content added [X] beyond rubric guidance." If you can't write it convincingly, downgrade to 0.50.
+  Target: no more than 35% of weighted sub-attributes should score 0.75. The majority should be 0.50 or below.
+  For each 0.75, you must be able to complete this sentence: "This earns 0.75 because the content specifically [X], which goes beyond what the rubric examples indicated."
+  If you can't complete that sentence with specific textual evidence, downgrade to 0.50.
+  If you scored zero sub-attributes at 0.75, re-examine whether any content showed genuine depth — the goal is discrimination, not uniform 0.50s.
 
 REFERENCE CALIBRATION:
 
