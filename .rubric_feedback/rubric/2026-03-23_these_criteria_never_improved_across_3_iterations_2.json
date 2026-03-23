@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_035905_4",
+  "feedback_type": "rubric",
+  "content": "These criteria never improved across 3 iterations and scored <70% \u2014 may be unmeasurable or need clearer measurements: cohort_analysis_completeness, revenue_recognition_compliance, documentation_audit_trail",
+  "task": "Write a due diligence memo evaluating a Series B SaaS company's revenue quality, including cohort analysis, net dollar retention decomposition, and ARR bridge reconciliation.",
+  "domain": "series_b_saas_due_diligence",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "series_b_saas_due_diligence",
+    "scoring"
+  ],
+  "created_at": "2026-03-23T03:59:05.745542",
+  "applied_count": 0,
+  "effectiveness": null
+}

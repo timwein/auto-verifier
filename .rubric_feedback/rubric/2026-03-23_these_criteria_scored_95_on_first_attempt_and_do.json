@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_034047_0",
+  "feedback_type": "rubric",
+  "content": "These criteria scored 95%+ on first attempt and don't discriminate quality \u2014 consider making them harder or removing: regulatory_framework_terminology, cross_functional_integration",
+  "task": "Draft an FDA 510(k) presubmission meeting request for a Class II AI-powered radiology diagnostic device, including predicate device comparison, clinical validation strategy, and software documentation plan.",
+  "domain": "fda_510k_presubmission_ai_radiology",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "scoring",
+    "fda_510k_presubmission_ai_radiology"
+  ],
+  "created_at": "2026-03-23T03:40:47.655373",
+  "applied_count": 0,
+  "effectiveness": null
+}

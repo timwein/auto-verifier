@@ -1,0 +1,53 @@
+[
+  {
+    "proposal": {
+      "target_function": "RUBRIC_GENERATION_PROMPT",
+      "rationale": "The current prompt emphasizes making rubrics 'HARD' and expects 55-65% scores, but this creates overly punitive criteria that even expert responses can't satisfy. The fix is to recalibrate expectations: expert responses should score 75-85%, competent responses 65-75%, and weak responses below 65%. This maintains discrimination while being fair to quality work.",
+      "edits_count": 2,
+      "edits_applied": 2,
+      "performance_data": {
+        "type": "feedback_pattern",
+        "issue": "non_discriminating",
+        "evidence": "3 runs produced criteria scoring 95%+ on first attempt",
+        "examples": [
+          "cross_functional_integration",
+          "metric_calculation_methodology_precision",
+          "revenue_quality_risk_identification",
+          "data_reconciliation_accuracy",
+          "script_safety_fundamentals",
+          "replica_identity_validation",
+          "regulatory_framework_terminology"
+        ]
+      }
+    },
+    "applied_at": "2026-03-23T04:13:22.544394",
+    "dry_run": false
+  },
+  {
+    "proposal": {
+      "target_function": "RUBRIC_GENERATION_PROMPT",
+      "rationale": "The problem is that criteria get stuck <70% because the rubric generation focuses on making things 'hard' but doesn't ensure criteria can actually improve through iteration. The current prompt emphasizes difficulty but lacks mechanisms for progressive improvement. Adding explicit improvement pathways and calibration requirements will help criteria evolve beyond the 70% threshold.",
+      "edits_count": 2,
+      "edits_applied": 1,
+      "performance_data": {
+        "type": "feedback_pattern",
+        "issue": "stuck_criteria",
+        "evidence": "4 runs had criteria that never improved",
+        "examples": [
+          "sequence_migration_handling",
+          "question_precision_scope",
+          "cohort_analysis_completeness",
+          "comprehensive_health_checks",
+          "clinical_validation_rigor",
+          "expand_contract_pattern",
+          "documentation_audit_trail",
+          "lock_management",
+          "logical_replication_configuration",
+          "cutover_coordination"
+        ]
+      }
+    },
+    "applied_at": "2026-03-23T04:13:22.557287",
+    "dry_run": false
+  }
+]

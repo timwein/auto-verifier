@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_034047_1",
+  "feedback_type": "rubric",
+  "content": "These criteria never improved across 3 iterations and scored <70% \u2014 may be unmeasurable or need clearer measurements: question_precision_scope, predicate_device_analysis, clinical_validation_rigor, software_documentation_risk_alignment, iec_62304_compliance_integration, meeting_timing_strategic_positioning, bias_analysis_monitoring_strategy",
+  "task": "Draft an FDA 510(k) presubmission meeting request for a Class II AI-powered radiology diagnostic device, including predicate device comparison, clinical validation strategy, and software documentation plan.",
+  "domain": "fda_510k_presubmission_ai_radiology",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "scoring",
+    "fda_510k_presubmission_ai_radiology"
+  ],
+  "created_at": "2026-03-23T03:40:47.660609",
+  "applied_count": 0,
+  "effectiveness": null
+}

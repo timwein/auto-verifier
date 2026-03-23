@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_034246_0",
+  "feedback_type": "rubric",
+  "content": "These criteria never improved across 3 iterations and scored <70% \u2014 may be unmeasurable or need clearer measurements: replication_lag_monitoring, schema_ddl_handling, data_consistency_validation, automated_rollback_capability, lock_management, dependency_analysis, cutover_coordination, performance_regression_testing, sequence_migration_handling, expand_contract_pattern",
+  "task": "Write a bash script that performs zero-downtime PostgreSQL migration from version 14 to 16 with logical replication, automated rollback, and health checks.",
+  "domain": "postgresql_zero_downtime_migration",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "postgresql_zero_downtime_migration",
+    "scoring"
+  ],
+  "created_at": "2026-03-23T03:42:46.012638",
+  "applied_count": 0,
+  "effectiveness": null
+}
