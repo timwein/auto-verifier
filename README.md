@@ -1,13 +1,32 @@
 # Rubric System
 
-A generation-verification loop for AI quality assurance. Conceptually a GAN where Claude generates output, scores it against structured rubrics, and iterates until quality thresholds are met.
+A generation-verification loop for AI quality assurance. Conceptually a GAN where Claude generates output, scores it against structured rubrics, and iterates until quality thresholds are met — with a self-improvement engine that rewrites its own rubrics based on accumulated learnings.
 
 ## Architecture
 
 ```
-Task → detect_domain() → build_rubric() → [generate → score → checkpoint → iterate] → LoopResult
-                                                ↑                    ↓
-                                          feedback_store ←── human feedback
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Full Pipeline                                      │
+│                                                                              │
+│  Task ──► Deep Research ──► Rubric Generation ──► Gen-Verify Loop ──► Result│
+│            (web_search)      (LLM + seeds +          ↑         ↓            │
+│                               learning context)  generate   score           │
+│                                                      ↑         ↓            │
+│                                               Loop 1: feedback injection    │
+│                                                                              │
+│  ──────────────────────── Learning Loops ───────────────────────────────    │
+│                                                                              │
+│  Loop 1 (within-run)    Feedback store → injected into generation/scoring   │
+│  Loop 2 (checkpoint)    Checkpoint policy learns when to pause from history │
+│  Loop 3 (cross-run)     Criterion effectiveness tracking → RubricGenerator  │
+│                          ↑ LearningIntegrator feeds pass rates / bug rates  │
+│                          ↑ OutcomeTracker closes loop via git/CI signals     │
+│                                                                              │
+│  ──────────────────── Self-Improvement Engine ─────────────────────────── │
+│                                                                              │
+│  SelfEditor: loop 3 insights → Claude proposes code patches → ast.parse()  │
+│              validates → git commits to rubric factories / scoring prompts  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Core loop**: Two separate LLM calls per iteration — one generates content, one scores it against the rubric. Structural separation between generator and discriminator.
@@ -26,12 +45,26 @@ Task → detect_domain() → build_rubric() → [generate → score → checkpoi
 pip install anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
 
-# Run from CLI
-python rubric_claude_code.py "Implement rate limiting middleware"
+# Run from CLI (auto-detects best rubric, runs deep research, learns from history)
+python rubric_harness.py "Implement rate limiting middleware"
 
 # With options
-python rubric_claude_code.py --threshold 0.90 --max-iter 7 "Write a research brief on AI chips"
-python rubric_claude_code.py --file src/auth.ts --task "Add PKCE support" --auto-approve
+python rubric_harness.py --threshold 0.90 --max-iter 7 "Write a research brief on AI chips"
+python rubric_harness.py --file src/auth.ts --context "Add PKCE support" --auto-approve
+
+# Rubric introspection
+python rubric_harness.py --list-rubrics
+python rubric_harness.py --explain "Write a cold outreach email to a CTO"
+
+# Control learning and research
+python rubric_harness.py --no-research "Quick task where speed matters"
+python rubric_harness.py --no-learn "Experimental run — don't track outcomes"
+
+# Self-improvement (dry run to preview proposed code edits)
+python rubric_harness.py --self-improve "any task"
+
+# Self-improvement (apply edits to source files)
+python rubric_harness.py --self-improve-apply "any task"
 ```
 
 ### As a Python Library
@@ -46,6 +79,8 @@ async def main():
         max_iterations=5,
         feedback_dir=".rubric_feedback",
         enable_checkpoints=True,
+        enable_self_improve=True,   # criterion effectiveness tracking + auto-editing
+        enable_research=True,       # deep web research before rubric generation
     )
     result = await loop.run("Write a research brief on AI chip market trends")
 
@@ -59,6 +94,9 @@ async def main():
     # Add feedback for future runs
     loop.add_feedback("scoring", "Too lenient on source freshness",
                       criterion_id="src_freshness")
+
+    # Run self-improvement dry run
+    proposals = loop.self_improve(dry_run=True)
 
 asyncio.run(main())
 ```
@@ -105,11 +143,154 @@ python -m rubric_system.rubric_ci --init
 python -m rubric_system.rubric_ci --base-ref main --output results.md
 ```
 
+## Deep Research
+
+Before generating any rubric, the system performs domain research to ground criteria in real-world professional standards rather than generic LLM intuitions.
+
+**How it works:**
+- Calls Claude with the `web_search` tool (up to 5 searches)
+- Searches for: domain expert quality standards, measurable criteria, common failure modes, non-obvious quality signals specific to the task type
+- Research brief is injected directly into the rubric generation prompt
+- Result: criteria that reflect what practitioners actually care about, not what sounds plausible
+
+**Example searches for "investment memo":**
+> "investment memo quality criteria VC standards", "what makes a good investment memo failure modes", "investment memo measurable benchmarks due diligence"
+
+**Skip for speed:**
+```bash
+python rubric_harness.py --no-research "Quick internal task"
+```
+
+## Rubric Generation
+
+When no matching built-in rubric exists (or the task is novel), `RubricGenerator` creates a bespoke rubric via LLM.
+
+**Pipeline:**
+1. **Deep Research** — web search for domain best practices (see above)
+2. **Seed Examples** — pulls closest-matching rubrics from `RubricRegistry` as few-shot examples
+3. **Learning Context** — `LearningIntegrator` injects criterion effectiveness data from prior runs (pass rates, bug rates, false positive rates)
+4. **LLM Generation** — Claude generates rubric JSON with criteria, scoring methods, weights, and pass conditions
+5. **Hydration** — JSON is parsed and instantiated into canonical `Criterion` + `ScoringRubric` objects
+
+**Default path**: Every run uses `RubricGenerator` unless `--no-generate` is passed. You never need to specify a rubric manually — just give it a task.
+
+```python
+from rubric_harness import RubricGenerator
+
+gen = RubricGenerator(enable_research=True)
+rubric = gen.generate("Audit a Kubernetes RBAC configuration for least-privilege violations")
+# Returns a fully hydrated Rubric with 5–10 measurable Criterion objects
+```
+
+## Task-Level Rubric Resolution
+
+`RubricRegistry` automatically selects the best pre-built rubric for a task using `RubricSignature` scoring. If no signature matches well, generation kicks in.
+
+**Signature scoring:**
+
+| Signal | Score |
+|--------|-------|
+| Keyword match | +1.0 |
+| Anti-keyword match | −2.0 |
+| Task pattern (regex) match | +1.5 |
+| Priority bonus | +0–0.5 |
+
+**12 registered rubrics** (2 domain + 10 sample). Ties broken by priority.
+
+```bash
+# List all registered rubrics
+python rubric_harness.py --list-rubrics
+
+# Explain why a rubric was chosen for a task
+python rubric_harness.py --explain "Write a cold outreach email to a CTO"
+# Output: matched 'cold_outreach_email' (score 4.5) — keywords: [email, outreach, cold]
+#         runner-up: 'investment_memo' (score 0.5)
+```
+
+**Explicit override:**
+```bash
+python rubric_harness.py --rubric knowledge_work_research "Write a report on quantum computing"
+```
+
+## Self-Improvement Engine
+
+The most distinctive capability: the harness rewrites its own source code based on what it learns across runs.
+
+```bash
+# Also available as a standalone command
+python -m rubric_system.self_improve scan|propose|apply|auto|history|revert
+```
+
+### OutcomeTracker
+
+Auto-closes Loop 3 by scanning external signals to determine whether a rubric evaluation was accurate.
+
+**Signal sources:**
+- **Git**: Detects revert commits and hotfix branches within N days of a rubric evaluation — signals a false pass
+- **CI**: Detects test failures on files that previously passed rubric — signals undetected issues
+- **Manual**: `tracker.report_outcome(rubric_id, "bug_found", "Prod incident on auth flow")`
+
+```python
+from rubric_system.self_improve import OutcomeTracker
+from rubric_system.rubric_learning import RubricStore
+
+store = RubricStore()
+tracker = OutcomeTracker(store)
+tracker.scan_git_outcomes(repo_path="/path/to/repo", lookback_days=14)
+tracker.scan_ci_failures(ci_results_dir=".ci_results/")
+```
+
+### LearningIntegrator
+
+Bridges `RubricLearner` criterion effectiveness data into `RubricGenerator` at generation time. Ensures newly generated rubrics avoid repeating criteria that have historically underperformed.
+
+**What it injects:**
+- Criteria with high false positive rates ("always passes even when quality is low")
+- Criteria with high false negative rates ("passes but bugs found later")
+- Criteria that reliably predict good outcomes (reinforce these)
+- Task similarity context from past successful evaluations
+
+```python
+from rubric_system.self_improve import LearningIntegrator
+
+integrator = LearningIntegrator(store, feedback_store)
+context = integrator.build_learning_context(task="Write a Python CSV parser")
+# context is injected into RubricGenerator.generate() automatically
+```
+
+### SelfEditor
+
+The core self-editing capability. Analyzes criterion effectiveness data, calls Claude to propose code patches to rubric factory functions and scoring prompts, validates with `ast.parse()`, and commits.
+
+**What it edits:**
+- Scoring rubric factories (the functions that build `ScoringRubric` objects)
+- Measurement prompts (the LLM instructions used to score each criterion)
+- Generation prompts (the system prompt for `RubricGenerator`)
+
+**Safety:**
+- All proposals validated with `ast.parse()` before applying — syntax errors are rejected
+- Dry run mode (`--self-improve`) previews proposals without touching files
+- Full edit history with revert support
+
+```bash
+# Preview what would be changed
+python rubric_harness.py --self-improve "any task"
+
+# Apply changes
+python rubric_harness.py --self-improve-apply "any task"
+
+# View edit history
+python -m rubric_system.self_improve history
+
+# Revert last edit
+python -m rubric_system.self_improve revert
+```
+
 ## Project Structure
 
 ```
 rubric_system/
-├── rubric_harness.py              # Core loop: RubricLoop, domain detection, rubric builders
+├── rubric_harness.py              # Core loop: RubricLoop, RubricGenerator, domain detection
 ├── rubric_claude_code.py          # Claude Code CLI wrapper + approval workflow
 ├── rubric-loop-skill.md           # Claude Code skill definition
 ├── rubric-loop-harness-spec.md    # Original system spec
@@ -124,7 +305,8 @@ rubric_system/
 │   ├── rubric_learning.py         # SQLite criterion effectiveness tracking
 │   ├── metrics_dashboard.py       # Chart.js metrics dashboard
 │   ├── test_generator.py          # Auto-generate tests from rubric criteria
-│   ├── sample_rubrics.py          # 10 task-specific rubrics
+│   ├── self_improve.py            # Self-improvement engine (OutcomeTracker, LearningIntegrator, SelfEditor)
+│   ├── sample_rubrics.py          # 10 task-specific rubrics with RubricRegistry integration
 │   ├── rubric_library.md          # 8 domain templates (API, Auth, DB, React, etc.)
 │   ├── knowledge_work_rubric.md   # 28-criteria research document rubric
 │   └── frontend_design_rubric.md  # 17-criteria UI design rubric
