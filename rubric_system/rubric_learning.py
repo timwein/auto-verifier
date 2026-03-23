@@ -219,6 +219,11 @@ class RubricStore:
             WHERE criterion_id = ?
         """, (datetime.now().isoformat(), criterion_id))
     
+    def count_rubrics(self) -> int:
+        """Return the total number of scored rubrics in the store."""
+        with sqlite3.connect(self.db_path) as conn:
+            return conn.execute("SELECT COUNT(*) FROM scored_rubrics").fetchone()[0]
+
     def get_criterion_stats(self, min_uses: int = 5) -> list[CriterionStats]:
         """Get statistics for all criteria with minimum usage."""
         with sqlite3.connect(self.db_path) as conn:
@@ -356,7 +361,7 @@ class RubricLearner:
         # Summary stats
         total_rubrics = len(stats)
         high_value_count = len(insights["high_value_criteria"])
-        
+
         insights["summary"] = {
             "total_criteria_tracked": total_rubrics,
             "high_value_criteria": high_value_count,
@@ -366,7 +371,16 @@ class RubricLearner:
                 if stats else 0
             )
         }
-        
+
+        # Add total evaluations and all criteria stats for auto-improve trigger
+        insights["total_evaluations"] = self.store.count_rubrics()
+        all_stats = self.store.get_criterion_stats(min_uses=1)
+        insights["all_criteria_stats"] = [
+            {"criterion_id": s.criterion_id, "times_used": s.times_used,
+             "pass_rate": round(s.pass_rate, 2)}
+            for s in all_stats
+        ]
+
         return insights
     
     def suggest_rubric_for_task(self, task: str) -> dict:

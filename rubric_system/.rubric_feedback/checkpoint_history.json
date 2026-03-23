@@ -1,0 +1,122 @@
+[
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-22T06:00:52.789919"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-22T23:55:29.764610"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T00:04:42.578601"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T00:46:44.399892"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:00:20.993728"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:08:29.356679"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:44:36.490585"
+  },
+  {
+    "checkpoint_type": "first_attempt",
+    "iteration": 1,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:48:30.891085"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:51:36.331564"
+  },
+  {
+    "checkpoint_type": "first_attempt",
+    "iteration": 1,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T01:54:28.087305"
+  },
+  {
+    "checkpoint_type": "rubric_review",
+    "iteration": 0,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T02:39:02.020119"
+  },
+  {
+    "checkpoint_type": "first_attempt",
+    "iteration": 1,
+    "human_action": "continue",
+    "feedback_given": "",
+    "adjustments_made": [],
+    "time_spent_seconds": 0,
+    "was_useful": false,
+    "timestamp": "2026-03-23T02:41:44.259563"
+  }
+]

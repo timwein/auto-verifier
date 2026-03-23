@@ -1,0 +1,18 @@
+{
+  "id": "rubric_20260323_024412_16",
+  "feedback_type": "rubric",
+  "content": "These criteria scored 95%+ on first attempt and don't discriminate quality \u2014 consider making them harder or removing: forensic_data_analytics_technical_execution, professional_skepticism_documentation, evidence_source_reliability_assessment",
+  "task": "Write a forensic accounting memo analyzing suspected revenue manipulation at a mid-market SaaS company. Include journal entry analysis, Benfords Law testing, timeline reconstruction, and quantified financial impact.",
+  "domain": "forensic_accounting_memo",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "evidence",
+    "forensic_accounting_memo",
+    "scoring",
+    "sources"
+  ],
+  "created_at": "2026-03-23T02:44:12.917828",
+  "applied_count": 0,
+  "effectiveness": null
+}

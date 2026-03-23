@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260322_060205_0",
+  "feedback_type": "rubric",
+  "content": "These criteria scored 95%+ on first attempt and don't discriminate quality \u2014 consider making them harder or removing: journal_entry_methodology, benfords_law_application, timeline_reconstruction, financial_impact_quantification, professional_documentation, memo_structure_clarity",
+  "task": "Write a forensic analysis memo identifying revenue recognition fraud at a mid-market SaaS company, including journal entry anomaly detection methodology, Benford's Law application to reported figures, timeline reconstruction of the scheme, and quantification of financial statement impact.",
+  "domain": "forensic_revenue_fraud_analysis",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "forensic_revenue_fraud_analysis",
+    "scoring"
+  ],
+  "created_at": "2026-03-22T06:02:05.730045",
+  "applied_count": 0,
+  "effectiveness": null
+}

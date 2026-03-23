@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_014648_6",
+  "feedback_type": "rubric",
+  "content": "These criteria scored 95%+ on first attempt and don't discriminate quality \u2014 consider making them harder or removing: saas_revenue_recognition_manipulation_techniques, benfords_law_methodology_violations, advanced_analytics_technique_precision, fraud_risk_factor_assessment, comparative_period_variance_decomposition",
+  "task": "Write a forensic accounting memo analyzing suspected revenue manipulation at a mid-market SaaS company. Include journal entry analysis, Benfords Law testing, timeline reconstruction, and quantified financial impact.",
+  "domain": "forensic_accounting_memo",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "forensic_accounting_memo",
+    "scoring"
+  ],
+  "created_at": "2026-03-23T01:46:48.978071",
+  "applied_count": 0,
+  "effectiveness": null
+}

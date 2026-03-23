@@ -1,0 +1,16 @@
+{
+  "id": "rubric_20260323_000549_2",
+  "feedback_type": "rubric",
+  "content": "These criteria scored 95%+ on first attempt and don't discriminate quality \u2014 consider making them harder or removing: revenue_manipulation_detection, analytical_procedures_execution, saas_metrics_forensic_analysis, financial_statement_impact_quantification",
+  "task": "Write a forensic accounting memo analyzing suspected revenue manipulation at a mid-market SaaS company.",
+  "domain": "forensic_accounting_memo",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "forensic_accounting_memo",
+    "scoring"
+  ],
+  "created_at": "2026-03-23T00:05:49.516136",
+  "applied_count": 0,
+  "effectiveness": null
+}

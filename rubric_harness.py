@@ -3177,7 +3177,7 @@ Output a JSON array of criterion specs. Output ONLY the JSON array."""
         return ScoringRubric(method=method, max_points=max_points,
                              sub_attributes=sub_attributes, penalties=penalties)
 
-    def _parse_json(self, text: str) -> dict | list | None:
+    def _parse_json(self, text: str):
         text = text.strip()
         try:
             return json.loads(text)
@@ -3737,20 +3737,21 @@ class RubricLoop:
             if not self.auto_improve_interval:
                 return False
 
-            from rubric_system.rubric_learning import RubricLearner
-            learner = RubricLearner(self.rubric_store)
-            insights = learner.get_insights()
-
-            total_evals = insights.get("total_evaluations", 0)
-            if total_evals < 3:
+            # Use rubric run count for interval trigger (not criterion evals)
+            total_runs = self.rubric_store.count_rubrics()
+            if total_runs < 3:
                 return False
 
             # Only trigger every Nth run
-            if total_evals % self.auto_improve_interval != 0:
+            if total_runs % self.auto_improve_interval != 0:
                 return False
 
             # With generated rubrics, check total criterion data points
             # rather than per-criterion usage (since IDs don't repeat)
+            from rubric_system.rubric_learning import RubricLearner
+            learner = RubricLearner(self.rubric_store)
+            insights = learner.get_insights()
+
             all_stats = insights.get("all_criteria_stats", [])
             total_criterion_datapoints = sum(
                 s.get("times_used", 0) for s in all_stats
@@ -3767,6 +3768,7 @@ class RubricLoop:
         try:
             editor = SelfEditor(
                 store=self.rubric_store,
+                feedback_store=self.feedback_store,
                 verbose=self.verbose,
             )
             proposals = editor.auto_improve(

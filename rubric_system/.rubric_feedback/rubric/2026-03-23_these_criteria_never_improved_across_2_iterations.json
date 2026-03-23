@@ -1,0 +1,17 @@
+{
+  "id": "rubric_20260323_014836_7",
+  "feedback_type": "rubric",
+  "content": "These criteria never improved across 2 iterations and scored <70% \u2014 may be unmeasurable or need clearer measurements: subject_line_effectiveness, email_length_density, market_timing_intelligence, competitive_differentiation_specificity, customer_validation_sophistication, business_model_sophistication",
+  "task": "Write a professional cold outreach email to a Series B SaaS founder about an AI infrastructure investment opportunity",
+  "domain": "series_b_saas_cold_outreach",
+  "criterion_id": "",
+  "sub_attribute_id": "",
+  "tags": [
+    "series_b_saas_cold_outreach",
+    "length",
+    "scoring"
+  ],
+  "created_at": "2026-03-23T01:48:36.252168",
+  "applied_count": 0,
+  "effectiveness": null
+}
