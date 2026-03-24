@@ -1774,6 +1774,31 @@ CALIBRATION:
         self.client = Anthropic()  # Fresh client, separate from generator
         self.model = model
         self.verbose = verbose
+        # Mutable instance copy — updated by adaptive evaluator tuning
+        self._scorer_system_prompt = self.SCORER_SYSTEM_PROMPT
+
+    def inject_plateau_prompt(self) -> None:
+        """Adaptive evaluator tuning: inject meta-prompt when scores plateau.
+
+        Called when consecutive iteration scores are within 2% of each other,
+        indicating the evaluator may be applying criteria too leniently or
+        using checklist items that don't discriminate between attempts.
+        """
+        plateau_injection = (
+            "\n\nADAPTIVE EVALUATOR NOTE: Previous iterations have stalled — scores plateaued "
+            "within 2% across the last two rounds. Before scoring this attempt, apply extra scrutiny:\n"
+            "(1) Are any Stage 1 checklist items ambiguously worded so mediocre content satisfies them?\n"
+            "(2) Is your checklist granular enough to distinguish this attempt from the prior one?\n"
+            "(3) Are you defaulting to 0.50 for everything instead of genuinely testing for 0.75?\n"
+            "(4) For each sub-attribute, quote specific evidence or state 'not found' — no inferences.\n"
+            "Identify what is specifically still missing, not just whether requirements are generally met."
+        )
+        if plateau_injection not in self._scorer_system_prompt:
+            self._scorer_system_prompt = self.SCORER_SYSTEM_PROMPT + plateau_injection
+
+    def reset_system_prompt(self) -> None:
+        """Reset scorer to base system prompt (call when plateau is resolved)."""
+        self._scorer_system_prompt = self.SCORER_SYSTEM_PROMPT
 
     def _log(self, msg: str):
         if self.verbose:
@@ -1819,7 +1844,7 @@ CALIBRATION:
             model=self.model,
             max_tokens=16000,
             temperature=0,
-            system=self.SCORER_SYSTEM_PROMPT,
+            system=self._scorer_system_prompt,
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -1842,6 +1867,176 @@ CALIBRATION:
                 pass
         self._log('Warning: could not parse scorer response as JSON')
         return {}
+
+
+class RubricNegotiationAgent:
+    """Sprint contract agent: reviews a generated rubric and flags ambiguous/untestable criteria.
+
+    Isolated context window — only sees the rubric and task description.
+    Acts as a contract negotiator between rubric generation and the first iteration,
+    ensuring criteria are objective and testable before any generation begins.
+    """
+
+    SYSTEM_PROMPT = """You are a rubric quality auditor. Your job is to review scoring criteria
+before they are used in a generation-evaluation loop and flag any that are:
+
+1. AMBIGUOUS — the pass/fail condition could be interpreted multiple ways
+2. UNTESTABLE — the criterion cannot be objectively verified from the content alone
+3. TOO_BROAD — the criterion covers too many distinct things to score reliably
+4. CIRCULAR — the pass condition essentially restates the description without adding specificity
+
+For each flagged criterion, provide a concrete refinement. Criteria that are clear,
+specific, and objectively testable should be approved without modification.
+
+Return only JSON — no prose outside the JSON block."""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic()
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Negotiator] {msg}")
+
+    def negotiate(self, rubric: "Rubric", task: str) -> tuple["Rubric", list[str]]:
+        """Review rubric criteria, refine ambiguous ones, return updated rubric + flag list."""
+        from dataclasses import replace as dc_replace
+
+        criteria_json = [
+            {
+                "id": c.id,
+                "description": c.description,
+                "pass_condition": c.pass_condition,
+                "scoring_method": c.scoring.method.value,
+                "max_points": c.scoring.max_points,
+            }
+            for c in rubric.criteria
+        ]
+
+        prompt = f"""TASK: {task}
+
+RUBRIC CRITERIA TO REVIEW:
+{json.dumps(criteria_json, indent=2)}
+
+Review each criterion. For criteria that are ambiguous, untestable, too broad, or circular,
+provide a refined version. For criteria that are clear and testable, include them in "approved".
+
+Return JSON in this exact format:
+{{
+  "flags": [
+    {{
+      "criterion_id": "...",
+      "issue": "ambiguous|untestable|too_broad|circular",
+      "explanation": "...",
+      "refined_description": "...",
+      "refined_pass_condition": "..."
+    }}
+  ],
+  "approved": ["criterion_id_1", "criterion_id_2"]
+}}"""
+
+        self._log(f"Reviewing {len(rubric.criteria)} criteria for sprint contract...")
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=4000,
+            system=self.SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text
+
+        result = {}
+        m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        raw_json = m.group(1) if m else raw
+        try:
+            result = json.loads(raw_json.strip())
+        except Exception:
+            m2 = re.search(r'\{[\s\S]*\}', raw)
+            if m2:
+                try:
+                    result = json.loads(m2.group())
+                except Exception:
+                    pass
+
+        flags = result.get("flags", [])
+        if not flags:
+            self._log("All criteria approved — no refinements needed.")
+            return rubric, []
+
+        flag_map = {f["criterion_id"]: f for f in flags}
+        flag_messages = []
+        new_criteria = []
+        for c in rubric.criteria:
+            if c.id in flag_map:
+                f = flag_map[c.id]
+                issue = f.get("issue", "flagged")
+                explanation = f.get("explanation", "")
+                new_c = dc_replace(
+                    c,
+                    description=f.get("refined_description", c.description),
+                    pass_condition=f.get("refined_pass_condition", c.pass_condition),
+                )
+                new_criteria.append(new_c)
+                flag_messages.append(f"[{issue}] {c.id}: {explanation[:80]} → refined")
+                self._log(f"  Refined [{issue}] {c.id}: {explanation[:60]}...")
+            else:
+                new_criteria.append(c)
+
+        self._log(
+            f"Sprint contract: {len(flags)} criteria refined, "
+            f"{len(result.get('approved', []))} approved."
+        )
+        return dc_replace(rubric, criteria=new_criteria), flag_messages
+
+
+class GenerationAgent:
+    """Isolated content generation agent.
+
+    Each call is a fresh, independent context window. The agent receives only:
+    1. The task description
+    2. Rubric criteria (what to optimize for)
+    3. The best prior artifact + score breakdown (from file-based handoff)
+    4. Focus areas for this iteration
+
+    It never sees scorer reasoning, prior scoring history, or the negotiation
+    transcript. This is the GAN-inspired separation: generator and evaluator
+    operate in isolated contexts, preventing self-leniency bias.
+    """
+
+    SYSTEM_PROMPT = """You are a content generation specialist. Your role is to produce
+high-quality content that satisfies specific rubric criteria. You receive:
+- A task description
+- Rubric criteria with pass/fail examples
+- (On iterations 2+) The current best attempt and its score breakdown
+
+Output the complete content only — no meta-commentary, no scoring rationale.
+Produce content that earns high scores on every rubric criterion."""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic()
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Generator] {msg}")
+
+    def generate(self, prompt: str, max_tokens: int = 12000) -> str:
+        """Generate content in an isolated context window."""
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=max_tokens,
+            system=self.SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text
+
+
 class ScoringEngine:
     """Calculates granular scores from measurements."""
 
@@ -3194,6 +3389,8 @@ class RubricLoop:
         auto_improve_interval: int = 3,
         auto_improve_min_uses: int = 10,
         auto_improve_max_edits: int = 3,
+        lean_mode: bool = False,
+        iterations_dir: str = ".rubric_iterations",
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -3239,6 +3436,19 @@ class RubricLoop:
 
         # Component 5: Independent scoring agent (isolated context window)
         self.scoring_agent = ScoringAgent(model=model, verbose=verbose)
+
+        # Component 6: Sprint contract — rubric negotiation agent (isolated context)
+        self.negotiation_agent = RubricNegotiationAgent(model=model, verbose=verbose)
+
+        # Component 7: Generation agent (isolated context — separate from scorer)
+        self.generation_agent = GenerationAgent(model=model, verbose=verbose)
+
+        # Lean mode: strips iteration-aware scaffolding for A/B testing
+        self.lean_mode = lean_mode
+
+        # File-based artifact handoffs: each iteration written to disk for
+        # structured handoff and crash resumability
+        self.iterations_dir = iterations_dir
 
     def _log(self, msg: str):
         if self.verbose:
@@ -3317,6 +3527,81 @@ class RubricLoop:
                     lines.append(f"    - {ss.sub_id}: {ss.raw_value:.0%} (target: 80%)")
         return "\n".join(lines)
 
+    # -------------------------------------------------------------------------
+    # Sprint contract helpers (improvement #1)
+    # -------------------------------------------------------------------------
+
+    def _negotiate_rubric(self, rubric: Rubric, task: str) -> Rubric:
+        """Sprint contract: review generated rubric before the first iteration.
+
+        One extra LLM call — the negotiation agent (isolated context) examines
+        each criterion for ambiguity or untestability and returns a refined rubric.
+        """
+        self._log("\n[Sprint Contract] Reviewing rubric criteria before iteration 1...")
+        refined, flags = self.negotiation_agent.negotiate(rubric, task)
+        if flags:
+            self._log(f"  {len(flags)} criteria refined:")
+            for msg in flags:
+                self._log(f"    {msg}")
+        else:
+            self._log("  All criteria approved — no refinements.")
+        return refined
+
+    # -------------------------------------------------------------------------
+    # File-based artifact handoff helpers (improvements #2 and #3)
+    # -------------------------------------------------------------------------
+
+    def _run_id(self, task: str) -> str:
+        """Stable run ID derived from task hash + UTC timestamp."""
+        import hashlib
+        from datetime import datetime
+        task_hash = hashlib.sha256(task.encode()).hexdigest()[:8]
+        return f"{task_hash}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+
+    def _write_iteration_artifact(self, run_id: str, iteration: Iteration) -> Path:
+        """Serialize an iteration result to a structured JSON artifact.
+
+        Writes to {iterations_dir}/{run_id}/iter_NNN.json.
+        Each artifact contains only what the next iteration needs:
+        content, scores, and focus areas — not the full conversation history.
+        This enables crash resumability and clean context handoffs.
+        """
+        from dataclasses import asdict
+        run_dir = Path(self.iterations_dir) / run_id
+        run_dir.mkdir(parents=True, exist_ok=True)
+        artifact = {
+            "run_id": run_id,
+            "iteration": iteration.number,
+            "content": iteration.attempt,
+            "total_score": iteration.total_score,
+            "max_score": iteration.max_score,
+            "percentage": iteration.percentage,
+            "criterion_scores": [asdict(cs) for cs in iteration.criterion_scores],
+            "focus_areas": iteration.focus_areas,
+        }
+        path = run_dir / f"iter_{iteration.number:03d}.json"
+        path.write_text(json.dumps(artifact, indent=2))
+        return path
+
+    def _load_best_artifact(self, run_id: str) -> dict | None:
+        """Load the best-scoring iteration artifact from disk.
+
+        Used to resume a crashed run or to provide the next iteration with
+        a minimal, structured handoff instead of the full in-memory history.
+        """
+        run_dir = Path(self.iterations_dir) / run_id
+        if not run_dir.exists():
+            return None
+        best: dict | None = None
+        for p in sorted(run_dir.glob("iter_*.json")):
+            try:
+                data = json.loads(p.read_text())
+                if best is None or data["percentage"] > best["percentage"]:
+                    best = data
+            except Exception:
+                pass
+        return best
+
     async def generate_content(
         self,
         rubric: Rubric,
@@ -3348,8 +3633,12 @@ class RubricLoop:
             best = max(history, key=lambda h: h.percentage)
             score_breakdown = self._format_score_breakdown(best.criterion_scores)
 
-            # Iteration-aware strategy guidance (DGM-H insight)
-            if current_iter <= 2:
+            # Iteration-aware strategy guidance (improvement #5: --lean disables this)
+            # In lean mode, skip scaffolding entirely — lets you A/B test whether
+            # the early/mid/late prompting is still necessary with newer models.
+            if self.lean_mode:
+                iteration_guidance = ""
+            elif current_iter <= 2:
                 iteration_guidance = (
                     "ITERATION STRATEGY (early — iterations 1-2): Make fundamental structural improvements. "
                     "Reorganize, add missing sections, establish the framework. Broad changes are appropriate."
@@ -3376,7 +3665,8 @@ class RubricLoop:
                 focus_section=focus_section,
                 iteration_guidance=iteration_guidance,
             )
-            self._log(f"Editing best attempt ({best.percentage:.0%}) [iter {current_iter}/{max_iterations}]...")
+            mode_tag = "[lean]" if self.lean_mode else f"[iter {current_iter}/{max_iterations}]"
+            self._log(f"Editing best attempt ({best.percentage:.0%}) {mode_tag}...")
         else:
             # First iteration: generate from scratch
             history_section = format_history_for_generation(history)
@@ -3394,7 +3684,9 @@ class RubricLoop:
         if context:
             prompt += "\n\nCONTEXT FROM PRIOR WORK:\n---\n" + context + "\n---\n"
 
-        return self._call_claude(prompt, max_tokens=12000)
+        # Route through the isolated GenerationAgent (separate Anthropic client,
+        # separate context window — GAN-inspired agent separation)
+        return self.generation_agent.generate(prompt, max_tokens=12000)
 
     def _handle_checkpoint(self, checkpoint) -> tuple[str, str]:
         """Handle a checkpoint — call callback or default to continue."""
@@ -3463,6 +3755,11 @@ class RubricLoop:
             self._log(f"Rubric: {matched_name} (registry match, {confidence:.0%})")
             self._log(f"  {len(rubric.criteria)} criteria, {rubric.total_points} max points")
 
+        # Sprint contract: review generated rubric before first iteration (improvement #1)
+        # One extra LLM call — negotiation agent (isolated context) flags and refines
+        # ambiguous or untestable criteria before any generation begins.
+        rubric = self._negotiate_rubric(rubric, task)
+
         domain = rubric.domain
 
         # Initialize verification tracker
@@ -3497,6 +3794,10 @@ class RubricLoop:
         consecutive_regressions = 0
         regression_note = ""
 
+        # Generate a stable run ID for file-based artifact handoffs (improvement #3)
+        run_id = self._run_id(task)
+        self._log(f"Run ID: {run_id}")
+
         i = 0
         while self.max_iterations == 0 or i < self.max_iterations:
             i += 1
@@ -3523,6 +3824,21 @@ class RubricLoop:
 
             # Track verification iteration
             self.tracker.start_iteration(i, [f"{f[0]}.{f[1]}" for f in focus_areas])
+
+            # Adaptive evaluator tuning (improvement #4): detect score plateau
+            # across the last two completed iterations and inject a meta-prompt
+            # so the scorer re-examines its checklist rather than rubber-stamping.
+            if len(history) >= 2:
+                prev_delta = abs(history[-1].percentage - history[-2].percentage)
+                if prev_delta <= 0.02:
+                    self._log(
+                        f"  [Adaptive] Plateau detected "
+                        f"({history[-2].percentage:.1%} → {history[-1].percentage:.1%}, "
+                        f"Δ={prev_delta:.1%}) — injecting meta-prompt to evaluator"
+                    )
+                    self.scoring_agent.inject_plateau_prompt()
+                else:
+                    self.scoring_agent.reset_system_prompt()
 
             total, max_total, criterion_scores = await self.score_content(content, rubric)
             percentage = total / max_total if max_total > 0 else 0
@@ -3570,6 +3886,13 @@ class RubricLoop:
                 criterion_scores=criterion_scores,
                 focus_areas=[f"{f[0]}.{f[1]}" for f in focus_areas]
             ))
+
+            # File-based artifact handoff (improvements #2 and #3): write each
+            # iteration to disk so the next iteration reads a clean, structured
+            # artifact rather than accumulating the full in-memory history.
+            # Also makes the harness resumable if it crashes mid-loop.
+            artifact_path = self._write_iteration_artifact(run_id, history[-1])
+            self._log(f"  [Artifact] → {artifact_path}")
 
             # Regression detection: compare current score vs best of prior iterations
             if len(history) > 1:
@@ -3962,6 +4285,9 @@ async def main():
                         help="Disable automatic self-editing (keeps learning active)")
     parser.add_argument("--no-research", action="store_true",
                         help="Skip deep research step during rubric generation")
+    parser.add_argument("--lean", action="store_true",
+                        help="Lean mode: strip iteration-aware scaffolding (early/mid/late strategy) "
+                             "for A/B testing whether that guidance is still necessary with newer models")
 
     args = parser.parse_args()
 
@@ -4023,6 +4349,7 @@ async def main():
         enable_self_improve=not args.no_learn,
         enable_research=not args.no_research,
         auto_improve_interval=0 if args.no_auto_improve else 3,
+        lean_mode=args.lean,
     )
 
     result = await loop.run(
