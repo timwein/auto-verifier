@@ -71,6 +71,7 @@ class CriterionScore:
     methodology: str = ""
     improvement_hints: list[str] = field(default_factory=list)
     priority: int = 1
+    critique: str = ""  # Stage 1 checklist text for this criterion (YES/NO checks with evidence)
 
 
 # ============================================================================

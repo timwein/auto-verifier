@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Rubric Loop Harness - Generation/Verification Loop with Granular Scoring
 
@@ -1931,7 +1932,12 @@ CALIBRATION:
             r'(?:##\s*STAGE\s*1[^\n]*\n)([\s\S]*?)(?:##\s*STAGE\s*2|```json)',
             raw, re.IGNORECASE
         )
-        self._last_checklist = checklist_match.group(1).strip() if checklist_match else ""
+        if checklist_match:
+            self._last_checklist = checklist_match.group(1).strip()
+        else:
+            # Fallback: capture everything before the first JSON code fence
+            json_fence = re.search(r'```(?:json)?\s*\{', raw)
+            self._last_checklist = raw[:json_fence.start()].strip() if json_fence else ""
         if self._last_checklist:
             self._log(f"Captured Stage 1 checklist ({len(self._last_checklist)} chars)")
 
@@ -2477,7 +2483,7 @@ def format_history_for_generation(history: list[Iteration]) -> str:
     for crit_id, ss in all_subs[:5]:
         lines.append(f"  {crit_id}.{ss.sub_id}: {ss.raw_value:.0%} (target: 80%)")
         if ss.evidence:
-            lines.append(f"     Evidence: {ss.evidence[:60]}...")
+            lines.append(f"     Evidence: {ss.evidence}")
 
     for cs in last.criterion_scores:
         for p in cs.penalties_applied[:2]:
@@ -2496,6 +2502,36 @@ def format_focus_for_generation(focus_areas: list[tuple[str, str, float]]) -> st
         lines.append(f"  1. {crit_id}.{sub_id}: {current:.0%} -> 80% (gap: {gap:.0%})")
 
     return "\n".join(lines)
+
+
+def parse_stage1_per_criterion(stage1_text: str, criterion_ids: list[str]) -> dict[str, str]:
+    """Parse Stage 1 checklist text into per-criterion critique blocks.
+
+    The scorer outputs Stage 1 in this format:
+        ### criterion_id
+        Sub-attribute sub_id:
+          - [check]? YES / NO. Evidence: ...
+        ### next_criterion_id
+        ...
+
+    Returns:
+        dict mapping criterion_id -> critique text block
+    """
+    if not stage1_text:
+        return {}
+
+    critiques = {}
+    # Split on ### headers that match known criterion IDs
+    parts = re.split(r'###\s+(\S+)', stage1_text)
+
+    # parts[0] is text before first ###, then alternating: id, text, id, text...
+    for i in range(1, len(parts) - 1, 2):
+        crit_id = parts[i].strip()
+        crit_text = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        if crit_id in criterion_ids:
+            critiques[crit_id] = crit_text
+
+    return critiques
 
 
 # ============================================================================
@@ -3642,6 +3678,13 @@ EVALUATION PRINCIPLES:
             if cs.percentage < 0.8 and cs.sub_scores:
                 for ss in cs.sub_scores:
                     lines.append(f"    - {ss.sub_id}: {ss.raw_value:.0%} (target: 80%)")
+                # Include Stage 1 critique for failing criteria so the generator
+                # knows exactly which checks failed and what evidence was missing
+                critique = getattr(cs, 'critique', '')
+                if critique:
+                    lines.append(f"    SCORER CRITIQUE:")
+                    for critique_line in critique.strip().split('\n'):
+                        lines.append(f"      {critique_line}")
         return "\n".join(lines)
 
 
@@ -4094,18 +4137,24 @@ class RubricLoop:
         """
         measurements = await self.extract_measurements(content, rubric)
 
+        # Capture Stage 1 checklist from the scoring agent for the feedback agent
+        checklist = getattr(self.scoring_agent, '_last_checklist', '')
+
+        # Parse Stage 1 critique into per-criterion blocks
+        criterion_ids = [c.id for c in rubric.criteria]
+        critiques = parse_stage1_per_criterion(checklist, criterion_ids)
+
         criterion_scores = []
         for criterion in rubric.criteria:
             crit_measurements = measurements.get(criterion.id, {})
             violations = crit_measurements.pop("violations", []) if isinstance(crit_measurements, dict) else []
             score = self.engine.score_criterion(criterion, crit_measurements, violations)
+            # Attach per-criterion critique from Stage 1 checklist
+            score.critique = critiques.get(criterion.id, "")
             criterion_scores.append(score)
 
         total = sum(cs.points_earned for cs in criterion_scores)
         max_total = sum(cs.max_points for cs in criterion_scores)
-
-        # Capture Stage 1 checklist from the scoring agent for the feedback agent
-        checklist = getattr(self.scoring_agent, '_last_checklist', '')
 
         return total, max_total, criterion_scores, checklist
 
