@@ -1845,6 +1845,9 @@ CALIBRATION:
         self.verbose = verbose
         # Mutable instance copy — updated by adaptive evaluator tuning
         self._scorer_system_prompt = self.SCORER_SYSTEM_PROMPT
+        # Preserved from last scoring call for FeedbackAgent consumption
+        self._last_raw_response = ""
+        self._last_checklist = ""
 
     def inject_plateau_prompt(self) -> None:
         """Adaptive evaluator tuning: inject meta-prompt when scores plateau.
@@ -1919,13 +1922,27 @@ CALIBRATION:
 
         raw = response.content[0].text
 
-        # Parse JSON from response
-        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        # Preserve the full response — Stage 1 checklist is critical feedback signal
+        self._last_raw_response = raw
+
+        # Extract Stage 1 checklist (everything before the JSON block)
+        # The scorer outputs: ## STAGE 1: CHECKLIST EXTRACTION ... ## STAGE 2: SCORES ... ```json ...```
+        checklist_match = re.search(
+            r'(?:##\s*STAGE\s*1[^\n]*\n)([\s\S]*?)(?:##\s*STAGE\s*2|```json)',
+            raw, re.IGNORECASE
+        )
+        self._last_checklist = checklist_match.group(1).strip() if checklist_match else ""
+        if self._last_checklist:
+            self._log(f"Captured Stage 1 checklist ({len(self._last_checklist)} chars)")
+
+        # Parse JSON scores from response
+        json_text = raw
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', json_text)
         if match:
-            raw = match.group(1)
-        raw = raw.strip()
+            json_text = match.group(1)
+        json_text = json_text.strip()
         try:
-            return json.loads(raw)
+            return json.loads(json_text)
         except Exception:
             pass
         match = re.search(r'\{[\s\S]*\}', raw)
@@ -2405,9 +2422,10 @@ CRITICAL RULES:
 1. DO NOT rewrite sections that already score >= 80%. Copy them VERBATIM.
 2. ONLY rewrite or expand sections corresponding to criteria marked IMPROVE.
 3. Keep the same overall structure, headings, and section ordering.
-4. For each weak criterion, refer to its PASS example and sub-attribute measurements to understand what "good" looks like.
+4. If STRUCTURED FEEDBACK FROM EVALUATOR is provided below, follow its ACTION items precisely — each one tells you exactly what to add or change. This is more specific than the score breakdown above.
 5. Output the COMPLETE improved document — not just the changed parts.
 6. When improving a section, add specificity, quantitative detail, and technical depth — don't just rephrase.
+7. For each fix instruction, make the MINIMUM change needed. Don't rewrite surrounding paragraphs.
 """
 
 
@@ -3628,6 +3646,221 @@ EVALUATION PRINCIPLES:
 
 
 # ============================================================================
+# Independent Feedback Agent — translates scores into actionable diagnostics
+# ============================================================================
+
+class FeedbackAgent:
+    """Independent feedback agent with isolated context window.
+
+    Sits between the ScoringAgent and GenerationAgent. Takes raw scoring
+    output (Stage 1 checklist + numeric scores) and produces structured,
+    actionable feedback the generator can act on.
+
+    The feedback agent never sees:
+    1. The generation prompt or generation strategy
+    2. The scoring agent's calibration rules or system prompt
+    3. The rubric design rationale
+
+    It only receives:
+    1. The Stage 1 checklist (binary YES/NO observations with evidence)
+    2. Numeric scores per criterion/sub-attribute
+    3. The rubric criteria descriptions (what was being measured)
+    4. Prior iteration scores (for trajectory analysis)
+
+    This produces a structured diagnostic that tells the generator exactly:
+    - What specific checks FAILED and what evidence was missing
+    - What the scorer was looking for (the measurement spec)
+    - Concrete instructions for what to add, change, or remove
+    - Which sections to leave alone (passing criteria)
+    """
+
+    FEEDBACK_AGENT_SYSTEM_PROMPT = """You are a feedback translator. Your job is to convert raw scoring data into clear, actionable editing instructions for a content generator.
+
+FEEDBACK PRINCIPLES:
+
+1. SPECIFICITY OVER GENERALITY: Never say "improve the methodology section." Instead say "Add a specific sample size (e.g., 'tested 100% of journal entries over $50K') and define the statistical threshold for flagging anomalies (e.g., 'z-score > 2.5')."
+
+2. QUOTE THE GAP: For each failed check, state what was expected (from the measurement spec) and what was found (from the evidence). Example: "Expected: specific dollar thresholds for materiality. Found: 'material amounts' with no numeric definition."
+
+3. PRESERVE WHAT WORKS: Explicitly list criteria/sub-attributes that scored well and instruct the generator to keep those sections unchanged. Content that scores 0.50+ should not be rewritten.
+
+4. PRIORITIZE BY IMPACT: Order feedback by point value — fixing a 10-point criterion matters more than fixing a 3-point criterion. Lead with the highest-leverage changes.
+
+5. ACTIONABLE INSTRUCTIONS: Every piece of feedback must be an instruction the generator can directly execute. Not "the analysis lacks depth" but "add a paragraph comparing Benford's Law results against the expected digit distribution, with a chi-squared test result."
+
+6. ONE CHANGE PER ITEM: Each feedback item should describe exactly one change. Don't bundle multiple fixes into one instruction.
+
+OUTPUT FORMAT:
+Return a JSON object with this structure:
+{
+  "preserve": ["criterion_id: brief reason to keep"],
+  "fix": [
+    {
+      "criterion_id": "...",
+      "sub_id": "...",
+      "current_score": 0.25,
+      "points_at_stake": 4.5,
+      "what_failed": "specific check that returned NO",
+      "what_was_expected": "what the measurement spec requires",
+      "what_was_found": "what the scorer observed (or 'not found')",
+      "instruction": "exact editing instruction for the generator"
+    }
+  ],
+  "summary": "2-3 sentence overall diagnosis"
+}"""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic()  # Fresh client, isolated from all other agents
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Feedback] {msg}")
+
+    def generate_feedback(
+        self,
+        checklist: str,
+        criterion_scores: list,
+        rubric,
+        iteration_number: int = 1,
+    ) -> dict:
+        """Generate structured feedback from scoring output.
+
+        Args:
+            checklist: the Stage 1 checklist text from ScoringAgent
+            criterion_scores: list of CriterionScore objects
+            rubric: the Rubric object with criteria definitions
+            iteration_number: current iteration (for trajectory context)
+
+        Returns:
+            dict with 'preserve', 'fix', and 'summary' keys
+        """
+        # Build the scoring summary for the feedback agent
+        score_lines = []
+        for cs in sorted(criterion_scores, key=lambda x: x.percentage):
+            status = "PASS" if cs.percentage >= 0.8 else "FAIL"
+            score_lines.append(f"[{status}] {cs.criterion_id}: {cs.points_earned:.1f}/{cs.max_points} ({cs.percentage:.0%})")
+            if cs.sub_scores:
+                for ss in cs.sub_scores:
+                    score_lines.append(f"  - {ss.sub_id}: {ss.raw_value:.0%} (weight: {ss.details.get('weight', '?')})")
+                    if ss.evidence:
+                        score_lines.append(f"    evidence: {ss.evidence[:150]}")
+            if cs.penalties_applied:
+                for p in cs.penalties_applied:
+                    score_lines.append(f"  - PENALTY: {p['violation']} ({p['penalty']} pts)")
+
+        # Build rubric criteria specs for context
+        criteria_lines = []
+        for c in rubric.criteria:
+            criteria_lines.append(f"\n{c.id} ({c.scoring.method.value}, {c.scoring.max_points} pts):")
+            criteria_lines.append(f"  Description: {c.description}")
+            if c.scoring.sub_attributes:
+                for sub in c.scoring.sub_attributes:
+                    criteria_lines.append(f"  - {sub.sub_id} ({sub.weight:.0%}): {sub.measurement[:200]}")
+            if c.scoring.penalties:
+                for v, p in c.scoring.penalties.items():
+                    criteria_lines.append(f"  - penalty: {v} ({p})")
+
+        prompt = f"""Analyze these scoring results and produce structured feedback for a content generator.
+
+ITERATION: {iteration_number}
+
+RUBRIC CRITERIA (what was being measured):
+{"".join(criteria_lines)}
+
+SCORING RESULTS:
+{chr(10).join(score_lines)}
+
+STAGE 1 CHECKLIST (the scorer's binary observations):
+{checklist if checklist else "(No checklist captured — generate feedback from scores and criteria specs only)"}
+
+Generate structured feedback following your system prompt format. Focus on the FAIL criteria — those are where points are being lost. For each failed check, provide a specific, actionable editing instruction."""
+
+        self._log(f"Generating structured feedback (iteration {iteration_number})...")
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=8000,
+            temperature=0,
+            system=self.FEEDBACK_AGENT_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        raw = response.content[0].text
+
+        # Parse JSON from response
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        if match:
+            try:
+                result = json.loads(match.group(1))
+                self._log(f"Generated {len(result.get('fix', []))} fix items, "
+                          f"{len(result.get('preserve', []))} preserve items")
+                return result
+            except json.JSONDecodeError:
+                pass
+
+        match = re.search(r'\{[\s\S]*\}', raw)
+        if match:
+            try:
+                result = json.loads(match.group())
+                self._log(f"Generated {len(result.get('fix', []))} fix items")
+                return result
+            except json.JSONDecodeError:
+                pass
+
+        # Fallback: return the raw text as unstructured feedback
+        self._log("Warning: could not parse feedback as JSON, using raw text")
+        return {"preserve": [], "fix": [], "summary": raw[:2000]}
+
+    def format_for_generator(self, feedback: dict) -> str:
+        """Format structured feedback as text for injection into the generation prompt.
+
+        Converts the JSON feedback into a human-readable format that the
+        GenerationAgent can directly act on.
+        """
+        lines = []
+
+        if feedback.get("summary"):
+            lines.append(f"DIAGNOSIS: {feedback['summary']}")
+            lines.append("")
+
+        # Preserve instructions
+        if feedback.get("preserve"):
+            lines.append("DO NOT CHANGE (these sections are passing):")
+            for item in feedback["preserve"]:
+                lines.append(f"  ✓ {item}")
+            lines.append("")
+
+        # Fix instructions, ordered by points_at_stake
+        fixes = feedback.get("fix", [])
+        if fixes:
+            # Sort by points_at_stake descending
+            fixes_sorted = sorted(fixes, key=lambda f: f.get("points_at_stake", 0), reverse=True)
+            lines.append("REQUIRED FIXES (ordered by point impact):")
+            lines.append("")
+            for i, fix in enumerate(fixes_sorted, 1):
+                crit = fix.get("criterion_id", "?")
+                sub = fix.get("sub_id", "")
+                score = fix.get("current_score", 0)
+                points = fix.get("points_at_stake", 0)
+                lines.append(f"  FIX {i}: {crit}.{sub} (current: {score:.0%}, {points:.1f} pts at stake)")
+                if fix.get("what_failed"):
+                    lines.append(f"    Failed check: {fix['what_failed']}")
+                if fix.get("what_was_expected"):
+                    lines.append(f"    Expected: {fix['what_was_expected']}")
+                if fix.get("what_was_found"):
+                    lines.append(f"    Found: {fix['what_was_found']}")
+                if fix.get("instruction"):
+                    lines.append(f"    → ACTION: {fix['instruction']}")
+                lines.append("")
+
+        return "\n".join(lines)
+
+
+# ============================================================================
 # Main Harness
 # ============================================================================
 
@@ -3705,6 +3938,9 @@ class RubricLoop:
         self.evaluation_agent = EvaluationAgent(
             pass_threshold=pass_threshold, verbose=verbose
         )
+
+        # Component 9: Independent feedback agent (translates scores → actionable diagnostics)
+        self.feedback_agent = FeedbackAgent(model=model, verbose=verbose)
 
         # Lean mode: strips iteration-aware scaffolding for A/B testing
         self.lean_mode = lean_mode
@@ -3850,8 +4086,12 @@ class RubricLoop:
             feedback_injector=self.feedback_injector,
         )
 
-    async def score_content(self, content: str, rubric: Rubric) -> tuple[float, int, list[CriterionScore]]:
-        """Score content against rubric with granular measurements."""
+    async def score_content(self, content: str, rubric: Rubric) -> tuple[float, int, list[CriterionScore], str]:
+        """Score content against rubric with granular measurements.
+
+        Returns:
+            (total_score, max_score, criterion_scores, stage1_checklist)
+        """
         measurements = await self.extract_measurements(content, rubric)
 
         criterion_scores = []
@@ -3864,7 +4104,10 @@ class RubricLoop:
         total = sum(cs.points_earned for cs in criterion_scores)
         max_total = sum(cs.max_points for cs in criterion_scores)
 
-        return total, max_total, criterion_scores
+        # Capture Stage 1 checklist from the scoring agent for the feedback agent
+        checklist = getattr(self.scoring_agent, '_last_checklist', '')
+
+        return total, max_total, criterion_scores, checklist
 
     def _get_focus_areas(self, criterion_scores: list[CriterionScore]) -> list[tuple[str, str, float]]:
         """Delegate to evaluation agent for focus area identification."""
@@ -3958,6 +4201,7 @@ class RubricLoop:
         max_iterations: int = 1,
         regression_note: str = "",
         context: str = None,
+        structured_feedback: str = "",
     ) -> str:
         """Generate content optimized for rubric scores, with feedback injection.
 
@@ -4027,6 +4271,12 @@ class RubricLoop:
 
         if feedback_section:
             prompt += "\n" + feedback_section
+
+        # Inject structured feedback from the FeedbackAgent (iteration 2+)
+        # This is the rich, actionable diagnostic that tells the generator
+        # exactly what failed, what was expected, and how to fix it.
+        if structured_feedback:
+            prompt += "\n\nSTRUCTURED FEEDBACK FROM EVALUATOR:\n" + structured_feedback
 
         if context:
             prompt += "\n\nCONTEXT FROM PRIOR WORK:\n---\n" + context + "\n---\n"
@@ -4143,6 +4393,7 @@ class RubricLoop:
         history = []
         consecutive_regressions = 0
         regression_note = ""
+        last_feedback_text = ""  # Structured feedback from FeedbackAgent for next iteration
 
         # Generate a stable run ID for file-based artifact handoffs (improvement #3)
         run_id = self._run_id(task)
@@ -4170,6 +4421,7 @@ class RubricLoop:
                     current_iter=i, max_iterations=self.max_iterations,
                     regression_note=regression_note,
                     context=context if context else None,
+                    structured_feedback=last_feedback_text,
                 )
 
             # Track verification iteration
@@ -4190,7 +4442,7 @@ class RubricLoop:
                 else:
                     self.scoring_agent.reset_system_prompt()
 
-            total, max_total, criterion_scores = await self.score_content(content, rubric)
+            total, max_total, criterion_scores, checklist = await self.score_content(content, rubric)
             percentage = total / max_total if max_total > 0 else 0
 
             # Record verification steps
@@ -4285,6 +4537,23 @@ class RubricLoop:
                             history=history,
                             improvement_summary=[f"Stopped at {checkpoint.checkpoint_type} checkpoint"]
                         )
+
+            # Generate structured feedback for the next iteration's generator
+            # The FeedbackAgent translates raw scores + Stage 1 checklist into
+            # actionable editing instructions
+            try:
+                structured_feedback = self.feedback_agent.generate_feedback(
+                    checklist=checklist,
+                    criterion_scores=criterion_scores,
+                    rubric=rubric,
+                    iteration_number=i,
+                )
+                last_feedback_text = self.feedback_agent.format_for_generator(structured_feedback)
+                self._log(f"  [Feedback] {len(structured_feedback.get('fix', []))} fixes, "
+                          f"{len(structured_feedback.get('preserve', []))} preserved")
+            except Exception as e:
+                self._log(f"  [Feedback] Generation failed (non-fatal): {e}")
+                last_feedback_text = ""
 
         # Use best iteration, not last (scores can regress)
         best = max(history, key=lambda h: h.percentage)
