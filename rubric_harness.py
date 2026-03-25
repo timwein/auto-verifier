@@ -1722,6 +1722,75 @@ Be thorough. Score each sub-attribute. Output ONLY valid JSON."""
 
 
 # ============================================================================
+# Independent Generation Agent — isolated context window for content creation
+# ============================================================================
+
+class GenerationAgent:
+    """Independent content generation agent with isolated context window.
+
+    The generator operates in its own context — it never sees the scoring
+    agent's system prompt, calibration rules, or measurement methodology.
+    It only receives:
+    1. The task description
+    2. The rubric criteria (what to optimize for)
+    3. Prior iteration feedback (scores and focus areas)
+    4. Learned feedback from the FeedbackInjector
+
+    This isolation prevents the generator from gaming the scorer by
+    mimicking scoring patterns rather than producing genuinely good content.
+    """
+
+    GENERATOR_SYSTEM_PROMPT = """You are a domain expert content generator. Your job is to produce the highest-quality content possible for a given task, guided by a scoring rubric.
+
+GENERATION PRINCIPLES:
+1. SUBSTANCE OVER COMPLIANCE: Don't just address each rubric criterion superficially. Produce content that a domain expert would recognize as genuinely excellent. The rubric guides what to cover, but your expertise determines HOW to cover it.
+
+2. INTERNAL CONSISTENCY: Every claim, number, and reference must be internally consistent. If you cite a figure in the executive summary, it must match the detailed analysis. Cross-reference your own work.
+
+3. PRECISION OVER BREADTH: It's better to cover fewer points with genuine depth than to check every box with surface-level treatment. A scorer will penalize shallow compliance.
+
+4. DOMAIN AUTHENTICITY: Use terminology, frameworks, and methodologies that a real practitioner in this field would use. Generic business language scores poorly.
+
+5. ITERATION AWARENESS: When given feedback from a prior attempt, make TARGETED improvements to weak areas while PRESERVING everything that already scored well. Don't rewrite from scratch — surgically edit."""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic()  # Fresh client, separate from scorer and rubric agents
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Generator] {msg}")
+
+    def generate(
+        self,
+        prompt: str,
+        max_tokens: int = 12000,
+    ) -> str:
+        """Generate content in an isolated context window.
+
+        Args:
+            prompt: the fully-formed generation prompt (task + rubric + feedback)
+            max_tokens: max response length
+
+        Returns:
+            Generated content string
+        """
+        self._log("Generating content (isolated agent)...")
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=max_tokens,
+            system=self.GENERATOR_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        return response.content[0].text
+
+
+# ============================================================================
 # Independent Scoring Agent — isolated context window for adversarial grading
 # ============================================================================
 
@@ -2620,25 +2689,42 @@ NON-OBVIOUS QUALITY SIGNALS: What separates truly excellent work from merely com
 Be concrete and specific. Cite real standards, frameworks, or practices where possible. Avoid generic advice like "be clear" or "be thorough" — instead say exactly what clarity or thoroughness means in this context."""
 
 
-class RubricGenerator:
-    """Generates bespoke rubrics for any task by calling Claude.
+class RubricAgent:
+    """Independent rubric creation agent with isolated context window.
 
-    The generator uses few-shot examples from pre-built rubrics to teach
-    the model what good criteria look like, then produces a task-specific
-    rubric configuration that gets hydrated into canonical Criterion objects.
+    The rubric agent operates in its own context — it never sees the generation
+    agent's output, the scoring agent's measurements, or the evaluation agent's
+    pass/fail decisions. It only receives:
+    1. The task description
+    2. Domain research from web search
+    3. Few-shot seed rubrics from the registry
+    4. Learning context from prior evaluations
 
-    Before generating, it performs deep research using web search to understand
-    what domain experts consider best practices for the task type. This ensures
-    rubrics capture real-world quality standards, not just LLM intuitions.
-
-    Usage:
-        gen = RubricGenerator()
-        rubric = gen.generate("Write a cold email to a VC partner")
-
-        # Or with the RubricLoop:
-        loop = RubricLoop()
-        result = await loop.run("any task here")  # auto-generates rubric
+    This isolation ensures rubric creation is grounded in domain expertise and
+    research, not influenced by generation patterns or scoring heuristics.
     """
+
+    RUBRIC_AGENT_SYSTEM_PROMPT = """You are a rubric architect — a domain expert who designs precise, measurable scoring rubrics for evaluating task outputs.
+
+RUBRIC DESIGN PRINCIPLES:
+
+1. GROUNDED IN RESEARCH: Every criterion must trace back to real-world professional standards, industry best practices, or domain-specific quality frameworks discovered through research. Never invent criteria from generic intuition.
+
+2. MEASURABLE OVER ASPIRATIONAL: Each criterion must have concrete, binary-checkable sub-attributes. "Is thorough" is bad. "Contains at least 3 specific examples with citations" is good. A scorer should be able to evaluate each sub-attribute as YES/NO.
+
+3. DISCRIMINATING POWER: Criteria should separate excellent work from merely adequate work. Avoid criteria that any competent attempt would trivially satisfy (e.g., "has an introduction"). Focus on what distinguishes expert-level output.
+
+4. SCORING METHOD FIT: Choose the scoring method that best matches what you're measuring:
+   - weighted_components: for multi-faceted criteria with independent sub-attributes
+   - penalty_based: for compliance/correctness where violations subtract from a perfect score
+   - binary: for pass/fail requirements with no partial credit
+   - percentage: for coverage/completeness metrics
+   - threshold_tiers: for quality levels (excellent/good/adequate/poor)
+   - count_based: for countable elements (e.g., number of examples, citations)
+
+5. ANTI-GAMING: Write criteria that reward genuine quality, not surface compliance. If a criterion can be satisfied by a formulaic template without real expertise, it needs to be harder.
+
+6. BALANCED WEIGHTING: Allocate points proportional to importance. The most critical quality signals should carry the most weight. No single criterion should dominate unless it genuinely is the primary quality signal."""
 
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True,
                  learning_integrator: LearningIntegrator = None,
@@ -2647,21 +2733,19 @@ class RubricGenerator:
                  enable_tracing: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()
+        self.client = Anthropic()  # Fresh client, separate from generation/scoring/evaluation agents
         self.model = model
         self.verbose = verbose
         self.learning_integrator = learning_integrator
         self.enable_research = enable_research
         self.enable_tracing = enable_tracing
-        # Component 5: Independent scoring agent (isolated context)
-        self.scoring_agent = ScoringAgent(model=model, verbose=verbose)
         self.research_model = research_model
-        # Component 6: Research tracer (verifies rubric grounding)
+        # Research tracer (verifies rubric grounding) — has its own isolated client
         self.tracer = ResearchTracer(model=model, verbose=verbose) if enable_tracing else None
 
     def _log(self, msg: str):
         if self.verbose:
-            print(msg)
+            print(f"[RubricAgent] {msg}" if not msg.startswith("[Rubric") else msg)
 
     def _research_best_practices(self, task: str) -> str:
         """Deep research step: use web search to find what domain experts consider
@@ -2766,9 +2850,11 @@ class RubricGenerator:
         if learning_section:
             prompt += "\n" + learning_section
 
+        self._log("[RubricAgent] Generating rubric (isolated agent)...")
         response = self.client.messages.create(
             model=self.model,
             max_tokens=16000,
+            system=self.RUBRIC_AGENT_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
         raw = response.content[0].text
@@ -3042,7 +3128,7 @@ class TraceResult:
 class ResearchTracer:
     """Verifies that generated rubric criteria are grounded in domain research.
 
-    After the RubricGenerator produces a rubric from research, the tracer:
+    After the RubricAgent produces a rubric from research, the tracer:
     1. Audits each criterion for research provenance (GROUNDED → HALLUCINATED)
     2. Identifies research findings not covered by any criterion
     3. Patches the rubric: replaces ungrounded criteria with research-backed ones,
@@ -3369,6 +3455,178 @@ Output a JSON array of criterion specs. Output ONLY the JSON array."""
         return None
 
 
+# Backward compatibility alias
+RubricGenerator = RubricAgent
+
+
+# ============================================================================
+# Independent Evaluation Agent — isolated context window for pass/fail decisions
+# ============================================================================
+
+class EvaluationAgent:
+    """Independent evaluation agent with isolated context window.
+
+    The evaluator operates as the orchestration brain — it makes pass/fail
+    decisions, detects regressions, identifies focus areas for the next
+    iteration, and decides when to stop. It never sees:
+    1. The generation agent's system prompt or generation strategy
+    2. The scoring agent's calibration rules or measurement methodology
+    3. The rubric agent's research or rubric design rationale
+
+    It only receives:
+    1. Numeric scores and criterion breakdowns from the scorer
+    2. The rubric's pass threshold and structure
+    3. Iteration history (score trajectories, not content)
+
+    This isolation ensures evaluation decisions are based purely on score
+    trajectories and convergence patterns, not influenced by how content
+    was generated or how scores were derived.
+    """
+
+    EVALUATOR_SYSTEM_PROMPT = """You are an evaluation orchestrator. Your role is to analyze score trajectories across iterations and make objective pass/fail decisions.
+
+EVALUATION PRINCIPLES:
+
+1. SCORE TRAJECTORY ANALYSIS: Look at the trend across iterations, not just the latest score. Improving scores indicate the feedback loop is working. Flat or declining scores suggest the generator is stuck.
+
+2. REGRESSION DETECTION: If a score drops more than 5% from the best prior iteration, flag it as a regression. Two consecutive regressions indicate the feedback loop is counterproductive.
+
+3. CONVERGENCE DETECTION: If scores plateau (less than 2% improvement across 2 consecutive iterations), the loop has converged. Further iterations are unlikely to help.
+
+4. FOCUS AREA IDENTIFICATION: Identify the sub-attributes with the largest gap between current score and maximum. These are the highest-leverage improvement targets for the next iteration.
+
+5. HONEST ASSESSMENT: Do not rationalize passing scores that don't meet the threshold. The threshold exists for a reason — content either meets the bar or it doesn't."""
+
+    def __init__(self, pass_threshold: float = 0.85, verbose: bool = True):
+        self.pass_threshold = pass_threshold
+        self.verbose = verbose
+        self.stall_threshold = 2  # iterations without improvement before flagging
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[Evaluator] {msg}")
+
+    def evaluate_iteration(
+        self,
+        iteration_number: int,
+        percentage: float,
+        criterion_scores: list,
+        history: list,
+        first_iter_ceiling: float = 0.90,
+    ) -> dict:
+        """Evaluate a single iteration and return a decision.
+
+        Args:
+            iteration_number: current iteration (1-indexed)
+            percentage: overall score as fraction (0.0-1.0)
+            criterion_scores: list of CriterionScore objects
+            history: list of prior Iteration objects (before this one)
+            first_iter_ceiling: maximum passable score for iteration 1
+
+        Returns:
+            dict with keys:
+                - passed: bool — whether content meets threshold
+                - should_stop: bool — whether to stop iterating (even if not passed)
+                - focus_areas: list of (criterion_id, sub_id, score) tuples
+                - regression: bool — whether this iteration regressed
+                - consecutive_regressions: int — how many in a row
+                - regression_note: str — guidance for next iteration if regressing
+                - convergence: bool — whether the loop has converged
+        """
+        is_first = iteration_number == 1
+        result = {
+            "passed": False,
+            "should_stop": False,
+            "focus_areas": [],
+            "regression": False,
+            "consecutive_regressions": 0,
+            "regression_note": "",
+            "convergence": False,
+        }
+
+        # Determine effective pass threshold
+        effective_pass = self.pass_threshold
+        if is_first:
+            effective_pass = max(self.pass_threshold, first_iter_ceiling)
+            if percentage >= self.pass_threshold:
+                self._log(f"First-iteration score {percentage:.1%} meets base threshold "
+                          f"but ceiling is {first_iter_ceiling:.0%}")
+
+        # Pass check
+        if percentage >= effective_pass:
+            result["passed"] = True
+            self._log(f"PASSED at iteration {iteration_number} ({percentage:.1%})")
+            return result
+
+        # Focus area identification
+        focus = []
+        for cs in criterion_scores:
+            for ss in cs.sub_scores:
+                if ss.raw_value < 0.8:
+                    focus.append((cs.criterion_id, ss.sub_id, ss.raw_value))
+            for p in cs.penalties_applied:
+                focus.append((cs.criterion_id, p["violation"], 0.0))
+        focus.sort(key=lambda x: x[2])
+        result["focus_areas"] = focus[:5]
+
+        # Regression detection
+        if history:
+            best_prev_pct = max(h.percentage for h in history)
+            if percentage < best_prev_pct * 0.95:
+                drop = best_prev_pct - percentage
+                result["regression"] = True
+                self._log(f"Regression: {percentage:.1%} vs best {best_prev_pct:.1%} ({drop:.1%} drop)")
+
+                # Count consecutive regressions from history
+                consecutive = 1
+                for h in reversed(history[1:]):  # skip first, check recent
+                    prev_best = max(hh.percentage for hh in history if hh.number < h.number) if h.number > 1 else 0
+                    if h.percentage < prev_best * 0.95:
+                        consecutive += 1
+                    else:
+                        break
+                result["consecutive_regressions"] = consecutive
+
+                if consecutive >= 2:
+                    result["regression_note"] = (
+                        "Previous edits caused regressions — try a completely different "
+                        "approach to improving these criteria."
+                    )
+
+        # Convergence detection (score plateau)
+        if len(history) >= 2:
+            recent_scores = [h.percentage for h in history[-2:]] + [percentage]
+            max_delta = max(recent_scores) - min(recent_scores)
+            if max_delta < 0.02:
+                result["convergence"] = True
+                self._log(f"Convergence detected: scores plateaued within {max_delta:.1%}")
+
+        return result
+
+    def get_focus_areas(self, criterion_scores: list) -> list:
+        """Identify sub-attributes with biggest improvement potential."""
+        focus = []
+        for cs in criterion_scores:
+            for ss in cs.sub_scores:
+                if ss.raw_value < 0.8:
+                    focus.append((cs.criterion_id, ss.sub_id, ss.raw_value))
+            for p in cs.penalties_applied:
+                focus.append((cs.criterion_id, p["violation"], 0.0))
+        focus.sort(key=lambda x: x[2])
+        return focus[:5]
+
+    def format_score_breakdown(self, criterion_scores: list) -> str:
+        """Format criterion scores as KEEP/IMPROVE breakdown for the edit prompt."""
+        lines = []
+        for cs in sorted(criterion_scores, key=lambda x: x.percentage):
+            status = "KEEP" if cs.percentage >= 0.8 else "IMPROVE"
+            lines.append(f"  [{status}] {cs.criterion_id}: {cs.percentage:.0%}")
+            if cs.percentage < 0.8 and cs.sub_scores:
+                for ss in cs.sub_scores:
+                    lines.append(f"    - {ss.sub_id}: {ss.raw_value:.0%} (target: 80%)")
+        return "\n".join(lines)
+
+
 # ============================================================================
 # Main Harness
 # ============================================================================
@@ -3443,6 +3701,11 @@ class RubricLoop:
         # Component 7: Generation agent (isolated context — separate from scorer)
         self.generation_agent = GenerationAgent(model=model, verbose=verbose)
 
+        # Component 8: Independent evaluation agent (isolated context window)
+        self.evaluation_agent = EvaluationAgent(
+            pass_threshold=pass_threshold, verbose=verbose
+        )
+
         # Lean mode: strips iteration-aware scaffolding for A/B testing
         self.lean_mode = lean_mode
 
@@ -3501,31 +3764,12 @@ class RubricLoop:
         return total, max_total, criterion_scores
 
     def _get_focus_areas(self, criterion_scores: list[CriterionScore]) -> list[tuple[str, str, float]]:
-        """Identify sub-attributes with biggest improvement potential."""
-        focus = []
-
-        for cs in criterion_scores:
-            for ss in cs.sub_scores:
-                if ss.raw_value < 0.8:
-                    focus.append((cs.criterion_id, ss.sub_id, ss.raw_value))
-
-        for cs in criterion_scores:
-            for p in cs.penalties_applied:
-                focus.append((cs.criterion_id, p["violation"], 0.0))
-
-        focus.sort(key=lambda x: x[2])
-        return focus[:5]
+        """Delegate to evaluation agent for focus area identification."""
+        return self.evaluation_agent.get_focus_areas(criterion_scores)
 
     def _format_score_breakdown(self, criterion_scores: list[CriterionScore]) -> str:
-        """Format criterion scores as KEEP/IMPROVE breakdown for the edit prompt."""
-        lines = []
-        for cs in sorted(criterion_scores, key=lambda x: x.percentage):
-            status = "KEEP" if cs.percentage >= 0.8 else "IMPROVE"
-            lines.append(f"  [{status}] {cs.criterion_id}: {cs.percentage:.0%}")
-            if cs.percentage < 0.8 and cs.sub_scores:
-                for ss in cs.sub_scores:
-                    lines.append(f"    - {ss.sub_id}: {ss.raw_value:.0%} (target: 80%)")
-        return "\n".join(lines)
+        """Delegate to evaluation agent for score breakdown formatting."""
+        return self.evaluation_agent.format_score_breakdown(criterion_scores)
 
     # -------------------------------------------------------------------------
     # Sprint contract helpers (improvement #1)
@@ -3740,7 +3984,7 @@ class RubricLoop:
             self._log(f"  {len(rubric.criteria)} criteria, {rubric.total_points} max points")
         elif generate_rubric:
             # Primary path: generate bespoke rubric (with research + learning context)
-            generator = RubricGenerator(
+            generator = RubricAgent(
                 model=self.model, verbose=self.verbose,
                 learning_integrator=self.learning_integrator if self.enable_self_improve else None,
                 enable_research=self.enable_research,
@@ -3843,17 +4087,6 @@ class RubricLoop:
             total, max_total, criterion_scores = await self.score_content(content, rubric)
             percentage = total / max_total if max_total > 0 else 0
 
-            # First-iteration calibration: log a note but trust the scorer
-            # The scorer system prompt already calibrates for first attempts
-            if i == 1:
-                self._log(f"  [Info] First-iteration score: {percentage:.1%}")
-
-            # First-iteration pass: allow passing on iteration 1 if score genuinely
-            # meets threshold. The scorer is already calibrated to give honest
-            # first-attempt scores (65-75% typical), so if it hits 85%+ it earned it.
-            first_iter_ceiling = 0.90  # small buffer over pass_threshold for iter 1
-            is_first_iteration = (i == 1)
-
             # Record verification steps
             self.tracker.add_steps_from_criterion_scores(criterion_scores)
             self.tracker.complete_iteration(total, max_total)
@@ -3867,15 +4100,13 @@ class RubricLoop:
                         if ss.raw_value < 0.8:
                             self._log(f"      - {ss.sub_id}: {ss.raw_value:.0%}")
 
-            # If first iteration scores suspiciously high, log a warning
-            if is_first_iteration and percentage >= self.pass_threshold:
-                if percentage < first_iter_ceiling:
-                    self._log(f"\n⚠ First-iteration ceiling active: {percentage:.1%} meets threshold "
-                              f"but first attempts are capped. Forcing improvement cycle.")
-                    # Find weakest criteria to give the generator focus areas
-                    weakest = sorted(criterion_scores, key=lambda cs: cs.percentage)[:2]
-                    for w in weakest:
-                        self._log(f"   Weakest: {w.criterion_id} ({w.percentage:.0%}) — will focus here next iteration")
+            # Delegate pass/fail decision to isolated evaluation agent
+            eval_result = self.evaluation_agent.evaluate_iteration(
+                iteration_number=i,
+                percentage=percentage,
+                criterion_scores=criterion_scores,
+                history=history,  # history before this iteration
+            )
 
             history.append(Iteration(
                 number=i,
@@ -3894,37 +4125,15 @@ class RubricLoop:
             artifact_path = self._write_iteration_artifact(run_id, history[-1])
             self._log(f"  [Artifact] → {artifact_path}")
 
-            # Regression detection: compare current score vs best of prior iterations
-            if len(history) > 1:
-                best_prev_pct = max(h.percentage for h in history[:-1])
-                if percentage < best_prev_pct * 0.95:
-                    drop = best_prev_pct - percentage
-                    self._log(
-                        f"\n⚠ Regression detected: {percentage:.1%} vs best {best_prev_pct:.1%} "
-                        f"({drop:.1%} drop). Edit made things worse."
-                    )
-                    consecutive_regressions += 1
-                    if consecutive_regressions >= 2:
-                        regression_note = (
-                            "Previous edits caused regressions — try a completely different "
-                            "approach to improving these criteria."
-                        )
-                        self._log(
-                            f"  ⚠ {consecutive_regressions} consecutive regressions. "
-                            f"Flagging for approach change next iteration."
-                        )
-                else:
-                    consecutive_regressions = 0
-                    regression_note = ""
+            # Update regression tracking from evaluation agent
+            if eval_result["regression"]:
+                consecutive_regressions = eval_result["consecutive_regressions"]
+                regression_note = eval_result["regression_note"]
+            else:
+                consecutive_regressions = 0
+                regression_note = ""
 
-            # Apply first-iteration ceiling: don't pass on iteration 1 unless
-            # score exceeds the ceiling (95%), indicating genuinely exceptional output
-            effective_pass = self.pass_threshold
-            if is_first_iteration:
-                effective_pass = max(self.pass_threshold, first_iter_ceiling)
-
-            if percentage >= effective_pass:
-                self._log(f"\nPASSED at iteration {i}! ({percentage:.1%})")
+            if eval_result["passed"]:
                 self.tracker.complete()
                 result = LoopResult(
                     success=True,

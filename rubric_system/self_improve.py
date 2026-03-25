@@ -4,7 +4,7 @@ Self-Improvement Engine — the harness rewrites itself based on accumulated lea
 
 Three capabilities:
 1. OutcomeTracker: Auto-closes Loop 3 by detecting outcomes from CI/git/deployment signals
-2. LearningIntegrator: Feeds RubricLearner insights into RubricGenerator at generation time
+2. LearningIntegrator: Feeds RubricLearner insights into RubricAgent at generation time
 3. SelfEditor: Rewrites scoring rubric factories, measurement prompts, and generation
    prompts in the actual source code based on what the learning system has discovered.
 
@@ -243,7 +243,7 @@ class OutcomeTracker:
 # ============================================================================
 
 class LearningIntegrator:
-    """Bridges RubricLearner insights into the RubricGenerator prompt.
+    """Bridges RubricLearner insights into the RubricAgent prompt.
 
     When generating a new rubric, this class:
     1. Queries RubricLearner for similar past tasks and their effective criteria
