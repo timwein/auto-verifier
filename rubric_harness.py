@@ -25,6 +25,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 
 from rubric_system.models import (
     ScoringMethod,
@@ -1956,30 +1957,58 @@ CALIBRATION:
 
 
 class RubricNegotiationAgent:
-    """Sprint contract agent: reviews a generated rubric and flags ambiguous/untestable criteria.
+    """Sprint contract: two-round negotiation between generator and scorer perspectives.
 
-    Isolated context window — only sees the rubric and task description.
-    Acts as a contract negotiator between rubric generation and the first iteration,
-    ensuring criteria are objective and testable before any generation begins.
+    Round 1 (Generator perspective — isolated context): Reviews the rubric as the
+        content producer. Flags criteria that are ambiguous, untestable, unrealistic,
+        or missing key quality dimensions. Proposes specific rewording, sub-attribute
+        changes, or refined pass conditions.
+
+    Round 2 (Scorer perspective — isolated context): Reviews the generator's flags as
+        the evaluator. Accepts changes that improve testability, rejects changes that
+        weaken rigor, or counter-proposes better refinements.
+
+    Final rubric reflects consensus — accepted and counter-proposed changes are applied;
+    rejected flags are ignored. The exchange is logged for debugging.
     """
 
-    SYSTEM_PROMPT = """You are a rubric quality auditor. Your job is to review scoring criteria
-before they are used in a generation-evaluation loop and flag any that are:
+    GENERATOR_REVIEW_SYSTEM_PROMPT = """You are a content generator in a generation-verification loop. You have been given a scoring rubric that will be used to grade your output.
 
-1. AMBIGUOUS — the pass/fail condition could be interpreted multiple ways
-2. UNTESTABLE — the criterion cannot be objectively verified from the content alone
-3. TOO_BROAD — the criterion covers too many distinct things to score reliably
-4. CIRCULAR — the pass condition essentially restates the description without adding specificity
+Review each criterion from the perspective of someone who will produce the content:
 
-For each flagged criterion, provide a concrete refinement. Criteria that are clear,
-specific, and objectively testable should be approved without modification.
+1. AMBIGUOUS — the pass/fail condition has multiple valid interpretations that could produce different scores for identical content
+2. UNTESTABLE — cannot be objectively verified from the content text alone (requires external data, human judgment, or post-hoc research)
+3. MISSING — an important quality dimension a skilled practitioner would expect is absent from the rubric
+4. UNREALISTIC — asks for something a single LLM generation pass cannot reasonably deliver
+
+For each flagged criterion, propose a concrete change: reword the description, sharpen the pass condition, add or remove sub-attributes, or adjust weights. Be specific — vague objections will be rejected.
+
+Leave criteria that are clear, measurable, and achievable alone.
+
+Return only JSON — no prose outside the JSON block."""
+
+    SCORER_REVIEW_SYSTEM_PROMPT = """You are the evaluator in a generation-verification loop. The content generator has reviewed the rubric and proposed changes to some criteria.
+
+Your role is to protect rubric integrity while allowing valid improvements. For each generator flag, decide:
+
+- "accept" — the objection is valid AND the proposed change makes the criterion more objectively testable
+- "reject" — the criterion is sound as-is; the generator may be avoiding rigorous evaluation
+- "counter" — the direction is right but the proposed wording needs improvement; provide your own refinement
+
+Rules:
+- Accept changes that add specificity and testability
+- Reject changes that weaken or remove evaluation rigor without strong justification
+- Counter when the objection has merit but the proposed change is imprecise
+- Never accept a change that removes a criterion entirely (counter to narrow it instead)
 
 Return only JSON — no prose outside the JSON block."""
 
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()
+        # Separate clients for isolated context windows per agent perspective
+        self.generator_client = Anthropic()
+        self.scorer_client = Anthropic()
         self.model = model
         self.verbose = verbose
 
@@ -1987,8 +2016,30 @@ Return only JSON — no prose outside the JSON block."""
         if self.verbose:
             print(f"[Negotiator] {msg}")
 
+    def _parse_json(self, raw: str) -> dict:
+        """Parse JSON from LLM response, tolerating markdown code fences."""
+        m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
+        text = m.group(1) if m else raw
+        try:
+            return json.loads(text.strip())
+        except Exception:
+            m2 = re.search(r'\{[\s\S]*\}', raw)
+            if m2:
+                try:
+                    return json.loads(m2.group())
+                except Exception:
+                    pass
+        return {}
+
     def negotiate(self, rubric: "Rubric", task: str) -> tuple["Rubric", list[str]]:
-        """Review rubric criteria, refine ambiguous ones, return updated rubric + flag list."""
+        """Two-round sprint contract negotiation.
+
+        Round 1: Generator reviews rubric → proposes flags and changes.
+        Round 2: Scorer reviews flags → accepts, rejects, or counter-proposes.
+        Final:   Apply accepted/countered changes to produce negotiated rubric.
+
+        Returns (negotiated_rubric, flag_messages_for_logging).
+        """
         from dataclasses import replace as dc_replace
 
         criteria_json = [
@@ -1998,83 +2049,156 @@ Return only JSON — no prose outside the JSON block."""
                 "pass_condition": c.pass_condition,
                 "scoring_method": c.scoring.method.value,
                 "max_points": c.scoring.max_points,
+                "sub_attributes": [
+                    {"sub_id": s.sub_id, "description": s.description, "weight": s.weight}
+                    for s in (c.scoring.sub_attributes or [])
+                ],
             }
             for c in rubric.criteria
         ]
 
-        prompt = f"""TASK: {task}
+        # ── Round 1: Generator proposes flags ────────────────────────────────
+        self._log(f"Round 1 — Generator reviewing {len(rubric.criteria)} criteria...")
 
-RUBRIC CRITERIA TO REVIEW:
+        gen_prompt = f"""TASK: {task}
+
+RUBRIC CRITERIA:
 {json.dumps(criteria_json, indent=2)}
 
-Review each criterion. For criteria that are ambiguous, untestable, too broad, or circular,
-provide a refined version. For criteria that are clear and testable, include them in "approved".
+Review each criterion from the producer's perspective. Flag only criteria with real problems.
 
 Return JSON in this exact format:
 {{
   "flags": [
     {{
       "criterion_id": "...",
-      "issue": "ambiguous|untestable|too_broad|circular",
+      "issue": "ambiguous|untestable|missing|unrealistic",
       "explanation": "...",
-      "refined_description": "...",
-      "refined_pass_condition": "..."
+      "proposed_description": "...",
+      "proposed_pass_condition": "..."
     }}
   ],
-  "approved": ["criterion_id_1", "criterion_id_2"]
+  "no_issues": ["criterion_id_1", ...]
 }}"""
 
-        self._log(f"Reviewing {len(rubric.criteria)} criteria for sprint contract...")
-
-        response = self.client.messages.create(
+        gen_response = self.generator_client.messages.create(
             model=self.model,
             max_tokens=4000,
-            system=self.SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt}],
+            system=self.GENERATOR_REVIEW_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": gen_prompt}],
         )
-        raw = response.content[0].text
+        gen_raw = gen_response.content[0].text
+        self._log(f"  Generator response: {len(gen_raw)} chars")
 
-        result = {}
-        m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
-        raw_json = m.group(1) if m else raw
-        try:
-            result = json.loads(raw_json.strip())
-        except Exception:
-            m2 = re.search(r'\{[\s\S]*\}', raw)
-            if m2:
-                try:
-                    result = json.loads(m2.group())
-                except Exception:
-                    pass
+        gen_result = self._parse_json(gen_raw)
+        gen_flags = gen_result.get("flags", [])
 
-        flags = result.get("flags", [])
-        if not flags:
-            self._log("All criteria approved — no refinements needed.")
+        if not gen_flags:
+            self._log("  Generator: no objections — rubric accepted as-is.")
             return rubric, []
 
-        flag_map = {f["criterion_id"]: f for f in flags}
+        self._log(f"  Generator flagged {len(gen_flags)} criteria:")
+        for f in gen_flags:
+            self._log(
+                f"    [{f.get('issue', '?')}] {f.get('criterion_id', '?')}: "
+                f"{f.get('explanation', '')[:70]}"
+            )
+
+        # ── Round 2: Scorer reviews flags ────────────────────────────────────
+        self._log("Round 2 — Scorer reviewing generator's flags...")
+
+        scorer_prompt = f"""TASK: {task}
+
+ORIGINAL RUBRIC:
+{json.dumps(criteria_json, indent=2)}
+
+GENERATOR FLAGS:
+{json.dumps(gen_flags, indent=2)}
+
+Evaluate each flag. For each flagged criterion_id decide: accept, reject, or counter.
+
+Return JSON in this exact format:
+{{
+  "decisions": [
+    {{
+      "criterion_id": "...",
+      "decision": "accept|reject|counter",
+      "reason": "...",
+      "final_description": "...",
+      "final_pass_condition": "..."
+    }}
+  ]
+}}"""
+
+        scorer_response = self.scorer_client.messages.create(
+            model=self.model,
+            max_tokens=4000,
+            system=self.SCORER_REVIEW_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": scorer_prompt}],
+        )
+        scorer_raw = scorer_response.content[0].text
+        self._log(f"  Scorer response: {len(scorer_raw)} chars")
+
+        scorer_result = self._parse_json(scorer_raw)
+        decisions = scorer_result.get("decisions", [])
+
+        # ── Apply decisions to produce negotiated rubric ──────────────────────
+        decision_map = {d["criterion_id"]: d for d in decisions}
+        flag_map = {f["criterion_id"]: f for f in gen_flags}
         flag_messages = []
         new_criteria = []
+        accepted = rejected = countered = 0
+
         for c in rubric.criteria:
-            if c.id in flag_map:
-                f = flag_map[c.id]
-                issue = f.get("issue", "flagged")
-                explanation = f.get("explanation", "")
+            d = decision_map.get(c.id)
+            if d is None:
+                new_criteria.append(c)
+                continue
+
+            verdict = d.get("decision", "reject")
+            reason = d.get("reason", "")[:70]
+            gen_flag = flag_map.get(c.id, {})
+
+            if verdict == "accept":
                 new_c = dc_replace(
                     c,
-                    description=f.get("refined_description", c.description),
-                    pass_condition=f.get("refined_pass_condition", c.pass_condition),
+                    description=(
+                        d.get("final_description")
+                        or gen_flag.get("proposed_description", c.description)
+                    ),
+                    pass_condition=(
+                        d.get("final_pass_condition")
+                        or gen_flag.get("proposed_pass_condition", c.pass_condition)
+                    ),
                 )
                 new_criteria.append(new_c)
-                flag_messages.append(f"[{issue}] {c.id}: {explanation[:80]} → refined")
-                self._log(f"  Refined [{issue}] {c.id}: {explanation[:60]}...")
-            else:
+                flag_messages.append(f"[accepted]  {c.id}: {reason}")
+                self._log(f"    ✓ accepted  {c.id}: {reason}")
+                accepted += 1
+            elif verdict == "counter":
+                new_c = dc_replace(
+                    c,
+                    description=d.get("final_description", c.description),
+                    pass_condition=d.get("final_pass_condition", c.pass_condition),
+                )
+                new_criteria.append(new_c)
+                flag_messages.append(f"[countered] {c.id}: {reason}")
+                self._log(f"    ↔ countered {c.id}: {reason}")
+                countered += 1
+            else:  # reject
                 new_criteria.append(c)
+                flag_messages.append(f"[rejected]  {c.id}: {reason}")
+                self._log(f"    ✗ rejected  {c.id}: {reason}")
+                rejected += 1
 
         self._log(
-            f"Sprint contract: {len(flags)} criteria refined, "
-            f"{len(result.get('approved', []))} approved."
+            f"Sprint contract complete: {accepted} accepted, "
+            f"{countered} countered, {rejected} rejected."
         )
+
+        if accepted == 0 and countered == 0:
+            return rubric, flag_messages
+
         return dc_replace(rubric, criteria=new_criteria), flag_messages
 
 
@@ -3882,6 +4006,7 @@ class RubricLoop:
         auto_improve_max_edits: int = 3,
         lean_mode: bool = False,
         iterations_dir: str = ".rubric_iterations",
+        skip_negotiation: bool = False,
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -3944,6 +4069,9 @@ class RubricLoop:
 
         # Lean mode: strips iteration-aware scaffolding for A/B testing
         self.lean_mode = lean_mode
+
+        # Sprint contract: skip negotiation step when flag is set
+        self.skip_negotiation = skip_negotiation
 
         # File-based artifact handoffs: each iteration written to disk for
         # structured handoff and crash resumability
@@ -4122,19 +4250,24 @@ class RubricLoop:
     # -------------------------------------------------------------------------
 
     def _negotiate_rubric(self, rubric: Rubric, task: str) -> Rubric:
-        """Sprint contract: review generated rubric before the first iteration.
+        """Sprint contract: two-round generator/scorer negotiation before iteration 1.
 
-        One extra LLM call — the negotiation agent (isolated context) examines
-        each criterion for ambiguity or untestability and returns a refined rubric.
+        Generator reviews the rubric from the producer's perspective and proposes
+        changes; scorer reviews each proposal and accepts, rejects, or counter-proposes.
+        Skipped when self.skip_negotiation is True.
         """
-        self._log("\n[Sprint Contract] Reviewing rubric criteria before iteration 1...")
+        if self.skip_negotiation:
+            self._log("\n[Sprint Contract] Skipped (--skip-negotiation).")
+            return rubric
+
+        self._log("\n[Sprint Contract] Starting rubric negotiation (generator → scorer)...")
         refined, flags = self.negotiation_agent.negotiate(rubric, task)
         if flags:
-            self._log(f"  {len(flags)} criteria refined:")
+            self._log(f"  Negotiation log ({len(flags)} flags):")
             for msg in flags:
                 self._log(f"    {msg}")
         else:
-            self._log("  All criteria approved — no refinements.")
+            self._log("  No flags raised — rubric accepted as-is.")
         return refined
 
     # -------------------------------------------------------------------------
@@ -4173,7 +4306,7 @@ class RubricLoop:
         path.write_text(json.dumps(artifact, indent=2))
         return path
 
-    def _load_best_artifact(self, run_id: str) -> dict | None:
+    def _load_best_artifact(self, run_id: str) -> Optional[dict]:
         """Load the best-scoring iteration artifact from disk.
 
         Used to resume a crashed run or to provide the next iteration with
@@ -4182,7 +4315,7 @@ class RubricLoop:
         run_dir = Path(self.iterations_dir) / run_id
         if not run_dir.exists():
             return None
-        best: dict | None = None
+        best: Optional[dict] = None
         for p in sorted(run_dir.glob("iter_*.json")):
             try:
                 data = json.loads(p.read_text())
@@ -4877,6 +5010,8 @@ async def main():
     parser.add_argument("--lean", action="store_true",
                         help="Lean mode: strip iteration-aware scaffolding (early/mid/late strategy) "
                              "for A/B testing whether that guidance is still necessary with newer models")
+    parser.add_argument("--skip-negotiation", action="store_true",
+                        help="Skip the sprint contract negotiation step (generator/scorer rubric review)")
 
     args = parser.parse_args()
 
@@ -4939,6 +5074,7 @@ async def main():
         enable_research=not args.no_research,
         auto_improve_interval=0 if args.no_auto_improve else 3,
         lean_mode=args.lean,
+        skip_negotiation=args.skip_negotiation,
     )
 
     result = await loop.run(
