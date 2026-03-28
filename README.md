@@ -6,7 +6,7 @@ A generation-verification loop harness. GAN-inspired: Claude generates output, s
 
 ```
 Task ──► Web Research ──► RubricAgent ──► Negotiation ──► Gen-Verify Loop ──► Result
-          (5 searches)    (isolated ctx)   (isolated ctx)     ↑           ↓
+          (web research)  (isolated ctx)   (isolated ctx)     ↑           ↓
                                                            generate     score
                                                         [Generator]  [ScoringAgent]
                                                               ↑           ↓
@@ -32,7 +32,7 @@ The GAN-inspired separation between generator and evaluator is the core fix for 
 
 ## Key Features
 
-**Web-research-grounded rubric generation** — Before generating any rubric, the system calls Claude with `web_search` (up to 5 queries) to ground criteria in real professional standards, not generic LLM intuitions. Each criterion is traced back to the research via `ResearchTracer`; ungrounded criteria are patched or removed.
+**Web-research-grounded rubric generation** — Before generating any rubric, the system calls Claude with `web_search` (uncapped — the model searches as much as needed) to ground criteria in real professional standards, not generic LLM intuitions. Each criterion is traced back to the research via `ResearchTracer`; ungrounded criteria are patched or removed.
 
 **8–12 criteria per rubric, 6 scoring methods** — `BINARY`, `PERCENTAGE`, `WEIGHTED_COMPONENTS`, `PENALTY_BASED`, `THRESHOLD_TIERS`, `COUNT_BASED`. Sub-attribute decomposition gives fine-grained per-dimension measurement.
 
