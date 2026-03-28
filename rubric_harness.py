@@ -4195,6 +4195,7 @@ class RubricLoop:
         auto_improve_max_edits: int = 3,
         lean_mode: bool = False,
         iterations_dir: str = ".rubric_iterations",
+        use_deterministic: bool = True,
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -4257,6 +4258,15 @@ class RubricLoop:
 
         # Lean mode: strips iteration-aware scaffolding for A/B testing
         self.lean_mode = lean_mode
+
+        # Component 10: Deterministic verifier (zero-LLM scoring for objectively
+        # checkable criteria: word count, format, code syntax, section presence)
+        self.use_deterministic = use_deterministic
+        if use_deterministic:
+            from rubric_system.deterministic_verifier import DeterministicVerifier
+            self.det_verifier = DeterministicVerifier()
+        else:
+            self.det_verifier = None
 
         # File-based artifact handoffs: each iteration written to disk for
         # structured handoff and crash resumability
@@ -4415,13 +4425,38 @@ class RubricLoop:
         critiques = parse_stage1_per_criterion(checklist, criterion_ids)
 
         criterion_scores = []
+        det_count = 0
+        llm_count = 0
+
         for criterion in rubric.criteria:
+            # Try deterministic verification first (skips LLM scorer for exact checks)
+            if self.use_deterministic and self.det_verifier is not None:
+                det_score = self.det_verifier.verify_criterion(criterion, content)
+                if det_score is not None:
+                    det_score.critique = critiques.get(criterion.id, "")
+                    criterion_scores.append(det_score)
+                    det_count += 1
+                    self._log(
+                        f"  [det] {criterion.id}: "
+                        f"{det_score.points_earned}/{det_score.max_points} — "
+                        f"{det_score.evidence}"
+                    )
+                    continue
+
+            # Fall through to LLM-based scorer
             crit_measurements = measurements.get(criterion.id, {})
             violations = crit_measurements.pop("violations", []) if isinstance(crit_measurements, dict) else []
             score = self.engine.score_criterion(criterion, crit_measurements, violations)
             # Attach per-criterion critique from Stage 1 checklist
             score.critique = critiques.get(criterion.id, "")
             criterion_scores.append(score)
+            llm_count += 1
+
+        if det_count > 0:
+            self._log(
+                f"  Scoring breakdown: {det_count} deterministic, "
+                f"{llm_count} LLM-scored"
+            )
 
         total = sum(cs.points_earned for cs in criterion_scores)
         max_total = sum(cs.max_points for cs in criterion_scores)
@@ -5494,6 +5529,8 @@ async def main():
                         help="Disable ACON paired trajectory collection (on by default)")
     parser.add_argument("--paired-iteration", type=int, default=2,
                         help="Which iteration to run paired paths on (default: 2)")
+    parser.add_argument("--no-deterministic", action="store_true",
+                        help="Disable deterministic verification; use LLM scoring for all criteria")
     parser.add_argument("--resume", metavar="RUN_ID",
                         help="Resume a previous (possibly crashed) run from its last saved checkpoint. "
                              "Provide the run ID printed at the start of the original run "
@@ -5561,6 +5598,7 @@ async def main():
         enable_research=not args.no_research,
         auto_improve_interval=0 if args.no_auto_improve else 3,
         lean_mode=args.lean,
+        use_deterministic=not args.no_deterministic,
     )
 
     result = await loop.run(
