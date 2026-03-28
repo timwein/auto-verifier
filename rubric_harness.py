@@ -5491,6 +5491,10 @@ async def main():
     parser.add_argument("--lean", action="store_true",
                         help="Lean mode: strip iteration-aware scaffolding (early/mid/late strategy) "
                              "for A/B testing whether that guidance is still necessary with newer models")
+    parser.add_argument("--no-paired-trajectories", action="store_true",
+                        help="Disable ACON paired trajectory collection (on by default)")
+    parser.add_argument("--paired-iteration", type=int, default=2,
+                        help="Which iteration to run paired paths on (default: 2)")
     parser.add_argument("--resume", metavar="RUN_ID",
                         help="Resume a previous (possibly crashed) run from its last saved checkpoint. "
                              "Provide the run ID printed at the start of the original run "
@@ -5567,6 +5571,23 @@ async def main():
         seed_content=seed_content,
         resume_run_id=args.resume,
     )
+
+    # ACON paired trajectories (runs automatically after every main loop)
+    if not getattr(args, 'no_paired_trajectories', False) and result.history:
+        from rubric_system.acon_trajectory import PairedTrajectoryCollector
+        collector = PairedTrajectoryCollector(
+            paired_iteration=args.paired_iteration,
+            verbose=not args.quiet,
+        )
+        await collector.collect(
+            task=args.task,
+            domain=result.rubric.domain,
+            rubric=result.rubric,
+            history=result.history,
+            generate_fn=loop.generate_content,
+            score_fn=loop.score_content,
+            max_iterations=args.max_iter,
+        )
 
     # Self-improvement cycle
     if args.self_improve or args.self_improve_apply:
