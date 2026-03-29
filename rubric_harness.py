@@ -2645,6 +2645,8 @@ SCORING BREAKDOWN (KEEP = already passing, IMPROVE = needs work):
 
 {focus_section}
 
+{protected_section}
+
 {iteration_guidance}
 
 CRITICAL RULES:
@@ -4616,6 +4618,18 @@ Return a JSON object with this structure:
         Returns:
             dict with 'preserve', 'fix', and 'summary' keys
         """
+        # Deterministically classify criteria by score threshold
+        protected_criteria = [
+            (cs.criterion_id, cs.percentage)
+            for cs in criterion_scores
+            if cs.percentage >= 0.75
+        ]
+        improvement_targets = [
+            (cs.criterion_id, cs.percentage)
+            for cs in criterion_scores
+            if cs.percentage < 0.75
+        ]
+
         # Build the scoring summary for the feedback agent
         score_lines = []
         for cs in sorted(criterion_scores, key=lambda x: x.percentage):
@@ -4642,6 +4656,18 @@ Return a JSON object with this structure:
                 for v, p in c.scoring.penalties.items():
                     criteria_lines.append(f"  - penalty: {v} ({p})")
 
+        # Build classification context for the feedback LLM
+        classification_lines = []
+        if protected_criteria:
+            classification_lines.append("\nPROTECTED CRITERIA (score >= 75% — do NOT tell the generator to change these):")
+            for crit_id, pct in protected_criteria:
+                classification_lines.append(f"  PROTECTED: {crit_id} ({pct:.0%})")
+        if improvement_targets:
+            classification_lines.append("\nIMPROVEMENT TARGETS (score < 75% — these need fixing):")
+            for crit_id, pct in improvement_targets:
+                classification_lines.append(f"  TARGET: {crit_id} ({pct:.0%})")
+        classification_section = "\n".join(classification_lines)
+
         prompt = f"""Analyze these scoring results and produce structured feedback for a content generator.
 
 ITERATION: {iteration_number}
@@ -4651,11 +4677,12 @@ RUBRIC CRITERIA (what was being measured):
 
 SCORING RESULTS:
 {chr(10).join(score_lines)}
+{classification_section}
 
 STAGE 1 CHECKLIST (the scorer's binary observations):
 {checklist if checklist else "(No checklist captured — generate feedback from scores and criteria specs only)"}
 
-Generate structured feedback following your system prompt format. Focus on the FAIL criteria — those are where points are being lost. For each failed check, provide a specific, actionable editing instruction."""
+Generate structured feedback following your system prompt format. Focus ONLY on the improvement targets listed above — do not suggest changes to protected criteria. For each failed check, provide a specific, actionable editing instruction."""
 
         self._log(f"Generating structured feedback (iteration {iteration_number})...")
 
@@ -4674,6 +4701,9 @@ Generate structured feedback following your system prompt format. Focus on the F
         if match:
             try:
                 result = json.loads(match.group(1))
+                # Inject deterministic classification into result (overrides LLM's preserve list)
+                result["protected_criteria"] = protected_criteria
+                result["improvement_targets"] = improvement_targets
                 self._log(f"Generated {len(result.get('fix', []))} fix items, "
                           f"{len(result.get('preserve', []))} preserve items")
                 return result
@@ -4684,6 +4714,8 @@ Generate structured feedback following your system prompt format. Focus on the F
         if match:
             try:
                 result = json.loads(match.group())
+                result["protected_criteria"] = protected_criteria
+                result["improvement_targets"] = improvement_targets
                 self._log(f"Generated {len(result.get('fix', []))} fix items")
                 return result
             except json.JSONDecodeError:
@@ -4691,7 +4723,13 @@ Generate structured feedback following your system prompt format. Focus on the F
 
         # Fallback: return the raw text as unstructured feedback
         self._log("Warning: could not parse feedback as JSON, using raw text")
-        return {"preserve": [], "fix": [], "summary": raw[:2000]}
+        return {
+            "preserve": [],
+            "fix": [],
+            "summary": raw[:2000],
+            "protected_criteria": protected_criteria,
+            "improvement_targets": improvement_targets,
+        }
 
     def format_for_generator(self, feedback: dict) -> str:
         """Format structured feedback as text for injection into the generation prompt.
@@ -4701,11 +4739,30 @@ Generate structured feedback following your system prompt format. Focus on the F
         """
         lines = []
 
+        # Deterministic protected criteria block — derived from actual scores, not LLM output.
+        # This appears first so the generator sees it before any fix instructions.
+        protected = feedback.get("protected_criteria", [])
+        improvement = feedback.get("improvement_targets", [])
+        if protected or improvement:
+            lines.append("CRITICAL: The following criteria are scoring well and MUST be maintained.")
+            lines.append("Do not sacrifice these to improve weaker areas:")
+            lines.append("")
+            for crit_id, pct in protected:
+                lines.append(f"  PROTECTED [{pct:.0%}]: {crit_id}")
+            lines.append("")
+            if improvement:
+                lines.append("Focus your improvements ONLY on these weak criteria:")
+                for crit_id, pct in improvement:
+                    lines.append(f"  TARGET [{pct:.0%}]: {crit_id}")
+                lines.append("")
+            lines.append("Make surgical improvements — do NOT rewrite from scratch.")
+            lines.append("")
+
         if feedback.get("summary"):
             lines.append(f"DIAGNOSIS: {feedback['summary']}")
             lines.append("")
 
-        # Preserve instructions
+        # Preserve instructions (LLM-generated, supplementary to the deterministic block above)
         if feedback.get("preserve"):
             lines.append("DO NOT CHANGE (these sections are passing):")
             for item in feedback["preserve"]:
@@ -5427,6 +5484,36 @@ class RubricLoop:
             best_content = self._resolve_attempt(best.attempt)
             score_breakdown = self._format_score_breakdown(best.criterion_scores)
 
+            # Compute protected/improvement classification from best attempt's scores
+            protected_list = [
+                (cs.criterion_id, cs.percentage)
+                for cs in best.criterion_scores
+                if cs.percentage >= 0.75
+            ]
+            target_list = [
+                (cs.criterion_id, cs.percentage)
+                for cs in best.criterion_scores
+                if cs.percentage < 0.75
+            ]
+            if protected_list:
+                p_lines = [
+                    "CRITICAL: The following criteria are scoring well and MUST be maintained.",
+                    "Do not sacrifice these to improve weaker areas:",
+                    "",
+                ]
+                for crit_id, pct in protected_list:
+                    p_lines.append(f"  PROTECTED [{pct:.0%}]: {crit_id}")
+                if target_list:
+                    p_lines.append("")
+                    p_lines.append("Focus your improvements ONLY on these weak criteria:")
+                    for crit_id, pct in target_list:
+                        p_lines.append(f"  TARGET [{pct:.0%}]: {crit_id}")
+                p_lines.append("")
+                p_lines.append("Make surgical improvements — do NOT rewrite from scratch.")
+                protected_section = "\n".join(p_lines)
+            else:
+                protected_section = ""
+
             # Iteration-aware strategy guidance (improvement #5: --lean disables this)
             # In lean mode, skip scaffolding entirely — lets you A/B test whether
             # the early/mid/late prompting is still necessary with newer models.
@@ -5457,6 +5544,7 @@ class RubricLoop:
                 best_content=best_content,
                 score_breakdown=score_breakdown,
                 focus_section=focus_section,
+                protected_section=protected_section,
                 iteration_guidance=iteration_guidance,
             )
             mode_tag = "[lean]" if self.lean_mode else f"[iter {current_iter}/{max_iterations}]"
