@@ -2327,6 +2327,14 @@ offloaded to disk and resolved for you before being placed in this prompt.
 You always receive the actual content of the best prior attempt — never a
 file pointer. Focus entirely on improving the content to score higher.
 
+CRITICAL — PROTECTED CRITERIA:
+When the prompt contains a "PROTECTED CRITERIA" section, those sections are
+LOCKED. The content that earned those scores must be preserved VERBATIM.
+Do NOT modify, reword, reorganize, or improve protected sections — even if
+you think they could be better. Touching protected sections causes regression.
+Surgical improvement means fixing ONLY what is explicitly listed in REQUIRED FIXES.
+Never sacrifice a passing criterion to improve a failing one.
+
 Output the complete content only — no meta-commentary, no scoring rationale.
 Produce content that earns high scores on every rubric criterion."""
 
@@ -2648,13 +2656,14 @@ SCORING BREAKDOWN (KEEP = already passing, IMPROVE = needs work):
 {iteration_guidance}
 
 CRITICAL RULES:
-1. DO NOT rewrite sections that already score >= 80%. Copy them VERBATIM.
+1. DO NOT rewrite sections that already score >= 75%. Copy them VERBATIM.
 2. ONLY rewrite or expand sections corresponding to criteria marked IMPROVE.
 3. Keep the same overall structure, headings, and section ordering.
 4. If STRUCTURED FEEDBACK FROM EVALUATOR is provided below, follow its ACTION items precisely — each one tells you exactly what to add or change. This is more specific than the score breakdown above.
 5. Output the COMPLETE improved document — not just the changed parts.
 6. When improving a section, add specificity, quantitative detail, and technical depth — don't just rephrase.
 7. For each fix instruction, make the MINIMUM change needed. Don't rewrite surrounding paragraphs.
+8. If STRUCTURED FEEDBACK contains a "PROTECTED CRITERIA" section, those sections are LOCKED — do not touch them regardless of any other instruction. Regression on protected criteria is a failure.
 """
 
 
@@ -4537,7 +4546,7 @@ FEEDBACK PRINCIPLES:
 
 2. QUOTE THE GAP: For each failed check, state what was expected (from the measurement spec) and what was found (from the evidence). Example: "Expected: specific dollar thresholds for materiality. Found: 'material amounts' with no numeric definition."
 
-3. PRESERVE WHAT WORKS: Explicitly list criteria/sub-attributes that scored well and instruct the generator to keep those sections unchanged. Content that scores 0.50+ should not be rewritten.
+3. PRESERVE WHAT WORKS: Criteria scoring >= 75% are PROTECTED. You MUST list every protected criterion in the "preserve" array. NEVER put a protected criterion (>= 75%) in the "fix" array. Only criteria scoring < 75% belong in "fix". The generator must not be asked to modify any protected criterion — doing so causes regression.
 
 4. PRIORITIZE BY IMPACT: Order feedback by point value — fixing a 10-point criterion matters more than fixing a 3-point criterion. Lead with the highest-leverage changes.
 
@@ -4616,6 +4625,11 @@ Return a JSON object with this structure:
         Returns:
             dict with 'preserve', 'fix', and 'summary' keys
         """
+        # Classify criteria into protected (>=75%) and improvement targets (<75%)
+        # This is computed from raw scores — not left to the LLM to decide.
+        protected_criteria = [cs for cs in criterion_scores if cs.percentage >= 0.75]
+        improvement_targets = [cs for cs in criterion_scores if cs.percentage < 0.75]
+
         # Build the scoring summary for the feedback agent
         score_lines = []
         for cs in sorted(criterion_scores, key=lambda x: x.percentage):
@@ -4642,9 +4656,25 @@ Return a JSON object with this structure:
                 for v, p in c.scoring.penalties.items():
                     criteria_lines.append(f"  - penalty: {v} ({p})")
 
+        protected_summary = "\n".join([
+            f"  PROTECTED ({cs.percentage:.0%}): {cs.criterion_id} — list in 'preserve', NEVER in 'fix'"
+            for cs in sorted(protected_criteria, key=lambda x: x.percentage, reverse=True)
+        ]) or "  (none — all criteria need improvement)"
+
+        target_summary = "\n".join([
+            f"  TARGET ({cs.percentage:.0%}): {cs.criterion_id}"
+            for cs in sorted(improvement_targets, key=lambda x: x.percentage)
+        ]) or "  (none — all criteria are passing)"
+
         prompt = f"""Analyze these scoring results and produce structured feedback for a content generator.
 
 ITERATION: {iteration_number}
+
+PROTECTED CRITERIA (>= 75% — MUST go in 'preserve', NEVER in 'fix'):
+{protected_summary}
+
+IMPROVEMENT TARGETS (< 75% — these are the ONLY criteria that should appear in 'fix'):
+{target_summary}
 
 RUBRIC CRITERIA (what was being measured):
 {"".join(criteria_lines)}
@@ -4655,7 +4685,7 @@ SCORING RESULTS:
 STAGE 1 CHECKLIST (the scorer's binary observations):
 {checklist if checklist else "(No checklist captured — generate feedback from scores and criteria specs only)"}
 
-Generate structured feedback following your system prompt format. Focus on the FAIL criteria — those are where points are being lost. For each failed check, provide a specific, actionable editing instruction."""
+Generate structured feedback following your system prompt format. Target ONLY the improvement criteria listed above — those are where points are being lost. IMPORTANT: Every protected criterion (>= 75%) must appear in 'preserve'. Do NOT include any protected criterion in 'fix'. For each improvement target, provide a specific, actionable editing instruction."""
 
         self._log(f"Generating structured feedback (iteration {iteration_number})...")
 
@@ -4669,13 +4699,29 @@ Generate structured feedback following your system prompt format. Focus on the F
 
         raw = response.content[0].text
 
+        # Build the authoritative protected_criteria list from actual scores.
+        # This is injected into every return path so format_for_generator can
+        # always emit a definitive "do not touch" block regardless of what the
+        # LLM put in the 'preserve' key.
+        protected_list = [
+            {
+                "criterion_id": cs.criterion_id,
+                "percentage": cs.percentage,
+                "points_earned": cs.points_earned,
+                "max_points": cs.max_points,
+            }
+            for cs in sorted(protected_criteria, key=lambda x: x.percentage, reverse=True)
+        ]
+
         # Parse JSON from response
         match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', raw)
         if match:
             try:
                 result = json.loads(match.group(1))
+                result["protected_criteria"] = protected_list
                 self._log(f"Generated {len(result.get('fix', []))} fix items, "
-                          f"{len(result.get('preserve', []))} preserve items")
+                          f"{len(result.get('preserve', []))} preserve items, "
+                          f"{len(protected_list)} protected")
                 return result
             except json.JSONDecodeError:
                 pass
@@ -4684,14 +4730,16 @@ Generate structured feedback following your system prompt format. Focus on the F
         if match:
             try:
                 result = json.loads(match.group())
-                self._log(f"Generated {len(result.get('fix', []))} fix items")
+                result["protected_criteria"] = protected_list
+                self._log(f"Generated {len(result.get('fix', []))} fix items, "
+                          f"{len(protected_list)} protected")
                 return result
             except json.JSONDecodeError:
                 pass
 
         # Fallback: return the raw text as unstructured feedback
         self._log("Warning: could not parse feedback as JSON, using raw text")
-        return {"preserve": [], "fix": [], "summary": raw[:2000]}
+        return {"preserve": [], "fix": [], "summary": raw[:2000], "protected_criteria": protected_list}
 
     def format_for_generator(self, feedback: dict) -> str:
         """Format structured feedback as text for injection into the generation prompt.
@@ -4705,19 +4753,47 @@ Generate structured feedback following your system prompt format. Focus on the F
             lines.append(f"DIAGNOSIS: {feedback['summary']}")
             lines.append("")
 
-        # Preserve instructions
-        if feedback.get("preserve"):
+        # Protected criteria block — authoritative, derived from actual scores.
+        # This is the primary "do not touch" signal; it takes precedence over
+        # the LLM-generated 'preserve' list.
+        protected = feedback.get("protected_criteria", [])
+        if protected:
+            lines.append("=" * 60)
+            lines.append("PROTECTED CRITERIA — DO NOT MODIFY THESE SECTIONS:")
+            lines.append("These criteria are scoring >= 75% and MUST be maintained.")
+            lines.append("Do NOT sacrifice them to improve weaker areas.")
+            lines.append("Copy the content that earned these scores VERBATIM.")
+            lines.append("")
+            for item in protected:
+                crit_id = item.get("criterion_id", "?")
+                pct = item.get("percentage", 0)
+                pts_earned = item.get("points_earned", 0)
+                pts_max = item.get("max_points", 0)
+                lines.append(f"  PROTECTED: {crit_id} — {pct:.0%} ({pts_earned:.1f}/{pts_max:.1f} pts)")
+            lines.append("=" * 60)
+            lines.append("")
+        elif feedback.get("preserve"):
+            # Fallback to LLM-generated preserve list if no scored protected list
             lines.append("DO NOT CHANGE (these sections are passing):")
             for item in feedback["preserve"]:
                 lines.append(f"  ✓ {item}")
             lines.append("")
 
-        # Fix instructions, ordered by points_at_stake
+        # Fix instructions, ordered by points_at_stake.
+        # Sanity-check: skip any fix that targets a protected criterion.
+        protected_ids = {item.get("criterion_id") for item in protected}
         fixes = feedback.get("fix", [])
-        if fixes:
+        safe_fixes = [f for f in fixes if f.get("criterion_id") not in protected_ids]
+        filtered_count = len(fixes) - len(safe_fixes)
+        if filtered_count > 0:
+            lines.append(f"  (Note: {filtered_count} fix item(s) targeting protected criteria were suppressed.)")
+            lines.append("")
+
+        if safe_fixes:
             # Sort by points_at_stake descending
-            fixes_sorted = sorted(fixes, key=lambda f: f.get("points_at_stake", 0), reverse=True)
-            lines.append("REQUIRED FIXES (ordered by point impact):")
+            fixes_sorted = sorted(safe_fixes, key=lambda f: f.get("points_at_stake", 0), reverse=True)
+            lines.append("REQUIRED FIXES — surgical improvements to weak criteria only")
+            lines.append("(Make ONLY these changes. Do not touch the PROTECTED sections above.)")
             lines.append("")
             for i, fix in enumerate(fixes_sorted, 1):
                 crit = fix.get("criterion_id", "?")
