@@ -2632,6 +2632,15 @@ EDIT_PROMPT = """You are improving an existing document. Your job is to SURGICAL
 
 TASK: {task}
 
+CRITICAL CONSTRAINT: You MUST preserve quality on criteria that are already scoring well.
+The following criteria scored >= 75% and must NOT regress:
+{protected_criteria_list}
+
+Focus improvements ONLY on these weak criteria:
+{improvement_targets_list}
+
+Make surgical, targeted improvements. Do NOT rewrite from scratch.
+
 RUBRIC CRITERIA:
 {rubric_summary}
 
@@ -4193,6 +4202,14 @@ EVALUATION PRINCIPLES:
         focus.sort(key=lambda x: x[2])
         result["focus_areas"] = focus[:5]
 
+        # Split criteria into protected (>= 75%) vs improvement targets (< 75%)
+        result["protected_criteria"] = [
+            cs.criterion_id for cs in criterion_scores if cs.percentage >= 0.75
+        ]
+        result["improvement_targets"] = [
+            cs.criterion_id for cs in criterion_scores if cs.percentage < 0.75
+        ]
+
         # Regression detection
         if history:
             best_prev_pct = max(h.percentage for h in history)
@@ -5450,6 +5467,8 @@ class RubricLoop:
                     "Do not reorganize — make targeted, minimal changes to the weakest spots."
                 )
 
+            _protected = [cs.criterion_id for cs in best.criterion_scores if cs.percentage >= 0.75]
+            _weak = [cs.criterion_id for cs in best.criterion_scores if cs.percentage < 0.75]
             prompt = EDIT_PROMPT.format(
                 task=rubric.task,
                 rubric_summary=rubric_summary,
@@ -5458,6 +5477,8 @@ class RubricLoop:
                 score_breakdown=score_breakdown,
                 focus_section=focus_section,
                 iteration_guidance=iteration_guidance,
+                protected_criteria_list=", ".join(_protected) if _protected else "(none)",
+                improvement_targets_list=", ".join(_weak) if _weak else "(none)",
             )
             mode_tag = "[lean]" if self.lean_mode else f"[iter {current_iter}/{max_iterations}]"
             self._log(f"Editing best attempt ({best.percentage:.0%}) {mode_tag}...")
