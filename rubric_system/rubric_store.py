@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 
 
-DEFAULT_STORE_PATH = ".rubric_store/rubrics.jsonl"
+DEFAULT_STORE_PATH = "~/.rubric_store/rubrics.jsonl"
 
 
 def _tokenize(text: str) -> set:
@@ -50,7 +50,7 @@ class RubricStore:
     """
 
     def __init__(self, store_path: str = DEFAULT_STORE_PATH):
-        self.store_path = Path(store_path)
+        self.store_path = Path(store_path).expanduser()
         self.store_path.parent.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------

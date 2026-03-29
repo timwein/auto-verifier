@@ -6174,9 +6174,6 @@ class RubricLoop:
 
     def _post_run(self, result: LoopResult):
         """Post-run hook: persist scored rubric, scan outcomes, improve generation, auto-edit."""
-        if not self.enable_self_improve:
-            return
-
         try:
             import hashlib
             from datetime import datetime
@@ -6230,6 +6227,9 @@ class RubricLoop:
 
         except Exception as e:
             self._log(f"[Loop3] Post-run hook error (non-fatal): {e}")
+
+        if not self.enable_self_improve:
+            return
 
         # Analyze rubric generation quality and store improvement signals
         self._post_run_improve_generation(result)

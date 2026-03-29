@@ -219,6 +219,15 @@ class RubricStore:
             WHERE criterion_id = ?
         """, (datetime.now().isoformat(), criterion_id))
     
+    def list_all(self) -> list[ScoredRubricRecord]:
+        """Return all scored rubric records ordered by creation date descending."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM scored_rubrics ORDER BY created_at DESC"
+            ).fetchall()
+            return [self._row_to_record(row) for row in rows]
+
     def count_rubrics(self) -> int:
         """Return the total number of scored rubrics in the store."""
         with sqlite3.connect(self.db_path) as conn:
