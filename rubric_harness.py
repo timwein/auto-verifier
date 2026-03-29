@@ -4765,6 +4765,7 @@ class RubricLoop:
         iterations_dir: str = ".rubric_iterations",
         use_deterministic: bool = True,
         enable_tradeoff_detection: bool = True,
+        enable_quality_gate: bool = True,
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -4833,6 +4834,12 @@ class RubricLoop:
         # correlated criteria before the gen-verify loop begins)
         self.enable_tradeoff_detection = enable_tradeoff_detection
         self.tradeoff_detector = TradeoffDetector(model=model, verbose=verbose)
+
+        # Component 11: Quality gate (isolated context — filters rubric for
+        # discriminative power, redundancy, and measurability before the loop)
+        self.enable_quality_gate = enable_quality_gate
+        from rubric_system.quality_gate import RubricQualityGate
+        self.quality_gate = RubricQualityGate(model=model, verbose=verbose)
 
         # Lean mode: strips iteration-aware scaffolding for A/B testing
         self.lean_mode = lean_mode
@@ -5090,6 +5097,23 @@ class RubricLoop:
         else:
             self._log("  No trade-offs detected.")
         return resolved, tradeoff_context
+
+    def _apply_quality_gate(self, rubric: "Rubric", task: str) -> "Rubric":
+        """Quality gate: post-generation filter before the gen-verify loop.
+
+        One LLM call — the RubricQualityGate (isolated context) checks
+        discriminative power, redundancy, and measurability of each criterion
+        and returns a refined rubric ready for the loop.
+        """
+        self._log("\n[Quality Gate] Filtering rubric for discriminative power...")
+        refined, messages = self.quality_gate.run(rubric, task)
+        if messages:
+            self._log(f"  {len(messages)} refinement(s) applied:")
+            for msg in messages:
+                self._log(f"    {msg}")
+        else:
+            self._log("  All criteria passed quality gate — no changes.")
+        return refined
 
     # -------------------------------------------------------------------------
     # File-based artifact handoff helpers (improvements #2 and #3)
@@ -5576,6 +5600,12 @@ class RubricLoop:
         tradeoff_context: List[str] = []
         if not _resuming and self.enable_tradeoff_detection:
             rubric, tradeoff_context = self._resolve_tradeoffs(rubric)
+
+        # Quality gate (Stage 5): filter for discriminative power, redundancy,
+        # and measurability before the gen-verify loop starts.
+        # Skip on resume — the rubric was already filtered in the prior run.
+        if not _resuming and self.enable_quality_gate:
+            rubric = self._apply_quality_gate(rubric, task)
 
         domain = rubric.domain
 
@@ -6195,6 +6225,9 @@ async def main():
                         help="Which iteration to run paired paths on (default: 2)")
     parser.add_argument("--no-deterministic", action="store_true",
                         help="Disable deterministic verification; use LLM scoring for all criteria")
+    parser.add_argument("--no-quality-gate", action="store_true",
+                        help="Skip quality gate step (discriminative power, redundancy, "
+                             "and measurability checks) that runs after rubric generation")
     parser.add_argument("--resume", metavar="RUN_ID",
                         help="Resume a previous (possibly crashed) run from its last saved checkpoint. "
                              "Provide the run ID printed at the start of the original run "
@@ -6267,6 +6300,7 @@ async def main():
         lean_mode=args.lean,
         use_deterministic=not args.no_deterministic,
         enable_tradeoff_detection=not args.no_tradeoff_detection,
+        enable_quality_gate=not args.no_quality_gate,
     )
 
     result = await loop.run(
