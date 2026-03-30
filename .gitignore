@@ -10,6 +10,9 @@ build/
 .env
 .DS_Store
 .rubric_feedback/
+.rubric_data/
+.rubric_iterations/
+feedback_learnings/
 .claude/worktrees/
 harness-v1/
 rubric_system.zip

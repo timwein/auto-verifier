@@ -25,8 +25,8 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 
 
-DEFAULT_STORE_PATH = "~/.rubric_store/rubrics.jsonl"
-DEFAULT_CRITERIA_STORE_PATH = "~/.rubric_store/criteria.jsonl"
+DEFAULT_STORE_PATH = ".rubric_data/rag_rubrics.jsonl"
+DEFAULT_CRITERIA_STORE_PATH = ".rubric_data/rag_criteria.jsonl"
 
 # Quality gate thresholds for seed selection
 _MIN_DISCRIMINATIVE_POWER = 0.05   # criteria that never moved score are not useful

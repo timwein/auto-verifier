@@ -5747,7 +5747,7 @@ class FeedbackLearningLoop:
        injection into the FeedbackAgent's system prompt.
     """
 
-    LEARNINGS_DIR = "feedback_learnings"
+    LEARNINGS_DIR = ".rubric_data/feedback_learnings"
     LEARNINGS_FILE = "learnings.md"
     HISTORY_FILE = "fix_history.json"
 
@@ -6416,7 +6416,7 @@ class RubricLoop:
         enable_exemplar: bool = True,
         enable_rubric_store: bool = True,
         auto_improve_interval: int = 3,
-        auto_improve_min_uses: int = 10,
+        auto_improve_min_uses: int = 5,
         auto_improve_max_edits: int = 3,
         lean_mode: bool = False,
         iterations_dir: str = ".rubric_iterations",
@@ -6522,6 +6522,24 @@ class RubricLoop:
     def _log(self, msg: str):
         if self.verbose:
             print(msg)
+
+    def _log_error_to_file(self, context: str, error: Exception):
+        """Persist errors to a log file so they're visible even when stdout is lost."""
+        try:
+            import traceback
+            from datetime import datetime
+            log_path = Path(".rubric_data") / "error_log.jsonl"
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            entry = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "context": context,
+                "error": str(error),
+                "traceback": traceback.format_exc(),
+            }
+            with open(log_path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception:
+            pass  # Last resort — don't crash the harness
 
     def _save_rubric_markdown(self, rubric: Rubric, task: str) -> Path:
         """Serialize the rubric to a markdown document in rubrics/.
@@ -7580,7 +7598,7 @@ class RubricLoop:
                     if action == "stop":
                         self.tracker.complete()
                         _cp_best = max(history, key=lambda h: h.percentage) if history else None
-                        return LoopResult(
+                        _cp_result = LoopResult(
                             success=False,
                             output=content,
                             iterations=i,
@@ -7591,6 +7609,8 @@ class RubricLoop:
                             improvement_summary=[f"Stopped at {checkpoint.checkpoint_type} checkpoint"],
                             best_iteration=_cp_best.number if _cp_best else i,
                         )
+                        self._post_run(_cp_result)
+                        return _cp_result
 
             # Generate structured feedback for the next iteration's generator
             # The FeedbackAgent deterministically converts scorer critiques into
@@ -7819,6 +7839,7 @@ class RubricLoop:
 
         except Exception as e:
             self._log(f"[Loop3] Post-run hook error (non-fatal): {e}")
+            self._log_error_to_file("post_run_save", e)
 
         if not self.enable_self_improve:
             return
@@ -7834,6 +7855,7 @@ class RubricLoop:
             )
         except Exception as e:
             self._log(f"[FeedbackLearning] Reflection failed (non-fatal): {e}")
+            self._log_error_to_file("feedback_reflect", e)
 
         # --- Regression suite: post-apply monitoring ---
         # Compare recent mean score against the regression suite baseline.
@@ -8204,20 +8226,24 @@ async def main():
 
     # ACON paired trajectories (runs automatically after every main loop)
     if not getattr(args, 'no_paired_trajectories', False) and result.history:
-        from rubric_system.acon_trajectory import PairedTrajectoryCollector
-        collector = PairedTrajectoryCollector(
-            paired_iteration=args.paired_iteration,
-            verbose=not args.quiet,
-        )
-        await collector.collect(
-            task=args.task,
-            domain=result.rubric.domain,
-            rubric=result.rubric,
-            history=result.history,
-            generate_fn=loop.generate_content,
-            score_fn=loop.score_content,
-            max_iterations=args.max_iter,
-        )
+        try:
+            from rubric_system.acon_trajectory import PairedTrajectoryCollector
+            collector = PairedTrajectoryCollector(
+                paired_iteration=args.paired_iteration,
+                verbose=not args.quiet,
+            )
+            await collector.collect(
+                task=args.task,
+                domain=result.rubric.domain,
+                rubric=result.rubric,
+                history=result.history,
+                generate_fn=loop.generate_content,
+                score_fn=loop.score_content,
+                max_iterations=args.max_iter,
+            )
+        except Exception as _acon_e:
+            if not args.quiet:
+                print(f"[ACON] Paired trajectory collection failed: {_acon_e}")
 
     # Self-improvement cycle
     if args.self_improve or args.self_improve_apply:
