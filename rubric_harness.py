@@ -3115,6 +3115,86 @@ Write the persona in second person ("You are..."). Be specific and concrete — 
 Output only the persona description. No preamble, no headers, no explanation."""
 
 
+EXPERT_PANEL_PROMPT = """You are an expert panel designer. For evaluating the output of a specific task, identify 3 complementary expert roles whose perspectives would collectively ensure comprehensive evaluation. Each expert must have a DIFFERENT vantage point — they should catch different types of quality issues that the others might miss.
+
+TASK:
+{task}
+
+For each expert provide:
+- role: their specific professional title (not generic)
+- expertise: their domain background and credentials (2-3 sentences)
+- unique_focus: what they uniquely care about that the other two would likely overlook
+- dimensions: list of 2-3 specific quality dimensions they would focus on
+
+Output ONLY valid JSON in this exact format:
+{{
+  "panel": [
+    {{
+      "role": "Senior Investment Analyst",
+      "expertise": "10+ years in equity research at a top-tier investment bank. CFA charterholder with deep experience in DCF modeling, comparable company analysis, and sector-specific valuation. Has evaluated hundreds of investment memos across growth and value contexts.",
+      "unique_focus": "Financial modeling rigor and valuation methodology — checks whether assumptions are grounded in data, whether the comp set is defensible, whether the bull/bear cases are mathematically consistent.",
+      "dimensions": ["Valuation methodology", "Financial model integrity", "Comparable analysis quality"]
+    }},
+    {{
+      "role": "Portfolio Risk Manager",
+      "expertise": "...",
+      "unique_focus": "...",
+      "dimensions": ["..."]
+    }},
+    {{
+      "role": "Operating Partner / Former Founder",
+      "expertise": "...",
+      "unique_focus": "...",
+      "dimensions": ["..."]
+    }}
+  ]
+}}
+
+The three experts must cover genuinely different angles. No role should duplicate another's focus area. Tailor all three roles specifically to the task domain."""
+
+
+EXPERT_PANEL_RECONCILE_PROMPT = """You are a rubric architect performing expert panel reconciliation. Three domain experts have each generated evaluation criteria for the same task. Your job is to produce a single unified, non-redundant criteria list that captures the best insights from all three perspectives.
+
+TASK:
+{task}
+
+EXPERT PANEL:
+{panel_summary}
+
+CRITERIA FROM EACH EXPERT:
+{all_criteria_json}
+
+RECONCILIATION RULES:
+1. MERGE DUPLICATES: If two or more experts covered the same dimension, keep only the most rigorous version (the one with more specific, measurable sub-attributes). Do not keep both.
+2. RESOLVE CONFLICTS: If experts assign different weights to similar criteria, use the higher weight for criteria that are truly critical to quality.
+3. IDENTIFY GAPS: Are there important quality dimensions that NO expert covered? Add 1-2 criteria for genuine gaps only (not padding).
+4. PRESERVE DIVERSITY: Keep unique criteria from each expert — the whole point is multi-perspective coverage.
+5. NORMALIZE IDs: Assign clean sequential IDs (C01, C02, ...). Do not preserve original expert-specific IDs.
+6. BALANCE POINTS: Total points should be in the 60-120 range. No single criterion should exceed 20% of total points.
+
+Output ONLY valid JSON:
+{{
+  "domain": "<domain string>",
+  "pass_threshold": 0.85,
+  "criteria": [
+    {{
+      "id": "C01",
+      "category": "<category>",
+      "description": "<criterion description>",
+      "pass_condition": "<measurable pass condition>",
+      "scoring_method": "<weighted_components|penalty_based|binary|percentage|threshold_tiers|count_based>",
+      "max_points": 10,
+      "sub_attributes": [],
+      "penalties": {{}},
+      "tiers": {{}},
+      "pass_examples": [],
+      "fail_examples": [],
+      "research_basis": "<source expert role or rationale>"
+    }}
+  ]
+}}"""
+
+
 EXEMPLAR_SEARCH_PROMPT = """You are an exemplar research specialist. Your job is to find real, high-quality example outputs for a specific type of task — the kind produced by top practitioners in the field.
 
 TASK TYPE TO FIND EXAMPLES FOR:
@@ -3230,6 +3310,7 @@ RUBRIC DESIGN PRINCIPLES:
                  research_model: str = "claude-sonnet-4-20250514",
                  enable_tracing: bool = True,
                  enable_expert_persona: bool = True,
+                 enable_expert_panel: bool = False,
                  enable_exemplar: bool = True,
                  enable_rubric_store: bool = True,
                  rag_store: Optional[RubricRAGStore] = None):
@@ -3243,6 +3324,7 @@ RUBRIC DESIGN PRINCIPLES:
         self.enable_tracing = enable_tracing
         self.research_model = research_model
         self.enable_expert_persona = enable_expert_persona
+        self.enable_expert_panel = enable_expert_panel
         self.enable_exemplar = enable_exemplar
         self.enable_rubric_store = enable_rubric_store
         self.rag_store = rag_store
@@ -3280,6 +3362,196 @@ RUBRIC DESIGN PRINCIPLES:
         except Exception as e:
             self._log(f"Expert persona elicitation failed (non-fatal): {e}")
             return ""
+
+    def _elicit_expert_panel(self, task: str) -> list:
+        """Generate 3 complementary expert personas for the given task.
+
+        Makes one LLM call to produce a panel of 3 experts with different
+        vantage points that collectively ensure comprehensive evaluation.
+        Each expert covers a different quality dimension so their criteria sets
+        are additive, not redundant.
+
+        Returns:
+            List of expert dicts (role, expertise, unique_focus, dimensions),
+            or [] on failure (caller should fall back to single persona).
+        """
+        self._log("Eliciting expert panel (3 complementary perspectives)...")
+        prompt = EXPERT_PANEL_PROMPT.format(task=task)
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=1500,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text.strip()
+            parsed = self._parse_json(raw)
+            panel = parsed.get("panel", [])
+            if isinstance(panel, list) and len(panel) >= 2:
+                roles = [e.get("role", "?") for e in panel]
+                self._log(f"Expert panel: {roles}")
+                return panel[:3]
+            else:
+                self._log("Expert panel parse returned insufficient experts (non-fatal)")
+                return []
+        except Exception as e:
+            self._log(f"Expert panel elicitation failed (non-fatal): {e}")
+            return []
+
+    def _generate_expert_criteria(self, task: str, expert: dict,
+                                   context_sections: str) -> list:
+        """Generate 4-8 evaluation criteria from a single expert's perspective.
+
+        Each expert generates criteria focused exclusively on their unique quality
+        dimensions — the things only they would catch. This ensures diversity across
+        the panel's outputs.
+
+        Args:
+            task: the task description
+            expert: expert dict with role, expertise, unique_focus, dimensions
+            context_sections: pre-built string combining research + contrastive +
+                              retrieval + learning sections for grounding
+
+        Returns:
+            List of raw criteria dicts, or [] on failure (graceful degradation).
+        """
+        role = expert.get("role", "Domain Expert")
+        expertise = expert.get("expertise", "")
+        unique_focus = expert.get("unique_focus", "")
+        dimensions = expert.get("dimensions", [])
+        dimensions_str = ", ".join(dimensions) if dimensions else "quality and correctness"
+
+        self._log(f"Generating criteria from {role}'s perspective...")
+
+        system_prompt = (
+            self.RUBRIC_AGENT_SYSTEM_PROMPT
+            + f"\n\nEXPERT EVALUATOR PERSONA:\nYou are a {role}. {expertise}"
+            + f"\n\nYOUR UNIQUE FOCUS: {unique_focus}"
+            + f"\n\nYOUR KEY DIMENSIONS: {dimensions_str}"
+            + "\n\nGenerate evaluation criteria exclusively from YOUR expert perspective. "
+            "Focus on what YOU uniquely care about — the dimensions listed above. "
+            "Generate 4-8 highly specific criteria that only someone with your background "
+            "would know to check. Do NOT generate generic criteria that any evaluator "
+            "would produce — those will be contributed by the other panel members."
+        )
+
+        user_prompt = (
+            f"Generate evaluation criteria for this task from your expert perspective:\n\n"
+            f"TASK: {task}\n\n"
+            f"Focus ONLY on your unique dimensions: {dimensions_str}\n"
+            f"Generate 4-8 highly specific criteria grounded in your domain expertise.\n"
+        )
+        if context_sections:
+            user_prompt += context_sections
+        user_prompt += (
+            "\n\nOutput ONLY valid JSON:\n"
+            '{\n  "criteria": [\n    {\n'
+            '      "id": "PLACEHOLDER",\n'
+            '      "category": "<your dimension>",\n'
+            '      "description": "<specific criterion>",\n'
+            '      "pass_condition": "<measurable pass condition>",\n'
+            '      "scoring_method": "<weighted_components|penalty_based|binary|percentage|threshold_tiers|count_based>",\n'
+            '      "max_points": 10,\n'
+            '      "sub_attributes": [],\n'
+            '      "penalties": {},\n'
+            '      "tiers": {},\n'
+            '      "pass_examples": [],\n'
+            '      "fail_examples": [],\n'
+            '      "research_basis": ""\n'
+            "    }\n  ]\n}"
+        )
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=6000,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            raw = response.content[0].text.strip()
+            parsed = self._parse_json(raw)
+            criteria = parsed.get("criteria", [])
+            if criteria:
+                self._log(f"{role}: generated {len(criteria)} criteria")
+                return criteria
+            else:
+                self._log(f"{role}: no criteria parsed (non-fatal)")
+                return []
+        except Exception as e:
+            self._log(f"{role} criteria generation failed (non-fatal): {e}")
+            return []
+
+    def _reconcile_panel_criteria(self, task: str, all_criteria: list,
+                                   panel: list) -> dict:
+        """Merge criteria from all panel experts into a unified, non-redundant spec.
+
+        Runs an LLM reconciliation pass that:
+        - Merges duplicates (keeps the more rigorous version)
+        - Resolves scoring conflicts
+        - Identifies and fills coverage gaps
+        - Normalizes IDs and balances point allocation
+
+        Args:
+            task: the task description
+            all_criteria: list of criteria lists, one per expert (parallel with panel)
+            panel: expert dicts for context
+
+        Returns:
+            Full rubric spec dict {"domain": ..., "pass_threshold": ..., "criteria": [...]}.
+            Falls back to a flat merge if the LLM call fails.
+        """
+        self._log(f"Reconciling panel criteria ({sum(len(c) for c in all_criteria)} total across {len(panel)} experts)...")
+
+        panel_summary = "\n".join(
+            f"- {e.get('role', '?')}: {e.get('unique_focus', '')}"
+            for e in panel
+        )
+
+        all_criteria_parts = []
+        for expert, criteria_list in zip(panel, all_criteria):
+            role = expert.get("role", "Expert")
+            all_criteria_parts.append(
+                f"=== {role} ({len(criteria_list)} criteria) ===\n"
+                + json.dumps({"criteria": criteria_list}, indent=2)
+            )
+        all_criteria_str = "\n\n".join(all_criteria_parts)
+
+        prompt = EXPERT_PANEL_RECONCILE_PROMPT.format(
+            task=task,
+            panel_summary=panel_summary,
+            all_criteria_json=all_criteria_str,
+        )
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=16000,
+                system=self.RUBRIC_AGENT_SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text.strip()
+            parsed = self._parse_json(raw)
+            criteria = parsed.get("criteria", [])
+            if criteria:
+                self._log(f"Panel reconciled: {len(criteria)} criteria after merging/deduplication")
+                return parsed
+            else:
+                self._log("Reconciliation returned empty criteria — falling back to flat merge")
+                return self._flat_merge_criteria(all_criteria)
+        except Exception as e:
+            self._log(f"Panel reconciliation failed (non-fatal): {e} — falling back to flat merge")
+            return self._flat_merge_criteria(all_criteria)
+
+    def _flat_merge_criteria(self, all_criteria: list) -> dict:
+        """Fallback: concatenate all expert criteria with renumbered sequential IDs."""
+        merged = []
+        idx = 1
+        for criteria_list in all_criteria:
+            for c in criteria_list:
+                c = dict(c)
+                c["id"] = f"C{idx:02d}"
+                merged.append(c)
+                idx += 1
+        return {"criteria": merged, "domain": "generated", "pass_threshold": 0.85}
 
     def _research_best_practices(self, task: str, persona: str = "") -> str:
         """Deep research step: use web search to find what domain experts consider
@@ -3600,15 +3872,31 @@ RUBRIC DESIGN PRINCIPLES:
         if seed_section:
             examples_section += "\n\n" + seed_section
 
-        # Step 0: Expert persona elicitation — who is the ideal evaluator for this task?
+        # Step 0: Expert persona / panel elicitation — who are the ideal evaluators?
         expert_persona = ""
-        if self.enable_expert_persona:
+        expert_panel = []
+        if self.enable_expert_panel:
+            # Panel mode: elicit 3 complementary experts; fall back to single persona
+            expert_panel = self._elicit_expert_panel(task)
+            if not expert_panel:
+                self._log("Panel elicitation failed — falling back to single persona")
+                if self.enable_expert_persona:
+                    expert_persona = self._elicit_expert_persona(task)
+        elif self.enable_expert_persona:
             expert_persona = self._elicit_expert_persona(task)
+
+        # Build research persona: use panel summary when panel is active
+        research_persona = expert_persona
+        if expert_panel:
+            research_persona = "Panel of domain experts:\n" + "\n".join(
+                f"- {e.get('role', '?')}: {e.get('unique_focus', '')}"
+                for e in expert_panel
+            )
 
         # Step 1: Deep research — what do domain experts consider best practices?
         research_section = ""
         if self.enable_research:
-            research_section = self._research_best_practices(task, persona=expert_persona)
+            research_section = self._research_best_practices(task, persona=research_persona)
 
         # Step 1.1: Extract research-derived criteria — make research LOAD-BEARING.
         # Each finding becomes a mandatory criterion seed so research is never dropped.
@@ -3643,6 +3931,70 @@ RUBRIC DESIGN PRINCIPLES:
             except Exception as e:
                 self._log(f"Learning context unavailable: {e}")
 
+        # ------------------------------------------------------------------ #
+        # Panel path: per-expert criteria generation + reconciliation          #
+        # ------------------------------------------------------------------ #
+        if expert_panel:
+            # Build a shared context string for all experts (research + contrastive + RAG + learning)
+            context_sections = ""
+            if research_section:
+                context_sections += "\n" + research_section
+            if contrastive_section:
+                context_sections += "\n" + contrastive_section
+            if retrieval_section:
+                context_sections += "\n" + retrieval_section
+            if learning_section:
+                context_sections += "\n" + learning_section
+
+            # Per-expert criteria generation — skip experts that fail (graceful degradation)
+            successful_experts = []
+            all_expert_criteria = []
+            for expert in expert_panel:
+                criteria = self._generate_expert_criteria(task, expert, context_sections)
+                if criteria:
+                    successful_experts.append(expert)
+                    all_expert_criteria.append(criteria)
+                else:
+                    self._log(f"Skipping {expert.get('role', '?')} — no criteria generated")
+
+            if all_expert_criteria:
+                # Reconcile all experts' criteria into a unified spec
+                spec = self._reconcile_panel_criteria(task, all_expert_criteria, successful_experts)
+
+                if spec and spec.get("criteria"):
+                    rubric = self._hydrate(task, spec)
+                    self._log(
+                        f"[Panel] Generated: {len(rubric.criteria)} criteria "
+                        f"(from {len(successful_experts)} experts), "
+                        f"{rubric.total_points} max points, "
+                        f"threshold: {rubric.pass_threshold:.0%}"
+                    )
+
+                    # Research traceability audit
+                    if self.enable_tracing and self.tracer and research_section:
+                        self._log("Running research traceability audit...")
+                        trace_result = self.tracer.trace(rubric, research_section)
+                        if trace_result.grounding_score < 0.70 or trace_result.ungrounded_criteria:
+                            self._log(f"Grounding: {trace_result.grounding_score:.0%} — patching rubric")
+                            rubric = self.tracer.patch_rubric(rubric, trace_result, research_section)
+                            self._log(f"Patched: {len(rubric.criteria)} criteria, {rubric.total_points} max points")
+                        else:
+                            audit_map = {a.criterion_id: a for a in trace_result.criterion_audits}
+                            for criterion in rubric.criteria:
+                                audit = audit_map.get(criterion.id)
+                                if audit and audit.research_quote and not criterion.research_basis:
+                                    criterion.research_basis = audit.research_quote
+                        rubric._trace_result = trace_result
+
+                    return rubric
+                else:
+                    self._log("Panel reconciliation produced no criteria — falling through to standard path")
+            else:
+                self._log("All panel experts failed — falling through to standard path")
+
+        # ------------------------------------------------------------------ #
+        # Standard single-persona path (default, or panel fallback)           #
+        # ------------------------------------------------------------------ #
         prompt = RUBRIC_GENERATION_PROMPT.format(
             task=task,
             context_section=context_section,
@@ -5050,6 +5402,7 @@ class RubricLoop:
         enable_self_improve: bool = True,
         enable_research: bool = True,
         enable_expert_persona: bool = True,
+        enable_expert_panel: bool = False,
         enable_exemplar: bool = True,
         enable_rubric_store: bool = True,
         auto_improve_interval: int = 3,
@@ -5100,6 +5453,7 @@ class RubricLoop:
         )
         self.enable_research = enable_research
         self.enable_expert_persona = enable_expert_persona
+        self.enable_expert_panel = enable_expert_panel
         self.enable_exemplar = enable_exemplar
         self.enable_rubric_store = enable_rubric_store
         self.rag_store: Optional[RubricRAGStore] = RubricRAGStore() if enable_rubric_store else None
@@ -5925,6 +6279,7 @@ class RubricLoop:
                 learning_integrator=self.learning_integrator if self.enable_self_improve else None,
                 enable_research=self.enable_research,
                 enable_expert_persona=self.enable_expert_persona,
+                enable_expert_panel=self.enable_expert_panel,
                 enable_exemplar=self.enable_exemplar,
                 enable_rubric_store=self.enable_rubric_store,
                 rag_store=self.rag_store,
@@ -6679,6 +7034,10 @@ async def main():
                              "correlated criteria before the gen-verify loop starts)")
     parser.add_argument("--no-expert-persona", action="store_true",
                         help="Skip expert persona elicitation step during rubric generation")
+    parser.add_argument("--expert-panel", action="store_true",
+                        help="Enable expert panel simulation: elicit 3 complementary expert "
+                             "perspectives and reconcile their criteria into a unified rubric "
+                             "(more thorough than single-persona mode; falls back gracefully)")
     parser.add_argument("--no-exemplar", action="store_true",
                         help="Skip exemplar retrieval and contrastive criterion extraction")
     parser.add_argument("--no-rubric-store", action="store_true",
@@ -6763,6 +7122,7 @@ async def main():
         enable_self_improve=not args.no_learn,
         enable_research=not args.no_research,
         enable_expert_persona=not args.no_expert_persona,
+        enable_expert_panel=args.expert_panel,
         enable_exemplar=not args.no_exemplar,
         enable_rubric_store=not args.no_rubric_store,
         auto_improve_interval=0 if args.no_auto_improve else 3,
