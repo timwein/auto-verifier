@@ -3345,6 +3345,65 @@ RUBRIC DESIGN PRINCIPLES:
             self._log(f"Research step failed (non-fatal): {e}")
             return ""
 
+    def _extract_criteria_from_research(self, task: str, research: str, persona: str = "") -> list:
+        """Extract criterion specifications directly from research findings.
+
+        For each research finding (professional standard, best practice, common failure mode,
+        regulatory requirement), generate a criterion that would verify compliance.
+
+        Returns list of criterion specs (dicts matching the rubric JSON format).
+        """
+        if not research or not research.strip():
+            return []
+
+        self._log("Step 1.1: Extracting criteria directly from research findings...")
+
+        prompt = RESEARCH_CRITERIA_EXTRACTION_PROMPT.format(
+            research=research[:10000],  # cap to avoid oversized prompts
+            task=task,
+        )
+
+        if persona:
+            prompt += (
+                "\n\nEXPERT EVALUATOR CONTEXT:\n"
+                + persona
+                + "\n\nExtract criteria that this specific expert would require based on the research."
+            )
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=8000,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text if response.content else ""
+
+            # Try to extract JSON array from the response
+            match = re.search(r'```(?:json)?\s*(\[[\s\S]*?\])\s*```', raw)
+            if not match:
+                match = re.search(r'(\[[\s\S]*\])', raw)
+
+            if not match:
+                self._log("Research criteria extraction returned no parseable array — skipping")
+                return []
+
+            try:
+                criteria_specs = json.loads(match.group(1))
+            except (json.JSONDecodeError, ValueError):
+                self._log("Research criteria JSON parse failed — skipping")
+                return []
+
+            if not isinstance(criteria_specs, list):
+                self._log("Research criteria extraction returned non-list — skipping")
+                return []
+
+            self._log(f"Extracted {len(criteria_specs)} criteria from research findings")
+            return criteria_specs
+
+        except Exception as e:
+            self._log(f"Research criteria extraction failed (non-fatal): {e}")
+            return []
+
     def _retrieve_exemplars(self, task: str) -> str:
         """Phase C — web search for expert-quality example outputs for similar tasks.
 
@@ -3551,6 +3610,14 @@ RUBRIC DESIGN PRINCIPLES:
         if self.enable_research:
             research_section = self._research_best_practices(task, persona=expert_persona)
 
+        # Step 1.1: Extract research-derived criteria — make research LOAD-BEARING.
+        # Each finding becomes a mandatory criterion seed so research is never dropped.
+        research_derived_criteria = []
+        if research_section:
+            research_derived_criteria = self._extract_criteria_from_research(
+                task, research_section, persona=expert_persona
+            )
+
         # Phase C: Exemplar retrieval + contrastive criterion extraction
         contrastive_section = ""
         if self.enable_exemplar:
@@ -3585,6 +3652,29 @@ RUBRIC DESIGN PRINCIPLES:
         # has full domain context before generating criteria
         if research_section:
             prompt += "\n" + research_section
+
+        # Inject research-derived criteria as mandatory seeds — these ensure every
+        # research finding maps to at least one criterion in the final rubric.
+        if research_derived_criteria:
+            lines = [
+                "\nRESEARCH-DERIVED CRITERIA (incorporate these and add additional criteria based on your "
+                "expert judgment) — The following criteria were extracted directly from domain research "
+                "findings. Incorporate ALL of them into the rubric. You may refine wording, scoring "
+                "method, or max_points, but do NOT drop any. Add more criteria as your expertise demands.\n"
+            ]
+            for c in research_derived_criteria:
+                cid = c.get("id", "unknown")
+                desc = c.get("description", "")
+                pass_cond = c.get("pass_condition", "")
+                basis = c.get("research_basis", "")
+                lines.append(f"  [{cid}] {desc}")
+                if pass_cond:
+                    lines.append(f"    Pass condition: {pass_cond}")
+                if basis:
+                    lines.append(f"    Research basis: {basis}")
+                lines.append("")
+            prompt += "\n".join(lines)
+
         if contrastive_section:
             prompt += "\n" + contrastive_section
         if retrieval_section:
@@ -3625,6 +3715,24 @@ RUBRIC DESIGN PRINCIPLES:
         rubric = self._hydrate(task, spec)
         self._log(f"Generated: {len(rubric.criteria)} criteria, {rubric.total_points} max points, "
                   f"threshold: {rubric.pass_threshold:.0%}")
+
+        # Coverage check: verify research-derived criteria survived into the final rubric.
+        # Log warnings for any that were dropped so we can diagnose generation failures.
+        if research_derived_criteria:
+            rubric_ids = {c.id for c in rubric.criteria}
+            missing = []
+            for c in research_derived_criteria:
+                cid = c.get("id", "")
+                if cid and cid not in rubric_ids:
+                    missing.append((cid, c.get("description", "")[:80]))
+            if missing:
+                self._log(f"[Coverage] WARNING: {len(missing)}/{len(research_derived_criteria)} "
+                          f"research-derived criteria were not retained in the final rubric:")
+                for cid, desc in missing:
+                    self._log(f"[Coverage]   DROPPED: '{cid}' — {desc}")
+            else:
+                self._log(f"[Coverage] All {len(research_derived_criteria)} research-derived criteria "
+                          f"retained in final rubric")
 
         # Step 3: Research traceability audit — verify criteria are grounded
         if self.enable_tracing and self.tracer and research_section:
@@ -3798,6 +3906,51 @@ RUBRIC DESIGN PRINCIPLES:
 # ============================================================================
 # Research Tracer — verifies rubric criteria are grounded in research
 # ============================================================================
+
+RESEARCH_CRITERIA_EXTRACTION_PROMPT = """You are converting domain research into measurable evaluation criteria. For each distinct professional standard, best practice, or domain-specific quality requirement found in the research below, generate ONE criterion that would verify an output meets that standard.
+
+RESEARCH FINDINGS:
+{research}
+
+TASK BEING EVALUATED:
+{task}
+
+For each research finding, ask: 'What specific, measurable criterion would verify that an output complies with or demonstrates this standard?'
+
+Rules:
+- Each criterion must trace to a SPECIFIC finding in the research (cite it in research_basis)
+- If a finding is too broad, decompose it into 2-3 specific criteria
+- Skip findings that are generic advice (e.g., 'be clear') — only extract criteria for domain-specific standards
+- Each criterion needs concrete pass_condition with numbers/named techniques
+- Use weighted_components or penalty_based scoring (not binary)
+- Generate as many criteria as the research supports — do NOT artificially cap
+
+Output: JSON array of criterion objects matching the standard rubric format:
+[
+  {{
+    "id": "<short_snake_case>",
+    "category": "<category>",
+    "description": "<what this criterion evaluates>",
+    "pass_condition": "<concrete threshold with numbers/named techniques>",
+    "scoring_method": "weighted_components|penalty_based",
+    "max_points": <int 3-8>,
+    "sub_attributes": [
+      {{
+        "sub_id": "<snake_case>",
+        "description": "<what this measures>",
+        "weight": <float>,
+        "measurement": "<graduated scale: 1.0 if [expert], 0.7 if [competent], 0.4 if [surface], 0.0 if [absent]>"
+      }}
+    ],
+    "penalties": {{"<violation>": <negative_float>}},
+    "pass_examples": ["<example>"],
+    "fail_examples": ["<example>"],
+    "research_basis": "<exact quote or citation from the research finding this criterion traces to>"
+  }}
+]
+
+Output ONLY the JSON array. No preamble, no explanation."""
+
 
 TRACER_PROMPT = """You are a rubric auditor. Your job is to verify that each criterion in a generated rubric is properly grounded in the domain research that was conducted.
 
