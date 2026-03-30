@@ -3490,6 +3490,7 @@ RUBRIC DESIGN PRINCIPLES:
                  enable_rubric_store: bool = True,
                  rag_store: Optional[RubricRAGStore] = None,
                  enable_multipass: bool = True):
+                 enable_adversarial_audit: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
         self.client = Anthropic()  # Fresh client, separate from generation/scoring/evaluation agents
@@ -3505,8 +3506,11 @@ RUBRIC DESIGN PRINCIPLES:
         self.enable_rubric_store = enable_rubric_store
         self.rag_store = rag_store
         self.enable_multipass = enable_multipass
+        self.enable_adversarial_audit = enable_adversarial_audit
         # Research tracer (verifies rubric grounding) — has its own isolated client
         self.tracer = ResearchTracer(model=model, verbose=verbose) if enable_tracing else None
+        # Adversarial auditor (red-teams the rubric for coverage gaps) — shares client
+        self.auditor = AdversarialAuditor(client=self.client, model=model, verbose=verbose) if enable_adversarial_audit else None
 
     def _log(self, msg: str):
         if self.verbose:
@@ -4507,6 +4511,16 @@ RUBRIC DESIGN PRINCIPLES:
 
         # Store trace result on rubric for downstream use
         rubric._trace_result = trace_result
+        # Step 4: Adversarial coverage audit — red-team the rubric for blind spots
+        if self.enable_adversarial_audit and self.auditor:
+            self._log("Running adversarial coverage audit...")
+            rubric, audit_report = self.auditor.audit(task, rubric, max_rounds=2)
+            self._log(
+                f"Adversarial audit: added {audit_report['criteria_added']} criteria "
+                f"in {audit_report['rounds']} round(s) "
+                f"({'converged' if audit_report['converged'] else 'max rounds reached'})"
+            )
+
         return rubric
 
     def _build_seed_section(self, task: str, seed_rubrics: list[Rubric] = None) -> str:
@@ -5119,6 +5133,279 @@ Output a JSON array of criterion specs. Output ONLY the JSON array."""
 
 # Backward compatibility alias
 RubricGenerator = RubricAgent
+
+
+# ============================================================================
+# Adversarial Coverage Auditor — red-teams the rubric to find coverage gaps
+# ============================================================================
+
+class AdversarialAuditor:
+    """Red-teams a rubric by generating outputs that score high but miss expert expectations.
+
+    Runs in up to 2 rounds:
+    1. Generates adversarial outputs that would score 90%+ but lack genuine quality
+    2. Identifies what quality dimensions the adversarial outputs exploit
+    3. Generates new criteria to close the gaps found
+    4. Stops when the red team can no longer find exploitable gaps
+    """
+
+    def __init__(self, client, model: str, verbose: bool = True):
+        self.client = client
+        self.model = model
+        self.verbose = verbose
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(f"[AdversarialAuditor] {msg}")
+
+    def audit(self, task: str, rubric: Rubric, max_rounds: int = 2) -> tuple[Rubric, dict]:
+        """Red-team the rubric and patch coverage gaps.
+
+        Args:
+            task: the task description
+            rubric: the rubric to audit
+            max_rounds: maximum red-team rounds (default 2)
+
+        Returns:
+            (patched_rubric, audit_report) where audit_report tracks rounds run,
+            adversarial outputs generated, gaps found, criteria added, and convergence.
+        """
+        import copy
+
+        audit_report: dict = {
+            "rounds": 0,
+            "adversarial_outputs_generated": 0,
+            "gaps_found": 0,
+            "criteria_added": 0,
+            "converged": False,
+        }
+
+        patched = copy.deepcopy(rubric)
+
+        for round_num in range(1, max_rounds + 1):
+            self._log(f"Round {round_num}: generating adversarial outputs...")
+
+            adversarial_outputs = self._generate_adversarial_outputs(task, patched)
+            if not adversarial_outputs:
+                self._log(f"Round {round_num}: no adversarial outputs generated — stopping")
+                audit_report["converged"] = True
+                break
+
+            audit_report["adversarial_outputs_generated"] += len(adversarial_outputs)
+            audit_report["rounds"] = round_num
+
+            all_new_criteria: list[dict] = []
+            for adv_output in adversarial_outputs:
+                new_criteria = self._identify_gaps_and_generate_criteria(task, patched, adv_output)
+                all_new_criteria.extend(new_criteria)
+
+            if not all_new_criteria:
+                self._log(f"Round {round_num}: red team couldn't find exploitable gaps — converged")
+                audit_report["converged"] = True
+                break
+
+            audit_report["gaps_found"] += len(all_new_criteria)
+
+            existing_ids = {c.id for c in patched.criteria}
+            added = 0
+            for spec in all_new_criteria:
+                cid = spec.get("id", "")
+                if cid and cid in existing_ids:
+                    continue
+                criterion = self._build_criterion(spec, patched.domain)
+                patched.criteria.append(criterion)
+                if cid:
+                    existing_ids.add(cid)
+                added += 1
+
+            audit_report["criteria_added"] += added
+            patched.total_points = sum(c.scoring.max_points for c in patched.criteria)
+            self._log(f"Round {round_num}: added {added} criteria "
+                      f"(total now: {len(patched.criteria)}, {patched.total_points} pts)")
+
+        if audit_report["rounds"] == 0:
+            audit_report["converged"] = True
+
+        return patched, audit_report
+
+    def _build_rubric_summary(self, rubric: Rubric) -> str:
+        lines = []
+        for c in rubric.criteria:
+            lines.append(f"  {c.id} [{c.scoring.max_points}pts]: {c.description}")
+            if c.pass_condition:
+                lines.append(f"    Pass condition: {c.pass_condition}")
+        return "\n".join(lines)
+
+    def _generate_adversarial_outputs(self, task: str, rubric: Rubric) -> list[str]:
+        """Generate 3-5 adversarial outputs that satisfy rubric criteria superficially."""
+        rubric_summary = self._build_rubric_summary(rubric)
+
+        prompt = f"""You are a clever but shallow AI trying to game a scoring rubric. Given this task and rubric, produce an output that would score 90%+ on every criterion but that a real domain expert would consider inadequate. Focus on: satisfying the letter of each criterion while missing the spirit. Find blind spots — what important qualities does this rubric NOT measure?
+
+TASK: {task}
+
+RUBRIC CRITERIA:
+{rubric_summary}
+
+Generate 3-5 adversarial outputs. Each should exploit a DIFFERENT blind spot in the rubric.
+
+Return JSON in this format:
+{{
+  "adversarial_outputs": [
+    {{
+      "output": "<the adversarial output text>",
+      "exploitation_strategy": "<brief description of which rubric blind spots this exploits>"
+    }}
+  ]
+}}
+
+Output ONLY the JSON."""
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=6000,
+                temperature=1,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text
+            parsed = self._parse_json(raw)
+            if not parsed:
+                return []
+            outputs = parsed.get("adversarial_outputs", [])
+            results = [o.get("output", "") for o in outputs if o.get("output")]
+            self._log(f"  Generated {len(results)} adversarial outputs")
+            return results
+        except Exception as e:
+            self._log(f"  Adversarial generation failed: {e}")
+            return []
+
+    def _identify_gaps_and_generate_criteria(
+        self, task: str, rubric: Rubric, adv_output: str
+    ) -> list[dict]:
+        """Identify quality gaps in an adversarial output and propose criteria to close them."""
+        rubric_summary = self._build_rubric_summary(rubric)
+
+        prompt = f"""You are a domain expert reviewer. This output scores high on the rubric but was designed to exploit coverage gaps. Identify 2-4 specific quality dimensions that this output lacks but that the rubric fails to measure. For each gap, propose a new criterion with id, description, pass_condition, scoring_method, and max_points.
+
+TASK: {task}
+
+RUBRIC CRITERIA:
+{rubric_summary}
+
+ADVERSARIAL OUTPUT (designed to score well but be inadequate):
+{adv_output[:3000]}
+
+Return JSON in this format:
+{{
+  "exploits_found": true,
+  "gaps": [
+    {{
+      "gap_description": "<what quality dimension is missing>",
+      "criterion": {{
+        "id": "<snake_case_id>",
+        "category": "<category>",
+        "description": "<what this evaluates>",
+        "pass_condition": "<concrete, measurable threshold>",
+        "scoring_method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {{"sub_id": "<id>", "description": "<desc>", "weight": 0.5, "measurement": "<scale>"}}
+        ]
+      }}
+    }}
+  ]
+}}
+
+Set "exploits_found" to false if this output would genuinely satisfy an expert (no real gaps found).
+Output ONLY the JSON."""
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4000,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text
+            parsed = self._parse_json(raw)
+            if not parsed:
+                return []
+            if not parsed.get("exploits_found", True):
+                return []
+            gaps = parsed.get("gaps", [])
+            criteria = [g.get("criterion") for g in gaps if g.get("criterion")]
+            self._log(f"  Found {len(criteria)} gap(s) to patch")
+            return criteria
+        except Exception as e:
+            self._log(f"  Gap analysis failed: {e}")
+            return []
+
+    def _build_criterion(self, spec: dict, domain: str) -> Criterion:
+        """Build a Criterion from an adversarial audit spec dict."""
+        method_str = spec.get("scoring_method", "weighted_components")
+        method_map = {
+            "weighted_components": ScoringMethod.WEIGHTED_COMPONENTS,
+            "penalty_based": ScoringMethod.PENALTY_BASED,
+            "binary": ScoringMethod.BINARY,
+            "percentage": ScoringMethod.PERCENTAGE,
+            "threshold_tiers": ScoringMethod.THRESHOLD_TIERS,
+            "count_based": ScoringMethod.COUNT_BASED,
+        }
+        method = method_map.get(method_str, ScoringMethod.WEIGHTED_COMPONENTS)
+        max_points = spec.get("max_points", 3)
+
+        sub_attributes: list[SubAttribute] = []
+        if method == ScoringMethod.WEIGHTED_COMPONENTS:
+            for sub in spec.get("sub_attributes", []):
+                sub_attributes.append(SubAttribute(
+                    sub_id=sub.get("sub_id", ""),
+                    description=sub.get("description", ""),
+                    weight=sub.get("weight", 0.5),
+                    measurement=sub.get("measurement", ""),
+                ))
+            total_w = sum(s.weight for s in sub_attributes)
+            if sub_attributes and abs(total_w - 1.0) > 0.01:
+                for s in sub_attributes:
+                    s.weight = s.weight / total_w
+
+        scoring = ScoringRubric(method=method, max_points=max_points, sub_attributes=sub_attributes)
+
+        return Criterion(
+            id=spec.get("id", f"adv_gap_{id(spec)}"),
+            category=spec.get("category", "adversarial_coverage"),
+            description=spec.get("description", ""),
+            pass_condition=spec.get("pass_condition", ""),
+            scoring=scoring,
+            source="adversarial_auditor",
+            domain=domain,
+        )
+
+    def _parse_json(self, text: str):
+        text = text.strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        if match:
+            try:
+                return json.loads(match.group(1))
+            except json.JSONDecodeError:
+                pass
+        match = re.search(r'\[[\s\S]*\]', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+        match = re.search(r'\{[\s\S]*\}', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+        return None
 
 
 # ============================================================================
