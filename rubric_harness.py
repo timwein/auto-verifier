@@ -46,7 +46,7 @@ from rubric_system.scoring_engine import compute_dimension_scores
 try:
     from anthropic import Anthropic
     import httpx as _httpx
-    _API_TIMEOUT = _httpx.Timeout(300.0, connect=30.0)
+    _API_TIMEOUT = _httpx.Timeout(600.0, connect=30.0)
 except ImportError:
     Anthropic = None
     _API_TIMEOUT = None

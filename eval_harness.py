@@ -23,7 +23,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import atexit
 import json
+import signal
 import statistics
 import sys
 import time
@@ -306,6 +308,9 @@ async def run_harness(
         enable_self_improve=False,   # don't rewrite harness code during eval
         enable_checkpoints=False,    # no human pauses during eval
         enable_research=False,       # rubric already provided; skip research step
+        skip_negotiation=True,               # eval: use sample rubric as-is
+        enable_tradeoff_detection=False,     # eval: don't drop/merge criteria
+        enable_quality_gate=False,           # eval: don't drop/merge criteria
         feedback_dir=".eval_feedback",
         iterations_dir=".eval_iterations",
     )
@@ -323,12 +328,11 @@ async def run_harness(
               f"in {loop_result.iterations} iter / {harness_secs:.1f}s")
         print(f"  [harness] re-scoring final output for fair comparison…")
 
-    # Re-score best output against the loop's resolved rubric (which may differ from the
-    # sample rubric if TradeoffDetector relaxed or merged criteria). Using loop_result.rubric
-    # ensures the external re-score and internal scores use the same criterion definitions.
-    rescore_rubric = loop_result.rubric if loop_result.rubric is not None else rubric
+    # Re-score against the ORIGINAL sample rubric — since we now disable negotiation,
+    # tradeoff detection, and quality gate, the loop rubric should be identical to the
+    # sample rubric. Always use the caller's rubric for a fair apples-to-apples comparison.
     t1 = time.monotonic()
-    total, max_total, cr_list = await score_against_rubric(scorer, loop_result.output, rescore_rubric)
+    total, max_total, cr_list = await score_against_rubric(scorer, loop_result.output, rubric)
     rescore_secs = time.monotonic() - t1
     pct = total / max_total if max_total > 0 else 0.0
 
@@ -498,6 +502,109 @@ def generate_markdown_report(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Artifact recovery: reconstruct harness result from iteration files
+# ──────────────────────────────────────────────────────────────────────────────
+
+def recover_harness_from_artifacts(
+    task_key: str,
+    iterations_dir: str = ".eval_iterations",
+) -> Optional[RunResult]:
+    """Scan iteration artifacts for the best completed iteration and reconstruct a RunResult.
+
+    Used on resume when the harness ran but the result was never captured (e.g. process killed).
+    Returns None if no usable artifacts are found.
+    """
+    idir = Path(iterations_dir)
+    if not idir.exists():
+        return None
+
+    # Find all run directories, pick the most recent one that has iteration artifacts
+    best_result: Optional[RunResult] = None
+    best_pct = -1.0
+
+    for run_dir in sorted(idir.iterdir(), reverse=True):
+        if not run_dir.is_dir():
+            continue
+
+        # Read all iter_NNN_meta.json files in this directory
+        meta_files = sorted(run_dir.glob("iter_*_meta.json"))
+        if not meta_files:
+            continue
+
+        # Check if the rubric.json in this dir matches the task (by reading it)
+        rubric_file = run_dir / "rubric.json"
+        if rubric_file.exists():
+            try:
+                rubric_data = json.loads(rubric_file.read_text())
+                rubric_task = rubric_data.get("task", "")
+                # Match by checking if the task_key appears in the rubric's task or domain
+                rubric_domain = rubric_data.get("domain", "")
+                if task_key not in rubric_domain and task_key.replace("_", " ") not in rubric_task.lower():
+                    continue
+            except Exception:
+                continue
+        else:
+            continue
+
+        # Find the best-scoring iteration in this run
+        for meta_path in meta_files:
+            try:
+                meta = json.loads(meta_path.read_text())
+                pct = meta.get("percentage", 0.0)
+                if pct <= best_pct:
+                    continue
+
+                # Read the content file
+                content_path = meta.get("content_path", "")
+                if content_path:
+                    content_file = Path(content_path)
+                else:
+                    content_file = meta_path.with_name(
+                        meta_path.name.replace("_meta.json", "_content.md")
+                    )
+
+                if not content_file.exists():
+                    continue
+
+                content = content_file.read_text()
+                if not content.strip():
+                    continue
+
+                # Build criterion results from meta
+                cr_list = []
+                for cs in meta.get("criterion_scores", []):
+                    cr_list.append(CriterionResult(
+                        criterion_id=cs["criterion_id"],
+                        category="",
+                        points_earned=cs["points_earned"],
+                        max_points=cs["max_points"],
+                        percentage=cs.get("percentage", 0.0),
+                        evidence="(recovered from iteration artifacts)",
+                    ))
+
+                iteration_num = meta.get("iteration", 0)
+                best_result = RunResult(
+                    output=content,
+                    score=meta.get("total_score", 0.0),
+                    max_score=meta.get("max_score", 0),
+                    percentage=pct,
+                    criterion_results=cr_list,
+                    wall_seconds=0.0,  # unknown from artifacts
+                    iterations=iteration_num,
+                    improvement_summary=[f"(recovered from artifacts, iter {iteration_num})"],
+                )
+                best_pct = pct
+            except Exception:
+                continue
+
+        # Only check the most recent matching run directory
+        if best_result is not None:
+            break
+
+    return best_result
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Main eval loop
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -511,7 +618,7 @@ async def run_eval(
     model: str,
     verbose: bool,
 ) -> Dict[str, TaskEvalResult]:
-    client = anthropic.Anthropic(timeout=httpx.Timeout(300.0, connect=30.0))
+    client = anthropic.Anthropic(timeout=httpx.Timeout(600.0, connect=30.0))
 
     # Shared scorer: used ONLY for score_content() calls (no loop runs).
     # Isolated feedback dir so eval scoring doesn't bleed into production feedback.
@@ -531,6 +638,24 @@ async def run_eval(
         task_results = load_results(output_path)
         if task_results:
             print(f"[resume] loaded {len(task_results)} existing results from {output_path}")
+
+    # Safety net: persist results on SIGTERM / atexit so interrupted runs don't lose data
+    def _save_on_exit():
+        try:
+            if task_results:
+                save_results(task_results, output_path)
+                print(f"\n[atexit] saved {len(task_results)} results to {output_path}")
+        except Exception:
+            pass  # best-effort; don't raise during shutdown
+
+    atexit.register(_save_on_exit)
+
+    def _sigterm_handler(signum, frame):
+        print(f"\n[signal] received signal {signum}, saving results…")
+        _save_on_exit()
+        sys.exit(1)
+
+    signal.signal(signal.SIGTERM, _sigterm_handler)
 
     total_tasks = len(task_keys)
     for idx, task_key in enumerate(task_keys, 1):
@@ -554,6 +679,15 @@ async def run_eval(
             if existing.harness and do_harn:
                 print(f"  [skip] harness already done ({existing.harness.percentage:.1%})")
                 do_harn = False
+            # Recover harness from iteration artifacts if missing (e.g. process was killed)
+            if not existing.harness and do_harn and not existing.error:
+                recovered = recover_harness_from_artifacts(task_key, ".eval_iterations")
+                if recovered:
+                    print(f"  [recovered] harness from iteration artifacts: {recovered.percentage:.1%}")
+                    existing.harness = recovered
+                    existing.error = None
+                    save_results(task_results, output_path)
+                    do_harn = False
             if not do_base and not do_harn:
                 continue
 
