@@ -1866,9 +1866,10 @@ CALIBRATION:
             "within 2% across the last two rounds. Before scoring this attempt, apply extra scrutiny:\n"
             "(1) Are any Stage 1 checklist items ambiguously worded so mediocre content satisfies them?\n"
             "(2) Is your checklist granular enough to distinguish this attempt from the prior one?\n"
-            "(3) Are you defaulting to 0.50 for everything instead of genuinely testing for 0.75?\n"
-            "(4) For each sub-attribute, quote specific evidence or state 'not found' — no inferences.\n"
-            "Identify what is specifically still missing, not just whether requirements are generally met."
+            "(3) For each sub-attribute, quote specific evidence or state 'not found' — no inferences.\n"
+            "(4) Identify what is specifically still missing, not just whether requirements are generally met.\n"
+            "Do NOT change your scoring anchors — use the same 0.0/0.25/0.50/0.75 scale as always. "
+            "Better evidence extraction, not score inflation, is the goal."
         )
         if plateau_injection not in self._scorer_system_prompt:
             self._scorer_system_prompt = self.SCORER_SYSTEM_PROMPT + plateau_injection
@@ -5893,6 +5894,12 @@ FEEDBACK PRINCIPLES:
 
 7. TRAJECTORY AWARENESS: When a score trajectory is provided, analyze it before generating feedback. If a criterion REGRESSED (scored higher in a prior iteration than the current one), your fix instruction must explicitly say what the generator had before that worked, and what it changed that caused the drop. The generator must know: "iter N had X which scored Y%, iter N+1 replaced it with Z and scored lower — restore/recover X while keeping the improvements from iter N+1." Recovering a regression is higher priority than incrementally improving a stable low score.
 
+8. AUDIENCE-FIT CRITERIA: When a criterion in the `audience_fit` category fails, the fix is SIMPLIFICATION and REPLACEMENT — not adding more content. You must act like a copy editor:
+   a. Scan the Stage 1 evidence and the content for specific unexplained jargon terms. List each one explicitly by name (e.g., "vanishing gradients", "O(n²) complexity", "WQ/WK/WV matrices").
+   b. For each term: instruct the generator to either (1) remove it entirely, or (2) replace it with a plain-language alternative. Give the exact replacement, not a vague directive.
+   c. For analogy quality: if the current analogy is generic (library, spotlight, filing cabinet), suggest a SPECIFIC analogy from the target audience's lived world. If the audience is a 16-year-old, suggest YouTube recommendations, TikTok FYP algorithm, Spotify Discover Weekly, gaming matchmaking — anything from their daily digital life that maps cleanly onto the concept.
+   d. Your `instruction` field must read like an editor's note: "Replace 'vanishing gradients' with 'a problem where the model forgets earlier words before it can learn from them'" — concrete substitution, not directional advice.
+
 OUTPUT FORMAT:
 Return a JSON object with this structure:
 {
@@ -5953,6 +5960,7 @@ Return a JSON object with this structure:
         rubric,
         iteration_number: int = 1,
         history: list = None,
+        tradeoff_context: list = None,
     ) -> dict:
         """Generate structured feedback from scoring output.
 
@@ -5962,6 +5970,7 @@ Return a JSON object with this structure:
             rubric: the Rubric object with criteria definitions
             iteration_number: current iteration (for trajectory context)
             history: list of prior Iteration objects for trajectory analysis
+            tradeoff_context: list of tension/priority notes from TradeoffDetector
 
         Returns:
             dict with 'preserve', 'fix', and 'summary' keys
@@ -6051,11 +6060,20 @@ Return a JSON object with this structure:
                 )
             trajectory_section = "\n".join(traj_lines)
 
+        tradeoff_section = ""
+        if tradeoff_context:
+            tradeoff_section = (
+                "\nCRITERIA TENSION NOTES (detected before the loop started — "
+                "these criteria pull in opposite directions; your fix instructions MUST respect these trade-offs):\n"
+                + "\n".join(f"  - {note}" for note in tradeoff_context)
+                + "\n"
+            )
+
         prompt = f"""Analyze these scoring results and produce structured feedback for a content generator.
 
 ITERATION: {iteration_number}
 
-{trajectory_section + chr(10) if trajectory_section else ""}RUBRIC CRITERIA (what was being measured):
+{trajectory_section + chr(10) if trajectory_section else ""}{tradeoff_section}RUBRIC CRITERIA (what was being measured):
 {"".join(criteria_lines)}
 
 SCORING RESULTS:
@@ -6064,7 +6082,7 @@ SCORING RESULTS:
 STAGE 1 CHECKLIST (the scorer's binary observations):
 {checklist if checklist else "(No checklist captured — generate feedback from scores and criteria specs only)"}
 
-Generate structured feedback following your system prompt format. Focus on the FAIL criteria — those are where points are being lost. For each failed check, provide a specific, actionable editing instruction. If regressions are present in the trajectory, prioritize recovering those scores first."""
+Generate structured feedback following your system prompt format. Focus on the FAIL criteria — those are where points are being lost. For each failed check, provide a specific, actionable editing instruction. If regressions are present in the trajectory, prioritize recovering those scores first. When criteria tension notes are present, your fix instructions must navigate the trade-off explicitly — do not simply maximize one criterion at the expense of another."""
 
         self._log(f"Generating structured feedback (iteration {iteration_number})...")
 
@@ -7352,6 +7370,7 @@ class RubricLoop:
                     rubric=rubric,
                     iteration_number=i,
                     history=history,
+                    tradeoff_context=tradeoff_context if tradeoff_context else None,
                 )
                 last_feedback_text = self.feedback_agent.format_for_generator(structured_feedback)
                 self._log(f"  [Feedback] {len(structured_feedback.get('fix', []))} fixes, "
@@ -7398,7 +7417,8 @@ class RubricLoop:
                 self._log(f"  [Feedback] Generation failed (non-fatal): {e}")
                 last_feedback_text = ""
 
-        # Return the last iteration's output (regression recovery teaches the model in-band)
+        # Return the best-scoring iteration's output. History is preserved in full for
+        # the learning loop — regressions are visible there without polluting the output.
         best = max(history, key=lambda h: h.percentage)
         last = history[-1]
         limit_msg = f"Max iterations ({self.max_iterations}) reached" if self.max_iterations > 0 else "Loop ended"

@@ -322,10 +322,12 @@ async def run_harness(
               f"in {loop_result.iterations} iter / {harness_secs:.1f}s")
         print(f"  [harness] re-scoring final output for fair comparison…")
 
-    # Re-score final output against the SAME sample rubric (fair baseline comparison).
-    # The loop's internal scores may differ due to plateau detection or scorer state.
+    # Re-score best output against the loop's resolved rubric (which may differ from the
+    # sample rubric if TradeoffDetector relaxed or merged criteria). Using loop_result.rubric
+    # ensures the external re-score and internal scores use the same criterion definitions.
+    rescore_rubric = loop_result.rubric if loop_result.rubric is not None else rubric
     t1 = time.monotonic()
-    total, max_total, cr_list = await score_against_rubric(scorer, loop_result.output, rubric)
+    total, max_total, cr_list = await score_against_rubric(scorer, loop_result.output, rescore_rubric)
     rescore_secs = time.monotonic() - t1
     pct = total / max_total if max_total > 0 else 0.0
 
