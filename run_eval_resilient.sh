@@ -2,7 +2,7 @@
 # Resilient eval runner — auto-restarts on hangs
 # Monitors process CPU activity and restarts if dead for 8 minutes
 
-OUTPUT_FILE="eval_results_run6.json"
+OUTPUT_FILE="eval_results_run7.json"
 MAX_STALL_SECONDS=720  # 12 minutes with no CPU activity (matches 600s API timeout)
 
 while true; do

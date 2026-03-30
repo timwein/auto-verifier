@@ -4,6 +4,36 @@ The rubric harness is a generation-verification loop that generates task-specifi
 
 ---
 
+## Run 7 Results
+
+Run 7 completed all 10 tasks with 0 errors — the first fully clean run since Run 3. Used the same resilient eval wrapper as Run 6.
+
+| Task | Description | Baseline | Harness | Delta | Iters |
+|---|---|---|---|---|---|
+| exec_summary | Summarize a 2,000-word technical blog post into a 3-bullet executive summary | 36.8% | 65.4% | +28.6pp | 4 |
+| agi_counterargument | Write a counterargument to the claim 'AGI will arrive before 2030' | 32.9% | 61.4% | +28.5pp | 3 |
+| investment_memo | Draft a 1-page investment memo on a hypothetical Series A company in the defense drone space | 60.9% | 80.7% | +19.8pp | 3 |
+| cold_outreach_email | Write a cold outreach email to a Series A founder pitching angel investment | 30.3% | 47.0% | +16.7pp | 4 |
+| csv_parser | Generate a Python function that parses messy CSV data with inconsistent delimiters and missing headers | 45.0% | 61.4% | +16.4pp | 4 |
+| startup_naming | Generate 5 names for a startup that does AI-powered contract review for mid-market law firms | 45.8% | 60.4% | +14.6pp | 3 |
+| attention_explanation | Explain transformer attention mechanisms to a smart 16-year-old | 61.2% | 71.0% | +9.8pp | 4 |
+| sql_ltv_query | Create a SQL query to find the top 10 customers by lifetime value excluding refunds, from a schema you define | 52.5% | 60.0% | +7.5pp | 4 |
+| bash_backup | Write a bash script that backs up a PostgreSQL database to S3 with rotation, logging, and error notifications | 50.8% | 55.2% | +4.4pp | 4 |
+| billing_schema | Design a JSON schema for a multi-tenant SaaS billing system supporting usage-based and seat-based pricing | 47.8% | 21.1% | -26.7pp | 3 |
+| **MEAN (10 tasks)** | | **46.4%** | **58.4%** | **+11.9pp** | **3.6** |
+
+### Run 7 Observations
+
+- **First error-free run since Run 3** — All 10 tasks completed successfully. csv_parser and startup_naming (which errored in Run 6) both finished cleanly.
+- **billing_schema regression (-26.7pp)** — The only negative delta and the largest regression in any run. The harness drove the score from 47.8% down to 21.1%, with schema_completeness, schema_correctness, and schema_extensibility all stuck at 0% across all 3 iterations. The rubric for this task may have generated criteria that conflicted with each other or were unmeetable.
+- **exec_summary and agi_counterargument strongest gains (+28.6pp, +28.5pp)** — Both had low baselines and benefited from iterative refinement. agi_counterargument continues to be one of the harness's best tasks across all runs.
+- **investment_memo highest absolute score (80.7%)** — The best harness score in this run, converging in just 3 iterations.
+- **attention_explanation recovered (+9.8pp)** — After regressing in Run 6 (-2.7pp), this task now shows a positive delta, suggesting the new rubric was better constructed.
+- **Harness average dropped to 58.4%** — Down from the 72-73% range seen in Runs 3-6. The billing_schema regression (-26.7pp) accounts for most of this decline; excluding it, the harness average is 62.5%.
+- **Lower iteration counts (avg 3.6)** — Convergence/plateau detection kicked in earlier this run compared to prior runs (avg 4.5-4.6), suggesting the harness is stopping sooner when it detects diminishing returns.
+
+---
+
 ## Run 6 Results
 
 Run 6 used the resilient eval wrapper (`run_eval_resilient.sh`) which auto-restarts stalled tasks after 8 minutes. 6 of 8 tasks completed successfully; 2 tasks errored out.
@@ -65,8 +95,9 @@ Rubrics are regenerated from scratch each run, so baselines differ across runs.
 | Run 4 | 9 | 46.9% | 72.9% | +26.0pp | Added learning features |
 | Run 5 | — | — | — | — | Abandoned (API timeouts) |
 | Run 6 | 6 | 52.8% | 72.5% | +19.7pp | Resilient wrapper, 2 errors |
+| Run 7 | 10 | 46.4% | 58.4% | +11.9pp | First clean 10/10 run since Run 3 |
 
-Harness scores remain consistent in the 72–73% range across all completed runs. The delta variation is driven primarily by rubric difficulty (lower baselines = larger deltas). Run 4's +26.0pp remains the best delta, aided by harder rubrics and the learning features introduced that run.
+Runs 3-6 showed harness scores consistently in the 72–73% range. Run 7 broke this pattern with a 58.4% harness average, pulled down by a severe billing_schema regression (-26.7pp). Excluding that outlier, Run 7's harness average is 62.5% — still below prior runs, suggesting rubric quality variance remains the dominant factor in harness performance. Run 4's +26.0pp remains the best mean delta.
 
 ---
 
