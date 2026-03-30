@@ -5,6 +5,7 @@ Rubric System - Canonical Data Models
 All data models for the rubric generation-verification loop system.
 Imported by rubric_harness, scoring_engine, rubric_claude_code, rubric_ci, etc.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Optional
@@ -97,12 +98,23 @@ class Criterion:
 
 
 @dataclass
+class RubricDimension:
+    """A high-level evaluation dimension containing multiple criteria."""
+    id: str
+    name: str
+    description: str
+    weight: float  # 0.0-1.0, dimension weights sum to 1.0
+    criteria_ids: list[str]  # IDs of criteria belonging to this dimension
+
+
+@dataclass
 class Rubric:
     task: str
     domain: str
     criteria: list[Criterion]
     total_points: int = 0
     pass_threshold: float = 0.85
+    dimensions: Optional[list[RubricDimension]] = None  # None for legacy flat rubrics
 
 
 # ============================================================================
@@ -148,6 +160,7 @@ class DocumentScore:
     pass_threshold: float
     top_improvements: list[str] = field(default_factory=list)
     critical_failures: list[str] = field(default_factory=list)
+    dimension_scores: list[dict] = field(default_factory=list)
 
 
 # ============================================================================
