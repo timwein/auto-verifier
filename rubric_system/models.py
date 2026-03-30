@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Rubric System - Canonical Data Models
 
@@ -102,9 +103,9 @@ class RubricDimension:
     """A high-level evaluation dimension containing multiple criteria."""
     id: str
     name: str
-    description: str
-    weight: float  # 0.0-1.0, dimension weights sum to 1.0
-    criteria_ids: list[str]  # IDs of criteria belonging to this dimension
+    description: str = ""
+    weight: float = 0.0  # 0.0-1.0, dimension weights sum to 1.0
+    criteria_ids: list[str] = field(default_factory=list)  # IDs of criteria belonging to this dimension
 
 
 @dataclass
