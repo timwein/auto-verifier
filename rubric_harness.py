@@ -36,10 +36,12 @@ from rubric_system.models import (
     CriterionScore,
     Criterion,
     Rubric,
+    RubricDimension,
     Iteration,
     LoopResult,
     ScoredRubricRecord,
 )
+from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
     from anthropic import Anthropic
@@ -4783,6 +4785,28 @@ Return a JSON object with this structure:
                 for v, p in c.scoring.penalties.items():
                     criteria_lines.append(f"  - penalty: {v} ({p})")
 
+        # Build dimension summary if rubric has dimensions
+        dimension_summary = ""
+        if rubric.dimensions:
+            dim_scores = compute_dimension_scores(rubric.dimensions, criterion_scores)
+            if dim_scores:
+                sorted_dims = sorted(dim_scores, key=lambda d: d["percentage"])
+                weakest = sorted_dims[0]
+                strongest = sorted_dims[-1]
+                dim_lines = [
+                    f"  {d['dimension_name']}: {d['percentage']:.0%} "
+                    f"({d['score']:.1f}/{d['max_score']} pts, {d['criteria_count']} criteria)"
+                    for d in sorted_dims
+                ]
+                note = f"Weakest: '{weakest['dimension_name']}' ({weakest['percentage']:.0%})"
+                if len(sorted_dims) > 1:
+                    note += f". Strongest: '{strongest['dimension_name']}' ({strongest['percentage']:.0%})."
+                dimension_summary = (
+                    "\nDIMENSION SCORES:\n"
+                    + "\n".join(dim_lines)
+                    + f"\n{note}\n"
+                )
+
         prompt = f"""Analyze these scoring results and produce structured feedback for a content generator.
 
 ITERATION: {iteration_number}
@@ -4792,7 +4816,7 @@ RUBRIC CRITERIA (what was being measured):
 
 SCORING RESULTS:
 {chr(10).join(score_lines)}
-
+{dimension_summary}
 STAGE 1 CHECKLIST (the scorer's binary observations):
 {checklist if checklist else "(No checklist captured — generate feedback from scores and criteria specs only)"}
 
@@ -5438,6 +5462,16 @@ class RubricLoop:
             "total_points": rubric.total_points,
             "pass_threshold": rubric.pass_threshold,
             "criteria": [_criterion_to_dict(c) for c in rubric.criteria],
+            "dimensions": [
+                {
+                    "id": d.id,
+                    "name": d.name,
+                    "description": d.description,
+                    "weight": d.weight,
+                    "criteria_ids": d.criteria_ids,
+                }
+                for d in rubric.dimensions
+            ] if rubric.dimensions else None,
         }
         path = run_dir / "rubric.json"
         path.write_text(json.dumps(data, indent=2))
@@ -5483,12 +5517,25 @@ class RubricLoop:
                     domain=cd.get("domain", ""),
                     research_basis=cd.get("research_basis", ""),
                 ))
+            dimensions = None
+            if data.get("dimensions"):
+                dimensions = [
+                    RubricDimension(
+                        id=d["id"],
+                        name=d["name"],
+                        description=d["description"],
+                        weight=d["weight"],
+                        criteria_ids=d["criteria_ids"],
+                    )
+                    for d in data["dimensions"]
+                ]
             return Rubric(
                 task=data["task"],
                 domain=data["domain"],
                 criteria=criteria,
                 total_points=data["total_points"],
                 pass_threshold=data["pass_threshold"],
+                dimensions=dimensions,
             )
         except Exception as e:
             self._log(f"[Resume] Failed to load rubric from {path}: {e}")
@@ -6581,6 +6628,7 @@ async def main():
             print("\nSelf-improvement: no proposals (need more data or everything looks healthy)")
 
     if args.json:
+        last_criterion_scores = result.history[-1].criterion_scores if result.history else []
         print(json.dumps({
             "success": result.success,
             "iterations": result.iterations,
@@ -6594,8 +6642,11 @@ async def main():
                     "max": cs.max_points,
                     "percentage": cs.percentage
                 }
-                for cs in result.history[-1].criterion_scores
+                for cs in last_criterion_scores
             },
+            "dimension_scores": compute_dimension_scores(
+                result.rubric.dimensions, last_criterion_scores
+            ),
             "improvements": result.improvement_summary
         }, indent=2))
     else:

@@ -30,6 +30,7 @@ from rubric_system.models import (
     CriterionScore,
     Criterion,
     DocumentScore,
+    RubricDimension,
 )
 
 
@@ -358,6 +359,64 @@ class ScoringEngine:
 
 
 # ============================================================================
+# Dimension Score Computation
+# ============================================================================
+
+def compute_dimension_scores(
+    dimensions: Optional[list],
+    criterion_scores: list,
+) -> list[dict]:
+    """Compute per-dimension scores from already-computed criterion scores.
+
+    Dimension score = sum of points earned by its criteria / sum of their max_points.
+    This is equivalent to a max_points-weighted average of criterion percentages.
+
+    Args:
+        dimensions: list of RubricDimension objects, or None for flat rubrics
+        criterion_scores: list of CriterionScore objects
+
+    Returns:
+        list of dicts: {dimension_id, dimension_name, score, max_score,
+                        percentage, criteria_count}
+        Empty list if dimensions is None or empty.
+    """
+    if not dimensions:
+        return []
+
+    score_by_id = {cs.criterion_id: cs for cs in criterion_scores}
+    results = []
+
+    for dim in dimensions:
+        dim_criteria = [score_by_id[cid] for cid in dim.criteria_ids if cid in score_by_id]
+
+        if not dim_criteria:
+            results.append({
+                "dimension_id": dim.id,
+                "dimension_name": dim.name,
+                "score": 0.0,
+                "max_score": 0,
+                "percentage": 0.0,
+                "criteria_count": 0,
+            })
+            continue
+
+        dim_score = sum(cs.points_earned for cs in dim_criteria)
+        dim_max = sum(cs.max_points for cs in dim_criteria)
+        dim_pct = dim_score / dim_max if dim_max > 0 else 0.0
+
+        results.append({
+            "dimension_id": dim.id,
+            "dimension_name": dim.name,
+            "score": round(dim_score, 2),
+            "max_score": dim_max,
+            "percentage": round(dim_pct, 4),
+            "criteria_count": len(dim_criteria),
+        })
+
+    return results
+
+
+# ============================================================================
 # Measurement Extraction (LLM-based)
 # ============================================================================
 
@@ -430,7 +489,8 @@ class DocumentScorer:
         self,
         content: str,
         criteria: list[Criterion],
-        pass_threshold: float = 0.85
+        pass_threshold: float = 0.85,
+        dimensions: Optional[list] = None,
     ) -> DocumentScore:
         measurements = await self._extract_measurements(content, criteria)
 
@@ -473,7 +533,8 @@ class DocumentScorer:
             passed=percentage >= pass_threshold,
             pass_threshold=pass_threshold,
             top_improvements=top_improvements,
-            critical_failures=critical_failures
+            critical_failures=critical_failures,
+            dimension_scores=compute_dimension_scores(dimensions, criterion_scores),
         )
 
     async def _extract_measurements(
