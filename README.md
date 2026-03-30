@@ -1,84 +1,178 @@
 # Rubric System
 
-A generation-verification loop harness. GAN-inspired: Claude creates a rubric, then generates output, scores it against the task-specific rubric, and iterates until quality threshold is met — with each agent operating in an isolated context window to prevent self-leniency bias.
+A dual adversarial loop harness for high-quality task generation. Two GAN-inspired feedback cycles run in sequence: the first produces a rigorous evaluation rubric, the second iterates the actual task output against it — each with isolated agent contexts to prevent self-leniency.
+
+**Eval results (Run 4, 9 tasks):** baseline 46.9% → harness 72.9%, mean lift **+26.0pp**. See [EVAL.md](EVAL.md).
 
 ## Architecture
 
 ```
-Task ──► Web Research ──► RubricAgent ──► Negotiation ──► Gen-Verify Loop ──► Result
-          (web research)  (isolated ctx)   (isolated ctx)     ↑           ↓
-                                                           generate     score
-                                                        [Generator]  [ScoringAgent]
-                                                              ↑           ↓
-                                                          [FeedbackAgent] (translates scores)
-                                                              ↑
-                                                        [EvaluationAgent] (pass/fail, convergence)
+                    ┌─────────────────────────────────────────────────────┐
+                    │          LOOP 1: RUBRIC GAN                         │
+                    │                                                     │
+  Task ──► Expert   │  ┌─────────┐   ┌─────────┐   ┌────────────────┐   │
+           Persona ─┼─►│  Web    │──►│Exemplar │──►│ RubricRAG Seed │   │
+           Elicit.  │  │Research │   │Retrieval│   │  (past rubrics)│   │
+                    │  └────┬────┘   └────┬────┘   └───────┬────────┘   │
+                    │       └─────────────┴────────────────┘            │
+                    │                     │                              │
+                    │          ┌──────────▼──────────┐                   │
+                    │          │  Multi-pass Hierarch.│                   │
+                    │          │  Generation          │                   │
+                    │          │  (3 expert personas) │                   │
+                    │          └──────────┬───────────┘                   │
+                    │                     │                               │
+                    │       ┌─────────────▼──────────────┐               │
+                    │       │ Adversarial Coverage Audit  │               │
+                    │       │ Research Traceability Audit │               │
+                    │       │ Quality Gate                │               │
+                    │       └─────────────┬───────────────┘               │
+                    └─────────────────────┼─────────────────────────────┘
+                                          │ Rubric (20–35 criteria)
+                    ┌─────────────────────▼─────────────────────────────┐
+                    │          LOOP 2: OUTPUT GAN                        │
+                    │                                                    │
+                    │  Negotiation ──► GenerationAgent                  │
+                    │  (sprint          (isolated ctx) ◄──────────────┐ │
+                    │   contract)            │                         │ │
+                    │                        ▼                         │ │
+                    │                  ScoringAgent                    │ │
+                    │                  (adversarial,    ──► pass?  ──►Result
+                    │                   isolated ctx)       │         │ │
+                    │                        │              │ no      │ │
+                    │                        ▼              │         │ │
+                    │                  FeedbackAgent  ──────┘         │ │
+                    │                  (score → edit                  │ │
+                    │                   instructions)                 │ │
+                    │                        │                        │ │
+                    │                  EvaluationAgent ───────────────┘ │
+                    │                  (convergence,                     │
+                    │                   regression gate)                 │
+                    └────────────────────────────────────────────────────┘
 ```
 
-**6 independent agents** — each with its own `Anthropic()` client, system prompt, and isolated context window:
+## Loop 1: Rubric GAN
+
+The rubric pipeline is itself adversarial: multiple stages challenge, expand, and audit the rubric before it's used to score anything.
+
+### 5-Stage Expert Rubric Generation
+
+**Stage 1 — Expert persona elicitation**
+Before any research or generation, the system synthesizes a domain expert persona: credentials, focus areas, what they'd catch that a generalist would miss. Injected into all downstream prompts to shift criteria from generic quality dimensions toward domain-specific substance.
+
+**Stage 2 — Deep domain research (3 phases)**
+- **(A)** Professional standards and frameworks
+- **(B)** Expert failure modes and common mistakes
+- **(C)** Expert exemplar retrieval for contrastive criterion extraction
+
+Research is the structural backbone, not optional context. Each research finding maps directly to criteria; ungrounded criteria are patched or removed by the research traceability audit.
+
+**Stage 3 — Exemplar retrieval + contrastive criterion extraction**
+Searches for expert-quality example outputs (published templates, award-winning examples, professional samples), then generates a single-shot baseline. The gap between exemplar and baseline is fed to the RubricAgent: *"For each dimension where the expert is clearly superior, generate a criterion that scores the expert at 90–100% and the baseline at 40–60%."* Produces the most discriminative criteria — derived from observed differences, not abstract quality dimensions.
+
+**Stage 4 — RubricRAG: seed criteria from past rubrics**
+`RubricStore` persists evaluation results across runs. Effectiveness-gated criteria extraction from past rubrics provides warm-start seeds for new rubric generation, filtered by domain relevance and historical criterion performance.
+
+**Stage 5 — Quality gate**
+After generation, two audits run:
+- **Adversarial coverage audit**: a red-team pass generates plausible high-scoring-but-inadequate outputs to find rubric blind spots. Gaps trigger new criteria.
+- **Research traceability audit**: verifies every criterion is grounded in the domain research. Ungrounded criteria are patched or removed.
+
+### Multi-Pass Hierarchical Generation
+
+Rather than generating a flat list of criteria, the rubric is built in three passes:
+1. **Dimension decomposition** — break the task domain into evaluation dimensions
+2. **Per-dimension criteria** — generate 2–5 criteria per dimension
+3. **Cross-dimension calibration** — normalize scoring weights, remove redundancy, fill gaps
+
+Targets **20–35 criteria** (vs. the old 4–7 flat list). Each criterion includes sub-attribute decomposition for fine-grained measurement.
+
+### Expert Panel Simulation
+
+Three complementary expert personas generate criteria from different vantage points (e.g., practitioner, critic, domain scientist). Their proposals are merged and deduplicated, preserving coverage that any single persona would miss.
+
+### Rubric Negotiation
+
+After generation and before iteration 1, `RubricNegotiationAgent` runs a 2-round sprint contract review: ambiguous or untestable criteria are refined. Ensures the rubric is objective before any generation begins.
+
+---
+
+## Loop 2: Output GAN
+
+Six isolated agents iterate the actual task output. Each has its own `Anthropic()` client, system prompt, and context window.
 
 | Agent | Role | What it never sees |
 |-------|------|--------------------|
-| **RubricAgent** | Rubric design grounded in web research | Generated content or scores |
 | **RubricNegotiationAgent** | Sprint contract: refines ambiguous/untestable criteria before iter 1 | Content, scores, generation strategy |
 | **GenerationAgent** | Content creation | Scoring calibration, scorer system prompt, negotiation transcript |
 | **ScoringAgent** | Adversarial two-stage measurement | Generation prompt, task context, prior attempts |
 | **FeedbackAgent** | Translates raw scores → actionable editing instructions | Generation prompts, scoring calibration |
-| **EvaluationAgent** | Pass/fail decisions, regression detection, convergence | Generation strategy, rubric design rationale |
+| **EvaluationAgent** | Pass/fail, regression detection, convergence | Generation strategy, rubric design rationale |
+| **CriticAgent** | Rubric post-hoc calibration | Generation strategy |
 
 **RubricLoop** is the orchestrator — not an agent itself.
 
-The GAN-inspired separation between generator and evaluator is the core fix for self-leniency: when Claude scores its own work in the same context, it grades generously. Fresh contexts with adversarial system prompts produce honest scores.
+### Scoring
 
-## Key Features
+**Two-stage checklist scoring** — Stage 1: binary fact extraction (YES/NO with evidence quotes). Stage 2: mechanical score mapping from Stage 1 facts. No holistic impressionistic ratings.
 
-**Web-research-grounded rubric generation** — Before generating any rubric, the system calls Claude with `web_search` (uncapped — the model searches as much as needed) to ground criteria in real professional standards, not generic LLM intuitions. Each criterion is traced back to the research via `ResearchTracer`; ungrounded criteria are patched or removed. Research runs in three phases: (A) professional standards and frameworks, (B) expert failure modes and common mistakes, (C) expert exemplar retrieval for contrastive criterion extraction.
+**6 scoring methods**: `BINARY`, `PERCENTAGE`, `WEIGHTED_COMPONENTS`, `PENALTY_BASED`, `THRESHOLD_TIERS`, `COUNT_BASED`.
 
-**Expert persona elicitation** — Before rubric generation, the system synthesizes a domain expert persona: credentials, focus areas, and what they'd catch that a generalist would miss. This persona is injected into both the rubric generation and web research prompts, shifting criteria from generic quality dimensions toward domain-specific substance. One short LLM call; disable with `--no-expert-persona`.
+**Deterministic verifiers** — Before LLM scoring, `DeterministicVerifier` routes programmatically checkable criteria (count-based, length-based, format-based, code syntax, presence-based) to zero-variance code checks. Evidence shows exact results (e.g., "Word count: 247, target: under 300 ✓"). Disable with `--no-deterministic`.
 
-**Exemplar retrieval + contrastive criterion extraction** — During research, the system searches for expert-quality example outputs for similar tasks (published templates, award-winning examples, professional samples). It also generates a quick single-shot baseline. The gap between expert exemplar and baseline is fed to the RubricAgent: "For each dimension where the expert is clearly superior, generate a criterion that scores the expert at 90-100% and the baseline at 40-60%." This produces the most discriminative criteria — derived from observed differences, not abstract quality dimensions. Disable with `--no-exemplar`.
+**Anti-leniency** — Perfect score prohibition on iteration 1 (ceiling: 90%), calibration anchors, adversarial scorer system prompt.
 
-**8–12 criteria per rubric, 6 scoring methods** — `BINARY`, `PERCENTAGE`, `WEIGHTED_COMPONENTS`, `PENALTY_BASED`, `THRESHOLD_TIERS`, `COUNT_BASED`. Sub-attribute decomposition gives fine-grained per-dimension measurement.
+### Iteration Control
 
-**Two-stage checklist scoring** — Stage 1: binary fact extraction (YES/NO observations with evidence quotes). Stage 2: mechanical score mapping from Stage 1 facts. No impressionistic holistic ratings. Criteria that are programmatically verifiable are routed to deterministic checks instead of LLM judgment.
+**Iteration-aware generation** — Early (1–2): bold structural changes. Mid (3–4): add specificity and evidence. Late (5+): surgical fixes to the 2–3 weakest sub-attributes only.
 
-**Deterministic verifiers** — Before LLM scoring, the `DeterministicVerifier` scans each criterion for programmatically checkable sub-attributes: count-based ("at least N items"), length-based ("under X words"), format-based ("includes headers"), code syntax (Python `ast.parse`, SQL, bash), and presence-based ("mentions X"). Matching criteria are scored with zero-variance code checks; the rest fall through to the LLM scorer. Evidence shows the exact check result (e.g., "Word count: 247, target: under 300 ✓"). Disable with `--no-deterministic`.
+**Regression recovery learning** — If score drops >5% from best prior iteration, flagged. Two consecutive regressions inject a "try a completely different approach" note into the next generation prompt. Best iteration (not latest) is the learning signal.
 
-**Rubric negotiation** — After rubric generation and before iteration 1, `RubricNegotiationAgent` reviews each criterion for ambiguity or untestability and returns a refined rubric. This "sprint contract" ensures the rubric is objective before any generation begins. One extra LLM call; skipped if `--no-generate` is active.
+**Preserve-what-works constraint** — Criteria scoring ≥75% are protected from regression in subsequent iterations.
 
-**Iteration-aware generation** — Early iterations (1–2): bold structural changes. Mid (3–4): add specificity and evidence. Late (5+): surgical fixes to the 2–3 weakest sub-attributes only. Disable with `--lean` for A/B testing against newer models.
+**Stall detection + early stopping** — Detects plateau and stops early when further iterations are unlikely to improve score.
 
-**Regression detection with consecutive tracking** — If a score drops >5% from the best prior iteration, it's flagged. Two consecutive regressions trigger a "try a completely different approach" note injected into the next generation prompt.
+**Trade-off detection** — Flags when improving one criterion degrades another.
 
-**Per-criterion delta tracking** — After the loop completes, reports IMPROVED / REGRESSED / PLATEAUED status for every criterion from iter 1 → best → final, making feedback loop effectiveness visible.
+**Per-criterion delta tracking** — Reports IMPROVED / REGRESSED / PLATEAUED per criterion from iter 1 → best → final.
 
-**File-based artifact handoffs** — Each iteration's artifact is written to `.rubric_iterations/` before scoring. Keeps bulk content off the context window; enables crash resumability.
+**Observation masking + filesystem fallback** — Older iterations are replaced in-context with 3-line summaries while full artifacts live in `.rubric_iterations/`. Prevents context bloat from killing late-iteration quality.
 
-**Anti-leniency scoring** — Perfect score prohibition on iteration 1 (ceiling: 90%), calibration anchors, and an adversarial scorer system prompt. Prevents the generator from gaming the scorer.
+---
 
-**Self-improvement engine** — `OutcomeTracker` closes Loop 3 by scanning git reverts and CI failures to detect false passes. `LearningIntegrator` injects criterion effectiveness data from prior runs into `RubricAgent` at generation time. `SelfEditor` proposes and applies code patches to rubric factories and scoring prompts; all proposals validated with `ast.parse()` before applying.
+## Self-Improvement Systems
 
-**12 domain-specific rubric templates** — 10 sample rubrics + 2 comprehensive domain rubrics (Knowledge Work Research: 28 criteria, 74 pts; Frontend Design: 17 criteria, 142 pts). Auto-selected via `RubricRegistry` keyword/pattern matching; overridable with `--rubric`.
+Three interconnected loops close the feedback cycle across runs:
 
-**Persistent feedback loop** — `FeedbackStore` persists human corrections across runs and injects them into generation and scoring prompts. Tracks which feedback entries actually improved scores.
+**SelfEditor** — Proposes and applies patches to rubric factories and scoring prompts based on accumulated criterion effectiveness data. All proposals validated with `ast.parse()` before applying. Run with `--self-improve` (dry run) or `--self-improve-apply`.
 
-**Rubric markdown export** — Every run saves the full rubric to `rubrics/rubric_<timestamp>_<hash>.md` capturing all criteria, scoring methods, sub-attributes, penalties, and research basis.
+**Regression gate on self-edits** — Before/after eval confirms self-edits don't degrade performance. Proposals that fail regression are rejected.
 
-**ACON paired trajectories (cross-task compression learning)** — After every run, the system automatically generates content twice: once with full iteration history, once with compressed history (3-line summaries + file pointers). Both paths are scored, and per-criterion deltas are recorded. After 5+ runs in a domain, `AconGuidelineLearner` classifies each criterion type as:
+**RubricStore + rubric seeding** — Persists full evaluation results (criteria, scores, task domain) to SQLite. Future rubric generation pulls effectiveness-gated seed criteria as warm-start context.
+
+**Feedback persistence** — `FeedbackStore` persists human corrections across runs and injects them into generation and scoring prompts. Tracks which entries actually improved scores.
+
+**Outcome tracking** — `OutcomeTracker` scans git reverts and CI failures to auto-close the learning loop on false passes.
+
+**ACON paired trajectory system** — After every run, generates content twice: once with full iteration history, once with compressed history (3-line summaries + file pointers). Per-criterion deltas are recorded. After 5+ runs in a domain, `AconGuidelineLearner` classifies each criterion type:
 
 - **SAFE** (max delta <2pp): compression has no measurable effect — always compress
 - **CAUTION** (mean delta <3pp, stddev <4pp): minor risk — compress with monitoring
 - **UNSAFE** (otherwise): compression degrades quality — keep full context
 
-This learns which types of criteria are sensitive to context loss *across tasks within a domain*, not just within a single run. Guidelines are stored in `~/.rubric_loop/acon_guidelines/{domain}/` and automatically applied to future runs in the same domain.
+Guidelines stored in `~/.rubric_loop/acon_guidelines/{domain}/` and applied to future runs in the same domain. Disable with `--no-paired-trajectories`.
 
-Paired trajectories run by default. Disable with `--no-paired-trajectories`. Control which iteration is used for the paired comparison with `--paired-iteration N` (default: 2).
+---
 
-Data storage:
-- `~/.rubric_loop/acon_paired_results.json` — raw paired results per run
-- `~/.rubric_loop/acon_guidelines/{domain}/` — learned compression guidelines per domain
+## Eval Results
 
-**Observation masking + filesystem fallback** — Older iterations are replaced in-context with 3-line summaries (score, delta, top focus areas) while full artifacts live in `.rubric_iterations/`. The scoring agent can selectively re-read specific iterations from disk when needed. This prevents context bloat from killing late-iteration quality.
+See [EVAL.md](EVAL.md) for full Run 4 results.
+
+| Run | Mean Baseline | Mean Harness | Mean Delta |
+|-----|--------------|-------------|------------|
+| Run 4 (9 valid tasks) | 46.9% | 72.9% | **+26.0pp** |
+
+---
 
 ## CLI Usage
 
@@ -160,7 +254,7 @@ python rubric_harness.py --json "any task"
 ## Project Structure
 
 ```
-rubric_harness.py              # Core loop: all 6 agents + RubricLoop orchestrator
+rubric_harness.py              # Core loop: all agents + RubricLoop orchestrator
 rubric-loop-harness-spec.md    # Full system spec
 
 rubric_system/
@@ -174,8 +268,8 @@ rubric_system/
 ├── rubric_ci.py               # GitHub Actions CI integration
 ├── metrics_dashboard.py       # Chart.js metrics dashboard
 ├── test_generator.py          # Auto-generate tests from rubric criteria
-├── deterministic_verifier.py   # Programmatic scoring for checkable criteria (counts, lengths, syntax)
-├── acon_trajectory.py          # ACON paired trajectory system (cross-task compression learning)
+├── deterministic_verifier.py  # Programmatic scoring for checkable criteria
+├── acon_trajectory.py         # ACON paired trajectory system
 ├── sample_rubrics.py          # 10 task-specific rubrics + RubricRegistry
 ├── rubric_library.md          # 8 domain templates (API, Auth, DB, React, etc.)
 ├── knowledge_work_rubric.md   # 28-criteria research document rubric
@@ -187,7 +281,7 @@ tests/
 rubrics/                       # Generated rubric .md files (one per run)
 .rubric_iterations/            # Per-iteration artifact files (file-based handoff)
 .rubric_feedback/              # Persistent feedback store (created at runtime)
-~/.rubric_loop/                # ACON data (paired results + per-domain compression guidelines)
+~/.rubric_loop/                # ACON data + per-domain compression guidelines
 ```
 
 ## Requirements
