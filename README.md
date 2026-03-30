@@ -1,4 +1,4 @@
-# Rubric System
+# Rubric System for auto-verification of complex tasks
 
 A dual adversarial loop harness for high-quality task generation. Two GAN-inspired feedback cycles run in sequence: the first produces a rigorous evaluation rubric, the second iterates the actual task output against it — each with isolated agent contexts to prevent self-leniency.
 
@@ -85,7 +85,7 @@ Rather than generating a flat list of criteria, the rubric is built in three pas
 2. **Per-dimension criteria** — generate 2–5 criteria per dimension
 3. **Cross-dimension calibration** — normalize scoring weights, remove redundancy, fill gaps
 
-Targets **20–35 criteria** (vs. the old 4–7 flat list). Each criterion includes sub-attribute decomposition for fine-grained measurement.
+Targets **20–35 criteria**. Each criterion includes sub-attribute decomposition for fine-grained measurement.
 
 ### Expert Panel Simulation
 
