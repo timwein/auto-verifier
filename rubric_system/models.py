@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Rubric System - Canonical Data Models
 
@@ -97,12 +98,22 @@ class Criterion:
 
 
 @dataclass
+class RubricDimension:
+    """A high-level evaluation dimension produced by multi-pass rubric generation."""
+    id: str
+    name: str
+    weight: float
+    criteria_ids: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Rubric:
     task: str
     domain: str
     criteria: list[Criterion]
     total_points: int = 0
     pass_threshold: float = 0.85
+    dimensions: Optional[list[RubricDimension]] = None
 
 
 # ============================================================================

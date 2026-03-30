@@ -36,6 +36,7 @@ from rubric_system.models import (
     CriterionScore,
     Criterion,
     Rubric,
+    RubricDimension,
     Iteration,
     LoopResult,
     ScoredRubricRecord,
@@ -2908,7 +2909,7 @@ INSTRUCTIONS:
 
 1. DECOMPOSE DEEPLY before writing criteria. For any broad quality dimension, break it into 2-4 atomic sub-criteria. Do NOT write a single criterion called "evidence quality" — instead write separate criteria for: primary source citation, chain of custody, cross-referencing between independent sources, quantitative vs qualitative evidence ratio, statistical significance of findings. Each becomes its own measurable criterion.
 
-2. Generate 8-12 criteria maximum. Focus on DEPTH over breadth — each criterion should test expert-level judgment that requires deep domain knowledge to satisfy. Fewer, harder criteria beat many shallow ones. A first attempt that "covers everything at a surface level" should score 40-50%. Each criterion should require genuine expertise to score well, not just comprehensive coverage.
+2. Generate criteria proportional to task complexity. Simple tasks may need 8-12; complex multi-dimensional tasks should have 15-30+. Focus on DEPTH — each criterion should test expert-level judgment that requires deep domain knowledge. A first attempt that "covers everything at a surface level" should score 40-50%. Each criterion should require genuine expertise to score well, not just comprehensive coverage.
 
 3. Assign max_points reflecting granularity: most criteria should be 3-5 points. Reserve 6-8 points ONLY for the most critical expert-level criteria. Do NOT use 10-12 point criteria — that makes the rubric too coarse.
 
@@ -3187,6 +3188,179 @@ RULES:
 - Do NOT generate generic quality criteria (e.g., "is clear", "is organized") — these are not discriminating"""
 
 
+# ============================================================================
+# Multi-Pass Rubric Generation Prompts
+# ============================================================================
+
+DIMENSION_DECOMPOSITION_PROMPT = """You are a domain expert assembling a panel of evaluators for a task. Your job is to identify the major evaluation DIMENSIONS — the distinct axes of quality that a panel of experts would assess.
+
+TASK:
+{task}
+
+{persona_section}
+
+{research_section}
+
+YOUR JOB:
+Think like a panel of domain experts assembled to evaluate work on this task. What are ALL the major dimensions they would assess? Miss nothing. Each dimension should be a distinct axis of quality with minimal overlap with others.
+
+Generate 6-12 evaluation dimensions. Each dimension represents a major area of expertise required to do this task well.
+
+EXAMPLE — for an investment memo task:
+[
+  {{"id": "financial_analysis", "name": "Financial Analysis", "scope": "Quantitative modeling, valuation methodology, projection quality, and financial assumptions.", "weight": 0.18}},
+  {{"id": "market_assessment", "name": "Market Assessment", "scope": "TAM/SAM/SOM analysis, market dynamics, growth drivers, and addressable opportunity sizing.", "weight": 0.14}},
+  {{"id": "risk_framework", "name": "Risk Framework", "scope": "Risk identification, quantification, mitigation strategies, and scenario analysis.", "weight": 0.12}},
+  {{"id": "investment_thesis", "name": "Investment Thesis", "scope": "Core value proposition, differentiation, and investment rationale clarity.", "weight": 0.14}},
+  {{"id": "competitive_positioning", "name": "Competitive Positioning", "scope": "Competitive landscape, moats, defensibility, and differentiation sustainability.", "weight": 0.12}},
+  {{"id": "management_assessment", "name": "Management Assessment", "scope": "Team quality, track record, execution capability, and key-person risk.", "weight": 0.10}},
+  {{"id": "deal_structure", "name": "Deal Structure", "scope": "Terms, governance, cap table, and alignment of incentives.", "weight": 0.10}},
+  {{"id": "exit_analysis", "name": "Exit Analysis", "scope": "Liquidity paths, comparable transactions, return potential, and hold period.", "weight": 0.10}}
+]
+
+OUTPUT FORMAT — valid JSON array only, no markdown fences:
+[
+  {{
+    "id": "<short_snake_case_id>",
+    "name": "<Dimension Name>",
+    "scope": "<2-3 sentence description of what this dimension covers and what expert-level looks like>",
+    "weight": <float 0.0-1.0, all weights must sum to 1.0>
+  }}
+]
+
+RULES:
+- Generate 6-12 dimensions
+- Weights must sum to exactly 1.0 (within 0.01 tolerance)
+- Each dimension must be distinct — no significant overlap with others
+- Every dimension must be genuinely important for expert evaluation of this specific task
+- Output ONLY the JSON array, nothing else"""
+
+
+DIMENSION_CRITERIA_PROMPT = """You are a rubric architect generating scoring criteria for ONE specific evaluation dimension.
+
+TASK:
+{task}
+
+DIMENSION TO EVALUATE:
+Name: {dimension_name}
+Scope: {dimension_scope}
+
+{persona_section}
+
+{research_section}
+
+YOUR JOB:
+Generate 2-5 criteria that evaluate this dimension deeply and specifically. Each criterion must:
+1. Be specific to this dimension — not generic quality signals
+2. Test expert-level judgment that requires domain knowledge to evaluate
+3. Discriminate between junior-level and expert-level work on this dimension
+4. Have concrete, measurable pass conditions with numbers or named techniques
+
+INSTRUCTIONS:
+- DECOMPOSE DEEPLY: break broad quality into atomic sub-criteria
+- Test JUDGMENT, not just KNOWLEDGE: focus on decisions where reasonable experts could disagree
+- Each criterion should fail for a "competent but generic" response
+- Pass conditions must use NUMBERS: counts, percentages, named techniques — never vague adjectives
+
+OUTPUT FORMAT — valid JSON array of criteria only, no markdown fences:
+[
+  {{
+    "id": "<short_snake_case — prefix with dimension id if helpful for uniqueness>",
+    "category": "<category matching the dimension>",
+    "description": "<what this criterion evaluates — specific about what expert-level looks like>",
+    "pass_condition": "<concrete threshold with NUMBERS: minimum counts, specific percentages, named techniques>",
+    "scoring_method": "weighted_components|penalty_based|binary",
+    "max_points": <int 3-8>,
+    "sub_attributes": [
+      {{
+        "sub_id": "<snake_case>",
+        "description": "<what this measures — one specific thing>",
+        "weight": <float 0.0-1.0, sub-attribute weights must sum to 1.0>,
+        "measurement": "<graduated scale: 1.0 if [specific expert condition], 0.7 if [competent but incomplete], 0.4 if [surface-level only], 0.0 if [absent or wrong]>"
+      }}
+    ],
+    "penalties": {{
+      "<specific_violation_name>": <negative_float>
+    }},
+    "pass_examples": ["<specific example showing exactly what passing looks like>"],
+    "fail_examples": ["<plausible near-miss failure — almost good enough but not quite>"],
+    "research_basis": "<cite the specific research finding, professional standard, or expert practice that grounds this criterion>"
+  }}
+]
+
+RULES:
+- Generate 2-5 criteria — quality over quantity
+- For penalty_based: use when violations subtract from a perfect baseline; include 4+ named violations with specific negative float values
+- For weighted_components: sub-attribute weights must sum to 1.0; measurements must produce a RANGE of scores (never "1.0 if present, 0.0 if absent")
+- Output ONLY the JSON array, nothing else"""
+
+
+CALIBRATION_PROMPT = """You are a rubric calibration expert. You have received criteria generated by multiple domain experts, each covering a different evaluation dimension. Your job is to produce a final, unified, well-calibrated rubric.
+
+TASK:
+{task}
+
+EVALUATION DIMENSIONS (with target weight allocations):
+{dimensions_section}
+
+ALL CRITERIA FROM ALL DIMENSIONS ({total_criteria} total):
+{criteria_section}
+
+YOUR TASKS — perform ALL of these:
+
+1. REMOVE REDUNDANCY: Identify criteria that overlap significantly. Merge overlapping criteria into the most specific version, keeping the stronger measurement standard.
+
+2. REBALANCE POINTS: Calculate the current point share per dimension. If any dimension exceeds 30% of total points, scale down its criteria max_points. No single dimension should dominate.
+
+3. ADD CROSS-CUTTING CRITERIA (add exactly 2-3): Add criteria that evaluate COHERENCE between dimensions — e.g.:
+   - "Do the financial projections align with the market sizing?"
+   - "Are the identified risks reflected in the proposed deal structure?"
+   - "Does the investment thesis follow logically from the competitive and market analysis?"
+   These cross-cutting criteria should test internal consistency of the whole, not any one section.
+
+4. VERIFY FINAL COUNT: Final rubric should have 15-35 criteria. If under 15, you removed too many. If over 35, trim the weakest/most redundant further.
+
+5. SET METADATA: Provide domain label and pass_threshold (0.65-0.75 based on task complexity).
+
+OUTPUT FORMAT — valid JSON only, no markdown fences:
+{{
+  "domain": "<short domain label>",
+  "pass_threshold": <float 0.65-0.75>,
+  "criteria": [
+    {{
+      "id": "<short_snake_case>",
+      "category": "<category>",
+      "description": "<description>",
+      "pass_condition": "<concrete threshold with numbers>",
+      "scoring_method": "weighted_components|penalty_based|binary",
+      "max_points": <int 3-8>,
+      "sub_attributes": [
+        {{
+          "sub_id": "<snake_case>",
+          "description": "<what this measures>",
+          "weight": <float, sub-attribute weights must sum to 1.0>,
+          "measurement": "<graduated measurement scale>"
+        }}
+      ],
+      "penalties": {{
+        "<violation_name>": <negative_float>
+      }},
+      "pass_examples": ["<example>"],
+      "fail_examples": ["<example>"],
+      "research_basis": "<research basis>"
+    }}
+  ]
+}}
+
+CALIBRATION RULES:
+- No dimension should represent more than 30% of total points
+- Total criteria count: 15-35 (hard limits)
+- Cross-cutting criteria must test coherence between 2+ dimensions, not individual section quality
+- Prefer retaining criteria that are specific, measurable, and test expert judgment; trim vague ones
+- Preserve penalty_based criteria — they catch professional errors generic responses miss
+- Output ONLY the JSON object, nothing else"""
+
+
 class RubricAgent:
     """Independent rubric creation agent with isolated context window.
 
@@ -3232,7 +3406,8 @@ RUBRIC DESIGN PRINCIPLES:
                  enable_expert_persona: bool = True,
                  enable_exemplar: bool = True,
                  enable_rubric_store: bool = True,
-                 rag_store: Optional[RubricRAGStore] = None):
+                 rag_store: Optional[RubricRAGStore] = None,
+                 enable_multipass: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
         self.client = Anthropic()  # Fresh client, separate from generation/scoring/evaluation agents
@@ -3246,6 +3421,7 @@ RUBRIC DESIGN PRINCIPLES:
         self.enable_exemplar = enable_exemplar
         self.enable_rubric_store = enable_rubric_store
         self.rag_store = rag_store
+        self.enable_multipass = enable_multipass
         # Research tracer (verifies rubric grounding) — has its own isolated client
         self.tracer = ResearchTracer(model=model, verbose=verbose) if enable_tracing else None
 
@@ -3517,6 +3693,209 @@ RUBRIC DESIGN PRINCIPLES:
         # C3: Extract contrastive criteria from the gap
         return self._extract_contrastive_criteria(task, exemplar_brief, baseline)
 
+    # -------------------------------------------------------------------------
+    # Multi-Pass Pipeline (Pass 1, 2, 3)
+    # -------------------------------------------------------------------------
+
+    def _decompose_dimensions(self, task: str, research_section: str, expert_persona: str) -> list[dict]:
+        """Pass 1: Ask an LLM to decompose the task into 6-12 evaluation dimensions.
+
+        Returns:
+            List of dimension dicts with keys: id, name, scope, weight.
+            Weights are normalized to sum to 1.0.
+        Raises:
+            ValueError if the response cannot be parsed.
+        """
+        self._log("[MultiPass] Pass 1: Decomposing task into evaluation dimensions...")
+
+        persona_section = (f"EXPERT EVALUATOR PERSONA:\n{expert_persona}" if expert_persona else "")
+        research_snippet = research_section[:3000] if research_section else ""
+
+        prompt = DIMENSION_DECOMPOSITION_PROMPT.format(
+            task=task,
+            persona_section=persona_section,
+            research_section=research_snippet,
+        )
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=4000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text.strip()
+
+        match = re.search(r'```(?:json)?\s*(\[[\s\S]*?\])\s*```', raw)
+        if not match:
+            match = re.search(r'(\[[\s\S]*\])', raw)
+        if not match:
+            raise ValueError(f"Pass 1 returned no parseable JSON array: {raw[:200]}")
+
+        dims = json.loads(match.group(1))
+        if not dims:
+            raise ValueError("Pass 1 returned empty dimensions list")
+
+        # Normalize weights to sum to 1.0
+        total_w = sum(float(d.get("weight", 0.1)) for d in dims)
+        if total_w > 0 and abs(total_w - 1.0) > 0.01:
+            for d in dims:
+                d["weight"] = float(d.get("weight", 0.1)) / total_w
+
+        self._log(f"[MultiPass] Pass 1 complete: {len(dims)} dimensions")
+        return dims
+
+    def _generate_dimension_criteria(
+        self,
+        task: str,
+        dimension: dict,
+        research_section: str,
+        expert_persona: str,
+    ) -> list[dict]:
+        """Pass 2 (per-dimension): Generate 2-5 criteria specific to one dimension.
+
+        Returns:
+            List of criterion dicts (same schema as RUBRIC_GENERATION_PROMPT criteria).
+            Returns empty list on any parse/API failure (non-fatal).
+        """
+        dim_name = dimension.get("name", "Unknown")
+        persona_section = (f"EXPERT EVALUATOR PERSONA:\n{expert_persona}" if expert_persona else "")
+        research_snippet = research_section[:2000] if research_section else ""
+
+        prompt = DIMENSION_CRITERIA_PROMPT.format(
+            task=task,
+            dimension_name=dim_name,
+            dimension_scope=dimension.get("scope", ""),
+            persona_section=persona_section,
+            research_section=research_snippet,
+        )
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4000,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = response.content[0].text.strip()
+
+            match = re.search(r'```(?:json)?\s*(\[[\s\S]*?\])\s*```', raw)
+            if not match:
+                match = re.search(r'(\[[\s\S]*\])', raw)
+            if not match:
+                self._log(f"[MultiPass]   '{dim_name}': no JSON array found — skipping dimension")
+                return []
+
+            criteria = json.loads(match.group(1))
+            self._log(f"[MultiPass]   '{dim_name}': {len(criteria)} criteria")
+            return criteria
+
+        except Exception as e:
+            self._log(f"[MultiPass]   '{dim_name}': failed ({e}) — skipping dimension")
+            return []
+
+    def _calibrate_criteria(
+        self,
+        task: str,
+        all_criteria: list[dict],
+        dimensions: list[dict],
+    ) -> dict:
+        """Pass 3: Calibrate all per-dimension criteria into a unified rubric.
+
+        Removes redundancy, rebalances point allocations, adds cross-cutting
+        criteria, and ensures the final count is 15-35.
+
+        Returns:
+            Rubric spec dict with keys: domain, pass_threshold, criteria.
+        Raises:
+            ValueError if the response cannot be parsed.
+        """
+        self._log(f"[MultiPass] Pass 3: Calibrating {len(all_criteria)} criteria "
+                  f"across {len(dimensions)} dimensions...")
+
+        dims_lines = [
+            f"  [{d['id']}] {d['name']} (weight: {d.get('weight', 0):.0%}): {d.get('scope', '')}"
+            for d in dimensions
+        ]
+        dimensions_section = "\n".join(dims_lines)
+
+        # Cap criteria JSON to avoid oversized prompts
+        criteria_json = json.dumps(all_criteria, indent=2)
+        if len(criteria_json) > 10000:
+            # Truncate to first ~10k chars to stay within token budget;
+            # calibration LLM still sees full count in the header
+            criteria_json = criteria_json[:10000] + "\n  ... (truncated for length)"
+
+        prompt = CALIBRATION_PROMPT.format(
+            task=task,
+            dimensions_section=dimensions_section,
+            total_criteria=len(all_criteria),
+            criteria_section=criteria_json,
+        )
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=16000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text.strip()
+
+        spec = self._parse_json(raw)
+        if not spec or "criteria" not in spec:
+            raise ValueError(f"Pass 3 returned no parseable rubric JSON: {raw[:200]}")
+
+        self._log(f"[MultiPass] Pass 3 complete: {len(spec['criteria'])} final criteria")
+        return spec
+
+    def _run_multipass_pipeline(
+        self,
+        task: str,
+        research_section: str,
+        expert_persona: str,
+    ) -> Rubric:
+        """Orchestrate the full 3-pass rubric generation pipeline.
+
+        Pass 1 — Dimension Decomposition: identifies 6-12 evaluation dimensions.
+        Pass 2 — Per-Dimension Criteria: generates 2-5 criteria per dimension.
+        Pass 3 — Calibration: deduplicates, rebalances, adds cross-cutting criteria.
+
+        Raises:
+            ValueError or any exception if the pipeline fails at any pass.
+            The caller (generate()) catches this and falls back to single-pass.
+        """
+        # Pass 1: Decompose dimensions
+        dimensions = self._decompose_dimensions(task, research_section, expert_persona)
+
+        # Pass 2: Generate criteria per dimension (sequential calls)
+        all_criteria: list[dict] = []
+        for dim in dimensions:
+            dim_criteria = self._generate_dimension_criteria(
+                task, dim, research_section, expert_persona
+            )
+            all_criteria.extend(dim_criteria)
+
+        if not all_criteria:
+            raise ValueError("Pass 2 produced no criteria across all dimensions")
+
+        self._log(f"[MultiPass] Pass 2 complete: {len(all_criteria)} total criteria "
+                  f"across {len(dimensions)} dimensions")
+
+        # Pass 3: Calibrate into final rubric
+        spec = self._calibrate_criteria(task, all_criteria, dimensions)
+
+        # Hydrate into canonical Rubric object
+        rubric = self._hydrate(task, spec)
+
+        # Attach dimension metadata for downstream use
+        rubric.dimensions = [
+            RubricDimension(
+                id=d["id"],
+                name=d["name"],
+                weight=float(d.get("weight", 0.0)),
+                criteria_ids=[],
+            )
+            for d in dimensions
+        ]
+
+        return rubric
+
     def generate(self, task: str, context: str = "", seed_rubrics: list[Rubric] = None) -> Rubric:
         """Generate a bespoke rubric for the given task.
 
@@ -3576,6 +3955,18 @@ RUBRIC DESIGN PRINCIPLES:
             except Exception as e:
                 self._log(f"Learning context unavailable: {e}")
 
+        # ---- Multi-pass pipeline (default path) ----
+        if self.enable_multipass:
+            try:
+                rubric = self._run_multipass_pipeline(task, research_section, expert_persona)
+                self._log(f"[MultiPass] Generated: {len(rubric.criteria)} criteria, "
+                          f"{rubric.total_points} max points, threshold: {rubric.pass_threshold:.0%}")
+                rubric = self._apply_tracing(rubric, research_section)
+                return rubric
+            except Exception as e:
+                self._log(f"[MultiPass] Pipeline failed ({e}) — falling back to single-pass")
+
+        # ---- Single-pass fallback ----
         prompt = RUBRIC_GENERATION_PROMPT.format(
             task=task,
             context_section=context_section,
@@ -3607,7 +3998,7 @@ RUBRIC DESIGN PRINCIPLES:
                 "but this expert would flag immediately."
             )
 
-        self._log("[RubricAgent] Generating rubric (isolated agent)...")
+        self._log("[RubricAgent] Generating rubric (single-pass)...")
         response = self.client.messages.create(
             model=self.model,
             max_tokens=16000,
@@ -3626,27 +4017,34 @@ RUBRIC DESIGN PRINCIPLES:
         self._log(f"Generated: {len(rubric.criteria)} criteria, {rubric.total_points} max points, "
                   f"threshold: {rubric.pass_threshold:.0%}")
 
-        # Step 3: Research traceability audit — verify criteria are grounded
-        if self.enable_tracing and self.tracer and research_section:
-            self._log("Running research traceability audit...")
-            trace_result = self.tracer.trace(rubric, research_section)
+        rubric = self._apply_tracing(rubric, research_section)
+        return rubric
 
-            # If grounding score is below 70%, patch the rubric
-            if trace_result.grounding_score < 0.70 or trace_result.ungrounded_criteria:
-                self._log(f"Grounding: {trace_result.grounding_score:.0%} — patching rubric")
-                rubric = self.tracer.patch_rubric(rubric, trace_result, research_section)
-                self._log(f"Patched: {len(rubric.criteria)} criteria, {rubric.total_points} max points")
-            else:
-                # Still update research_basis on well-grounded criteria
-                audit_map = {a.criterion_id: a for a in trace_result.criterion_audits}
-                for criterion in rubric.criteria:
-                    audit = audit_map.get(criterion.id)
-                    if audit and audit.research_quote and not criterion.research_basis:
-                        criterion.research_basis = audit.research_quote
+    def _apply_tracing(self, rubric: Rubric, research_section: str) -> Rubric:
+        """Run the research traceability audit and patch rubric if grounding is low.
 
-            # Store trace result on rubric for downstream use
-            rubric._trace_result = trace_result
+        Shared post-processing step used by both multi-pass and single-pass paths.
+        """
+        if not (self.enable_tracing and self.tracer and research_section):
+            return rubric
 
+        self._log("Running research traceability audit...")
+        trace_result = self.tracer.trace(rubric, research_section)
+
+        if trace_result.grounding_score < 0.70 or trace_result.ungrounded_criteria:
+            self._log(f"Grounding: {trace_result.grounding_score:.0%} — patching rubric")
+            rubric = self.tracer.patch_rubric(rubric, trace_result, research_section)
+            self._log(f"Patched: {len(rubric.criteria)} criteria, {rubric.total_points} max points")
+        else:
+            # Still update research_basis on well-grounded criteria
+            audit_map = {a.criterion_id: a for a in trace_result.criterion_audits}
+            for criterion in rubric.criteria:
+                audit = audit_map.get(criterion.id)
+                if audit and audit.research_quote and not criterion.research_basis:
+                    criterion.research_basis = audit.research_quote
+
+        # Store trace result on rubric for downstream use
+        rubric._trace_result = trace_result
         return rubric
 
     def _build_seed_section(self, task: str, seed_rubrics: list[Rubric] = None) -> str:
