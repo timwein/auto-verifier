@@ -690,7 +690,7 @@ class SelfEditor:
     ):
         if Anthropic is None:
             raise ImportError("anthropic package required")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=__import__('httpx').Timeout(300.0, connect=30.0))
         self.store = store or RubricStore()
         self.learner = RubricLearner(self.store)
         self.feedback_store = feedback_store

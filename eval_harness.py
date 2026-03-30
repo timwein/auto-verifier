@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import anthropic
+import httpx
 
 # Ensure project root is importable
 sys.path.insert(0, str(Path(__file__).parent))
@@ -510,7 +511,7 @@ async def run_eval(
     model: str,
     verbose: bool,
 ) -> Dict[str, TaskEvalResult]:
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(timeout=httpx.Timeout(300.0, connect=30.0))
 
     # Shared scorer: used ONLY for score_content() calls (no loop runs).
     # Isolated feedback dir so eval scoring doesn't bleed into production feedback.

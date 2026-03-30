@@ -76,7 +76,7 @@ class RubricQualityGate:
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=__import__('httpx').Timeout(300.0, connect=30.0))
         self.model = model
         self.verbose = verbose
 

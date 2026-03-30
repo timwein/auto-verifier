@@ -45,8 +45,11 @@ from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
     from anthropic import Anthropic
+    import httpx as _httpx
+    _API_TIMEOUT = _httpx.Timeout(300.0, connect=30.0)
 except ImportError:
     Anthropic = None
+    _API_TIMEOUT = None
 
 from rubric_system.rubric_learning import RubricStore, RubricLearner
 from rubric_system.rubric_store import RubricStore as RubricRAGStore
@@ -1761,7 +1764,7 @@ GENERATION PRINCIPLES:
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()  # Fresh client, separate from scorer and rubric agents
+        self.client = Anthropic(timeout=_API_TIMEOUT)  # Fresh client, separate from scorer and rubric agents
         self.model = model
         self.verbose = verbose
 
@@ -1845,7 +1848,7 @@ CALIBRATION:
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()  # Fresh client, separate from generator
+        self.client = Anthropic(timeout=_API_TIMEOUT)  # Fresh client, separate from generator
         self.model = model
         self.verbose = verbose
         # Mutable instance copy — updated by adaptive evaluator tuning
@@ -2122,8 +2125,8 @@ Return only JSON — no prose outside the JSON block."""
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
         # Separate clients for isolated context windows per agent perspective
-        self.generator_client = Anthropic()
-        self.scorer_client = Anthropic()
+        self.generator_client = Anthropic(timeout=_API_TIMEOUT)
+        self.scorer_client = Anthropic(timeout=_API_TIMEOUT)
         self.model = model
         self.verbose = verbose
 
@@ -2359,7 +2362,7 @@ Return only JSON — no prose outside the JSON block."""
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=_API_TIMEOUT)
         self.model = model
         self.verbose = verbose
 
@@ -2571,7 +2574,7 @@ Produce content that earns high scores on every rubric criterion."""
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=_API_TIMEOUT)
         self.model = model
         self.verbose = verbose
 
@@ -3629,7 +3632,7 @@ RUBRIC DESIGN PRINCIPLES:
                  enable_adversarial_audit: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()  # Fresh client, separate from generation/scoring/evaluation agents
+        self.client = Anthropic(timeout=_API_TIMEOUT)  # Fresh client, separate from generation/scoring/evaluation agents
         self.model = model
         self.verbose = verbose
         self.learning_integrator = learning_integrator
@@ -4953,7 +4956,7 @@ class ResearchTracer:
     def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=_API_TIMEOUT)
         self.model = model
         self.verbose = verbose
 
@@ -5892,7 +5895,7 @@ Keep it concise — each rule should be 1-2 sentences max. Remove any existing l
             if Anthropic is None:
                 self._log("anthropic package not available — skipping reflection")
                 return
-            client = Anthropic()
+            client = Anthropic(timeout=_API_TIMEOUT)
             response = client.messages.create(
                 model=model,
                 max_tokens=4000,
@@ -6038,7 +6041,7 @@ Respond with a JSON object:
     ):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
-        self.client = Anthropic()  # Fresh client, isolated from all other agents
+        self.client = Anthropic(timeout=_API_TIMEOUT)  # Fresh client, isolated from all other agents
         self.model = model
         self.verbose = verbose
         self.learning_loop = learning_loop or FeedbackLearningLoop(verbose=verbose)
@@ -6427,7 +6430,7 @@ class RubricLoop:
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
-        self.client = Anthropic()
+        self.client = Anthropic(timeout=_API_TIMEOUT)
         self.model = model
         self.max_iterations = max_iterations
         self.pass_threshold = pass_threshold
