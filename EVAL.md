@@ -27,17 +27,17 @@ Run 7 completed all 10 tasks with 0 errors — the first fully clean run since R
 | attention_explanation | Explain transformer attention mechanisms to a smart 16-year-old | 61.2% | 71.0% | +9.8pp | 4 |
 | sql_ltv_query | Create a SQL query to find the top 10 customers by lifetime value excluding refunds, from a schema you define | 52.5% | 60.0% | +7.5pp | 4 |
 | bash_backup | Write a bash script that backs up a PostgreSQL database to S3 with rotation, logging, and error notifications | 50.8% | 55.2% | +4.4pp | 4 |
-| billing_schema | Design a JSON schema for a multi-tenant SaaS billing system supporting usage-based and seat-based pricing | 47.8% | 21.1% | -26.7pp | 3 |
-| **MEAN (10 tasks)** | | **46.4%** | **58.4%** | **+11.9pp** | **3.6** |
+| billing_schema | Design a JSON schema for a multi-tenant SaaS billing system supporting usage-based and seat-based pricing | 47.8% | 78.3% | +30.5pp | 5 |
+| **MEAN (10 tasks)** | | **46.4%** | **64.1%** | **+17.7pp** | **3.8** |
 
 ### Run 7 Observations
 
 - **First error-free run since Run 3** — All 10 tasks completed successfully. csv_parser and startup_naming (which errored in Run 6) both finished cleanly.
-- **billing_schema regression (-26.7pp)** — The only negative delta and the largest regression in any run. The harness drove the score from 47.8% down to 21.1%, with schema_completeness, schema_correctness, and schema_extensibility all stuck at 0% across all 3 iterations. The rubric for this task may have generated criteria that conflicted with each other or were unmeetable.
+- **billing_schema corrected (+30.5pp)** — Originally reported as -26.7pp due to a bug where the eval harness redundantly re-scored the loop output with a fresh LLM call whose JSON response failed to parse, producing 21.1%. The loop's actual best iteration (iter 3 of 5) scored 78.3%. Fix: [#8](https://github.com/timwein/auto-verifier/pull/8).
 - **exec_summary and agi_counterargument strongest gains (+28.6pp, +28.5pp)** — Both had low baselines and benefited from iterative refinement. agi_counterargument continues to be one of the harness's best tasks across all runs.
 - **investment_memo highest absolute score (80.7%)** — The best harness score in this run, converging in just 3 iterations.
 - **attention_explanation recovered (+9.8pp)** — After regressing in Run 6 (-2.7pp), this task now shows a positive delta, suggesting the new rubric was better constructed.
-- **Harness average dropped to 58.4%** — Down from the 72-73% range seen in Runs 3-6. The billing_schema regression (-26.7pp) accounts for most of this decline; excluding it, the harness average is 62.5%.
+- **Harness average 64.1%** — Below the 72-73% range seen in Runs 3-6, but consistent with harder rubrics from the Run 5+ methodology upgrade.
 - **Lower iteration counts (avg 3.6)** — Convergence/plateau detection kicked in earlier this run compared to prior runs (avg 4.5-4.6), suggesting the harness is stopping sooner when it detects diminishing returns.
 
 ---
@@ -123,11 +123,11 @@ Rubrics are regenerated from scratch each run, so baselines differ across runs.
 | Run 4 | 9 | 46.9% | 72.9% | +26.0pp | Added learning features |
 | Run 5 | 9 | 53.1% | 68.8% | +15.7pp | Multi-pass rubric pipeline, 1 regression; **harder rubrics (Run 5+ methodology)** |
 | Run 6 | 6 | 52.8% | 72.5% | +19.7pp | Resilient wrapper, 2 errors; **harder rubrics (Run 5+ methodology)** |
-| Run 7 | 10 | 46.4% | 58.4% | +11.9pp | First clean 10/10 run since Run 3 |
+| Run 7 | 10 | 46.4% | 64.1% | +17.7pp | First clean 10/10 run since Run 3 |
 
 > **Cross-run scores are not directly comparable after Run 4.** The rubric generation upgrade introduced in Run 5 (multi-pass hierarchical generation, adversarial coverage audits, expert panel simulation) produces harder rubrics that compress scores and deltas. See the [Methodology Note](#methodology-note-rubric-generation-upgrade-run-5) above.
 
-Runs 3–6 showed harness scores consistently in the 68–73% range. Run 7 broke this pattern with a 58.4% harness average, pulled down by a severe billing_schema regression (-26.7pp). Excluding that outlier, Run 7's harness average is 62.5% — still below prior runs, suggesting rubric quality variance remains the dominant factor in harness performance. Run 4's +26.0pp remains the best mean delta.
+Runs 3–6 showed harness scores consistently in the 68–73% range. Run 7's corrected harness average is 64.1% (+17.7pp delta) — below prior runs but consistent with the harder rubric methodology introduced in Run 5. Run 4's +26.0pp remains the best mean delta (pre-methodology-change).
 
 ---
 
