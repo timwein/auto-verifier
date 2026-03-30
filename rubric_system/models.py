@@ -6,7 +6,6 @@ Rubric System - Canonical Data Models
 All data models for the rubric generation-verification loop system.
 Imported by rubric_harness, scoring_engine, rubric_claude_code, rubric_ci, etc.
 """
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Optional

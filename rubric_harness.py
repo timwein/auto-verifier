@@ -3489,7 +3489,7 @@ RUBRIC DESIGN PRINCIPLES:
                  enable_exemplar: bool = True,
                  enable_rubric_store: bool = True,
                  rag_store: Optional[RubricRAGStore] = None,
-                 enable_multipass: bool = True):
+                 enable_multipass: bool = True,
                  enable_adversarial_audit: bool = True):
         if Anthropic is None:
             raise ImportError("anthropic package required: pip install anthropic")
