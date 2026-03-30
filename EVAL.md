@@ -4,6 +4,14 @@ The rubric harness is a generation-verification loop that generates task-specifi
 
 ---
 
+## Methodology Note: Rubric Generation Upgrade (Run 5+)
+
+> **Starting from Run 5, the rubric generation pipeline was upgraded.** Rubrics are now generated using multi-pass hierarchical generation with adversarial coverage audits and expert panel simulation. This produces more comprehensive rubrics that are significantly harder to score against — criteria are broader in scope, more discriminating, and less forgiving of partial compliance.
+>
+> **Scores and deltas from Run 5 onward are not directly comparable to Run 4 and earlier.** Lower baselines and smaller deltas in later runs may reflect harder rubrics rather than a regression in harness performance. Treat each run's scores as internally consistent but cross-run comparisons as approximate.
+
+---
+
 ## Run 6 Results
 
 Run 6 used the resilient eval wrapper (`run_eval_resilient.sh`) which auto-restarts stalled tasks after 8 minutes. 6 of 8 tasks completed successfully; 2 tasks errored out.
@@ -63,8 +71,10 @@ Rubrics are regenerated from scratch each run, so baselines differ across runs.
 |---|---|---|---|---|---|
 | Run 3 | 10 | 54.7% | 73.3% | +18.5pp | Initial eval |
 | Run 4 | 9 | 46.9% | 72.9% | +26.0pp | Added learning features |
-| Run 5 | — | — | — | — | Abandoned (API timeouts) |
-| Run 6 | 6 | 52.8% | 72.5% | +19.7pp | Resilient wrapper, 2 errors |
+| Run 5 | — | — | — | — | Abandoned (API timeouts); **rubric pipeline upgraded** |
+| Run 6 | 6 | 52.8% | 72.5% | +19.7pp | Resilient wrapper, 2 errors; **harder rubrics (Run 5+ methodology)** |
+
+> **Cross-run scores are not directly comparable after Run 4.** The rubric generation upgrade introduced in Run 5 (multi-pass hierarchical generation, adversarial coverage audits, expert panel simulation) produces harder rubrics that compress scores and deltas. See the [Methodology Note](#methodology-note-rubric-generation-upgrade-run-5) above.
 
 Harness scores remain consistent in the 72–73% range across all completed runs. The delta variation is driven primarily by rubric difficulty (lower baselines = larger deltas). Run 4's +26.0pp remains the best delta, aided by harder rubrics and the learning features introduced that run.
 
