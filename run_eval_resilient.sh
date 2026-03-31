@@ -2,7 +2,7 @@
 # Resilient eval runner — auto-restarts on hangs
 # Monitors process CPU activity and restarts if dead for 8 minutes
 
-OUTPUT_FILE="eval_results_run7.json"
+OUTPUT_FILE="eval_results_run9.json"
 MAX_STALL_SECONDS=720  # 12 minutes with no CPU activity (matches 600s API timeout)
 
 while true; do
@@ -55,9 +55,9 @@ done = sum(1 for v in t.values() if v.get('harness'))
 print(done)
 " 2>/dev/null)
 
-    echo "[$(date)] Tasks complete: ${DONE}/10 (exit code: $EXIT_CODE)"
+    echo "[$(date)] Tasks complete: ${DONE}/25 (exit code: $EXIT_CODE)"
 
-    if [ "$DONE" = "10" ]; then
+    if [ "$DONE" = "25" ]; then
         echo "[$(date)] All tasks done!"
         break
     fi
