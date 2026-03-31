@@ -1,0 +1,223 @@
+{
+  "run_id": "d0fcc8ba_20260331_035212",
+  "iteration": 3,
+  "content": "```python\n\"\"\"\nCSV parsing function with robust delimiter detection, header handling, and error management.\n\"\"\"\n\nimport csv\nimport io\nimport time\nfrom dataclasses import dataclass\nfrom pathlib import Path\nfrom typing import Union, List, Dict, Any, Optional, IO, Tuple\n\n\n@dataclass\nclass ParseResult:\n    \"\"\"Results from CSV parsing operation with comprehensive metadata.\"\"\"\n    data: List[Dict[str, str]]\n    warnings: List[str]\n    rows_skipped: int\n    delimiter: str\n    has_header: bool\n    headers: List[str]\n    processing_time: float = 0.0\n    confidence_score: float = 0.0\n    quality_metrics: Dict[str, Any] = None\n\n\ndef parse_csv(\n    source: Union[str, Path, IO[str]],\n    *,\n    delimiters: Optional[str] = None,\n    sample_size: int = 4096,\n    assume_header: Optional[bool] = None\n) -> ParseResult:\n    \"\"\"\n    Parse messy CSV data with automatic delimiter detection and header handling.\n    \n    Handles inconsistent delimiters, missing headers, and various edge cases\n    commonly found in real-world CSV files including embedded newlines,\n    malformed quotes, and BOM characters.\n    \n    Args:\n        source: File path, string data, or file-like object to parse\n        delimiters: Candidate delimiters to test (default: ',;|\\t')\n        sample_size: Bytes to read for format detection\n        assume_header: Force header assumption (True/False/None for auto-detect)\n    \n    Returns:\n        ParseResult containing parsed data, warnings, and metadata\n    \n    Examples:\n        >>> # Basic usage with file path\n        >>> result = parse_csv('messy_data.csv')\n        >>> print(f\"Found {len(result.data)} rows with delimiter '{result.delimiter}'\")\n        \n        >>> # Handle malformed data with confidence scoring\n        >>> result = parse_csv('problematic.csv')\n        >>> if result.confidence_score < 0.8:\n        ...     print(\"Warning: Low confidence parsing\")\n        \n        >>> # Process different input types\n        >>> from io import StringIO\n        >>> csv_data = \"Name;Age\\\\nAlice;30\\\\nBob;25\"\n        >>> result = parse_csv(StringIO(csv_data))\n    \"\"\"\n    start_time = time.time()\n    warnings = []\n    rows_skipped = 0\n    \n    try:\n        # Normalize input to string data\n        sample, full_data = _read_source(source, sample_size)\n        \n        # Detect delimiter using csv.Sniffer with fallback\n        delimiter, delimiter_confidence = detect_delimiter(sample, delimiters)\n        if not delimiter:\n            raise ValueError(\"Could not determine delimiter from sample data\")\n        \n        # Detect headers using csv.Sniffer heuristics\n        has_header, header_confidence = detect_headers(sample, delimiter, assume_header)\n        \n        # Parse the data using csv.reader with enhanced error handling\n        data, headers, parse_warnings, skipped, quality_metrics = parse_rows(\n            full_data, delimiter, has_header\n        )\n        \n        warnings.extend(parse_warnings)\n        rows_skipped += skipped\n        \n        processing_time = time.time() - start_time\n        confidence_score = (delimiter_confidence + header_confidence) / 2\n        \n        return ParseResult(\n            data=data,\n            warnings=warnings,\n            rows_skipped=rows_skipped,\n            delimiter=delimiter,\n            has_header=has_header,\n            headers=headers,\n            processing_time=processing_time,\n            confidence_score=confidence_score,\n            quality_metrics=quality_metrics or {}\n        )\n        \n    except Exception as e:\n        processing_time = time.time() - start_time\n        warnings.append(f\"Parse error: {str(e)}\")\n        return ParseResult(\n            data=[],\n            warnings=warnings,\n            rows_skipped=0,\n            delimiter=',',\n            has_header=False,\n            headers=[],\n            processing_time=processing_time,\n            confidence_score=0.0,\n            quality_metrics={}\n        )\n\n\ndef detect_delimiter(sample: str, candidate_delimiters: Optional[str] = None) -> Tuple[str, float]:\n    \"\"\"\n    Detect the most likely delimiter in CSV sample data with confidence scoring.\n    \n    Uses csv.Sniffer with fallback to consistency analysis for robust detection.\n    \"\"\"\n    if not sample.strip():\n        return ',', 0.0\n    \n    candidates = candidate_delimiters or ',;|\\t'\n    \n    # Try csv.Sniffer first\n    try:\n        sniffer = csv.Sniffer()\n        dialect = sniffer.sniff(sample, delimiters=candidates)\n        return dialect.delimiter, 0.9  # High confidence for sniffer success\n    except (csv.Error, Exception):\n        pass\n    \n    # Fallback: test consistency across rows\n    delimiter, consistency_score = _find_consistent_delimiter(sample, candidates)\n    return delimiter, consistency_score\n\n\ndef detect_headers(\n    sample: str, \n    delimiter: str, \n    assume_header: Optional[bool] = None\n) -> Tuple[bool, float]:\n    \"\"\"\n    Detect if the first row contains headers using heuristics with confidence scoring.\n    \n    Combines csv.Sniffer.has_header() with additional consistency checks.\n    \"\"\"\n    if assume_header is not None:\n        return assume_header, 1.0\n    \n    if not sample.strip():\n        return False, 0.0\n    \n    try:\n        # Use csv.Sniffer heuristic\n        sniffer = csv.Sniffer()\n        has_header_guess = sniffer.has_header(sample)\n        base_confidence = 0.7 if has_header_guess else 0.3\n        \n        # Additional check: compare first row types vs data rows\n        reader = csv.reader(io.StringIO(sample), delimiter=delimiter)\n        rows = [row for row in reader if any(cell.strip() for cell in row)][:5]\n        \n        if len(rows) < 2:\n            return has_header_guess, base_confidence\n        \n        # Check if first row values look like headers (non-numeric, different from data)\n        first_row = rows[0]\n        second_row = rows[1] if len(rows) > 1 else []\n        \n        header_indicators = 0\n        for i, (header_val, data_val) in enumerate(zip(first_row, second_row)):\n            # Headers often contain letters, data often numeric\n            if header_val.strip() and not header_val.strip().replace('.', '').replace('-', '').isdigit():\n                if data_val.strip().replace('.', '').replace('-', '').isdigit():\n                    header_indicators += 1\n        \n        # Combine sniffer result with our heuristic\n        confidence = header_indicators / max(len(first_row), 1)\n        has_header = has_header_guess or confidence > 0.3\n        final_confidence = min(1.0, base_confidence + confidence * 0.3)\n        \n        return has_header, final_confidence\n        \n    except (csv.Error, Exception):\n        return False, 0.0\n\n\ndef parse_rows(\n    data: str, \n    delimiter: str, \n    has_header: bool\n) -> Tuple[List[Dict[str, str]], List[str], List[str], int, Dict[str, Any]]:\n    \"\"\"\n    Parse CSV rows into structured data with comprehensive error handling and quality metrics.\n    \n    Returns tuple of (parsed_data, headers, warnings, rows_skipped, quality_metrics).\n    \"\"\"\n    warnings = []\n    rows_skipped = 0\n    parsed_data = []\n    headers = []\n    quality_metrics = {\n        'total_rows_processed': 0,\n        'column_consistency': 0.0,\n        'data_type_inconsistencies': 0,\n        'potential_encoding_issues': 0\n    }\n    \n    try:\n        # Enhanced reader configuration to handle edge cases\n        reader = csv.reader(\n            io.StringIO(data), \n            delimiter=delimiter,\n            quoting=csv.QUOTE_MINIMAL,\n            skipinitialspace=True,\n            doublequote=True  # Handle malformed quotes\n        )\n        \n        all_rows = []\n        column_counts = []\n        \n        for row_num, row in enumerate(reader):\n            quality_metrics['total_rows_processed'] += 1\n            \n            # Skip completely empty rows\n            if not any(cell.strip() for cell in row):\n                rows_skipped += 1\n                continue\n                \n            # Track column count consistency\n            column_counts.append(len(row))\n            \n            # Detect potential data issues\n            for cell in row:\n                if '\\uffef' in cell or '\\xef\\xbb\\xbf' in cell:\n                    quality_metrics['potential_encoding_issues'] += 1\n                    warnings.append(f\"Row {row_num + 1}: BOM character detected\")\n            \n            all_rows.append((row_num + 1, row))\n        \n        # Calculate column consistency metric\n        if column_counts:\n            most_common_count = max(set(column_counts), key=column_counts.count)\n            consistency = column_counts.count(most_common_count) / len(column_counts)\n            quality_metrics['column_consistency'] = consistency\n        \n        if not all_rows:\n            return [], [], [\"No data rows found\"], 0, quality_metrics\n        \n        # Handle headers\n        if has_header and all_rows:\n            _, header_row = all_rows[0]\n            headers = [col.strip() or f\"column_{i+1}\" for i, col in enumerate(header_row)]\n            data_rows = all_rows[1:]\n        else:\n            # Generate default headers\n            max_cols = max(len(row) for _, row in all_rows) if all_rows else 0\n            headers = [f\"column_{i+1}\" for i in range(max_cols)]\n            data_rows = all_rows\n        \n        # Parse data rows with type consistency checking\n        column_types = {}  # Track predominant types per column\n        \n        for row_num, row in data_rows:\n            try:\n                # Pad or trim row to match header count\n                if len(row) < len(headers):\n                    row.extend([''] * (len(headers) - len(row)))\n                    warnings.append(f\"Row {row_num}: Padded missing columns\")\n                elif len(row) > len(headers):\n                    row = row[:len(headers)]\n                    warnings.append(f\"Row {row_num}: Trimmed extra columns\")\n                \n                # Create row dictionary and check data types\n                row_dict = {}\n                for i, (header, cell) in enumerate(zip(headers, row)):\n                    cleaned_cell = cell.strip()\n                    row_dict[header] = cleaned_cell\n                    \n                    # Track data type consistency\n                    if cleaned_cell:\n                        is_numeric = cleaned_cell.replace('.', '').replace('-', '').isdigit()\n                        if header not in column_types:\n                            column_types[header] = {'numeric': 0, 'text': 0}\n                        \n                        if is_numeric:\n                            column_types[header]['numeric'] += 1\n                        else:\n                            column_types[header]['text'] += 1\n                \n                parsed_data.append(row_dict)\n                \n            except Exception as e:\n                warnings.append(f\"Row {row_num}: Skipped due to error - {str(e)}\")\n                rows_skipped += 1\n        \n        # Calculate data type inconsistency metrics\n        for header, type_counts in column_types.items():\n            total = type_counts['numeric'] + type_counts['text']\n            if total > 1:\n                minority = min(type_counts['numeric'], type_counts['text'])\n                if minority / total > 0.1:  # >10% minority type\n                    quality_metrics['data_type_inconsistencies'] += 1\n                    warnings.append(f\"Column '{header}' has mixed data types\")\n        \n        return parsed_data, headers, warnings, rows_skipped, quality_metrics\n        \n    except Exception as e:\n        return [], [], [f\"Failed to parse rows: {str(e)}\"], 0, quality_metrics\n\n\ndef _read_source(source: Union[str | Path | IO[str]], sample_size: int) -> Tuple[str, str]:\n    \"\"\"\n    Read and return (sample, full_data) from various source types with BOM handling.\n    \n    Supports file paths, raw CSV strings, file-like objects, and handles encoding issues.\n    \"\"\"\n    if hasattr(source, 'read'):\n        # File-like object\n        content = source.read()\n        if hasattr(source, 'seek'):\n            source.seek(0)\n        return content[:sample_size], content\n    \n    elif isinstance(source, (str, Path)):\n        if isinstance(source, str) and ('\\n' in source or ',' in source or ';' in source):\n            # Assume it's CSV data string\n            return source[:sample_size], source\n        else:\n            # Assume it's a file path with BOM detection\n            try:\n                path = Path(source)\n                \n                # First, detect BOM by reading raw bytes\n                with path.open('rb') as f:\n                    raw_start = f.read(4)\n                \n                # Determine encoding based on BOM\n                encoding = 'utf-8'\n                if raw_start.startswith(b'\\xef\\xbb\\xbf'):\n                    encoding = 'utf-8-sig'  # UTF-8 with BOM\n                elif raw_start.startswith((b'\\xff\\xfe', b'\\xfe\\xff')):\n                    encoding = 'utf-16'  # UTF-16 with BOM\n                \n                with path.open('r', encoding=encoding, newline='') as f:\n                    content = f.read()\n                return content[:sample_size], content\n                \n            except UnicodeDecodeError:\n                # Fallback to latin-1 encoding\n                with path.open('r', encoding='latin-1', newline='') as f:\n                    content = f.read()\n                return content[:sample_size], content\n    \n    raise TypeError(f\"Unsupported source type: {type(source)}\")\n\n\ndef _find_consistent_delimiter(sample: str, candidates: str) -> Tuple[str, float]:\n    \"\"\"Find delimiter with most consistent column count across rows with confidence scoring.\"\"\"\n    best_delimiter = ','\n    best_score = 0.0\n    \n    for delimiter in candidates:\n        try:\n            reader = csv.reader(io.StringIO(sample), delimiter=delimiter)\n            rows = [row for row in reader if any(row)][:10]  # Check first 10 rows\n            \n            if len(rows) < 2:\n                continue\n            \n            # Calculate consistency score\n            col_counts = [len(row) for row in rows]\n            if col_counts and max(col_counts) > 1:\n                most_common_count = max(set(col_counts), key=col_counts.count)\n                consistency = col_counts.count(most_common_count) / len(col_counts)\n                score = consistency * min(most_common_count / 10.0, 1.0)  # Favor more columns but cap\n                \n                if score > best_score:\n                    best_score = score\n                    best_delimiter = delimiter\n        except csv.Error:\n            continue\n    \n    return best_delimiter, best_score\n\n\n# Enhanced test cases for comprehensive validation\ndef test_parse_csv():\n    \"\"\"\n    Comprehensive test cases demonstrating the function's capabilities including edge cases.\n    \"\"\"\n    \n    # Test 1: Semicolon-delimited with headers\n    data1 = \"Name;Age;City\\nAlice;30;New York\\nBob;25;London\"\n    result1 = parse_csv(data1)\n    assert result1.delimiter == ';'\n    assert result1.has_header == True\n    assert len(result1.data) == 2\n    assert result1.data[0]['Name'] == 'Alice'\n    print(\"\u2713 Test 1: Basic semicolon delimiter with headers\")\n    \n    # Test 2: Tab-delimited without headers\n    data2 = \"John\\t35\\tParis\\nJane\\t28\\tTokyo\"\n    result2 = parse_csv(data2, assume_header=False)\n    assert result2.delimiter == '\\t'\n    assert result2.has_header == False\n    assert result2.headers == ['column_1', 'column_2', 'column_3']\n    print(\"\u2713 Test 2: Tab delimiter without headers\")\n    \n    # Test 3: Messy data with empty rows and inconsistent columns\n    data3 = \"A,B,C\\n1,2,3\\n\\n4,5\\n6,7,8,9\"\n    result3 = parse_csv(data3)\n    assert result3.rows_skipped == 1  # Empty row\n    assert len(result3.warnings) >= 2  # Missing column + extra column warnings\n    print(\"\u2713 Test 3: Messy data with inconsistent columns\")\n    \n    # Test 4: Embedded newlines in quoted fields\n    data4 = '\"Name\",\"Description\"\\n\"Alice\",\"Line 1\\nLine 2\"\\n\"Bob\",\"Simple text\"'\n    result4 = parse_csv(data4)\n    assert len(result4.data) == 2\n    assert \"Line 1\\nLine 2\" in result4.data[0]['Description']\n    print(\"\u2713 Test 4: Embedded newlines in quoted fields\")\n    \n    # Test 5: Malformed quotes and edge cases\n    data5 = 'Name,Value\\n\"Unclosed quote,123\\n\"Proper\",\"Quoted\"\\nUnquoted,456'\n    result5 = parse_csv(data5)\n    assert len(result5.warnings) > 0  # Should warn about parsing issues\n    print(\"\u2713 Test 5: Malformed quotes handling\")\n    \n    # Test 6: Mixed data types consistency check\n    data6 = \"ID,Score\\n1,100\\n2,A+\\n3,95\\n4,B-\\n5,87\"\n    result6 = parse_csv(data6)\n    assert result6.quality_metrics['data_type_inconsistencies'] > 0\n    print(\"\u2713 Test 6: Data type inconsistency detection\")\n    \n    # Test 7: BOM character handling (simulated)\n    data7 = \"\\ufeffName,Age\\nAlice,30\\nBob,25\"\n    result7 = parse_csv(data7)\n    assert result7.quality_metrics['potential_encoding_issues'] > 0\n    print(\"\u2713 Test 7: BOM character detection\")\n    \n    # Test 8: Confidence and quality metrics\n    data8 = \"Clear,Headers,Here\\n1,2,3\\n4,5,6\\n7,8,9\"\n    result8 = parse_csv(data8)\n    assert result8.confidence_score > 0.7  # Should be high confidence\n    assert result8.quality_metrics['column_consistency'] == 1.0  # Perfect consistency\n    print(\"\u2713 Test 8: Confidence and quality metrics\")\n    \n    print(\"\\nAll tests passed! \ud83c\udf89\")\n    print(f\"Last test processing time: {result8.processing_time:.3f}s\")\n\n\nif __name__ == \"__main__\":\n    test_parse_csv()\n```",
+  "total_score": 27.0,
+  "max_score": 44,
+  "percentage": 0.6136363636363636,
+  "criterion_scores": [
+    {
+      "criterion_id": "code_correctness",
+      "points_earned": 9.0,
+      "max_points": 12,
+      "percentage": 0.7499999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "delimiter_detection",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "header_handling",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "edge_case_resilience",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: delimiter_detection: 75%x35% + header_handling: 75%x35% + edge_case_resilience: 75%x30%",
+      "improvement_hints": [
+        "delimiter_detection: 75% -> 80% (+0.2 pts)",
+        "header_handling: 75% -> 80% (+0.2 pts)",
+        "edge_case_resilience: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "code_robustness",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "error_handling",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "data_integrity",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "return_metadata",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: error_handling: 75%x40% + data_integrity: 75%x35% + return_metadata: 75%x25%",
+      "improvement_hints": [
+        "error_handling: 75% -> 80% (+0.2 pts)",
+        "data_integrity: 75% -> 80% (+0.2 pts)",
+        "return_metadata: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "code_api_design",
+      "points_earned": 6.0,
+      "max_points": 8,
+      "percentage": 0.7499999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "type_hints",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "docstring",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "input_flexibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: type_hints: 75%x35% + docstring: 75%x30% + input_flexibility: 75%x35%",
+      "improvement_hints": [
+        "type_hints: 75% -> 80% (+0.1 pts)",
+        "docstring: 75% -> 80% (+0.1 pts)",
+        "input_flexibility: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "code_idiomaticness",
+      "points_earned": 0,
+      "max_points": 8,
+      "percentage": 0.0,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "reinvents_csv_module",
+          "penalty": -3.0
+        },
+        {
+          "violation": "regex_only_parsing",
+          "penalty": -2.0
+        },
+        {
+          "violation": "no_type_structures",
+          "penalty": -1.5
+        },
+        {
+          "violation": "mutable_default_args",
+          "penalty": -1.5
+        },
+        {
+          "violation": "global_state",
+          "penalty": -2.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 8 - -10.0",
+      "improvement_hints": [
+        "Fix reinvents_csv_module (+3.0 pts)",
+        "Fix regex_only_parsing (+2.0 pts)",
+        "Fix global_state (+2.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "code_testability",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "pure_function",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "modularity",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "test_examples",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pure_function: 75%x40% + modularity: 75%x30% + test_examples: 75%x30%",
+      "improvement_hints": [
+        "pure_function: 75% -> 80% (+0.1 pts)",
+        "modularity: 75% -> 80% (+0.1 pts)",
+        "test_examples: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "code_idiomaticness.reinvents_csv_module",
+    "code_idiomaticness.regex_only_parsing",
+    "code_idiomaticness.no_type_structures",
+    "code_idiomaticness.mutable_default_args",
+    "code_idiomaticness.global_state"
+  ]
+}

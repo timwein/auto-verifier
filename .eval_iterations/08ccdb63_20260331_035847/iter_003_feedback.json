@@ -1,0 +1,24 @@
+{
+  "iteration": 3,
+  "feedback_text": "DIAGNOSIS: 7 failing sub-attributes (35.4 pts recoverable), 1 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 sum_compression: 84% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: sum_standalone.references_source (current: 0%, 6.0 pts at stake)\n    Scorer's critique: No references to 'the post' or 'the author'\n    Measurement spec: Summary is self-contained \u2014 no context needed to understand it\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 2: sum_standalone.undefined_jargon (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Technical terms like RLVR and MMLU are not defined\n    Measurement spec: Summary is self-contained \u2014 no context needed to understand it\n    Evidence found: RLVR, MMLU, GPT-3.5, GPT-4\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 3: sum_standalone.assumes_context (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Content is self-contained\n    Measurement spec: Summary is self-contained \u2014 no context needed to understand it\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 4: sum_standalone.passive_voice_dominant (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Uses active voice throughout\n    Measurement spec: Summary is self-contained \u2014 no context needed to understand it\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 5: sum_fidelity.thesis_capture (current: 50%, 4.8 pts at stake)\n    Scorer's critique: First bullet captures training improvements and performance metrics but lacks a clear central thesis statement.\n    Measurement spec: 1.0 if captures central claim, 0.5 if tangential, 0.0 if wrong\n    Evidence found: Content goes beyond rubric guidance with independent domain expertise: no evidence of independent insight\n    \u2717 FAILED CHECK: Content goes beyond rubric guidance with independent domain expertise\n      Evidence: no evidence of independent insight\n    \u2192 ACTION: Lead with a clearer thesis like 'LLM training efficiency has dramatically improved, achieving GPT-4 performance at smaller scales.'\n\n  FIX 6: sum_fidelity.no_hallucination (current: 50%, 3.6 pts at stake)\n    Scorer's critique: Cannot verify fidelity to source material without access to original content, but claims appear plausible and specific.\n    Measurement spec: 1.0 if all claims traceable, 0.0 per hallucinated claim\n    Evidence found: Content goes beyond rubric guidance with independent domain expertise: no evidence of independent insight\n    \u2717 FAILED CHECK: Content goes beyond rubric guidance with independent domain expertise\n      Evidence: no evidence of independent insight\n    \u2192 ACTION: Ensure all specific claims like RLVR methodology and Qwen 2 specifications are directly from source material.\n\n  FIX 7: sum_exec_value.declarative_framing (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Good declarative framing with active statements, though could be more assertive in some claims.\n    Measurement spec: 1.0 if all declarative, 0.5 if mixed, 0.0 if all descriptive/passive\n    Evidence found: Content goes beyond rubric guidance with independent domain expertise: no evidence of independent insight\n    \u2717 FAILED CHECK: Content goes beyond rubric guidance with independent domain expertise\n      Evidence: no evidence of independent insight\n    \u2192 ACTION: Strengthen declarative tone. Instead of 'emerged as', use 'RLVR is the new training stage that enables...'\n",
+  "focus_areas": [
+    "sum_fidelity",
+    "sum_exec_value",
+    "sum_standalone"
+  ],
+  "protected_criteria": [
+    "sum_compression"
+  ],
+  "improvement_targets": [
+    "sum_fidelity",
+    "sum_exec_value",
+    "sum_standalone"
+  ],
+  "prior_score": 0.5803,
+  "prior_criterion_scores": {
+    "sum_compression": 0.8403,
+    "sum_fidelity": 0.575,
+    "sum_exec_value": 0.675,
+    "sum_standalone": 0.0
+  }
+}

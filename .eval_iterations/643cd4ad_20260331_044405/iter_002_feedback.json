@@ -1,0 +1,27 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 4 failing sub-attributes (12.0 pts recoverable), 0 passing.\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: name_availability.no_trademark_conflicts (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Names appear free of obvious trademark conflicts but lack specific availability analysis as required by rubric.\n    Measurement spec: % of names with no obvious trademark conflict\n    Evidence found: Notes on availability included: No specific availability analysis provided in content; Goes beyond rubric with trademark expertise: No evidence of trademark search methodology or conflict analysis\n    \u2717 FAILED CHECK: Notes on availability included\n      Evidence: No specific availability analysis provided in content\n    \u2717 FAILED CHECK: Goes beyond rubric with trademark expertise\n      Evidence: No evidence of trademark search methodology or conflict analysis\n    \u2192 ACTION: Add brief availability notes for each name, such as: 'Redmark.com likely available - coined term with no major brand conflicts.'\n\n  FIX 2: name_variety.range_of_tone (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Some tonal variation present but most names cluster in the serious/professional register without bold or distinctly approachable options.\n    Measurement spec: 1.0 if clear tonal range, 0.5 if some variation, 0.0 if monotone\n    Evidence found: Clear tonal range across names: Most names lean toward serious/professional tone without much variation; Goes beyond rubric with tonal expertise: No evidence of deliberate tonal strategy or market positioning through tone\n    \u2717 FAILED CHECK: Clear tonal range across names\n      Evidence: Most names lean toward serious/professional tone without much variation\n    \u2717 FAILED CHECK: Goes beyond rubric with tonal expertise\n      Evidence: No evidence of deliberate tonal strategy or market positioning through tone\n    \u2192 ACTION: Consider adding a more approachable name like 'ClauseWise' or a bolder option like 'ContractCrush' to expand tonal range.\n\n  FIX 3: name_memorability.brevity (current: 50%, 3.0 pts at stake)\n    Scorer's critique: 3 out of 5 names meet the \u22643 syllable guideline. Vantage Legal and Inkwell Analytics are longer than ideal.\n    Measurement spec: % of names at \u22643 syllables\n    Evidence found: Names are \u22643 syllables preferred: Vantage Legal (4 syllables), Inkwell Analytics (5 syllables) exceed 3 syllables; Goes beyond rubric with brevity expertise: No evidence of independent insight on optimal name length\n    \u2717 FAILED CHECK: Names are \u22643 syllables preferred\n      Evidence: Vantage Legal (4 syllables), Inkwell Analytics (5 syllables) exceed 3 syllables\n    \u2717 FAILED CHECK: Goes beyond rubric with brevity expertise\n      Evidence: No evidence of independent insight on optimal name length\n    \u2192 ACTION: Consider shortening longer names: 'Vantage' instead of 'Vantage Legal', 'Inkwell' instead of 'Inkwell Analytics'.\n\n  FIX 4: name_domain_resonance.avoids_generic_ai (current: 50%, 3.0 pts at stake)\n    Scorer's critique: 4 out of 5 names successfully avoid generic AI patterns, but 'Gavel AI' falls into the AI suffix trap.\n    Measurement spec: % of names avoiding generic tech naming patterns\n    Evidence found: No 'AI' prefix/suffix pattern: 'Gavel AI' uses AI suffix; Goes beyond rubric with naming pattern expertise: No evidence of independent insight on AI naming trends\n    \u2717 FAILED CHECK: No 'AI' prefix/suffix pattern\n      Evidence: 'Gavel AI' uses AI suffix\n    \u2717 FAILED CHECK: Goes beyond rubric with naming pattern expertise\n      Evidence: No evidence of independent insight on AI naming trends\n    \u2192 ACTION: Replace 'Gavel AI' with just 'Gavel' or a compound like 'GavelForce' to avoid generic AI suffix.\n",
+  "focus_areas": [
+    "name_count",
+    "name_memorability",
+    "name_domain_resonance",
+    "name_availability",
+    "name_variety"
+  ],
+  "protected_criteria": [],
+  "improvement_targets": [
+    "name_count",
+    "name_memorability",
+    "name_domain_resonance",
+    "name_availability",
+    "name_variety"
+  ],
+  "prior_score": 0.5833,
+  "prior_criterion_scores": {
+    "name_count": 0.0,
+    "name_memorability": 0.675,
+    "name_domain_resonance": 0.675,
+    "name_availability": 0.625,
+    "name_variety": 0.625
+  }
+}

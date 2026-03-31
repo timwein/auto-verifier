@@ -1,0 +1,31 @@
+{
+  "iteration": 3,
+  "feedback_text": "DIAGNOSIS: 4 failing sub-attributes (9.7 pts recoverable), 3 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 email_length: 99% \u2014 keep unchanged\n  \u2713 email_opening: 100% \u2014 keep unchanged\n  \u2713 email_tone: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: email_cta.clarity (current: 50%, 2.8 pts at stake)\n    Scorer's critique: Primary ask is clear (15-min call) but includes alternative option (email thesis first) which creates slight ambiguity about preferred response.\n    Measurement spec: 1.0 if one clear ask, 0.5 if implied, 0.0 if multiple/confusing\n    Evidence found: No multiple competing asks: offers both call AND email thesis sharing; Goes beyond rubric with independent domain expertise: standard CTA format\n    \u2717 FAILED CHECK: No multiple competing asks\n      Evidence: offers both call AND email thesis sharing\n    \u2717 FAILED CHECK: Goes beyond rubric with independent domain expertise\n      Evidence: standard CTA format\n    \u2192 ACTION: Make the call the primary ask and position email thesis as optional prep: 'Free for a 15-min call Thursday 2-4pm or Friday 1-3pm EST? Can share my thesis on AI-powered B2B automation beforehand if helpful.'\n\n  FIX 2: email_subject.brevity (current: 50%, 2.5 pts at stake)\n    Scorer's critique: Subject line is 85 characters, exceeding both the 60-character ideal and 80-character acceptable threshold for mobile scanning.\n    Measurement spec: 1.0 if \u226460 chars, 0.5 if \u226480, 0.0 if >80\n    Evidence found: Under 60 characters: Subject is 85 characters long; Under 80 characters: Subject is 85 characters long; Scannable on mobile: 85 characters exceeds mobile-friendly length\n    \u2717 FAILED CHECK: Under 60 characters\n      Evidence: Subject is 85 characters long\n    \u2717 FAILED CHECK: Under 80 characters\n      Evidence: Subject is 85 characters long\n    \u2717 FAILED CHECK: Scannable on mobile\n      Evidence: 85 characters exceeds mobile-friendly length\n    \u2192 ACTION: Shorten to under 60 characters. Try: '$85K for Aaru \u2014 agents replacing focus groups breakthrough' (58 chars)\n\n  FIX 3: email_social_proof.restraint (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Shows good restraint with focused proof points, but follows standard approach without additional sophistication in presentation.\n    Measurement spec: 1.0 if 1-2 tight proof points, 0.5 if 3-4, 0.0 if resume paragraph\n    Evidence found: Goes beyond rubric with independent domain expertise: follows standard restraint approach\n    \u2717 FAILED CHECK: Goes beyond rubric with independent domain expertise\n      Evidence: follows standard restraint approach\n    \u2192 ACTION: Consider making the proof points even more concise while maintaining impact.\n\n  FIX 4: email_value_prop.credibility (current: 50%, 2.0 pts at stake)\n    Scorer's critique: Claims are verifiable with specific company name (FleetForce) and concrete metrics ($5M to $90M ARR, 40% CAC reduction), but follows standard credibility format without additional independent insight.\n    Measurement spec: 1.0 if verifiable claims, 0.5 if plausible, 0.0 if unsubstantiated\n    Evidence found: Goes beyond rubric with independent domain expertise: standard format of naming company and metrics\n    \u2717 FAILED CHECK: Goes beyond rubric with independent domain expertise\n      Evidence: standard format of naming company and metrics\n    \u2192 ACTION: Add a brief detail that makes the claim more distinctive, such as the timeframe for scaling or a specific challenge overcome.\n",
+  "focus_areas": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "protected_criteria": [
+    "email_opening",
+    "email_tone",
+    "email_length"
+  ],
+  "improvement_targets": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "prior_score": 0.7954,
+  "prior_criterion_scores": {
+    "email_subject": 0.6875,
+    "email_opening": 1.0,
+    "email_value_prop": 0.7,
+    "email_social_proof": 0.675,
+    "email_cta": 0.6625,
+    "email_tone": 1.0,
+    "email_length": 0.9934
+  }
+}

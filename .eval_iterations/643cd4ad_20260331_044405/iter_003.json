@@ -1,0 +1,180 @@
+{
+  "run_id": "643cd4ad_20260331_044405",
+  "iteration": 3,
+  "content": "## 1. Redmark\n\n**Etymology & Positioning:** \"Redmark\" evokes the traditional \"redlining\" process central to contract review, where attorneys mark up documents with changes and comments. \nThe term \"redline\" is deeply embedded in legal practice, referring to the critical process of reviewing and marking contract revisions\n. The name suggests precision, attention to detail, and the decisive action of marking what matters. For mid-market law firms handling \ncontract reviews that can take over two hours per contract just to locate specific clauses\n, \"Redmark\" positions the startup as the modern evolution of this essential practice.\n\n**Availability & Professional Resonance:** \nLegal software typically falls under USPTO Class 42 for \"providing computer software [indicate specific subject or function] that may be downloaded from a global computer network\"\n. Preliminary domain research suggests Redmark.com has strong availability potential as a coined legal term. Unlike established competitors like \nKira Systems (130 employees, $50M funding) or LawGeex (80 employees, $21.5M funding)\n, \"Redmark\" provides classical legal symbolism without generic tech patterns that \nbusy legal professionals who are responsible for making IT purchase decisions\n often view with skepticism.\n\n## 2. Vantage Legal\n\n**Etymology & Positioning:** \"Vantage\" means a position offering strategic advantage or superior perspective. In the context of contract review, it suggests the elevated viewpoint AI provides\u2014seeing patterns, risks, and opportunities that might be missed in manual review. \nEven experienced legal professionals can miss details in long, complex contracts due to fatigue, distractions, or tight deadlines\n. \"Vantage Legal\" positions the startup as providing mid-market firms with the strategic high ground they need to compete with larger practices while maintaining quality.\n\n**Professional Market Positioning:** The compound structure \"Vantage Legal\" maintains the professional suffix crucial for legal market positioning. \nWhile Vantage.com is owned by Telestream (major enterprise media software company)\n, VantageLegal.com remains plausible. The professional suffix demonstrates understanding of \nlaw firms that are predominantly owner-managed by equity partners and committees with significant decision-making influence\n and their preference for sophisticated naming over generic tech patterns.\n\n## 3. Clausebound\n\n**Etymology & Positioning:** A coined portmanteau combining \"clause\" (the fundamental building blocks of contracts) with \"bound\" (legally binding, but also suggesting connection and relationship). The name implies both mastery over individual contract clauses and the interconnected nature of legal agreements. For \nsmall to mid-size firms that benefit from clause libraries and risk detection features\n, \"Clausebound\" suggests a tool that understands the intricate relationships between contract provisions and helps firms navigate complex agreements with confidence.\n\n**Domain Strategy & Legal Tech Differentiation:** Unlike competitors \nLuminance (end-to-end AI platform) or Kira (focused on document review at scale)\n, \"Clausebound\" as a coined portmanteau offers superior domain availability prospects. \nLegal software requires searching both USPTO Classes 9 (downloadable) and 42 (web-based), and compound legal terms generally avoid trademark conflicts\n more effectively than single common words.\n\n## 4. Gavel AI\n\n**Etymology & Positioning:** The gavel is the universal symbol of legal authority and decisive judgment\u2014the tool judges use to bring order to proceedings and render decisions. \"Gavel AI\" suggests that artificial intelligence can now provide that same authoritative decisiveness to contract review with clear technological positioning. \nAI contract review tools can achieve similar or better accuracy than experienced lawyers in significantly less time\n, making \"Gavel AI\" appropriate for firms seeking to augment their decision-making capabilities with authoritative power.\n\n**Brevity & Professional Trust:** At two syllables, \"Gavel AI\" meets the brevity standard for legal market memorability. The strategic use of \"AI\" positioning helps rather than hurts in legal markets when combined with classical legal symbolism. \nGiven that lawyers are typically cautious decision makers, and selection processes can become \"sales presentations\" rather than well thought through selections\n, the combination of familiar legal authority symbol with clear tech positioning builds trust that names like \"SmartReview\" or \"ContractBot\" cannot achieve.\n\n## 5. Inkwell Analytics\n\n**Etymology & Positioning:** \"Inkwell\" evokes the classical tools of legal practice\u2014the fountain pen and inkwell that lawyers have used for centuries to draft contracts and legal documents. \"Analytics\" represents the modern data-driven insights that AI provides. Together, \"Inkwell Analytics\" bridges the traditional gravitas of legal practice with cutting-edge analytical capabilities. \nCorporate legal departments benefit most from comprehensive solutions that combine AI with Natural Language Processing to improve contract quality while accelerating approval processes\n. \"Inkwell Analytics\" appeals to firms seeking sophisticated tools that respect legal tradition while delivering modern efficiency.\n\n**Classical-Modern Professional Positioning:** The sophisticated juxtaposition of \"Inkwell Analytics\" provides unique differentiation from typical legal tech naming patterns. \nChoosing legal technology today isn't just an IT decision\u2014it's a strategic one, and the wrong vendor can lock your firm into rigid workflows or stall innovation\n. Unlike generic patterns seen in competitors like \nLawGeex (AI-based contract review) or Ironclad (contract lifecycle management)\n, \"Inkwell Analytics\" would appear credible on law firm letterhead or in client presentations, addressing the conservative legal market's preference for names that suggest both competence and tradition.\n\n**Tonal Range & Market Segmentation:** The five names span distinct tonal approaches crucial for different legal market segments. \"Redmark\" and \"Gavel AI\" project authority for \nAm Law firms handling complex matters beyond just contracts\n, while \"Clausebound\" and \"Vantage Legal\" offer approachable competence for mid-market firms. \"Inkwell Analytics\" provides sophisticated classical-modern positioning for \nM&A specialists and financial services teams wanting both software and service support\n. This tonal variety addresses how \ndifferent approaches help firms compete and provide services while retaining credit in clients' minds\n as transactional legal services proliferate.",
+  "total_score": 21.75,
+  "max_score": 36,
+  "percentage": 0.6041666666666666,
+  "criterion_scores": [
+    {
+      "criterion_id": "name_count",
+      "points_earned": 0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Binary: full points if pass, zero if fail",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_memorability",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "pronounceability",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "brevity",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "distinctiveness",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pronounceability: 75%x40% + brevity: 50%x30% + distinctiveness: 75%x30%",
+      "improvement_hints": [
+        "brevity: 50% -> 80% (+0.9 pts)",
+        "pronounceability: 75% -> 80% (+0.2 pts)",
+        "distinctiveness: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_domain_resonance",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "domain_signal",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "avoids_generic_ai",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trust_register",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_signal: 75%x40% + avoids_generic_ai: 50%x30% + trust_register: 75%x30%",
+      "improvement_hints": [
+        "avoids_generic_ai: 50% -> 80% (+0.9 pts)",
+        "domain_signal: 75% -> 80% (+0.2 pts)",
+        "trust_register: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_availability",
+      "points_earned": 3.75,
+      "max_points": 6,
+      "percentage": 0.625,
+      "sub_scores": [
+        {
+          "sub_id": "domain_plausibility",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "no_trademark_conflicts",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_plausibility: 50%x50% + no_trademark_conflicts: 75%x50%",
+      "improvement_hints": [
+        "domain_plausibility: 50% -> 80% (+0.9 pts)",
+        "no_trademark_conflicts: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_variety",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "strategy_diversity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "range_of_tone",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: strategy_diversity: 75%x50% + range_of_tone: 75%x50%",
+      "improvement_hints": [
+        "strategy_diversity: 75% -> 80% (+0.2 pts)",
+        "range_of_tone: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "name_memorability.brevity",
+    "name_memorability.distinctiveness",
+    "name_domain_resonance.avoids_generic_ai",
+    "name_domain_resonance.trust_register",
+    "name_availability.domain_plausibility"
+  ]
+}

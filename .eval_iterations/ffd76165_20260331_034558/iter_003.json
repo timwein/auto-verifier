@@ -1,0 +1,224 @@
+{
+  "run_id": "ffd76165_20260331_034558",
+  "iteration": 3,
+  "content": "**Subject:**\n$85K for Aaru \u2014 agents replacing focus groups breakthrough\n\nHi Cameron,\n\nSaw Aaru's Series A with Redpoint \u2014 the way you're using AI agents to replace focus groups mirrors what I built at FleetForce, where we automated route optimization that typically took hours of manual planning.\n\nWhen we automated forecasting at FleetForce over 18 months (scaling ops from $5M to $90M ARR), customer acquisition costs dropped 40% \u2014 happy to open my network of 25+ VP Operations contacts at Fortune 500s who could benefit from synthetic research.\n\nYour approach of replacing surveys with AI-generated demographic predictions particularly resonates \u2014 congrats on accurately predicting the NY Democratic primary. That kind of real-world validation is exactly what gets enterprise customers to pay.\n\nFree for a 15-min call Thursday 2-4pm or Friday 1-3pm EST? Can share my thesis on AI-powered B2B automation beforehand if helpful.\n\nBest,\n[Name]",
+  "total_score": 43.7,
+  "max_score": 56,
+  "percentage": 0.7803571428571429,
+  "criterion_scores": [
+    {
+      "criterion_id": "email_subject",
+      "points_earned": 6.0,
+      "max_points": 10,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "specificity",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "brevity",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "curiosity_hook",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: specificity: 75%x40% + brevity: 50%x25% + curiosity_hook: 50%x35%",
+      "improvement_hints": [
+        "brevity: 50% -> 80% (+0.8 pts)",
+        "curiosity_hook: 50% -> 80% (+1.1 pts)",
+        "specificity: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_opening",
+      "points_earned": 8.0,
+      "max_points": 8,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 8 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_value_prop",
+      "points_earned": 7.0,
+      "max_points": 10,
+      "percentage": 0.7,
+      "sub_scores": [
+        {
+          "sub_id": "specificity",
+          "raw_value": 0.75,
+          "weighted_value": 0.3375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "relevance",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "credibility",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: specificity: 75%x45% + relevance: 75%x35% + credibility: 50%x20%",
+      "improvement_hints": [
+        "credibility: 50% -> 80% (+0.6 pts)",
+        "specificity: 75% -> 80% (+0.2 pts)",
+        "relevance: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_social_proof",
+      "points_earned": 5.4,
+      "max_points": 8,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "proof_quality",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "restraint",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "natural_integration",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: proof_quality: 75%x50% + restraint: 50%x30% + natural_integration: 75%x20%",
+      "improvement_hints": [
+        "restraint: 50% -> 80% (+0.7 pts)",
+        "proof_quality: 75% -> 80% (+0.2 pts)",
+        "natural_integration: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_cta",
+      "points_earned": 5.3,
+      "max_points": 8,
+      "percentage": 0.6624999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "clarity",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "low_friction",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "specificity",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: clarity: 50%x35% + low_friction: 75%x35% + specificity: 75%x30%",
+      "improvement_hints": [
+        "clarity: 50% -> 80% (+0.8 pts)",
+        "low_friction: 75% -> 80% (+0.1 pts)",
+        "specificity: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_tone",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "email_length",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "Word count: 145 (target: \u2264150) \u2713",
+      "methodology": "Deterministic: word count \u2264 max",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "email_subject.brevity",
+    "email_value_prop.credibility",
+    "email_social_proof.restraint",
+    "email_cta.clarity",
+    "email_subject.specificity"
+  ]
+}

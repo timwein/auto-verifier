@@ -1,0 +1,24 @@
+{
+  "iteration": 6,
+  "feedback_text": "DIAGNOSIS: 1 failing sub-attributes (3.0 pts recoverable), 1 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 expl_engagement: 78% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: expl_accessibility.jargon_handling (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Most technical terms are explained, but the mathematical equation is presented with minimal unpacking of the notation for a 16-year-old audience.\n    Measurement spec: 1.0 if all explained, 0.5 if most, 0.0 if jargon-heavy\n    Evidence found: Mathematical notation is unpacked for general audience: Attention(Q,K,V) = softmax(QK^T/\u221ad_k)V - equation presented without full unpacking of notation; Content demonstrates independent domain expertise beyond rubric guidance: Standard jargon handling without innovative accessibility techniques\n    \u2717 FAILED CHECK: Mathematical notation is unpacked for general audience\n      Evidence: Attention(Q,K,V) = softmax(QK^T/\u221ad_k)V - equation presented without full unpacking of notation\n    \u2717 FAILED CHECK: Content demonstrates independent domain expertise beyond rubric guidance\n      Evidence: Standard jargon handling without innovative accessibility techniques\n    \u2192 ACTION: Break down the equation notation more thoroughly: 'QK^T means we multiply queries by keys (the T means transpose), \u221ad_k is just a number that keeps things balanced, and V represents our actual information.'\n",
+  "focus_areas": [
+    "expl_accuracy",
+    "expl_accessibility",
+    "expl_completeness"
+  ],
+  "protected_criteria": [
+    "expl_engagement"
+  ],
+  "improvement_targets": [
+    "expl_accuracy",
+    "expl_accessibility",
+    "expl_completeness"
+  ],
+  "prior_score": 0.7356,
+  "prior_criterion_scores": {
+    "expl_accuracy": 0.75,
+    "expl_accessibility": 0.675,
+    "expl_engagement": 0.7782,
+    "expl_completeness": 0.75
+  }
+}

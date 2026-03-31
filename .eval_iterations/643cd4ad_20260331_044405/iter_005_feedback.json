@@ -1,0 +1,25 @@
+{
+  "iteration": 5,
+  "feedback_text": "DIAGNOSIS: 2 failing sub-attributes (7.0 pts recoverable), 3 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 name_domain_resonance: 75% \u2014 keep unchanged\n  \u2713 name_availability: 75% \u2014 keep unchanged\n  \u2713 name_variety: 75% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: name_count (current: 0%, 4.0 pts at stake)\n    Scorer's critique: Score 0% below 75% threshold\n    Measurement spec: Exactly 5 names provided, each with rationale\n    Evidence found: (no detailed critique from scorer)\n    \u2192 ACTION: Improve name_count to meet: Exactly 5 names provided, each with rationale\n\n  FIX 2: name_memorability.brevity (current: 50%, 3.0 pts at stake)\n    Scorer's critique: All names meet the \u22643 syllable requirement effectively, with good distribution between 2-3 syllables.\n    Measurement spec: % of names at \u22643 syllables\n    Evidence found: Content goes BEYOND rubric guidance with independent domain expertise: Basic compliance with syllable count but no deeper insight into brevity strategy\n    \u2717 FAILED CHECK: Content goes BEYOND rubric guidance with independent domain expertise\n      Evidence: Basic compliance with syllable count but no deeper insight into brevity strategy\n",
+  "focus_areas": [
+    "name_count",
+    "name_memorability"
+  ],
+  "protected_criteria": [
+    "name_domain_resonance",
+    "name_availability",
+    "name_variety"
+  ],
+  "improvement_targets": [
+    "name_count",
+    "name_memorability"
+  ],
+  "prior_score": 0.6458,
+  "prior_criterion_scores": {
+    "name_count": 0.0,
+    "name_memorability": 0.675,
+    "name_domain_resonance": 0.75,
+    "name_availability": 0.75,
+    "name_variety": 0.75
+  }
+}

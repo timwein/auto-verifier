@@ -1,0 +1,27 @@
+{
+  "iteration": 4,
+  "feedback_text": "DIAGNOSIS: 4 failing sub-attributes (13.0 pts recoverable), 1 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 name_variety: 75% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: name_count (current: 0%, 4.0 pts at stake)\n    Scorer's critique: Score 0% below 75% threshold\n    Measurement spec: Exactly 5 names provided, each with rationale\n    Evidence found: (no detailed critique from scorer)\n    \u2192 ACTION: Improve name_count to meet: Exactly 5 names provided, each with rationale\n\n  FIX 2: name_availability.domain_plausibility (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Good availability analysis for coined terms like 'Redmark' and 'Clausebound', but 'Vantage' is acknowledged as taken by major company. Research is present but not comprehensive.\n    Measurement spec: % of names where .com is plausible (not a common English word)\n    Evidence found: Names are not common English words: 'Vantage' is a common English word, analysis notes 'Vantage.com is owned by Telestream'; Beyond rubric guidance with independent domain expertise: Basic availability assessment without deeper domain strategy\n    \u2717 FAILED CHECK: Names are not common English words\n      Evidence: 'Vantage' is a common English word, analysis notes 'Vantage.com is owned by Telestream'\n    \u2717 FAILED CHECK: Beyond rubric guidance with independent domain expertise\n      Evidence: Basic availability assessment without deeper domain strategy\n    \u2192 ACTION: Provide more specific availability research for all names, and consider replacing 'Vantage Legal' with a more unique coined term that would have better domain availability.\n\n  FIX 3: name_memorability.brevity (current: 50%, 3.0 pts at stake)\n    Scorer's critique: 4 out of 5 names meet the \u22643 syllable preference, but 'Inkwell Analytics' at 5 syllables significantly exceeds the brevity standard.\n    Measurement spec: % of names at \u22643 syllables\n    Evidence found: Names are \u22643 syllables: Inkwell Analytics (5 syllables) exceeds the 3-syllable preference; Beyond rubric guidance with independent domain expertise: Standard application of syllable counting without additional insight\n    \u2717 FAILED CHECK: Names are \u22643 syllables\n      Evidence: Inkwell Analytics (5 syllables) exceeds the 3-syllable preference\n    \u2717 FAILED CHECK: Beyond rubric guidance with independent domain expertise\n      Evidence: Standard application of syllable counting without additional insight\n    \u2192 ACTION: Replace 'Inkwell Analytics' with a shorter alternative like 'Inkwell' (2 syllables) or 'InkAI' (2 syllables) to maintain the classical-modern positioning while improving brevity.\n\n  FIX 4: name_domain_resonance.avoids_generic_ai (current: 50%, 3.0 pts at stake)\n    Scorer's critique: 'Gavel AI' explicitly uses the 'AI' suffix, though the analysis attempts to justify this as strategic positioning. Other names successfully avoid generic tech patterns.\n    Measurement spec: % of names avoiding generic tech naming patterns\n    Evidence found: No 'AI' prefix/suffix spam: 'Gavel AI' uses AI suffix; Beyond rubric guidance with independent domain expertise: Standard application of avoiding generic patterns\n    \u2717 FAILED CHECK: No 'AI' prefix/suffix spam\n      Evidence: 'Gavel AI' uses AI suffix\n    \u2717 FAILED CHECK: Beyond rubric guidance with independent domain expertise\n      Evidence: Standard application of avoiding generic patterns\n    \u2192 ACTION: Replace 'Gavel AI' with 'Gavel' or 'GavelTech' to maintain the legal authority symbolism while avoiding the generic AI suffix pattern.\n",
+  "focus_areas": [
+    "name_count",
+    "name_memorability",
+    "name_domain_resonance",
+    "name_availability"
+  ],
+  "protected_criteria": [
+    "name_variety"
+  ],
+  "improvement_targets": [
+    "name_count",
+    "name_memorability",
+    "name_domain_resonance",
+    "name_availability"
+  ],
+  "prior_score": 0.6042,
+  "prior_criterion_scores": {
+    "name_count": 0.0,
+    "name_memorability": 0.675,
+    "name_domain_resonance": 0.675,
+    "name_availability": 0.625,
+    "name_variety": 0.75
+  }
+}

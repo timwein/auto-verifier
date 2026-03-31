@@ -1,0 +1,31 @@
+{
+  "iteration": 4,
+  "feedback_text": "DIAGNOSIS: 5 failing sub-attributes (13.2 pts recoverable), 3 passing. 1 regressions detected \u2014 recovery is top priority.\n\n==================================================\nREGRESSIONS (RECOVER THESE FIRST \u2014 highest priority):\n==================================================\n\n  REGRESSED: email_subject \u2014 was 69% at iter 2, now 60% (-9%)\n    What was lost: The phrase 'like our optimization breakthrough' was shortened to just 'breakthrough', removing the personal connection and specificity that made the hook more compelling and honest about the sender's relevant experience\n    Why it dropped: Removing 'like our optimization' weakened the curiosity hook by making it less specific and removing the parallel between the sender's breakthrough and Aaru's breakthrough, making the subject line more generic despite keeping 'breakthrough'\n    \u2192 RECOVER: Change subject line back to '$85K for Aaru \u2014 agents replacing focus groups like our optimization breakthrough' to restore the specific parallel that creates stronger curiosity through honest relevance\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 email_opening: 100% \u2014 keep unchanged\n  \u2713 email_tone: 100% \u2014 keep unchanged\n  \u2713 email_length: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: email_subject.curiosity_hook (current: 50%, 3.5 pts at stake)\n    Scorer's critique: Creates curiosity with specific dollar amount and 'breakthrough' language while remaining honest and factual.\n    Measurement spec: 1.0 if compelling + honest, 0.5 if generic, 0.0 if spammy\n    Evidence found: Goes beyond rubric with independent expertise: Standard curiosity creation, no unique insight\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard curiosity creation, no unique insight\n    \u2192 ACTION: Add more specific intrigue, e.g., '$85K for Aaru \u2014 replacing focus groups with 94% accuracy'\n\n  FIX 2: email_cta.clarity (current: 50%, 2.8 pts at stake)\n    Scorer's critique: Provides a single, clear ask for a 15-minute call with optional thesis sharing as secondary offer.\n    Measurement spec: 1.0 if one clear ask, 0.5 if implied, 0.0 if multiple/confusing\n    Evidence found: Goes beyond rubric with independent expertise: Standard CTA clarity, no unique insight\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard CTA clarity, no unique insight\n    \u2192 ACTION: Make the primary ask even more prominent by leading with it: 'Free for a 15-min call Thursday 2-4pm or Friday 1-3pm EST?'\n\n  FIX 3: email_subject.brevity (current: 50%, 2.5 pts at stake)\n    Scorer's critique: Subject line is 67 characters, which exceeds the optimal 60-character limit but remains under 80 characters.\n    Measurement spec: 1.0 if \u226460 chars, 0.5 if \u226480, 0.0 if >80\n    Evidence found: Under 60 characters: Subject is 67 characters long; Goes beyond rubric guidance: Standard length optimization, no independent insight\n    \u2717 FAILED CHECK: Under 60 characters\n      Evidence: Subject is 67 characters long\n    \u2717 FAILED CHECK: Goes beyond rubric guidance\n      Evidence: Standard length optimization, no independent insight\n    \u2192 ACTION: Shorten to under 60 characters, e.g., '$85K for Aaru \u2014 focus group automation breakthrough'\n\n  FIX 4: email_social_proof.restraint (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Maintains appropriate restraint with two main proof points without overwhelming the reader with credentials.\n    Measurement spec: 1.0 if 1-2 tight proof points, 0.5 if 3-4, 0.0 if resume paragraph\n    Evidence found: Goes beyond rubric with independent expertise: Standard restraint application, no unique insight\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard restraint application, no unique insight\n    \u2192 ACTION: Consider condensing the FleetForce details slightly to make the proof even more punchy.\n\n  FIX 5: email_value_prop.credibility (current: 50%, 2.0 pts at stake)\n    Scorer's critique: Provides verifiable claims with specific company name (FleetForce) and detailed metrics, though company may not be widely known.\n    Measurement spec: 1.0 if verifiable claims, 0.5 if plausible, 0.0 if unsubstantiated\n    Evidence found: Goes beyond rubric with independent expertise: Standard credibility establishment, no unique insight\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard credibility establishment, no unique insight\n    \u2192 ACTION: Add more recognizable proof points or clarify FleetForce's market position for stronger credibility.\n",
+  "focus_areas": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "protected_criteria": [
+    "email_opening",
+    "email_tone",
+    "email_length"
+  ],
+  "improvement_targets": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "prior_score": 0.7804,
+  "prior_criterion_scores": {
+    "email_subject": 0.6,
+    "email_opening": 1.0,
+    "email_value_prop": 0.7,
+    "email_social_proof": 0.675,
+    "email_cta": 0.6625,
+    "email_tone": 1.0,
+    "email_length": 1.0
+  }
+}

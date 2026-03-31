@@ -1,0 +1,25 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 2 failing sub-attributes (4.8 pts recoverable), 3 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 memo_thesis: 75% \u2014 keep unchanged\n  \u2713 memo_risks: 75% \u2014 keep unchanged\n  \u2713 memo_structure: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: memo_market.credible_sizing (current: 50%, 3.0 pts at stake)\n    Scorer's critique: Provides specific market sizing numbers but lacks citations or methodology for how these figures were derived or sourced.\n    Measurement spec: 1.0 if sourced/constructed, 0.5 if asserted, 0.0 if absent\n    Evidence found: Numbers have cited or constructed basis: not found in content\n    \u2717 FAILED CHECK: Numbers have cited or constructed basis\n      Evidence: not found in content\n    \u2192 ACTION: Add sources for market sizing, such as '(Source: Frost & Sullivan Defense Electronics Report 2025)' or explain methodology: 'Based on DoD budget allocations and Replicator program funding projections.'\n\n  FIX 2: memo_deal_terms.stage_appropriateness (current: 50%, 1.8 pts at stake)\n    Scorer's critique: While the $60M pre-money valuation is technically within range, it's at the high end for a Series A defense startup, especially given the early traction described.\n    Measurement spec: 1.0 if realistic, 0.5 if slightly off, 0.0 if unrealistic\n    Evidence found: Terms are internally consistent: $60M pre-money is at the high end and may be aggressive for Series A\n    \u2717 FAILED CHECK: Terms are internally consistent\n      Evidence: $60M pre-money is at the high end and may be aggressive for Series A\n    \u2192 ACTION: Consider adjusting pre-money valuation to $35-45M range to better reflect Series A stage and current traction level, or provide stronger justification for the premium valuation.\n",
+  "focus_areas": [
+    "memo_market",
+    "memo_deal_terms"
+  ],
+  "protected_criteria": [
+    "memo_structure",
+    "memo_thesis",
+    "memo_risks"
+  ],
+  "improvement_targets": [
+    "memo_market",
+    "memo_deal_terms"
+  ],
+  "prior_score": 0.7795,
+  "prior_criterion_scores": {
+    "memo_structure": 1.0,
+    "memo_market": 0.675,
+    "memo_thesis": 0.75,
+    "memo_risks": 0.75,
+    "memo_deal_terms": 0.675
+  }
+}

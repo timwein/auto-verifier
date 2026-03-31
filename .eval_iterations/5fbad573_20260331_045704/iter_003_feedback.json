@@ -1,0 +1,26 @@
+{
+  "iteration": 3,
+  "feedback_text": "DIAGNOSIS: 9 failing sub-attributes (75.2 pts recoverable), 2 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 bash_notifications: 75% \u2014 keep unchanged\n  \u2713 bash_configurability: 75% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: bash_safety.no_set_e (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - script properly uses set -euo pipefail\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: set -euo pipefail\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 2: bash_safety.no_pipefail (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - pipefail is included in the set command\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: set -euo pipefail\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 3: bash_safety.hardcoded_password (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - uses environment variable for password\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: export PGPASSWORD=\"${PGPASSWORD:-}\"\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 4: bash_safety.no_trap_cleanup (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - proper trap cleanup is implemented\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: trap cleanup EXIT\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 5: bash_safety.no_temp_file_cleanup (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - temporary files are cleaned up\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: rm -f \"$BACKUP_PATH\" in cleanup function\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 6: bash_safety.unquoted_variables (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - variables are properly quoted throughout\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: Variables consistently quoted like \"$BACKUP_PATH\"\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 7: bash_safety.no_lockfile (current: 0%, 10.0 pts at stake)\n    Scorer's critique: ABSENT - comprehensive lockfile mechanism implemented\n    Measurement spec: Script is safe \u2014 set -euo pipefail, no secrets in code, cleanup on failure\n    Evidence found: acquire_lock() and release_lock() functions with LOCKFILE\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 8: bash_logging.log_destination (current: 50%, 2.8 pts at stake)\n    Scorer's critique: Dual output correctly implemented using tee to write to both stdout and log file simultaneously.\n    Measurement spec: 1.0 if tee to file + stdout, 0.5 if one, 0.0 if neither\n    Evidence found: Goes beyond rubric with additional logging destinations: Standard tee implementation without additional enhancements\n    \u2717 FAILED CHECK: Goes beyond rubric with additional logging destinations\n      Evidence: Standard tee implementation without additional enhancements\n\n  FIX 9: bash_correctness.compression (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Compression is correctly implemented using gzip piped from pg_dump output, meeting the basic requirement.\n    Measurement spec: 1.0 if compressed (gzip/zstd), 0.0 if raw SQL upload\n    Evidence found: Goes beyond rubric with advanced compression options: Uses standard gzip -c without additional optimization\n    \u2717 FAILED CHECK: Goes beyond rubric with advanced compression options\n      Evidence: Uses standard gzip -c without additional optimization\n",
+  "focus_areas": [
+    "bash_correctness",
+    "bash_safety",
+    "bash_logging"
+  ],
+  "protected_criteria": [
+    "bash_notifications",
+    "bash_configurability"
+  ],
+  "improvement_targets": [
+    "bash_correctness",
+    "bash_safety",
+    "bash_logging"
+  ],
+  "prior_score": 0.55,
+  "prior_criterion_scores": {
+    "bash_correctness": 0.7,
+    "bash_safety": 0.0,
+    "bash_logging": 0.6625,
+    "bash_notifications": 0.75,
+    "bash_configurability": 0.75
+  }
+}

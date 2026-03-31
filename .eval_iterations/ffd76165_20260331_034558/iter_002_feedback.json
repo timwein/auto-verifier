@@ -1,0 +1,31 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 6 failing sub-attributes (14.4 pts recoverable), 3 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 email_length: 78% \u2014 keep unchanged\n  \u2713 email_opening: 100% \u2014 keep unchanged\n  \u2713 email_tone: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: email_subject.curiosity_hook (current: 50%, 3.5 pts at stake)\n    Scorer's critique: Creates curiosity with specific investment amount and growth metrics, but follows standard rubric format without unique insight.\n    Measurement spec: 1.0 if compelling + honest, 0.5 if generic, 0.0 if spammy\n    Evidence found: Goes beyond rubric with independent expertise: Standard format following rubric guidance\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard format following rubric guidance\n    \u2192 ACTION: Add a unique angle or unexpected connection, e.g., 'AI agents replacing focus groups \u2014 like our route optimization breakthrough'\n\n  FIX 2: email_subject.brevity (current: 25%, 2.5 pts at stake)\n    Scorer's critique: Subject line is 85 characters, significantly exceeding the 60-character mobile-friendly limit and even the 80-character threshold.\n    Measurement spec: 1.0 if \u226460 chars, 0.5 if \u226480, 0.0 if >80\n    Evidence found: Under 60 characters: Subject line is 85 characters long; Under 80 characters: Subject line is 85 characters long; Scannable on mobile: 85 characters exceeds mobile-friendly length\n    \u2717 FAILED CHECK: Under 60 characters\n      Evidence: Subject line is 85 characters long\n    \u2717 FAILED CHECK: Under 80 characters\n      Evidence: Subject line is 85 characters long\n    \u2717 FAILED CHECK: Scannable on mobile\n      Evidence: 85 characters exceeds mobile-friendly length\n    \u2192 ACTION: Shorten to under 60 characters, e.g., '$85K for Aaru Series A \u2014 scaled logistics $5M\u2192$90M ARR'\n\n  FIX 3: email_social_proof.restraint (current: 25%, 2.4 pts at stake)\n    Scorer's critique: Includes too many proof points (serial entrepreneur status, investment count, exit value, operational metrics) creating a resume-like feel.\n    Measurement spec: 1.0 if 1-2 tight proof points, 0.5 if 3-4, 0.0 if resume paragraph\n    Evidence found: Uses 1-2 tight proof points: Multiple proof points: serial entrepreneur, 100+ investments, $400M+ exits, FleetForce scaling, supply chain improvement; Avoids resume dump: Lists multiple credentials and achievements across several sentences; Keeps proof concise: Proof points spread across multiple sentences and paragraphs\n    \u2717 FAILED CHECK: Uses 1-2 tight proof points\n      Evidence: Multiple proof points: serial entrepreneur, 100+ investments, $400M+ exits, FleetForce scaling, supply chain improvement\n    \u2717 FAILED CHECK: Avoids resume dump\n      Evidence: Lists multiple credentials and achievements across several sentences\n    \u2717 FAILED CHECK: Keeps proof concise\n      Evidence: Proof points spread across multiple sentences and paragraphs\n    \u2192 ACTION: Limit to 1-2 strongest points: 'As an operator who scaled FleetForce logistics from $5M to $90M ARR through automation, I have 25+ VP Operations contacts...'\n\n  FIX 4: email_cta.specificity (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Provides specific days but 'afternoon' is somewhat vague for busy schedules, though includes concrete alternative next step.\n    Measurement spec: 1.0 if specific availability, 0.5 if 'sometime this week', 0.0 if open-ended\n    Evidence found: Goes beyond rubric with independent expertise: Standard time proposal format\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard time proposal format\n    \u2192 ACTION: Be more specific with times: 'Free for a 15-min call Thursday 2-4pm or Friday 1-3pm EST?'\n\n  FIX 5: email_value_prop.credibility (current: 50%, 2.0 pts at stake)\n    Scorer's critique: Provides specific company name and detailed metrics, but lacks verification mechanisms for the claims made.\n    Measurement spec: 1.0 if verifiable claims, 0.5 if plausible, 0.0 if unsubstantiated\n    Evidence found: Goes beyond rubric with independent expertise: Standard metrics presentation following rubric format\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard metrics presentation following rubric format\n    \u2192 ACTION: Add verifiable elements like 'FleetForce (acquired by [Company])' or reference public information that can be verified.\n\n  FIX 6: email_social_proof.natural_integration (current: 50%, 1.6 pts at stake)\n    Scorer's critique: Proof points are integrated into the narrative but still feel somewhat listed rather than fully organic to the story flow.\n    Measurement spec: 1.0 if organic, 0.0 if bullet-pointed credentials\n    Evidence found: Goes beyond rubric with independent expertise: Standard integration approach following rubric guidance\n    \u2717 FAILED CHECK: Goes beyond rubric with independent expertise\n      Evidence: Standard integration approach following rubric guidance\n    \u2192 ACTION: Weave credentials more naturally: 'When we automated forecasting at FleetForce (where I scaled ops to $90M ARR), customer acquisition costs dropped 40%...'\n",
+  "focus_areas": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "protected_criteria": [
+    "email_opening",
+    "email_tone",
+    "email_length"
+  ],
+  "improvement_targets": [
+    "email_subject",
+    "email_value_prop",
+    "email_social_proof",
+    "email_cta"
+  ],
+  "prior_score": 0.7293,
+  "prior_criterion_scores": {
+    "email_subject": 0.5375,
+    "email_opening": 1.0,
+    "email_value_prop": 0.7,
+    "email_social_proof": 0.55,
+    "email_cta": 0.675,
+    "email_tone": 1.0,
+    "email_length": 0.7772
+  }
+}

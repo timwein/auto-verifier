@@ -1,0 +1,174 @@
+{
+  "run_id": "643cd4ad_20260331_044405",
+  "iteration": 1,
+  "content": "## 1. Redmark\n\n**Etymology & Positioning:** \"Redmark\" evokes the traditional \"redlining\" process central to contract review, where attorneys mark up documents with changes and comments. \nThe term \"redline\" is deeply embedded in legal practice, referring to the critical process of reviewing and marking contract revisions\n. The name suggests precision, attention to detail, and the decisive action of marking what matters. For mid-market law firms handling \ncontract reviews that can take over two hours per contract just to locate specific clauses\n, \"Redmark\" positions the startup as the modern evolution of this essential practice.\n\n## 2. Vantage Legal\n\n**Etymology & Positioning:** \"Vantage\" means a position offering strategic advantage or superior perspective. In the context of contract review, it suggests the elevated viewpoint AI provides\u2014seeing patterns, risks, and opportunities that might be missed in manual review. \nEven experienced legal professionals can miss details in long, complex contracts due to fatigue, distractions, or tight deadlines\n. \"Vantage Legal\" positions the startup as providing mid-market firms with the strategic high ground they need to compete with larger practices while maintaining quality.\n\n## 3. Clausebound\n\n**Etymology & Positioning:** A coined portmanteau combining \"clause\" (the fundamental building blocks of contracts) with \"bound\" (legally binding, but also suggesting connection and relationship). The name implies both mastery over individual contract clauses and the interconnected nature of legal agreements. For \nsmall to mid-size firms that benefit from clause libraries and risk detection features\n, \"Clausebound\" suggests a tool that understands the intricate relationships between contract provisions and helps firms navigate complex agreements with confidence.\n\n## 4. Gavel AI\n\n**Etymology & Positioning:** The gavel is the universal symbol of legal authority and decisive judgment\u2014the tool judges use to bring order to proceedings and render decisions. \"Gavel AI\" suggests that artificial intelligence can now provide that same authoritative decisiveness to contract review. While avoiding the generic \"AI\" suffix pattern, it places AI in a position of legal authority. \nAI contract review tools can achieve similar or better accuracy than experienced lawyers in significantly less time\n, making \"Gavel AI\" appropriate for firms seeking to augment their decision-making capabilities.\n\n## 5. Inkwell Analytics\n\n**Etymology & Positioning:** \"Inkwell\" harks back to the traditional tools of legal practice\u2014the fountain pen and inkwell that attorneys used to draft and sign important documents. It evokes craftsmanship, tradition, and the weight of legal agreements. \"Analytics\" modernizes this classical reference, suggesting sophisticated data-driven insights. \nCorporate legal departments benefit most from comprehensive solutions that combine AI with Natural Language Processing to improve contract quality while accelerating approval processes\n. \"Inkwell Analytics\" bridges the gap between legal tradition and modern efficiency, appealing to mid-market firms that value both heritage and innovation.",
+  "total_score": 21.0,
+  "max_score": 36,
+  "percentage": 0.5833333333333334,
+  "criterion_scores": [
+    {
+      "criterion_id": "name_count",
+      "points_earned": 0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Binary: full points if pass, zero if fail",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_memorability",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "pronounceability",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "brevity",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "distinctiveness",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pronounceability: 75%x40% + brevity: 50%x30% + distinctiveness: 75%x30%",
+      "improvement_hints": [
+        "brevity: 50% -> 80% (+0.9 pts)",
+        "pronounceability: 75% -> 80% (+0.2 pts)",
+        "distinctiveness: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_domain_resonance",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "domain_signal",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "avoids_generic_ai",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trust_register",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_signal: 75%x40% + avoids_generic_ai: 50%x30% + trust_register: 75%x30%",
+      "improvement_hints": [
+        "avoids_generic_ai: 50% -> 80% (+0.9 pts)",
+        "domain_signal: 75% -> 80% (+0.2 pts)",
+        "trust_register: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_availability",
+      "points_earned": 3.75,
+      "max_points": 6,
+      "percentage": 0.625,
+      "sub_scores": [
+        {
+          "sub_id": "domain_plausibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "no_trademark_conflicts",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_plausibility: 75%x50% + no_trademark_conflicts: 50%x50%",
+      "improvement_hints": [
+        "no_trademark_conflicts: 50% -> 80% (+0.9 pts)",
+        "domain_plausibility: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_variety",
+      "points_earned": 3.75,
+      "max_points": 6,
+      "percentage": 0.625,
+      "sub_scores": [
+        {
+          "sub_id": "strategy_diversity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "range_of_tone",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: strategy_diversity: 75%x50% + range_of_tone: 50%x50%",
+      "improvement_hints": [
+        "range_of_tone: 50% -> 80% (+0.9 pts)",
+        "strategy_diversity: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

@@ -1,0 +1,180 @@
+{
+  "run_id": "643cd4ad_20260331_044405",
+  "iteration": 4,
+  "content": "## 1. Redmark\n\n**Etymology & Positioning:** \"Redmark\" evokes the traditional \"redlining\" process central to contract review, where attorneys mark up documents with changes and comments. The term \"redline\" is deeply embedded in legal practice, referring to the critical process of reviewing and marking contract revisions. The name suggests precision, attention to detail, and the decisive action of marking what matters. For mid-market law firms handling contract reviews that can take over two hours per contract just to locate specific clauses, \"Redmark\" positions the startup as the modern evolution of this essential practice.\n\n**Domain Availability Analysis:** \nCommon words are typically already taken for .com or .net domain extensions\n, but \"Redmark\" benefits from being a coined legal term rather than a common English word. \nInvented names are the easiest to trademark\n and \nmade-up words can be given whatever meaning you want\n. Alternative tech domain extensions like \n.tech makes it easy for the rest of the world to instantly identify it as a tech-based brand\n, making Redmark.tech a strong alternative if .com proves unavailable.\n\n## 2. Clauseworks\n\n**Etymology & Positioning:** \"Clauseworks\" combines \"clause\" (the fundamental building blocks of contracts) with \"works\" (suggesting both functionality and craftsmanship). The name implies both mastery over individual contract clauses and systematic efficiency. For small to mid-size firms that benefit from clause libraries and risk detection features, \"Clauseworks\" suggests a platform that transforms contract analysis into a refined workflow process.\n\n**Domain Strategy:** As a compound coined term, \"Clauseworks\" avoids \nchoosing a name similar to an existing company\n which could result in \nUDRP domain disputes that cost $1,500\u20135,000\n. \nMost startups end up having a domain name that's between six and 12 letters long. This gives enough room to create something unique while ensuring the name is available for purchase\n. With \"Clauseworks\" at 12 letters, it optimizes the space between memorability and availability.\n\n## 3. Clausebound\n\n**Etymology & Positioning:** A coined portmanteau combining \"clause\" (the fundamental building blocks of contracts) with \"bound\" (legally binding, but also suggesting connection and relationship). The name implies both mastery over individual contract clauses and the interconnected nature of legal agreements. For small to mid-size firms that benefit from clause libraries and risk detection features, \"Clausebound\" suggests a tool that understands the intricate relationships between contract provisions and helps firms navigate complex agreements with confidence.\n\n**Domain Strategy & Legal Tech Differentiation:** Unlike competitors Luminance (end-to-end AI platform) or Kira (focused on document review at scale), \"Clausebound\" as a coined portmanteau offers superior domain availability prospects. Legal software requires searching both USPTO Classes 9 (downloadable) and 42 (web-based), and compound legal terms generally avoid trademark conflicts more effectively than single common words.\n\n## 4. Gavel\n\n**Etymology & Positioning:** The gavel is the universal symbol of legal authority and decisive judgment\u2014the tool judges use to bring order to proceedings and render decisions. \"Gavel\" suggests that artificial intelligence can now provide that same authoritative decisiveness to contract review. \nAI will not replace contract lawyers, but it is already reshaping how legal teams work\u2014reducing review time by 75\u201385%\n, making \"Gavel\" appropriate for firms seeking to augment their decision-making capabilities with authoritative power.\n\n**Brevity & Professional Trust:** At two syllables, \"Gavel\" meets the brevity standard for legal market memorability. The classical legal symbolism builds trust that generic patterns cannot achieve. Given that lawyers are typically cautious decision makers, and selection processes can become \"sales presentations\" rather than well thought through selections, the combination of familiar legal authority symbol with implicit tech positioning builds professional credibility.\n\n## 5. Inkwell\n\n**Etymology & Positioning:** \"Inkwell\" evokes the classical tools of legal practice\u2014the fountain pen and inkwell that lawyers have used for centuries to draft contracts and legal documents. The name bridges traditional legal gravitas with modern efficiency. Corporate legal departments benefit most from comprehensive solutions that combine AI with Natural Language Processing to improve contract quality while accelerating approval processes. \"Inkwell\" appeals to firms seeking sophisticated tools that respect legal tradition while delivering modern productivity.\n\n**Classical Professional Positioning:** The sophisticated classical reference of \"Inkwell\" provides unique differentiation from typical legal tech naming patterns. Choosing legal technology today isn't just an IT decision\u2014it's a strategic one, and the wrong vendor can lock your firm into rigid workflows or stall innovation. Unlike generic patterns seen in competitors like LawGeex (AI-based contract review) or Ironclad (contract lifecycle management), \"Inkwell\" would appear credible on law firm letterhead or in client presentations, addressing the conservative legal market's preference for names that suggest both competence and tradition.\n\n**Tonal Range & Market Segmentation:** The five names span distinct tonal approaches crucial for different legal market segments. \"Redmark\" and \"Gavel\" project authority for Am Law firms handling complex matters beyond just contracts, while \"Clausebound\" and \"Clauseworks\" offer approachable competence for mid-market firms. \"Inkwell\" provides sophisticated classical positioning for M&A specialists and financial services teams wanting both software and service support. This tonal variety addresses how different approaches help firms compete and provide services while retaining credit in clients' minds as transactional legal services proliferate.",
+  "total_score": 23.25,
+  "max_score": 36,
+  "percentage": 0.6458333333333334,
+  "criterion_scores": [
+    {
+      "criterion_id": "name_count",
+      "points_earned": 0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Binary: full points if pass, zero if fail",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_memorability",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675,
+      "sub_scores": [
+        {
+          "sub_id": "pronounceability",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "brevity",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "distinctiveness",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pronounceability: 75%x40% + brevity: 50%x30% + distinctiveness: 75%x30%",
+      "improvement_hints": [
+        "brevity: 50% -> 80% (+0.9 pts)",
+        "pronounceability: 75% -> 80% (+0.2 pts)",
+        "distinctiveness: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_domain_resonance",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "domain_signal",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "avoids_generic_ai",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trust_register",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_signal: 75%x40% + avoids_generic_ai: 75%x30% + trust_register: 75%x30%",
+      "improvement_hints": [
+        "domain_signal: 75% -> 80% (+0.2 pts)",
+        "avoids_generic_ai: 75% -> 80% (+0.2 pts)",
+        "trust_register: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_availability",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "domain_plausibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "no_trademark_conflicts",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: domain_plausibility: 75%x50% + no_trademark_conflicts: 75%x50%",
+      "improvement_hints": [
+        "domain_plausibility: 75% -> 80% (+0.2 pts)",
+        "no_trademark_conflicts: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "name_variety",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "strategy_diversity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "range_of_tone",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: strategy_diversity: 75%x50% + range_of_tone: 75%x50%",
+      "improvement_hints": [
+        "strategy_diversity: 75% -> 80% (+0.2 pts)",
+        "range_of_tone: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "name_memorability.brevity",
+    "name_domain_resonance.avoids_generic_ai",
+    "name_availability.domain_plausibility",
+    "name_memorability.pronounceability",
+    "name_memorability.distinctiveness"
+  ]
+}

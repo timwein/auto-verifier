@@ -12,6 +12,35 @@ The rubric harness is a generation-verification loop that generates task-specifi
 
 ---
 
+## Run 8 Results
+
+Run 8 re-ran all 10 tasks after the preamble-stripping fix (`d7c7235`) that prevents LLM meta-commentary from leaking into generated output. This was the biggest single-commit improvement — cold_outreach_email jumped from +0pp to +32.6pp now that preamble text no longer pollutes re-scoring. All 10 tasks improved; 0 regressions.
+
+| Task | Description | Baseline | Harness | Delta | Iters | Rubric | Output |
+|---|---|---|---|---|---|---|---|
+| billing_schema | Design a JSON schema for a multi-tenant SaaS billing system supporting usage-based and seat-based pricing | 21.1% | 56.1% | +35.0pp | 4 | [rubric](eval_run8_artifacts/rubric_billing_schema.md) | [output](eval_run8_artifacts/output_billing_schema.md) |
+| cold_outreach_email | Write a cold outreach email to a Series A founder pitching angel investment | 46.9% | 79.5% | +32.6pp | 4 | [rubric](eval_run8_artifacts/rubric_cold_outreach_email.md) | [output](eval_run8_artifacts/output_cold_outreach_email.md) |
+| exec_summary | Summarize a 2,000-word technical blog post into a 3-bullet executive summary | 26.3% | 58.0% | +31.7pp | 4 | [rubric](eval_run8_artifacts/rubric_exec_summary.md) | [output](eval_run8_artifacts/output_exec_summary.md) |
+| agi_counterargument | Write a counterargument to the claim 'AGI will arrive before 2030' | 35.0% | 61.1% | +26.1pp | 3 | [rubric](eval_run8_artifacts/rubric_agi_counterargument.md) | [output](eval_run8_artifacts/output_agi_counterargument.md) |
+| csv_parser | Generate a Python function that parses messy CSV data with inconsistent delimiters and missing headers | 38.0% | 61.4% | +23.3pp | 3 | [rubric](eval_run8_artifacts/rubric_csv_parser.md) | [output](eval_run8_artifacts/output_csv_parser.md) |
+| startup_naming | Generate 5 names for a startup that does AI-powered contract review for mid-market law firms | 43.8% | 64.6% | +20.8pp | 6 | [rubric](eval_run8_artifacts/rubric_startup_naming.md) | [output](eval_run8_artifacts/output_startup_naming.md) |
+| sql_ltv_query | Create a SQL query to find the top 10 customers by lifetime value excluding refunds, from a schema you define | 50.1% | 62.5% | +12.4pp | 4 | [rubric](eval_run8_artifacts/rubric_sql_ltv_query.md) | [output](eval_run8_artifacts/output_sql_ltv_query.md) |
+| investment_memo | Draft a 1-page investment memo on a hypothetical Series A company in the defense drone space | 66.5% | 78.0% | +11.5pp | 3 | [rubric](eval_run8_artifacts/rubric_investment_memo.md) | [output](eval_run8_artifacts/output_investment_memo.md) |
+| attention_explanation | Explain transformer attention mechanisms to a smart 16-year-old | 64.1% | 73.6% | +9.4pp | 7 | [rubric](eval_run8_artifacts/rubric_attention_explanation.md) | [output](eval_run8_artifacts/output_attention_explanation.md) |
+| bash_backup | Write a bash script that backs up a PostgreSQL database to S3 with rotation, logging, and error notifications | 52.0% | 55.2% | +3.2pp | 3 | [rubric](eval_run8_artifacts/rubric_bash_backup.md) | [output](eval_run8_artifacts/output_bash_backup.md) |
+| **MEAN (10 tasks)** | | **44.4%** | **65.0%** | **+20.6pp** | **4.1** | | |
+
+### Run 8 Observations
+
+- **First run with 10/10 positive deltas** — Every task improved. No regressions or neutral results. The preamble-stripping fix (`d7c7235`) was the key enabler, preventing LLM meta-commentary from polluting output and causing re-scoring failures.
+- **cold_outreach_email biggest recovery (+32.6pp)** — In the pre-fix run, preamble text caused this task to score 50.7% (effectively 0pp delta). With the fix, it now scores 79.5% — the highest absolute harness score in this run.
+- **billing_schema strongest delta (+35.0pp)** — Jumped from 21.1% baseline to 56.1%. The `schema_completeness` and `schema_correctness` criteria drove most of the gain (+75pp each).
+- **Mean lift +20.6pp** — A significant improvement over the pre-fix Run 8 (+12.8pp) and the best mean delta since Run 5+ methodology was adopted.
+- **bash_backup weakest delta (+3.2pp)** — Consistent with prior runs. The `bash_safety` criterion (set -euo pipefail detection) scored 0% across all iterations, suggesting the generation agent struggles with this specific requirement.
+- **attention_explanation required most iterations (7)** — The harness cycled through multiple attempts to satisfy competing `expl_accuracy` and `expl_engagement` constraints before converging at 73.6%.
+
+---
+
 ## Run 7 Results
 
 Run 7 completed all 10 tasks with 0 errors — the first fully clean run since Run 3. Used the same resilient eval wrapper as Run 6.
@@ -124,10 +153,11 @@ Rubrics are regenerated from scratch each run, so baselines differ across runs.
 | Run 5 | 9 | 53.1% | 68.8% | +15.7pp | Multi-pass rubric pipeline, 1 regression; **harder rubrics (Run 5+ methodology)** |
 | Run 6 | 6 | 52.8% | 72.5% | +19.7pp | Resilient wrapper, 2 errors; **harder rubrics (Run 5+ methodology)** |
 | Run 7 | 10 | 46.4% | 64.1% | +17.7pp | First clean 10/10 run since Run 3 |
+| Run 8 | 10 | 44.4% | 65.0% | +20.6pp | Preamble-stripping fix; **10/10 positive deltas, best post-Run 5 mean delta** |
 
 > **Cross-run scores are not directly comparable after Run 4.** The rubric generation upgrade introduced in Run 5 (multi-pass hierarchical generation, adversarial coverage audits, expert panel simulation) produces harder rubrics that compress scores and deltas. See the [Methodology Note](#methodology-note-rubric-generation-upgrade-run-5) above.
 
-Runs 3–6 showed harness scores consistently in the 68–73% range. Run 7's corrected harness average is 64.1% (+17.7pp delta) — below prior runs but consistent with the harder rubric methodology introduced in Run 5. Run 4's +26.0pp remains the best mean delta (pre-methodology-change).
+Run 8 achieved +20.6pp mean delta — the best since Run 5+ methodology was adopted — thanks to the preamble-stripping fix that eliminated meta-commentary pollution from outputs. All 10 tasks improved, a first across all runs. Run 4's +26.0pp remains the best mean delta (pre-methodology-change).
 
 ---
 

@@ -1,0 +1,48 @@
+{
+  "run_id": "62a29398_20260331_050447",
+  "iteration": 2,
+  "total_score": 34.0,
+  "max_score": 44,
+  "percentage": 0.7727272727272727,
+  "delta_from_prior": -0.0068,
+  "focus_areas": [
+    "memo_market.credible_sizing",
+    "memo_deal_terms.stage_appropriateness",
+    "memo_market.market_specificity",
+    "memo_market.tailwind_identification",
+    "memo_thesis.insight_clarity"
+  ],
+  "content_path": ".eval_iterations/62a29398_20260331_050447/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "memo_structure",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "memo_market",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.7499999999999999
+    },
+    {
+      "criterion_id": "memo_thesis",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "memo_risks",
+      "points_earned": 6.0,
+      "max_points": 8,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "memo_deal_terms",
+      "points_earned": 3.0,
+      "max_points": 6,
+      "percentage": 0.5
+    }
+  ]
+}

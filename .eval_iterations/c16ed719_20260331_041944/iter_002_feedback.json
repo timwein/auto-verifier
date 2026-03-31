@@ -1,0 +1,24 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 3 failing sub-attributes (30.0 pts recoverable), 1 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 schema_realworld: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: schema_completeness (current: 0%, 12.0 pts at stake)\n    Scorer's critique: Score 0% below 75% threshold\n    Measurement spec: Schema covers all required entities and pricing models\n    Evidence found: (no detailed critique from scorer)\n    \u2192 ACTION: Improve schema_completeness to meet: Schema covers all required entities and pricing models\n\n  FIX 2: schema_correctness (current: 0%, 10.0 pts at stake)\n    Scorer's critique: Score 0% below 75% threshold\n    Measurement spec: Valid JSON Schema with proper types, constraints, references\n    Evidence found: (no detailed critique from scorer)\n    \u2192 ACTION: Improve schema_correctness to meet: Valid JSON Schema with proper types, constraints, references\n\n  FIX 3: schema_extensibility (current: 0%, 8.0 pts at stake)\n    Scorer's critique: Score 0% below 75% threshold\n    Measurement spec: Schema is extensible without breaking changes\n    Evidence found: (no detailed critique from scorer)\n    \u2192 ACTION: Improve schema_extensibility to meet: Schema is extensible without breaking changes\n",
+  "focus_areas": [
+    "schema_completeness",
+    "schema_correctness",
+    "schema_extensibility"
+  ],
+  "protected_criteria": [
+    "schema_realworld"
+  ],
+  "improvement_targets": [
+    "schema_completeness",
+    "schema_correctness",
+    "schema_extensibility"
+  ],
+  "prior_score": 0.2105,
+  "prior_criterion_scores": {
+    "schema_completeness": 0.0,
+    "schema_correctness": 0.0,
+    "schema_extensibility": 0.0,
+    "schema_realworld": 1.0
+  }
+}

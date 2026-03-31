@@ -1,0 +1,42 @@
+{
+  "run_id": "08ccdb63_20260331_035847",
+  "iteration": 2,
+  "total_score": 22.05,
+  "max_score": 38,
+  "percentage": 0.5802631578947368,
+  "delta_from_prior": 0.0213,
+  "focus_areas": [
+    "sum_standalone.references_source",
+    "sum_standalone.undefined_jargon",
+    "sum_standalone.assumes_context",
+    "sum_standalone.passive_voice_dominant",
+    "sum_exec_value.actionability"
+  ],
+  "content_path": ".eval_iterations/08ccdb63_20260331_035847/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "sum_compression",
+      "points_earned": 8.4,
+      "max_points": 10,
+      "percentage": 0.8403361344537815
+    },
+    {
+      "criterion_id": "sum_fidelity",
+      "points_earned": 6.9,
+      "max_points": 12,
+      "percentage": 0.575
+    },
+    {
+      "criterion_id": "sum_exec_value",
+      "points_earned": 6.75,
+      "max_points": 10,
+      "percentage": 0.675
+    },
+    {
+      "criterion_id": "sum_standalone",
+      "points_earned": 0,
+      "max_points": 6,
+      "percentage": 0.0
+    }
+  ]
+}

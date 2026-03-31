@@ -1,0 +1,23 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 6 failing sub-attributes (42.0 pts recoverable), 2 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 arg_counter_quality: 75% \u2014 keep unchanged\n  \u2713 arg_readability: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: arg_nuance.absolutist_claim (current: 0%, 8.0 pts at stake)\n    Scorer's critique: Uses probabilistic language throughout: 'improbable', '25% chance', 'isn't impossible\u2014it's just improbable'\n    Measurement spec: Avoids absolutism \u2014 acknowledges uncertainty and conditions\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 2: arg_nuance.dismisses_without_evidence (current: 0%, 8.0 pts at stake)\n    Scorer's critique: All dismissals are backed by specific evidence and data\n    Measurement spec: Avoids absolutism \u2014 acknowledges uncertainty and conditions\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 3: arg_nuance.ignores_counterexamples (current: 0%, 8.0 pts at stake)\n    Scorer's critique: Acknowledges genuine progress: 'remarkable progress from GPT-4 to o3 demonstrates genuine advances'\n    Measurement spec: Avoids absolutism \u2014 acknowledges uncertainty and conditions\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 4: arg_nuance.no_uncertainty_acknowledgment (current: 0%, 8.0 pts at stake)\n    Scorer's critique: Explicitly acknowledges uncertainty: 'AGI by 2030 isn't impossible\u2014it's just improbable'\n    Measurement spec: Avoids absolutism \u2014 acknowledges uncertainty and conditions\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 5: arg_nuance.appeal_to_authority_only (current: 0%, 8.0 pts at stake)\n    Scorer's critique: Combines expert surveys with technical analysis and structural arguments\n    Measurement spec: Avoids absolutism \u2014 acknowledges uncertainty and conditions\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 6: arg_steelman.good_faith (current: 50%, 2.0 pts at stake)\n    Scorer's critique: Fair representation of the AGI-by-2030 position without strawmanning, but doesn't exceed basic good faith requirements.\n    Measurement spec: 1.0 if fair, 0.0 if dismissive/strawman\n    Evidence found: Goes beyond rubric guidance with independent domain expertise: Standard fair representation without additional rhetorical sophistication\n    \u2717 FAILED CHECK: Goes beyond rubric guidance with independent domain expertise\n      Evidence: Standard fair representation without additional rhetorical sophistication\n    \u2192 ACTION: Could enhance by acknowledging the sophistication of proponents' reasoning or citing specific respected researchers who hold this view.\n",
+  "focus_areas": [
+    "arg_steelman",
+    "arg_nuance"
+  ],
+  "protected_criteria": [
+    "arg_counter_quality",
+    "arg_readability"
+  ],
+  "improvement_targets": [
+    "arg_steelman",
+    "arg_nuance"
+  ],
+  "prior_score": 0.6111,
+  "prior_criterion_scores": {
+    "arg_steelman": 0.7,
+    "arg_counter_quality": 0.75,
+    "arg_nuance": 0.0,
+    "arg_readability": 1.0
+  }
+}

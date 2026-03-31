@@ -1,0 +1,25 @@
+{
+  "iteration": 3,
+  "feedback_text": "DIAGNOSIS: 2 failing sub-attributes (4.2 pts recoverable), 3 passing. 1 regressions detected \u2014 recovery is top priority.\n\n==================================================\nREGRESSIONS (RECOVER THESE FIRST \u2014 highest priority):\n==================================================\n\n  REGRESSED: memo_deal_terms \u2014 was 68% at iter 1, now 50% (-18%)\n    What was lost: The complete deal terms section that was present in the best version, including valuation, round size, ownership percentages, and use of funds breakdown. The current version excerpt cuts off abruptly in the risks section without showing any deal terms.\n    Why it dropped: The current version appears to be truncated and missing the entire deal terms section that would contain valuation, investment amount, ownership structure, and use of funds. Additionally, the scorer notes that the $45M pre-money valuation (mentioned in critique but not visible in excerpt) is too high for a Series A defense startup, suggesting stage inappropriateness.\n    \u2192 RECOVER: Restore the complete deal terms section with all financial details, but adjust the pre-money valuation from $45M to a more appropriate $15-20M range for a Series A defense startup with $8.5M in contracts. Ensure the full memo content is included, not truncated, and maintain the detailed use of funds breakdown that the scorer praised.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 memo_thesis: 75% \u2014 keep unchanged\n  \u2713 memo_risks: 75% \u2014 keep unchanged\n  \u2713 memo_structure: 100% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: memo_deal_terms.completeness (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Complete deal terms with valuation, round size, ownership, and additional structural details clearly stated.\n    Measurement spec: % of deal terms present\n    Evidence found: Beyond rubric guidance with independent domain expertise: no evidence of independent insight beyond standard deal terms\n    \u2717 FAILED CHECK: Beyond rubric guidance with independent domain expertise\n      Evidence: no evidence of independent insight beyond standard deal terms\n    \u2192 ACTION: Deal terms completeness is adequate - consider adding investor type or lead investor information.\n\n  FIX 2: memo_deal_terms.stage_appropriateness (current: 25%, 1.8 pts at stake)\n    Scorer's critique: Round size and ownership are appropriate, but $45M pre-money valuation appears high for a Series A defense startup with limited traction.\n    Measurement spec: 1.0 if realistic, 0.5 if slightly off, 0.0 if unrealistic\n    Evidence found: Pre-money valuation appropriate for Series A defense: $45M pre-money valuation is high for Series A defense startup with $8.5M in contracts; Beyond rubric guidance with independent domain expertise: no evidence of independent insight on stage appropriateness\n    \u2717 FAILED CHECK: Pre-money valuation appropriate for Series A defense\n      Evidence: $45M pre-money valuation is high for Series A defense startup with $8.5M in contracts\n    \u2717 FAILED CHECK: Beyond rubric guidance with independent domain expertise\n      Evidence: no evidence of independent insight on stage appropriateness\n    \u2192 ACTION: Reduce pre-money valuation to $25-35M range to better reflect Series A stage and current traction level.\n",
+  "focus_areas": [
+    "memo_market",
+    "memo_deal_terms"
+  ],
+  "protected_criteria": [
+    "memo_structure",
+    "memo_thesis",
+    "memo_risks"
+  ],
+  "improvement_targets": [
+    "memo_market",
+    "memo_deal_terms"
+  ],
+  "prior_score": 0.7727,
+  "prior_criterion_scores": {
+    "memo_structure": 1.0,
+    "memo_market": 0.75,
+    "memo_thesis": 0.75,
+    "memo_risks": 0.75,
+    "memo_deal_terms": 0.5
+  }
+}

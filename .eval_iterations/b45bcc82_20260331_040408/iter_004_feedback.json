@@ -1,0 +1,24 @@
+{
+  "iteration": 4,
+  "feedback_text": "DIAGNOSIS: 5 failing sub-attributes (30.0 pts recoverable), 1 passing.\n\nDO NOT CHANGE (these sections are passing):\n  \u2713 sql_correctness: 75% \u2014 keep unchanged\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: sql_performance.select_star (current: 0%, 6.0 pts at stake)\n    Scorer's critique: No SELECT * statements found\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 2: sql_performance.correlated_subquery (current: 0%, 6.0 pts at stake)\n    Scorer's critique: No correlated subqueries found - uses CTEs and window functions instead\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 3: sql_performance.missing_index_suggestion (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Comprehensive indexing strategy provided with multiple specialized indexes\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: CREATE INDEX idx_payments_ltv_calc ON payments(customer_id, payment_type, amount), CREATE INDEX idx_payments_date_brin ON payments USING BRIN (payment_date), CREATE INDEX idx_orders_customer_covering ON orders(customer_id, order_date)\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 4: sql_performance.cartesian_join_risk (current: 0%, 6.0 pts at stake)\n    Scorer's critique: All joins properly use ON clauses with foreign key relationships\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 5: sql_performance.function_on_indexed_column (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Functions used appropriately without compromising index usage\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n",
+  "focus_areas": [
+    "sql_schema",
+    "sql_readability",
+    "sql_performance"
+  ],
+  "protected_criteria": [
+    "sql_correctness"
+  ],
+  "improvement_targets": [
+    "sql_schema",
+    "sql_readability",
+    "sql_performance"
+  ],
+  "prior_score": 0.625,
+  "prior_criterion_scores": {
+    "sql_schema": 0.75,
+    "sql_correctness": 0.75,
+    "sql_readability": 0.75,
+    "sql_performance": 0.0
+  }
+}

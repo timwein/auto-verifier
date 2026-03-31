@@ -1,0 +1,24 @@
+{
+  "iteration": 2,
+  "feedback_text": "DIAGNOSIS: 8 failing sub-attributes (39.5 pts recoverable), 0 passing.\n\nREQUIRED FIXES (ordered by point impact):\n\n  FIX 1: sql_performance.select_star (current: 0%, 6.0 pts at stake)\n    Scorer's critique: No SELECT * statements found\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 2: sql_performance.correlated_subquery (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Uses CTEs instead of correlated subqueries\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 3: sql_performance.missing_index_suggestion (current: 0%, 6.0 pts at stake)\n    Scorer's critique: Comprehensive indexing strategy provided\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: CREATE INDEX idx_payments_customer_type_amount ON payments(customer_id, payment_type, amount); CREATE INDEX idx_payments_date ON payments(payment_date); CREATE INDEX idx_orders_customer_date ON orders(customer_id, order_date);\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 4: sql_performance.cartesian_join_risk (current: 0%, 6.0 pts at stake)\n    Scorer's critique: All joins properly use foreign key relationships\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 5: sql_performance.function_on_indexed_column (current: 0%, 6.0 pts at stake)\n    Scorer's critique: No functions applied to indexed columns in WHERE clauses\n    Measurement spec: Query would perform well at scale (millions of rows)\n    Evidence found: not found in content\n    \u26a0 This is a PENALTY violation \u2014 removing it recovers points\n\n  FIX 6: sql_correctness.grouping (current: 50%, 3.6 pts at stake)\n    Scorer's critique: Proper GROUP BY customer_id with ORDER BY lifetime_value DESC and LIMIT 10. Follows rubric requirements correctly.\n    Measurement spec: 1.0 if correct, 0.0 if missing or wrong\n    Evidence found: Content demonstrates independent domain expertise beyond rubric guidance: Standard GROUP BY, ORDER BY, LIMIT pattern following rubric requirements\n    \u2717 FAILED CHECK: Content demonstrates independent domain expertise beyond rubric guidance\n      Evidence: Standard GROUP BY, ORDER BY, LIMIT pattern following rubric requirements\n\n  FIX 7: sql_schema.realistic_columns (current: 50%, 3.5 pts at stake)\n    Scorer's critique: All tables have appropriate data types, constraints, and timestamps following industry standards. Column choices are realistic and well-constrained.\n    Measurement spec: % of tables with appropriate types and constraints\n    Evidence found: Content demonstrates independent domain expertise beyond rubric guidance: Standard column types and constraints following common patterns, no evidence of independent insight\n    \u2717 FAILED CHECK: Content demonstrates independent domain expertise beyond rubric guidance\n      Evidence: Standard column types and constraints following common patterns, no evidence of independent insight\n\n  FIX 8: sql_readability.formatting (current: 50%, 2.4 pts at stake)\n    Scorer's critique: Clean, consistent formatting with proper capitalization, indentation, and meaningful aliases throughout the code.\n    Measurement spec: 1.0 if clean formatting, 0.5 if mostly ok, 0.0 if unformatted\n    Evidence found: Content demonstrates independent domain expertise beyond rubric guidance: Standard SQL formatting practices, no evidence of independent insight\n    \u2717 FAILED CHECK: Content demonstrates independent domain expertise beyond rubric guidance\n      Evidence: Standard SQL formatting practices, no evidence of independent insight\n",
+  "focus_areas": [
+    "sql_schema",
+    "sql_correctness",
+    "sql_readability",
+    "sql_performance"
+  ],
+  "protected_criteria": [],
+  "improvement_targets": [
+    "sql_schema",
+    "sql_correctness",
+    "sql_readability",
+    "sql_performance"
+  ],
+  "prior_score": 0.5589,
+  "prior_criterion_scores": {
+    "sql_schema": 0.6625,
+    "sql_correctness": 0.675,
+    "sql_readability": 0.675,
+    "sql_performance": 0.0
+  }
+}
