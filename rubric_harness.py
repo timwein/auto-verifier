@@ -7726,6 +7726,12 @@ class RubricLoop:
         if structured_feedback:
             prompt += "\n\nSTRUCTURED FEEDBACK FROM EVALUATOR:\n" + structured_feedback
 
+        # Inject PathAgent alternatives for stuck criteria (iteration 3+)
+        # These suggest fundamentally different approaches when incremental
+        # feedback hasn't moved the needle on a criterion.
+        if path_alternatives:
+            prompt += "\n" + path_alternatives
+
         if context:
             prompt += "\n\nCONTEXT FROM PRIOR WORK:\n---\n" + context + "\n---\n"
 
@@ -7883,6 +7889,7 @@ class RubricLoop:
         stall_count = 0  # consecutive iterations without score improvement
         regression_note = ""
         last_feedback_text = ""  # Structured feedback from FeedbackAgent for next iteration
+        last_path_text = ""  # Alternative strategies from PathAgent for stuck criteria
 
         # Run ID + history init (resume reuses the existing run directory)
         if _resuming:
@@ -7948,6 +7955,7 @@ class RubricLoop:
                     context=context if context else None,
                     structured_feedback=last_feedback_text,
                     tradeoff_context=tradeoff_context,
+                    path_alternatives=last_path_text,
                 )
 
             # Track verification iteration
@@ -8192,6 +8200,53 @@ class RubricLoop:
             except Exception as e:
                 self._log(f"  [Feedback] Generation failed (non-fatal): {e}")
                 last_feedback_text = ""
+
+            # PathAgent: explore alternative strategies for stuck criteria (iteration 3+)
+            # Only activates when a criterion is below 50% and hasn't improved in 2+ iterations.
+            # Provides fundamentally different approaches, not incremental tweaks.
+            if i >= 3:
+                try:
+                    stuck = detect_stuck_criteria(criterion_scores, history)
+                    if stuck:
+                        # Unlock criteria that improved >10pp (path worked, allow re-exploration)
+                        for cs in criterion_scores:
+                            if cs.criterion_id in self.path_agent._path_locks:
+                                lock_iter = self.path_agent._path_locks[cs.criterion_id]
+                                # Find score at lock time
+                                for h in history:
+                                    if h.number == lock_iter:
+                                        for hcs in h.criterion_scores:
+                                            if hcs.criterion_id == cs.criterion_id:
+                                                if cs.percentage - hcs.percentage > 0.10:
+                                                    self.path_agent.unlock_if_improved(cs.criterion_id)
+                                                    self._log(f"  [PathAgent] Unlocked {cs.criterion_id} "
+                                                              f"(improved {hcs.percentage:.0%} → {cs.percentage:.0%})")
+                                                break
+                                        break
+
+                        path_results = self.path_agent.explore_alternatives(
+                            stuck_criteria=stuck,
+                            rubric=rubric,
+                            history=history,
+                            current_content=content,
+                            task=rubric.task,
+                            current_iteration=i,
+                        )
+                        last_path_text = self.path_agent.format_for_generator(path_results)
+                        if path_results:
+                            # Persist path alternatives to disk for auditability
+                            try:
+                                _pa_run_dir = Path(self.iterations_dir) / run_id
+                                _pa_path = _pa_run_dir / f"iter_{i + 1:03d}_path_alternatives.json"
+                                _pa_path.write_text(json.dumps(path_results, indent=2, default=str))
+                                self._log(f"  [PathAgent] Persisted → {_pa_path.name}")
+                            except Exception as _pa_exc:
+                                self._log(f"  [PathAgent] Could not write file (non-fatal): {_pa_exc}")
+                    else:
+                        last_path_text = ""
+                except Exception as e:
+                    self._log(f"  [PathAgent] Exploration failed (non-fatal): {e}")
+                    last_path_text = ""
 
         # Return the best-scoring iteration's output. History is preserved in full for
         # the learning loop — regressions are visible there without polluting the output.
