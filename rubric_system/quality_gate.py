@@ -261,6 +261,32 @@ class RubricQualityGate:
             else:
                 self._log(f"  Unknown action {act!r} for {cid!r}, skipping")
 
+        # Deterministic check: scale penalty sums that exceed 1.3x max_points
+        for cid, criterion in criteria_map.items():
+            if cid in removed_ids:
+                continue
+            if (hasattr(criterion.scoring, 'method')
+                    and criterion.scoring.method.value == "penalty_based"
+                    and criterion.scoring.penalties):
+                total_penalty = sum(abs(p) for p in criterion.scoring.penalties.values())
+                max_pts = criterion.scoring.max_points
+                if total_penalty > max_pts * 1.3:
+                    scale_factor = (max_pts * 1.3) / total_penalty
+                    new_penalties = {
+                        k: round(v * scale_factor, 1)
+                        for k, v in criterion.scoring.penalties.items()
+                    }
+                    criteria_map[cid] = dc_replace(
+                        criterion,
+                        scoring=dc_replace(criterion.scoring, penalties=new_penalties),
+                    )
+                    msg = (f"[scale-penalties] {cid}: penalties "
+                           f"{total_penalty:.1f} -> "
+                           f"{sum(abs(v) for v in new_penalties.values()):.1f} "
+                           f"(was {total_penalty / max_pts:.1f}x max_points)")
+                    gate_messages.append(msg)
+                    self._log(f"  {msg}")
+
         # Reconstruct criteria in original order, dropping removed/merged criteria
         new_criteria = [
             criteria_map[c.id]
@@ -269,6 +295,19 @@ class RubricQualityGate:
         ]
         new_total = sum(c.scoring.max_points for c in new_criteria)
         refined_rubric = dc_replace(rubric, criteria=new_criteria, total_points=new_total)
+
+        # Validation warnings: criterion granularity
+        oversized = [c for c in new_criteria if c.scoring.max_points > 8]
+        if oversized:
+            self._log(
+                f"  WARNING: {len(oversized)} criteria exceed 8 max_points: "
+                + ", ".join(f"{c.id}({c.scoring.max_points}pts)" for c in oversized[:5])
+            )
+        if len(new_criteria) < 8:
+            self._log(
+                f"  WARNING: Only {len(new_criteria)} criteria "
+                f"(recommended minimum: 8 for scoring granularity)"
+            )
 
         if gate_messages:
             self._log(

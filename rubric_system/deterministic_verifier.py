@@ -136,6 +136,37 @@ _HAS_ABSTRACT = re.compile(
     re.IGNORECASE,
 )
 
+# Bash safety patterns
+_BASH_SET_EUO = re.compile(r'\bset\s+-euo\s+pipefail\b')
+_BASH_SET_E = re.compile(r'\bset\s+-[A-Za-z]*e[A-Za-z]*\b')
+_BASH_PIPEFAIL = re.compile(r'\bset\s+-o\s+pipefail\b')
+_BASH_TRAP = re.compile(r'\btrap\b.+\b(?:EXIT|ERR|SIGTERM|SIGINT)\b')
+_HARDCODED_PASSWORD = re.compile(
+    r'\b(?:PASSWORD|PASSWD|DB_PASS|PGPASSWORD)\s*=\s*[\x27"][^$]',
+    re.IGNORECASE,
+)
+
+# SQL anti-patterns
+_SQL_SELECT_STAR = re.compile(r'\bSELECT\s+\*\s+FROM\b', re.IGNORECASE)
+
+# Criterion detection — is this a bash safety criterion?
+_IS_BASH_SAFETY = re.compile(
+    r'\b(?:set\s+-e|pipefail|trap|hardcoded\s+password|bash\s+safety'
+    r'|error\s+handling\s+flags)\b',
+    re.IGNORECASE,
+)
+
+# Criterion detection — is this a SQL performance/quality criterion?
+# Note: trailing \b omitted because \* is non-word; \b before SELECT suffices.
+_IS_SQL_CRITERION = re.compile(
+    r'\bSELECT\s+\*'
+    r'|\bsql\s+performance\b'
+    r'|\bsql\s+anti.?pattern'
+    r'|\bavoid(?:s)?\s+SELECT\s+\*'
+    r'|\bquery\s+optimization\b',
+    re.IGNORECASE,
+)
+
 
 # ============================================================================
 # Content measurement utilities
@@ -299,6 +330,8 @@ class DeterministicVerifier:
             self._check_has_title,
             self._check_has_table,
             self._check_section_presence,
+            self._check_bash_safety,
+            self._check_sql_patterns,
         ):
             result = checker(criterion, search_text, content)
             if result is not None:
@@ -601,6 +634,88 @@ class DeterministicVerifier:
             criterion, pct,
             evidence=f"Table: {'present' if present else 'not found'} {indicator}",
             methodology="table presence check",
+        )
+
+    def _check_bash_safety(
+        self, criterion: Criterion, text: str, content: str
+    ) -> Optional[CriterionScore]:
+        """Verify bash safety practices via regex (penalty-based)."""
+        if criterion.scoring.method.value != "penalty_based":
+            return None
+        if not _IS_BASH_SAFETY.search(text):
+            return None
+
+        penalties = criterion.scoring.penalties
+        max_points = criterion.scoring.max_points
+        findings = []
+        total_deduction = 0.0
+
+        # Check for set -e (covers set -euo as well)
+        if "no_set_e" in penalties and not _BASH_SET_E.search(content):
+            total_deduction += abs(penalties["no_set_e"])
+            findings.append("no set -e")
+
+        # Check for pipefail (set -o pipefail OR set -euo pipefail)
+        if "no_pipefail" in penalties:
+            if not _BASH_PIPEFAIL.search(content) and not _BASH_SET_EUO.search(content):
+                total_deduction += abs(penalties["no_pipefail"])
+                findings.append("no pipefail")
+
+        # Check for trap cleanup
+        if "no_trap_cleanup" in penalties and not _BASH_TRAP.search(content):
+            total_deduction += abs(penalties["no_trap_cleanup"])
+            findings.append("no trap cleanup")
+
+        # Check for hardcoded passwords
+        if "hardcoded_password" in penalties and _HARDCODED_PASSWORD.search(content):
+            total_deduction += abs(penalties["hardcoded_password"])
+            findings.append("hardcoded password")
+
+        score = max(0.0, max_points - total_deduction)
+        pct = score / max_points if max_points > 0 else 0.0
+
+        if findings:
+            evidence = f"Bash safety issues: {', '.join(findings)} (−{total_deduction:.1f} pts) ✗"
+        else:
+            evidence = "Bash safety checks passed: set -e, pipefail, trap, no hardcoded passwords ✓"
+
+        return self._make_score(
+            criterion, pct,
+            evidence=evidence,
+            methodology=f"bash safety regex check ({max_points} − {total_deduction:.1f} = {score:.1f})",
+        )
+
+    def _check_sql_patterns(
+        self, criterion: Criterion, text: str, content: str
+    ) -> Optional[CriterionScore]:
+        """Verify SQL anti-pattern avoidance via regex (penalty-based)."""
+        if criterion.scoring.method.value != "penalty_based":
+            return None
+        if not _IS_SQL_CRITERION.search(text):
+            return None
+
+        penalties = criterion.scoring.penalties
+        max_points = criterion.scoring.max_points
+        findings = []
+        total_deduction = 0.0
+
+        # Check for SELECT *
+        if "select_star" in penalties and _SQL_SELECT_STAR.search(content):
+            total_deduction += abs(penalties["select_star"])
+            findings.append("SELECT * usage")
+
+        score = max(0.0, max_points - total_deduction)
+        pct = score / max_points if max_points > 0 else 0.0
+
+        if findings:
+            evidence = f"SQL issues: {', '.join(findings)} (−{total_deduction:.1f} pts) ✗"
+        else:
+            evidence = "SQL pattern checks passed: no SELECT * ✓"
+
+        return self._make_score(
+            criterion, pct,
+            evidence=evidence,
+            methodology=f"SQL pattern regex check ({max_points} − {total_deduction:.1f} = {score:.1f})",
         )
 
     def _check_section_presence(

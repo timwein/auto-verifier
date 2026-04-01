@@ -295,11 +295,13 @@ async def run_harness(
     max_iter: int,
     model: str,
     verbose: bool,
+    generate_rubrics: bool = False,
 ) -> RunResult:
     """Full rubric loop run. Uses the loop's own scores directly.
 
-    Since negotiation, tradeoff detection, and quality gate are all disabled,
-    the loop scores against the exact same sample rubric — no re-scoring needed.
+    When generate_rubrics=False (default), uses the sample rubric as-is.
+    When generate_rubrics=True, runs the full generation pipeline with
+    research, negotiation, tradeoff detection, and quality gate.
     """
     task_prompt = rubric.task
 
@@ -311,11 +313,12 @@ async def run_harness(
         max_iterations=max_iter,
         verbose=verbose,
         enable_self_improve=False,   # don't rewrite harness code during eval
+        persist_feedback=True,       # persist fix outcomes for cross-run learning
         enable_checkpoints=False,    # no human pauses during eval
-        enable_research=False,       # rubric already provided; skip research step
-        skip_negotiation=True,               # eval: use sample rubric as-is
-        enable_tradeoff_detection=False,     # eval: don't drop/merge criteria
-        enable_quality_gate=False,           # eval: don't drop/merge criteria
+        enable_research=generate_rubrics,
+        skip_negotiation=not generate_rubrics,
+        enable_tradeoff_detection=generate_rubrics,
+        enable_quality_gate=generate_rubrics,
         feedback_dir=".eval_feedback",
         iterations_dir=".eval_iterations",
     )
@@ -323,27 +326,43 @@ async def run_harness(
     t0 = time.monotonic()
     loop_result = await loop.run(
         task=task_prompt,
-        rubric=rubric,
-        generate_rubric=False,  # use the sample rubric directly
+        rubric=rubric if not generate_rubrics else None,
+        generate_rubric=generate_rubrics,
     )
     harness_secs = time.monotonic() - t0
 
-    # Use the loop's own best-iteration scores directly. The loop already scored
-    # against the unmodified sample rubric (negotiation/tradeoff/quality-gate are
-    # all disabled), so re-scoring would be redundant and introduces a failure
-    # point where JSON parsing can silently break and produce wrong results.
     best_iter = max(loop_result.history, key=lambda h: h.percentage)
-    total = best_iter.total_score
-    max_total = best_iter.max_score
-    pct = best_iter.percentage
-    cr_list = [
-        _cs_to_criterion_result(cs, rubric) for cs in best_iter.criterion_scores
-    ]
+    # Use the rubric from the loop result (may differ if generate_rubrics=True)
+    scoring_rubric = loop_result.rubric if hasattr(loop_result, 'rubric') and loop_result.rubric else rubric
 
     if verbose:
-        print(f"  [harness] loop done: {pct:.1%} "
-              f"in {loop_result.iterations} iter / {harness_secs:.1f}s "
-              f"(best: iter {best_iter.number})")
+        print(f"  [harness] loop done: {best_iter.percentage:.1%} "
+              f"in {loop_result.iterations} iter / {harness_secs:.1f}s")
+        print(f"  [harness] re-scoring final output for fair comparison…")
+
+    # Re-score the best output using the shared scorer for direct comparability
+    # with baseline scoring (same scorer instance, same context drift).
+    try:
+        t_rescore = time.monotonic()
+        total, max_total, cr_list = await score_against_rubric(
+            scorer, loop_result.output, scoring_rubric
+        )
+        rescore_secs = time.monotonic() - t_rescore
+        pct = total / max_total if max_total > 0 else 0.0
+        if verbose:
+            print(f"  [harness] re-scored: {total:.1f}/{max_total} "
+                  f"({pct:.1%}) | {rescore_secs:.1f}s")
+    except Exception as e:
+        # Fall back to loop's own scores if re-scoring fails
+        if verbose:
+            print(f"  [harness] re-scoring failed ({e}), using loop scores")
+        total = best_iter.total_score
+        max_total = best_iter.max_score
+        pct = best_iter.percentage
+        cr_list = [
+            _cs_to_criterion_result(cs, scoring_rubric)
+            for cs in best_iter.criterion_scores
+        ]
 
     return RunResult(
         output=loop_result.output,
@@ -623,6 +642,7 @@ async def run_eval(
     resume: bool,
     model: str,
     verbose: bool,
+    generate_rubrics: bool = False,
 ) -> Dict[str, TaskEvalResult]:
     client = anthropic.Anthropic(timeout=httpx.Timeout(600.0, connect=30.0))
 
@@ -725,6 +745,7 @@ async def run_eval(
                     max_iter=max_iter,
                     model=model,
                     verbose=verbose,
+                    generate_rubrics=generate_rubrics,
                 )
                 save_results(task_results, output_path)
 
@@ -918,6 +939,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Suppress per-step progress output.",
     )
+    p.add_argument(
+        "--generate-rubrics",
+        action="store_true",
+        dest="generate_rubrics",
+        help="Generate rubrics from scratch instead of using sample rubrics. "
+             "Enables negotiation, quality gate, and tradeoff detection. "
+             "Significantly increases cost and time.",
+    )
     return p.parse_args()
 
 
@@ -959,6 +988,7 @@ async def main() -> None:
         resume=args.resume,
         model=args.model,
         verbose=verbose,
+        generate_rubrics=args.generate_rubrics,
     )
 
     # Write full results JSON (task_results already saved incrementally; this adds summary)

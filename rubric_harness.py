@@ -1828,7 +1828,8 @@ Be literal and specific. Quote exact text when present. Do NOT assign numeric sc
 STAGE 2 — MECHANICAL SCORING (derived directly from Stage 1 facts):
 Apply these deterministic mapping rules based on your Stage 1 checklist results:
 
-For weighted_components sub-attributes (valid values: 0.0, 0.25, 0.50, 0.75 — 1.0 is NOT valid):
+For weighted_components sub-attributes (valid values: 0.0, 0.25, 0.50, 0.75, 1.0):
+  - ALL checks pass AND content demonstrates exceptional independent domain expertise that SIGNIFICANTLY exceeds rubric guidance → 1.0 (rare — reserve for genuinely outstanding work)
   - ALL checks pass AND content demonstrates independent domain expertise that goes BEYOND rubric guidance → 0.75
   - ALL checks pass AND content follows rubric guidance correctly → 0.50 (DEFAULT for AI-generated content that meets requirements)
   - MAJORITY of checks pass (>50%) but important elements are missing → 0.25
@@ -1842,6 +1843,7 @@ CRITICAL: Stage 2 scores are derived MECHANICALLY from Stage 1 facts. Do not ove
 CALIBRATION:
 - AI-generated content that correctly follows rubric guidance earns 0.50 per sub-attribute (not 0.75 or 1.0)
 - 0.75 requires independent domain expertise BEYOND what the rubric specified — this should appear on fewer than 35% of sub-attributes
+- 1.0 requires exceptional quality that significantly exceeds rubric expectations — this should appear on no more than 15% of sub-attributes
 - First-attempt overall scores typically land at 55-70% when applying this protocol honestly
 - The goal is ACCURATE scoring, not harsh scoring. Let the Stage 1 facts determine the outcome."""
 
@@ -1872,7 +1874,7 @@ CALIBRATION:
             "(2) Is your checklist granular enough to distinguish this attempt from the prior one?\n"
             "(3) For each sub-attribute, quote specific evidence or state 'not found' — no inferences.\n"
             "(4) Identify what is specifically still missing, not just whether requirements are generally met.\n"
-            "Do NOT change your scoring anchors — use the same 0.0/0.25/0.50/0.75 scale as always. "
+            "Do NOT change your scoring anchors — use the same 0.0/0.25/0.50/0.75/1.0 scale as always. "
             "Better evidence extraction, not score inflation, is the goal."
         )
         if plateau_injection not in self._scorer_system_prompt:
@@ -2059,24 +2061,45 @@ CALIBRATION:
                     # Legacy flat format
                     flat_crit[key] = val
                 elif key == "violations":
-                    flat_crit["violations"] = val
+                    flat_crit["_raw_violations"] = val
                 elif key == "violation_details":
-                    # Extract violation names for ScoringEngine — only violations
-                    # that were actually PRESENT (not "not found in content" / ABSENT).
-                    # Guard uses "in" check because empty list [] is falsy.
-                    if "violations" not in flat_crit:
-                        flat_crit["violations"] = [
-                            vd.get("violation", "")
-                            for vd in val
-                            if isinstance(vd, dict)
-                            and "not found" not in vd.get("evidence", "").lower()
-                        ]
+                    flat_crit["_violation_details"] = val
                 elif key.startswith("_"):
                     flat_crit[key] = val
+
+            # Cross-reference violations against violation_details evidence
+            raw_violations = flat_crit.pop("_raw_violations", None)
+            viol_details = flat_crit.pop("_violation_details", None)
+
+            if raw_violations is not None and viol_details is not None:
+                # Both exist — filter raw_violations using evidence from details
+                detail_map = {}
+                for vd in viol_details:
+                    if isinstance(vd, dict):
+                        detail_map[vd.get("violation", "")] = vd
+                filtered = []
+                for v in raw_violations:
+                    detail = detail_map.get(v)
+                    if detail is None:
+                        # No detail entry — assume present (conservative)
+                        filtered.append(v)
+                    elif "not found" not in detail.get("evidence", "").lower():
+                        filtered.append(v)
+                flat_crit["violations"] = filtered
+            elif raw_violations is not None:
+                # Only violations array, no details — pass through as-is
+                flat_crit["violations"] = raw_violations
+            elif viol_details is not None:
+                # Only violation_details — extract present violations
+                flat_crit["violations"] = [
+                    vd.get("violation", "")
+                    for vd in viol_details
+                    if isinstance(vd, dict)
+                    and "not found" not in vd.get("evidence", "").lower()
+                ]
+
             flat[crit_id] = flat_crit
         return flat
-        self._log('Warning: could not parse scorer response as JSON')
-        return {}
 
 
 class RubricNegotiationAgent:
@@ -2625,6 +2648,9 @@ Produce content that earns high scores on every rubric criterion."""
             r"|Looking\s+at\s+"
             r"|However,?\s+since\s+"
             r"|I\s+need\s+to\s+"
+            r"|Here\s+is\s+the\s+improved"
+            r"|The\s+key\s+improvements"
+            r"|Now\s+I\s+have\s+the\s+information"
             r")",
             re.IGNORECASE,
         )
@@ -2639,6 +2665,32 @@ Produce content that earns high scores on every rubric criterion."""
                 stripped = stripped[para_end.end():].lstrip()
             else:
                 break  # no paragraph boundary — don't strip everything
+
+        # Postamble stripping: detect meta-commentary appended at the end
+        postamble_signals = re.compile(
+            r"(?:"
+            r"\b(?:criterion|rubric|scoring|FIX\b|improvement)\b"
+            r"|\bkey\s+(?:changes|improvements|updates)\b"
+            r"|\bhere\s+is\s+the\s+improved\b"
+            r"|\bthe\s+key\s+improvements\b"
+            r")",
+            re.IGNORECASE,
+        )
+
+        paragraphs = re.split(r"\n\s*\n", stripped)
+        if len(paragraphs) > 2:
+            strip_from = len(paragraphs)
+            for i in range(len(paragraphs) - 1, max(len(paragraphs) - 4, 0), -1):
+                para = paragraphs[i].strip()
+                if not para:
+                    strip_from = i
+                    continue
+                if postamble_signals.search(para):
+                    strip_from = i
+                else:
+                    break
+            if strip_from < len(paragraphs):
+                stripped = "\n\n".join(paragraphs[:strip_from]).rstrip()
 
         # Safety: if stripping removed almost everything, return original.
         # Use 10-char absolute minimum so short-but-real content is kept.
@@ -2737,6 +2789,16 @@ class ScoringEngine:
                 points += penalty
                 penalties_applied.append({"violation": v, "penalty": penalty})
 
+        # Log when applied penalties exceed max_points (scoring granularity loss)
+        if penalties_applied:
+            total_penalty_magnitude = sum(abs(p["penalty"]) for p in penalties_applied)
+            if total_penalty_magnitude > criterion.scoring.max_points:
+                self._log(
+                    f"[Penalty] {criterion.id}: applied penalties "
+                    f"{total_penalty_magnitude:.1f} exceed max_points "
+                    f"{criterion.scoring.max_points}"
+                )
+
         points = max(0, points)
 
         hints = [f"Fix {p['violation']} (+{abs(p['penalty']):.1f} pts)"
@@ -2809,12 +2871,12 @@ STAGE 2 — MECHANICAL SCORE DERIVATION (derived from Stage 1 facts)
 
 For each sub-attribute, count Stage 1 YES answers and apply these deterministic rules:
 
-FOR weighted_components SUB-ATTRIBUTES (valid anchor values: 0.0, 0.25, 0.50, 0.75):
+FOR weighted_components SUB-ATTRIBUTES (valid anchor values: 0.0, 0.25, 0.50, 0.75, 1.0):
+  1.00 — ALL requirement checks YES + beyond-rubric check YES + content demonstrates exceptional, significantly-above-expectations expertise (rare — ≤15% of sub-attributes)
   0.75 — ALL requirement checks YES + beyond-rubric check YES (independent domain expertise)
   0.50 — ALL requirement checks YES + beyond-rubric check NO (rubric-directed, adequate) ← DEFAULT for correct AI output
   0.25 — MOST requirement checks YES (>50%) but key elements missing
   0.00 — FEW or NONE requirement checks YES (≤50%)
-  *** 1.0 is PROHIBITED for weighted_components sub-attributes. Do not use it. ***
 
 FOR penalty_based CRITERIA:
   Score = max_points − sum of deductions for each PRESENT violation from Stage 1
@@ -2822,8 +2884,9 @@ FOR penalty_based CRITERIA:
 Do NOT override the mechanical mapping with subjective impressions. Stage 1 facts determine the scores.
 
 CALIBRATION CHECK before writing JSON:
-  - How many sub-attributes scored 0.75? Should be ≤35% of total sub-attributes.
-  - For each 0.75, verify you can cite specific evidence of independent expertise beyond the rubric.
+  - How many sub-attributes scored 1.0? Should be ≤15% of total sub-attributes.
+  - How many sub-attributes scored 0.75 or above? Should be ≤35% of total sub-attributes.
+  - For each 0.75 or 1.0, verify you can cite specific evidence of independent expertise beyond the rubric.
   - First-attempt AI output landing at 55-65% overall is expected and correct.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2838,12 +2901,12 @@ First complete your Stage 1 checklist analysis internally, then produce a single
 {{
   "criterion_id": {{
     "sub_attribute_id": {{
-      "score": <float — must be one of: 0.0, 0.25, 0.5, 0.75>,
+      "score": <float — must be one of: 0.0, 0.25, 0.5, 0.75, 1.0>,
       "checks": [
         {{"check": "description of what was checked", "result": "YES or NO", "evidence": "exact quote from content or 'not found'"}}
       ],
       "critique": "1-2 sentence summary of what specifically is wrong or right. Quote the content. If failing, state exactly what is missing.",
-      "suggestion": "If score < 0.75, a specific instruction for what to add/change to improve this sub-attribute. Include example text where possible."
+      "suggestion": "If score < 1.0, a specific instruction for what to add/change to improve this sub-attribute. Include example text where possible."
     }},
     "violations": ["violation_name_if_found"],
     "_meta": {{"checks_passed": <int>, "total_checks": <int>, "beyond_rubric": <bool>}}
@@ -2864,9 +2927,9 @@ For penalty_based criteria, use a flat structure:
 ```
 
 CRITICAL RULES:
-- Sub-attribute scores must use only anchor values (0.0, 0.25, 0.5, 0.75).
+- Sub-attribute scores must use only anchor values (0.0, 0.25, 0.5, 0.75, 1.0).
 - Every sub-attribute MUST have a non-empty "critique" field. Never return a score without explaining why.
-- Every sub-attribute with score < 0.75 MUST have a non-empty "suggestion" field.
+- Every sub-attribute with score < 1.0 MUST have a non-empty "suggestion" field.
 - The "evidence" in checks must be exact quotes from the content, or "not found in content" — never paraphrased.
 - Scores must be mechanically derived from the checks — not independently estimated."""
 
@@ -2948,7 +3011,7 @@ EDIT_PROMPT = """You are improving an existing document. Your job is to SURGICAL
 TASK: {task}
 
 CRITICAL CONSTRAINT: You MUST preserve quality on criteria that are already scoring well.
-The following criteria scored >= 75% and must NOT regress:
+The following criteria scored >= 90% and must NOT regress:
 {protected_criteria_list}
 
 Focus improvements ONLY on these weak criteria:
@@ -2969,7 +3032,7 @@ CURRENT DRAFT (score: {current_score}):
 {iteration_guidance}
 
 CRITICAL RULES:
-1. DO NOT rewrite sections that already score >= 80%. Copy them VERBATIM.
+1. DO NOT rewrite sections that already score >= 90%. Copy them VERBATIM.
 2. ONLY rewrite or expand sections corresponding to criteria marked IMPROVE.
 3. Keep the same overall structure, headings, and section ordering.
 4. The STRUCTURED FEEDBACK FROM EVALUATOR below is your SOLE instruction set. Follow its ACTION items precisely — each one tells you exactly what to add or change, quoting the scorer's own checks and evidence.
@@ -5707,10 +5770,10 @@ EVALUATION PRINCIPLES:
 
         # Split criteria into protected (>= 75%) vs improvement targets (< 75%)
         result["protected_criteria"] = [
-            cs.criterion_id for cs in criterion_scores if cs.percentage >= 0.75
+            cs.criterion_id for cs in criterion_scores if cs.percentage >= 0.90
         ]
         result["improvement_targets"] = [
-            cs.criterion_id for cs in criterion_scores if cs.percentage < 0.75
+            cs.criterion_id for cs in criterion_scores if cs.percentage < 0.90
         ]
 
         # Regression detection
@@ -6146,9 +6209,9 @@ Respond with a JSON object:
             if not crit:
                 continue
 
-            if cs.percentage >= 0.75:
-                # This criterion is passing — mark as preserved
-                preserve.append(f"{cs.criterion_id}: {cs.percentage:.0%} — keep unchanged")
+            if cs.percentage >= 0.90:
+                # This criterion is strong — lower priority for improvement
+                preserve.append(f"{cs.criterion_id}: {cs.percentage:.0%} — strong, lower priority")
                 continue
 
             # Get the scorer's critiques for this criterion
@@ -6172,7 +6235,7 @@ Respond with a JSON object:
             # Build one fix item per failing sub-attribute
             for sub_critique in crit_critiques:
                 sub_score = sub_critique.get("score")
-                if sub_score is not None and sub_score >= 0.75:
+                if sub_score is not None and sub_score >= 0.90:
                     # This sub-attribute is passing
                     continue
 
@@ -6446,6 +6509,283 @@ Respond with a JSON object:
 
 
 # ============================================================================
+# PathAgent — Alternative Strategy Explorer for Stuck Criteria
+# ============================================================================
+
+
+def detect_stuck_criteria(
+    criterion_scores: list,
+    history: list,
+    min_iterations: int = 2,
+    stuck_threshold: float = 0.05,
+    score_ceiling: float = 0.50,
+) -> list[dict]:
+    """Identify criteria that are stuck: below ceiling and <threshold improvement over min_iterations.
+
+    Returns list of dicts with criterion_id and score_history for each stuck criterion.
+    """
+    if len(history) < min_iterations:
+        return []
+
+    stuck = []
+    recent = history[-min_iterations:]
+    for cs in criterion_scores:
+        if cs.percentage >= score_ceiling:
+            continue
+        # Check if this criterion failed to improve across recent iterations
+        crit_history = []
+        for h in recent:
+            for hcs in h.criterion_scores:
+                if hcs.criterion_id == cs.criterion_id:
+                    crit_history.append(hcs.percentage)
+                    break
+        if len(crit_history) >= min_iterations:
+            improvement = max(crit_history) - min(crit_history)
+            if improvement < stuck_threshold:
+                full_history = []
+                for h in history:
+                    for hcs in h.criterion_scores:
+                        if hcs.criterion_id == cs.criterion_id:
+                            full_history.append(hcs.percentage)
+                            break
+                stuck.append({
+                    "criterion_id": cs.criterion_id,
+                    "current_score": cs.percentage,
+                    "score_history": full_history,
+                })
+    return stuck
+
+
+class PathAgent:
+    """Explores alternative strategies for stuck criteria.
+
+    Sits alongside the FeedbackAgent. While FeedbackAgent tells the generator
+    WHAT is wrong (incremental fixes), PathAgent suggests fundamentally different
+    APPROACHES when a criterion is stuck — breaking out of local optima.
+
+    Activation: Only fires when a criterion is below 50% AND has failed to improve
+    by >5pp across 2+ iterations. Most criteria never trigger this agent.
+
+    Output: 2-3 ranked alternative strategies per stuck criterion. The generator
+    picks ONE and commits to it for 2 iterations (lock-in prevents thrashing).
+
+    Isolation: Own Anthropic client, own context window. Never sees scorer reasoning,
+    rubric negotiation, or feedback agent internals.
+    """
+
+    EXPLORE_PROMPT = """You are a strategy advisor. A content generator has been trying to satisfy a scoring criterion but is stuck — its score hasn't improved despite multiple attempts.
+
+Your job: suggest 2-3 fundamentally DIFFERENT approaches the generator could try. Not incremental tweaks — completely different strategies.
+
+TASK: {task}
+
+STUCK CRITERION: {criterion_id}
+Description: {criterion_description}
+Measurement spec: {measurement_spec}
+Current score: {current_score:.0%} (stuck for {stuck_iterations} iterations)
+Score history: {score_history}
+
+CURRENT APPROACH (what the generator has been doing):
+{current_approach}
+
+FAILED FEEDBACK (instructions that didn't help):
+{failed_feedback}
+
+Respond with EXACTLY this JSON structure (no other text):
+{{
+  "current_approach_summary": "1 sentence describing what the generator is currently doing",
+  "alternatives": [
+    {{
+      "rank": 1,
+      "strategy": "2-3 sentence description of a fundamentally different approach",
+      "why_it_might_work": "1 sentence rationale connecting this to the measurement spec",
+      "example_signal": "1 sentence showing what a good implementation would look like"
+    }},
+    {{
+      "rank": 2,
+      "strategy": "...",
+      "why_it_might_work": "...",
+      "example_signal": "..."
+    }}
+  ],
+  "recommendation": "Which alternative you recommend and a 1-sentence reason why"
+}}
+
+RULES:
+- Suggest 2-3 alternatives (not more)
+- Each must be a genuinely different STRATEGY, not a tweak of the current approach
+- Ground alternatives in what the measurement spec actually measures
+- Do NOT suggest changes to criteria that are passing — only address this stuck criterion"""
+
+    def __init__(self, model: str = "claude-sonnet-4-20250514", verbose: bool = True):
+        if Anthropic is None:
+            raise ImportError("anthropic package required: pip install anthropic")
+        self.client = Anthropic(timeout=_API_TIMEOUT)
+        self.model = model
+        self.verbose = verbose
+        self._path_locks: dict[str, int] = {}  # criterion_id → iteration when path was chosen
+
+    def _log(self, msg: str):
+        if self.verbose:
+            print(msg)
+
+    def is_locked(self, criterion_id: str, current_iteration: int, lock_duration: int = 2) -> bool:
+        """Check if a criterion is locked (path recently chosen, let generator refine it)."""
+        if criterion_id not in self._path_locks:
+            return False
+        return (current_iteration - self._path_locks[criterion_id]) < lock_duration
+
+    def lock(self, criterion_id: str, iteration: int):
+        """Lock a criterion after a path is chosen."""
+        self._path_locks[criterion_id] = iteration
+
+    def unlock_if_improved(self, criterion_id: str):
+        """Unlock a criterion if its score improved significantly (path worked)."""
+        if criterion_id in self._path_locks:
+            del self._path_locks[criterion_id]
+
+    def explore_alternatives(
+        self,
+        stuck_criteria: list[dict],
+        rubric,
+        history: list,
+        current_content: str,
+        task: str,
+        current_iteration: int,
+        failed_feedback: list[str] = None,
+    ) -> list[dict]:
+        """Explore alternative strategies for stuck criteria.
+
+        Returns list of path result dicts, one per stuck criterion.
+        """
+        results = []
+        for stuck in stuck_criteria:
+            crit_id = stuck["criterion_id"]
+
+            if self.is_locked(crit_id, current_iteration):
+                self._log(f"  [PathAgent] {crit_id} locked — letting generator refine chosen path")
+                continue
+
+            # Find the criterion in the rubric
+            criterion = None
+            for c in rubric.criteria:
+                if c.id == crit_id:
+                    criterion = c
+                    break
+            if not criterion:
+                continue
+
+            measurement_spec = getattr(criterion, 'measurement', '')
+            if not measurement_spec:
+                measurement_spec = getattr(criterion, 'description', str(criterion))
+
+            # Build failed feedback from recent history
+            recent_feedback = failed_feedback or []
+            if not recent_feedback and len(history) >= 2:
+                for h in history[-2:]:
+                    for cs in h.criterion_scores:
+                        if cs.criterion_id == crit_id and cs.improvement_hints:
+                            recent_feedback.extend(cs.improvement_hints[:2])
+
+            content_excerpt = current_content[:2000] if current_content else "(no content)"
+
+            score_history_str = " → ".join(
+                f"{s:.0%}" for s in stuck.get("score_history", [])
+            )
+
+            prompt = self.EXPLORE_PROMPT.format(
+                task=task,
+                criterion_id=crit_id,
+                criterion_description=getattr(criterion, 'description', str(criterion)),
+                measurement_spec=measurement_spec,
+                current_score=stuck["current_score"],
+                stuck_iterations=len(stuck.get("score_history", [])),
+                score_history=score_history_str or "N/A",
+                current_approach=content_excerpt,
+                failed_feedback="\n".join(f"- {f}" for f in recent_feedback) if recent_feedback else "(none recorded)",
+            )
+
+            try:
+                self._log(f"  [PathAgent] Exploring alternatives for {crit_id} "
+                          f"({stuck['current_score']:.0%}, stuck)...")
+                response = self.client.messages.create(
+                    model=self.model,
+                    max_tokens=1500,
+                    temperature=0.3,
+                    tools=[{"type": "web_search_20250305", "name": "web_search"}],
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                raw = "".join(
+                    block.text for block in response.content if hasattr(block, "text")
+                )
+
+                match = re.search(r'\{[\s\S]*\}', raw)
+                if match:
+                    result = json.loads(match.group())
+                    result["criterion_id"] = crit_id
+                    result["current_score"] = stuck["current_score"]
+                    result["score_history"] = score_history_str
+                    results.append(result)
+                    self.lock(crit_id, current_iteration)
+                    self._log(f"  [PathAgent] Found {len(result.get('alternatives', []))} alternatives "
+                              f"for {crit_id} (locked for 2 iterations)")
+                else:
+                    self._log(f"  [PathAgent] Could not parse response for {crit_id}")
+            except Exception as e:
+                self._log(f"  [PathAgent] Failed for {crit_id} (non-fatal): {e}")
+
+        return results
+
+    def format_for_generator(self, path_results: list[dict]) -> str:
+        """Format path exploration results for injection into the generation prompt."""
+        if not path_results:
+            return ""
+
+        lines = [
+            "",
+            "ALTERNATIVE STRATEGIES (for stuck criteria — pick ONE approach and commit fully):",
+            "",
+        ]
+
+        for result in path_results:
+            crit_id = result.get("criterion_id", "?")
+            current_score = result.get("current_score", 0)
+            score_history = result.get("score_history", "N/A")
+            current_approach = result.get("current_approach_summary", "")
+
+            lines.append(f"  STUCK: {crit_id} ({current_score:.0%}, history: {score_history})")
+            if current_approach:
+                lines.append(f"  Current approach: {current_approach}")
+            lines.append("")
+
+            for alt in result.get("alternatives", []):
+                rank = alt.get("rank", "?")
+                strategy = alt.get("strategy", "")
+                why = alt.get("why_it_might_work", "")
+                example = alt.get("example_signal", "")
+
+                rec = result.get("recommendation", "")
+                is_recommended = f"rank {rank}" in str(rec).lower() or (rank == 1 and "1" in str(rec))
+                tag = " (RECOMMENDED)" if is_recommended else ""
+
+                lines.append(f"  Alternative {rank}{tag}: {strategy}")
+                if why:
+                    lines.append(f"  Why: {why}")
+                if example:
+                    lines.append(f"  Signal: {example}")
+                lines.append("")
+
+            lines.append(
+                "  INSTRUCTION: Choose ONE alternative above for this criterion. "
+                "Do NOT blend multiple alternatives. Commit fully to the chosen "
+                "strategy for all sections addressing this criterion."
+            )
+            lines.append("")
+
+        return "\n".join(lines)
+
+
+# ============================================================================
 # Compute-Aware Iteration Planning (DGM-H Upgrade 5)
 # ============================================================================
 
@@ -6557,6 +6897,7 @@ class RubricLoop:
         enable_tradeoff_detection: bool = True,
         enable_quality_gate: bool = True,
         skip_negotiation: bool = False,
+        persist_feedback: bool = False,
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -6587,6 +6928,7 @@ class RubricLoop:
         # Component 4: Self-improvement (Loop 3)
         self.repo_path = repo_path
         self.enable_self_improve = enable_self_improve
+        self.persist_feedback = persist_feedback
         self.rubric_store = RubricStore()
         self.outcome_tracker = OutcomeTracker(self.rubric_store, verbose=verbose)
         self.learning_integrator = LearningIntegrator(
@@ -6621,6 +6963,9 @@ class RubricLoop:
 
         # Component 9: Independent feedback agent (translates scores → actionable diagnostics)
         self.feedback_agent = FeedbackAgent(model=model, verbose=verbose)
+
+        # Component 12: Path exploration agent (alternative strategy discovery for stuck criteria)
+        self.path_agent = PathAgent(model=model, verbose=verbose)
 
         # Component 10: Trade-off detector (isolated context — resolves inversely
         # correlated criteria before the gen-verify loop begins)
@@ -7251,6 +7596,7 @@ class RubricLoop:
         context: str = None,
         structured_feedback: str = "",
         tradeoff_context: Optional[List[str]] = None,
+        path_alternatives: str = "",
     ) -> str:
         """Generate content optimized for rubric scores, with feedback injection.
 
@@ -7334,8 +7680,8 @@ class RubricLoop:
                     "Do not reorganize — make targeted, minimal changes to the weakest spots."
                 )
 
-            _protected = [cs.criterion_id for cs in current.criterion_scores if cs.percentage >= 0.75]
-            _weak = [cs.criterion_id for cs in current.criterion_scores if cs.percentage < 0.75]
+            _protected = [cs.criterion_id for cs in current.criterion_scores if cs.percentage >= 0.90]
+            _weak = [cs.criterion_id for cs in current.criterion_scores if cs.percentage < 0.90]
             prompt = EDIT_PROMPT.format(
                 task=rubric.task,
                 rubric_summary=rubric_summary,
@@ -7821,17 +8167,17 @@ class RubricLoop:
                         "focus_areas": [
                             cs.criterion_id
                             for cs in criterion_scores
-                            if cs.percentage < 0.75
+                            if cs.percentage < 0.90
                         ],
                         "protected_criteria": [
                             cs.criterion_id
                             for cs in criterion_scores
-                            if cs.percentage >= 0.75
+                            if cs.percentage >= 0.90
                         ],
                         "improvement_targets": [
                             cs.criterion_id
                             for cs in criterion_scores
-                            if cs.percentage < 0.75
+                            if cs.percentage < 0.90
                         ],
                         "prior_score": round(percentage, 4),
                         "prior_criterion_scores": {
@@ -8009,31 +8355,31 @@ class RubricLoop:
             self._log(f"[Loop3] Post-run hook error (non-fatal): {e}")
             self._log_error_to_file("post_run_save", e)
 
+        if not self.enable_self_improve and not self.persist_feedback:
+            return
+
+        # Feedback learning loop: reflect on fix effectiveness and update learnings
+        if self.enable_self_improve or self.persist_feedback:
+            try:
+                self.feedback_agent.learning_loop.reflect(
+                    task=result.rubric.task,
+                    model=self.model,
+                )
+            except Exception as e:
+                self._log(f"[FeedbackLearning] Reflection failed (non-fatal): {e}")
+                self._log_error_to_file("feedback_reflect", e)
+
         if not self.enable_self_improve:
             return
 
         # Analyze rubric generation quality and store improvement signals
         self._post_run_improve_generation(result)
 
-        # Feedback learning loop: reflect on fix effectiveness and update learnings
-        try:
-            self.feedback_agent.learning_loop.reflect(
-                task=result.rubric.task,
-                model=self.model,
-            )
-        except Exception as e:
-            self._log(f"[FeedbackLearning] Reflection failed (non-fatal): {e}")
-            self._log_error_to_file("feedback_reflect", e)
-
         # --- Regression suite: post-apply monitoring ---
-        # Compare recent mean score against the regression suite baseline.
-        # If mean drops >2pp, auto-revert the last self-edit.
         if self.enable_self_improve:
             self._check_post_apply_regression()
 
         # Auto self-improvement: propose and apply code edits when enough data
-        # DGM-H Upgrade 5: ComputePlanner can also trigger self-improvement
-        # mid-run when scores are stuck, independent of the interval trigger.
         if self._should_auto_improve():
             self._run_auto_improve()
 
