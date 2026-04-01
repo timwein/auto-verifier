@@ -4592,7 +4592,7 @@ RUBRIC DESIGN PRINCIPLES:
                 rubric = self._run_multipass_pipeline(task, research_section, expert_persona)
                 self._log(f"[MultiPass] Generated: {len(rubric.criteria)} criteria, "
                           f"{rubric.total_points} max points, threshold: {rubric.pass_threshold:.0%}")
-                rubric = self._apply_tracing(rubric, research_section)
+                rubric = self._apply_tracing(rubric, research_section, task)
                 return rubric
             except Exception as e:
                 self._log(f"[MultiPass] Pipeline failed ({e}) — falling back to single-pass")
@@ -4754,10 +4754,10 @@ RUBRIC DESIGN PRINCIPLES:
                           f"retained in final rubric")
 
         # Step 3: Research traceability audit — verify criteria are grounded
-        rubric = self._apply_tracing(rubric, research_section)
+        rubric = self._apply_tracing(rubric, research_section, task)
         return rubric
 
-    def _apply_tracing(self, rubric: Rubric, research_section: str) -> Rubric:
+    def _apply_tracing(self, rubric: Rubric, research_section: str, task: str = "") -> Rubric:
         """Run the research traceability audit and patch rubric if grounding is low.
 
         Shared post-processing step used by both multi-pass and single-pass paths.
