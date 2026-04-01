@@ -768,8 +768,21 @@ async def run_eval(
             print(f"  → delta: {delta_str}")
 
         except Exception as exc:
+            is_rate_limit = "rate_limit" in str(exc).lower() or "429" in str(exc)
             print(f"  [ERROR] {task_key}: {exc}")
             existing.error = str(exc)
+            # On rate limit: save partial results and pause before next task
+            if is_rate_limit:
+                # Preserve best harness iteration if available (graceful degradation)
+                if not existing.harness:
+                    recovered = recover_harness_from_artifacts(task_key, ".eval_iterations")
+                    if recovered:
+                        print(f"  [recovered] best harness iteration: {recovered.percentage:.1%}")
+                        existing.harness = recovered
+                        existing.error = None
+                print(f"  [RateLimit] Pausing 60s before next task to let rate limit reset...")
+                import asyncio as _aio
+                await _aio.sleep(60)
             save_results(task_results, output_path)
 
     return task_results

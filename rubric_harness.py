@@ -44,12 +44,22 @@ from rubric_system.models import (
 from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
-    from anthropic import Anthropic
+    from anthropic import Anthropic, RateLimitError, APIError
     import httpx as _httpx
     _API_TIMEOUT = _httpx.Timeout(600.0, connect=30.0)
 except ImportError:
     Anthropic = None
+    RateLimitError = None
+    APIError = None
     _API_TIMEOUT = None
+
+import time as _time
+
+
+class ScoringError(Exception):
+    """Raised when the scorer fails to produce parseable results after retries."""
+    pass
+
 
 from rubric_system.rubric_learning import RubricStore, RubricLearner
 from rubric_system.rubric_store import RubricStore as RubricRAGStore
@@ -1923,21 +1933,32 @@ CALIBRATION:
 
         self._log("Scoring content (isolated agent)...")
 
-        # FRESH context window: system prompt + single user message
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=16000,
-            temperature=0,
-            system=self._scorer_system_prompt,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        # Score with retry: if JSON parsing fails, retry the API call once.
+        # This prevents catastrophic 0-score fallback from transient parse failures
+        # (e.g., board_deck_narrative in Run 11: -61pp regression from parse bug).
+        parsed = None
+        for attempt in range(2):
+            # FRESH context window: system prompt + single user message
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=16000,
+                temperature=0,
+                system=self._scorer_system_prompt,
+                messages=[{"role": "user", "content": prompt}],
+            )
 
-        raw = response.content[0].text
-        self._last_raw_response = raw
+            raw = response.content[0].text
+            self._last_raw_response = raw
 
-        # Parse JSON from response — critiques are now embedded in the JSON itself
-        # (no more fragile Stage 1 text extraction via regex)
-        parsed = self._parse_scorer_json(raw)
+            parsed = self._parse_scorer_json(raw)
+            if parsed:
+                break
+            if attempt == 0:
+                self._log("Warning: scorer JSON parse failed — retrying with fresh call...")
+
+        if not parsed:
+            self._log("ERROR: scorer JSON parse failed after 2 attempts — raising ScoringError")
+            raise ScoringError("Scorer returned unparseable JSON after 2 attempts")
 
         # Extract critiques from the structured JSON into a flat dict for the
         # FeedbackAgent. This is the single source of truth for all downstream
@@ -7019,6 +7040,74 @@ class RubricLoop:
         except Exception:
             pass  # Last resort — don't crash the harness
 
+    @staticmethod
+    def _extract_hard_constraints(rubric) -> list[str]:
+        """Extract word count, slide count, and other hard limits from rubric criteria.
+
+        Scans criterion descriptions and measurement specs for quantitative limits
+        (e.g., 'under 600 words', 'exactly 12 slides', '3-5 bullet points') and
+        returns them as explicit hard constraints for the generation prompt.
+        """
+        import re as _re
+        constraints = []
+        patterns = [
+            (_re.compile(r'(?:under|no more than|at most|fewer than|less than|maximum of?)\s+([\d,]+)\s+words?', _re.IGNORECASE),
+             lambda m: f"WORD LIMIT: Keep output under {m.group(1)} words. Count carefully."),
+            (_re.compile(r'(?:at least|minimum of?|no fewer than)\s+([\d,]+)\s+words?', _re.IGNORECASE),
+             lambda m: f"MINIMUM WORDS: Output must be at least {m.group(1)} words."),
+            (_re.compile(r'(?:approximately|roughly|around|~)\s*([\d,]+)\s+words?', _re.IGNORECASE),
+             lambda m: f"TARGET LENGTH: Aim for ~{m.group(1)} words (stay within ±20%)."),
+            (_re.compile(r'(?:exactly|precisely)\s+([\d]+)\s+(?:slides?|sections?|bullets?|points?|items?)', _re.IGNORECASE),
+             lambda m: f"EXACT COUNT: Must have exactly {m.group(1)} {m.group(0).split()[-1]}."),
+            (_re.compile(r'([\d]+)\s*[-–—]\s*([\d]+)\s+(?:sentences?|bullets?|points?|items?)\s+(?:per|each)', _re.IGNORECASE),
+             lambda m: f"PER-SECTION LIMIT: {m.group(1)}-{m.group(2)} {m.group(0).split()[-2]} per section."),
+        ]
+        seen = set()
+        for criterion in rubric.criteria:
+            for text_source in [
+                getattr(criterion, 'description', ''),
+                getattr(criterion, 'measurement', ''),
+                str(getattr(criterion, 'scoring', '')),
+            ]:
+                if not text_source:
+                    continue
+                for pattern, formatter in patterns:
+                    for match in pattern.finditer(text_source):
+                        constraint = formatter(match)
+                        if constraint not in seen:
+                            seen.add(constraint)
+                            constraints.append(constraint)
+        return constraints
+
+    async def _retry_on_rate_limit(self, fn, *args, max_retries: int = 3, **kwargs):
+        """Call fn with exponential backoff on rate limit errors.
+
+        Retries up to max_retries times with 30s, 60s, 120s waits.
+        On final failure, re-raises the exception so the caller can
+        break the loop and return best-so-far.
+        """
+        for attempt in range(max_retries + 1):
+            try:
+                if asyncio.iscoroutinefunction(fn):
+                    return await fn(*args, **kwargs)
+                else:
+                    return fn(*args, **kwargs)
+            except Exception as e:
+                is_rate_limit = (
+                    (RateLimitError is not None and isinstance(e, RateLimitError))
+                    or "rate_limit" in str(e).lower()
+                    or "429" in str(e)
+                )
+                is_scoring_error = isinstance(e, ScoringError)
+                if is_scoring_error:
+                    raise  # Don't retry scoring parse failures — already retried internally
+                if not is_rate_limit or attempt >= max_retries:
+                    raise
+                wait = 30 * (2 ** attempt)  # 30s, 60s, 120s
+                self._log(f"  [RateLimit] 429 on attempt {attempt + 1}/{max_retries + 1} — "
+                          f"waiting {wait}s before retry...")
+                await asyncio.sleep(wait)
+
     def _save_rubric_markdown(self, rubric: Rubric, task: str) -> Path:
         """Serialize the rubric to a markdown document in rubrics/.
 
@@ -7732,6 +7821,14 @@ class RubricLoop:
         if path_alternatives:
             prompt += "\n" + path_alternatives
 
+        # Inject hard constraints extracted from rubric criteria (word count, slide count, etc.)
+        # These are enforced as NON-NEGOTIABLE limits, not just scoring penalties.
+        hard_constraints = self._extract_hard_constraints(rubric)
+        if hard_constraints:
+            prompt += "\n\nHARD CONSTRAINTS (violating these WILL tank your score — do NOT exceed):\n"
+            for hc in hard_constraints:
+                prompt += f"  - {hc}\n"
+
         if context:
             prompt += "\n\nCONTEXT FROM PRIOR WORK:\n---\n" + context + "\n---\n"
 
@@ -7948,15 +8045,21 @@ class RubricLoop:
                 content = seed_content
                 self._log(f"Warm start: scoring existing draft ({len(seed_content)} chars)...")
             else:
-                content = await self.generate_content(
-                    rubric, history, focus_areas,
-                    current_iter=i, max_iterations=self.max_iterations,
-                    regression_note=regression_note,
-                    context=context if context else None,
-                    structured_feedback=last_feedback_text,
-                    tradeoff_context=tradeoff_context,
-                    path_alternatives=last_path_text,
-                )
+                # Generation with rate limit retry and graceful degradation
+                try:
+                    content = await self._retry_on_rate_limit(
+                        self.generate_content,
+                        rubric, history, focus_areas,
+                        current_iter=i, max_iterations=self.max_iterations,
+                        regression_note=regression_note,
+                        context=context if context else None,
+                        structured_feedback=last_feedback_text,
+                        tradeoff_context=tradeoff_context,
+                        path_alternatives=last_path_text,
+                    )
+                except (RateLimitError, APIError) as e:
+                    self._log(f"  [ERROR] Generation failed after retries: {e}")
+                    break  # Exit loop — return best so far
 
             # Track verification iteration
             self.tracker.start_iteration(i, [f"{f[0]}.{f[1]}" for f in focus_areas])
@@ -7976,7 +8079,17 @@ class RubricLoop:
                 else:
                     self.scoring_agent.reset_system_prompt()
 
-            total, max_total, criterion_scores, critiques = await self.score_content(content, rubric)
+            # Scoring with rate limit retry and scoring error recovery
+            try:
+                total, max_total, criterion_scores, critiques = await self._retry_on_rate_limit(
+                    self.score_content, content, rubric,
+                )
+            except ScoringError as e:
+                self._log(f"  [ERROR] Scoring parse failure — skipping iteration {i}: {e}")
+                continue  # Skip this iteration, try next
+            except (RateLimitError, APIError) as e:
+                self._log(f"  [ERROR] Scoring failed after retries: {e}")
+                break  # Exit loop — return best so far
             percentage = total / max_total if max_total > 0 else 0
 
             # Record verification steps
