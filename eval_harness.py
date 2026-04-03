@@ -29,6 +29,7 @@ import signal
 import statistics
 import sys
 import time
+import traceback
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -296,7 +297,7 @@ async def run_harness(
     model: str,
     verbose: bool,
     generate_rubrics: bool = True,
-) -> RunResult:
+) -> Tuple[RunResult, Rubric]:
     """Full rubric loop run with fresh rubric generation.
 
     Always generates a fresh rubric via the full pipeline (research,
@@ -332,9 +333,25 @@ async def run_harness(
     )
     harness_secs = time.monotonic() - t0
 
-    best_iter = max(loop_result.history, key=lambda h: h.percentage)
     # Use the rubric from the loop result (may differ if generate_rubrics=True)
     scoring_rubric = loop_result.rubric if hasattr(loop_result, 'rubric') and loop_result.rubric else rubric
+
+    # Guard against empty history (e.g. generation pipeline failure)
+    if not loop_result.history:
+        if verbose:
+            print(f"  [harness] loop returned empty history — generation pipeline failure")
+        return RunResult(
+            output=loop_result.output or "",
+            score=0.0,
+            max_score=scoring_rubric.total_points,
+            percentage=0.0,
+            criterion_results=[],
+            wall_seconds=harness_secs,
+            iterations=0,
+            improvement_summary=["Empty history — generation pipeline failure"],
+        ), scoring_rubric
+
+    best_iter = max(loop_result.history, key=lambda h: h.percentage)
 
     if verbose:
         print(f"  [harness] loop done: {best_iter.percentage:.1%} "
@@ -374,7 +391,7 @@ async def run_harness(
         wall_seconds=harness_secs,
         iterations=loop_result.iterations,
         improvement_summary=loop_result.improvement_summary,
-    )
+    ), scoring_rubric
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -740,7 +757,7 @@ async def run_eval(
                 save_results(task_results, output_path)
 
             if do_harn:
-                existing.harness = await run_harness(
+                existing.harness, harness_rubric = await run_harness(
                     scorer=scorer,
                     rubric=rubric,
                     max_iter=max_iter,
@@ -750,9 +767,25 @@ async def run_eval(
                 )
                 save_results(task_results, output_path)
 
+                # When generating fresh rubrics, the baseline was scored against
+                # the sample rubric but the harness against the generated one.
+                # Re-score the baseline against the generated rubric so deltas
+                # are apples-to-apples.
+                if generate_rubrics and existing.baseline and harness_rubric is not rubric:
+                    print(f"  [rescore] re-scoring baseline against generated rubric for fair comparison…")
+                    total, max_total, cr_list = await score_against_rubric(
+                        scorer, existing.baseline.output, harness_rubric
+                    )
+                    pct = total / max_total if max_total > 0 else 0.0
+                    existing.baseline.score = total
+                    existing.baseline.max_score = max_total
+                    existing.baseline.percentage = pct
+                    existing.baseline.criterion_results = cr_list
+                    save_results(task_results, output_path)
+
             # In harness-only mode with existing baseline: re-score the stored
             # baseline output against the same rubric for a fair comparison.
-            if harness_only and existing.baseline and existing.harness:
+            elif harness_only and existing.baseline and existing.harness:
                 print(f"  [harness-only] re-scoring stored baseline output…")
                 total, max_total, cr_list = await score_against_rubric(
                     scorer, existing.baseline.output, rubric
@@ -770,7 +803,8 @@ async def run_eval(
         except Exception as exc:
             is_rate_limit = "rate_limit" in str(exc).lower() or "429" in str(exc)
             print(f"  [ERROR] {task_key}: {exc}")
-            existing.error = str(exc)
+            traceback.print_exc()
+            existing.error = f"{type(exc).__name__}: {exc}"
             # On rate limit: save partial results and pause before next task
             if is_rate_limit:
                 # Preserve best harness iteration if available (graceful degradation)
