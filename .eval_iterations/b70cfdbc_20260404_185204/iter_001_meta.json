@@ -1,0 +1,186 @@
+{
+  "run_id": "b70cfdbc_20260404_185204",
+  "iteration": 1,
+  "total_score": 45.4,
+  "max_score": 170,
+  "percentage": 0.26705882352941174,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/b70cfdbc_20260404_185204/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "rule_of_40_compliance_depth",
+      "points_earned": 3.52,
+      "max_points": 6,
+      "percentage": 0.5874999999999999
+    },
+    {
+      "criterion_id": "nrr_expansion_mechanics",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "arr_growth_trajectory_modeling",
+      "points_earned": 3.41,
+      "max_points": 7,
+      "percentage": 0.48749999999999993
+    },
+    {
+      "criterion_id": "revenue_quality_recognition",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "sales_efficiency_productivity",
+      "points_earned": 0.97,
+      "max_points": 6,
+      "percentage": 0.16249999999999998
+    },
+    {
+      "criterion_id": "gtm_scaling_execution",
+      "points_earned": 2.0,
+      "max_points": 5,
+      "percentage": 0.4
+    },
+    {
+      "criterion_id": "competitive_moat_durability",
+      "points_earned": 3.97,
+      "max_points": 6,
+      "percentage": 0.6624999999999999
+    },
+    {
+      "criterion_id": "product_roadmap_alignment",
+      "points_earned": 2.55,
+      "max_points": 6,
+      "percentage": 0.425
+    },
+    {
+      "criterion_id": "risk_assessment_mitigation",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "capital_efficiency_burn",
+      "points_earned": 2.92,
+      "max_points": 6,
+      "percentage": 0.48749999999999993
+    },
+    {
+      "criterion_id": "investment_thesis_narrative",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "financial_operational_coherence",
+      "points_earned": 4.0,
+      "max_points": 6,
+      "percentage": 0.6666666666666666
+    },
+    {
+      "criterion_id": "competitive_risk_product_alignment",
+      "points_earned": 2.62,
+      "max_points": 5,
+      "percentage": 0.5249999999999999
+    },
+    {
+      "criterion_id": "valuation_metrics_justification",
+      "points_earned": 1.69,
+      "max_points": 5,
+      "percentage": 0.3375
+    },
+    {
+      "criterion_id": "cac_payback_sophistication",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "market_strategy_depth",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "executive_communication_quality",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "investment_sophistication",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "competitive_intelligence_depth",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "organizational_scaling_execution",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "saas_unit_economics_sophistication",
+      "points_earned": 0.0,
+      "max_points": 17,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "competitive_strategy_depth",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "executive_strategic_maturity",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_narrative_depth",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "investor_sophistication_alignment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "operational_execution_realism",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "market_sizing_penetration_analysis",
+      "points_earned": 0.0,
+      "max_points": 15,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_infrastructure_scaling",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "customer_success_retention_operations",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

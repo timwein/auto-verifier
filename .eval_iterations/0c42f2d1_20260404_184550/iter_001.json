@@ -1,0 +1,686 @@
+{
+  "run_id": "0c42f2d1_20260404_184550",
+  "iteration": 1,
+  "content": "# Step-by-Step Debugging Walkthrough: PostgreSQL Connection Pool Race Condition\n\n## Overview\n\nThis walkthrough addresses \nintermittent 500 errors caused by race conditions in PostgreSQL connection pools under high concurrent load\n. We'll systematically identify, isolate, and resolve these issues while maintaining production safety.\n\n## 1. Initial Problem Assessment\n\n### Step 1.1: Confirm Race Condition Symptoms\n\nCheck your application logs for these specific error patterns:\n\n```bash\n# Look for these error messages indicating pool exhaustion\ngrep -E \"(timeout exceeded when trying to connect|connection terminated|pool exhausted)\" app.log\n```\n\nKey indicators of race conditions:\n- \nConnection leaks where clients aren't properly released back to the pool\n\n- \nConnection timeouts due to race conditions between timeout handlers and connection establishment\n\n- \nPool sometimes terminating idle connections that have just been checked out\n\n\n### Step 1.2: Gather Pool Metrics\n\nMonitor your current pool state using these metrics:\n\n```javascript\n// Add to your existing Express routes\napp.get('/debug/pool-stats', (req, res) => {\n  res.json({\n    totalCount: pool.totalCount,     // Total connections\n    idleCount: pool.idleCount,       // Available connections\n    waitingCount: pool.waitingCount, // Queued requests\n    timestamp: new Date().toISOString()\n  });\n});\n```\n\n**Production Safety Note**: \nImplement health check endpoints that expose pool stats for monitoring without impacting performance\n.\n\n## 2. Database-Level Investigation\n\n### Step 2.1: Monitor Active Connections\n\n\nUse pg_stat_activity to get real-time information about all active sessions connected to the database\n:\n\n```sql\n-- Check for connection leaks and suspicious states\nSELECT \n    pid,\n    usename,\n    application_name,\n    client_addr,\n    state,\n    NOW() - backend_start AS connection_age,\n    NOW() - query_start AS query_duration,\n    query\nFROM pg_stat_activity \nWHERE datname = 'your_database_name'\n    AND state != 'idle'\nORDER BY connection_age DESC;\n```\n\n### Step 2.2: Identify Problematic Connection Patterns\n\n\nLook for connections that timeout during establishment but maintain idle connections on the PostgreSQL side\n:\n\n```sql\n-- Find potentially leaked connections\nSELECT * FROM pg_stat_activity \nWHERE query_start IS NULL \n    AND state = 'idle'\n    AND backend_start < NOW() - INTERVAL '5 minutes';\n```\n\n\nMonitor for \"idle in transaction\" states which can hold locks and affect performance\n:\n\n```sql\n-- Critical: Find long-running idle transactions\nSELECT \n    pid,\n    usename,\n    application_name,\n    NOW() - xact_start AS txn_duration,\n    state,\n    query\nFROM pg_stat_activity \nWHERE state = 'idle in transaction'\n    AND NOW() - xact_start > INTERVAL '30 seconds'\nORDER BY txn_duration DESC;\n```\n\n## 3. Application Code Review\n\n### Step 3.1: Audit Connection Release Patterns\n\nReview your Express middleware for proper connection handling:\n\n```javascript\n// \u274c PROBLEMATIC - Race condition prone\napp.get('/users/:id', async (req, res) => {\n  const client = await pool.connect();\n  \n  try {\n    const result = await client.query('SELECT * FROM users WHERE id = $1', [req.params.id]);\n    res.json(result.rows[0]);\n  } catch (error) {\n    // \u274c Client not released on error\n    res.status(500).json({ error: error.message });\n  } finally {\n    // \u274c Release happens even if connect failed\n    client.release();\n  }\n});\n```\n\n```javascript\n// \u2705 CORRECT - Race condition resistant\napp.get('/users/:id', async (req, res) => {\n  let client;\n  \n  try {\n    client = await pool.connect();\n    const result = await client.query('SELECT * FROM users WHERE id = $1', [req.params.id]);\n    res.json(result.rows[0]);\n  } catch (error) {\n    console.error('Database error:', error);\n    res.status(500).json({ error: 'Internal server error' });\n  } finally {\n    if (client) {\n      client.release();\n    }\n  }\n});\n```\n\n### Step 3.2: Review Pool Configuration\n\n\nEnsure your pool configuration prevents common race conditions\n:\n\n```javascript\nconst pool = new Pool({\n  // Database connection\n  host: process.env.DB_HOST,\n  port: parseInt(process.env.DB_PORT) || 5432,\n  database: process.env.DB_NAME,\n  user: process.env.DB_USER,\n  password: process.env.DB_PASSWORD,\n  \n  // Pool sizing - Critical for preventing exhaustion\n  max: 20,                        // Total connections\n  min: 2,                         // Minimum idle connections\n  \n  // Timeout configuration - Prevents hanging connections\n  idleTimeoutMillis: 30000,       // Close idle connections after 30s\n  connectionTimeoutMillis: 5000,  // Fail fast if pool exhausted\n  \n  // Query timeout - Prevents runaway queries\n  statement_timeout: 30000,       // Kill queries > 30s\n  query_timeout: 30000,\n  \n  // Application identification for debugging\n  application_name: process.env.APP_NAME || 'nodejs-app',\n  \n  // Keep connections alive\n  allowExitOnIdle: false\n});\n```\n\n## 4. Advanced Race Condition Detection\n\n### Step 4.1: Add Connection Lifecycle Logging\n\n\nMonitor pool events to detect race conditions\n:\n\n```javascript\n// Add comprehensive pool event logging\npool.on('connect', (client) => {\n  console.log(`Pool: New connection created. Total: ${pool.totalCount}`);\n});\n\npool.on('acquire', (client) => {\n  console.log(`Pool: Connection acquired. Available: ${pool.idleCount}`);\n});\n\npool.on('release', (client) => {\n  console.log(`Pool: Connection released. Available: ${pool.idleCount}`);\n});\n\npool.on('remove', (client) => {\n  console.log(`Pool: Connection removed. Total: ${pool.totalCount}`);\n});\n\npool.on('error', (err, client) => {\n  console.error('Pool: Unexpected error on idle client', err);\n  // Critical: Report to error tracking service\n});\n```\n\n### Step 4.2: Implement Connection Tracking\n\nCreate a connection wrapper to detect leaks:\n\n```javascript\nclass ConnectionTracker {\n  constructor() {\n    this.activeConnections = new Map();\n  }\n  \n  async getConnection(requestId) {\n    const client = await pool.connect();\n    const connectionInfo = {\n      id: requestId,\n      acquiredAt: new Date(),\n      stack: new Error().stack // For debugging leaks\n    };\n    \n    this.activeConnections.set(client, connectionInfo);\n    \n    // Wrap release method to track cleanup\n    const originalRelease = client.release.bind(client);\n    client.release = () => {\n      this.activeConnections.delete(client);\n      originalRelease();\n    };\n    \n    return client;\n  }\n  \n  // Call this periodically to detect leaks\n  checkForLeaks() {\n    const now = new Date();\n    for (const [client, info] of this.activeConnections) {\n      const age = now - info.acquiredAt;\n      if (age > 60000) { // 1 minute\n        console.warn(`Potential connection leak detected:`, {\n          requestId: info.id,\n          age: age,\n          stack: info.stack\n        });\n      }\n    }\n  }\n}\n\nconst tracker = new ConnectionTracker();\n\n// Use in middleware\napp.use(async (req, res, next) => {\n  req.getDbConnection = () => tracker.getConnection(req.headers['x-request-id'] || 'unknown');\n  next();\n});\n\n// Periodic leak detection\nsetInterval(() => tracker.checkForLeaks(), 30000);\n```\n\n## 5. Production-Safe Monitoring\n\n### Step 5.1: Implement Health Checks\n\n\nCreate comprehensive health checks that expose pool statistics for monitoring\n:\n\n```javascript\napp.get('/health/database', async (req, res) => {\n  try {\n    // Test connectivity with a simple query\n    const start = Date.now();\n    await pool.query('SELECT 1');\n    const responseTime = Date.now() - start;\n    \n    // Gather pool metrics\n    const poolStats = {\n      totalConnections: pool.totalCount,\n      idleConnections: pool.idleCount,\n      waitingRequests: pool.waitingCount,\n      responseTimeMs: responseTime\n    };\n    \n    // Health determination\n    const isHealthy = \n      poolStats.waitingRequests < 5 && \n      poolStats.responseTimeMs < 1000 &&\n      poolStats.idleConnections > 0;\n    \n    res.status(isHealthy ? 200 : 503).json({\n      status: isHealthy ? 'healthy' : 'degraded',\n      pool: poolStats,\n      timestamp: new Date().toISOString()\n    });\n    \n  } catch (error) {\n    res.status(503).json({\n      status: 'unhealthy',\n      error: error.message,\n      timestamp: new Date().toISOString()\n    });\n  }\n});\n```\n\n### Step 5.2: Add Pool Metrics Collection\n\n\nMonitor pool metrics as first-class production metrics\n:\n\n```javascript\n// Metrics collection for external monitoring\nclass PoolMetrics {\n  constructor(pool, metricsClient) {\n    this.pool = pool;\n    this.metrics = metricsClient;\n    \n    setInterval(() => this.collectMetrics(), 5000);\n  }\n  \n  collectMetrics() {\n    // Send to your monitoring system (Prometheus, DataDog, etc.)\n    this.metrics.gauge('db.pool.total_connections', this.pool.totalCount);\n    this.metrics.gauge('db.pool.idle_connections', this.pool.idleCount);\n    this.metrics.gauge('db.pool.waiting_requests', this.pool.waitingCount);\n    \n    // Alert if waiting queue consistently > 0\n    if (this.pool.waitingCount > 0) {\n      this.metrics.increment('db.pool.queue_backup');\n    }\n  }\n}\n```\n\n## 6. Race Condition Resolution\n\n### Step 6.1: Fix Common Race Condition Sources\n\n\nAddress the race condition in pool connection setup where async operations aren't properly coordinated\n:\n\n```javascript\n// \u2705 Use onConnect for proper connection setup\nconst pool = new Pool({\n  // ... other config\n  onConnect: async (client) => {\n    // This ensures setup completes before connection is available\n    await client.query(\"SET search_path TO app_schema, public\");\n    await client.query(\"SET application_name TO $1\", [process.env.APP_NAME]);\n  }\n});\n```\n\n\nFix idle timeout race conditions by ensuring proper timeout management\n:\n\n```javascript\nconst pool = new Pool({\n  // ... other config\n  \n  // Prevent race conditions with idle timeouts\n  idleTimeoutMillis: 30000,\n  \n  // Add connection validation\n  connectionTimeoutMillis: 5000,\n  \n  // Disable problematic idle timeout if race conditions persist\n  // idleTimeoutMillis: 0,  // Use only as temporary fix\n});\n```\n\n### Step 6.2: Implement Connection Pool Sizing Strategy\n\n\nCalculate optimal pool sizes based on system resources and connection limits\n:\n\n```javascript\nconst os = require('os');\n\nfunction calculateOptimalPoolSize() {\n  const cpuCount = os.cpus().length;\n  const maxDbConnections = parseInt(process.env.DB_MAX_CONNECTIONS) || 100;\n  const appInstances = parseInt(process.env.APP_INSTANCES) || 1;\n  const reservedConnections = 10; // For admin/monitoring\n  \n  // PostgreSQL formula: (cores * 2) + 1\n  const formulaMax = (cpuCount * 2) + 1;\n  \n  // Fair share calculation\n  const availableConnections = maxDbConnections - reservedConnections;\n  const fairShare = Math.floor(availableConnections / appInstances);\n  \n  // Use the lower of formula result and fair share\n  const recommendedMax = Math.min(formulaMax, fairShare);\n  \n  return {\n    max: recommendedMax,\n    min: Math.max(2, Math.floor(recommendedMax * 0.1))\n  };\n}\n\nconst poolSize = calculateOptimalPoolSize();\nconst pool = new Pool({\n  // ... connection config\n  max: poolSize.max,\n  min: poolSize.min\n});\n```\n\n## 7. Verification and Testing\n\n### Step 7.1: Load Test Race Condition Fixes\n\nCreate a simple load test to verify race condition resolution:\n\n```javascript\n// load-test.js\nconst { Pool } = require('pg');\nconst pool = new Pool(/* your config */);\n\nasync function simulateConcurrentLoad() {\n  const promises = [];\n  const concurrency = 50;\n  \n  console.log(`Starting ${concurrency} concurrent requests...`);\n  \n  for (let i = 0; i < concurrency; i++) {\n    promises.push(testConnection(i));\n  }\n  \n  try {\n    const results = await Promise.all(promises);\n    const failures = results.filter(r => !r.success);\n    \n    console.log(`Completed: ${results.length - failures.length}/${results.length}`);\n    console.log(`Pool state: ${pool.totalCount} total, ${pool.idleCount} idle, ${pool.waitingCount} waiting`);\n    \n    if (failures.length > 0) {\n      console.log('Failures:', failures);\n    }\n  } catch (error) {\n    console.error('Load test failed:', error);\n  }\n}\n\nasync function testConnection(requestId) {\n  let client;\n  try {\n    client = await pool.connect();\n    await client.query('SELECT $1::text as request_id', [requestId]);\n    return { success: true, requestId };\n  } catch (error) {\n    return { success: false, requestId, error: error.message };\n  } finally {\n    if (client) client.release();\n  }\n}\n\n// Run test\nsimulateConcurrentLoad();\n```\n\n### Step 7.2: Monitor for Resolution\n\nAfter implementing fixes, monitor these metrics:\n\n1. **Error Rate**: Should drop to near zero\n2. **Pool Waiting Count**: Should remain consistently at 0\n3. **Connection Establishment Time**: Should be consistent\n4. **Database Connection Count**: Should be stable via `pg_stat_activity`\n\n## 8. Prevention and Ongoing Monitoring\n\n### Step 8.1: Implement Alerting\n\nSet up alerts for race condition indicators:\n\n```javascript\n// Alert thresholds\nconst ALERT_THRESHOLDS = {\n  WAITING_REQUESTS: 5,\n  RESPONSE_TIME_MS: 2000,\n  IDLE_IN_TRANSACTION_SECONDS: 60\n};\n\nasync function checkPoolHealth() {\n  const waitingCount = pool.waitingCount;\n  \n  if (waitingCount > ALERT_THRESHOLDS.WAITING_REQUESTS) {\n    // Send alert to monitoring system\n    console.error(`ALERT: Pool queue backup - ${waitingCount} waiting requests`);\n  }\n}\n\nsetInterval(checkPoolHealth, 10000);\n```\n\n### Step 8.2: Establish Monitoring Baseline\n\n\nUse pool statistics in monitoring dashboards and alerting systems\n:\n\n```javascript\n// Export metrics for Prometheus/Grafana\napp.get('/metrics', (req, res) => {\n  const metrics = `\n# HELP nodejs_pool_connections_total Total database connections\n# TYPE nodejs_pool_connections_total gauge\nnodejs_pool_connections_total{state=\"total\"} ${pool.totalCount}\nnodejs_pool_connections_total{state=\"idle\"} ${pool.idleCount}\nnodejs_pool_connections_total{state=\"waiting\"} ${pool.waitingCount}\n\n# HELP nodejs_pool_health Pool health status (1=healthy, 0=unhealthy)\n# TYPE nodejs_pool_health gauge\nnodejs_pool_health ${pool.waitingCount === 0 ? 1 : 0}\n`;\n  \n  res.set('Content-Type', 'text/plain');\n  res.send(metrics);\n});\n```\n\n## Conclusion\n\nThis systematic approach addresses PostgreSQL connection pool race conditions by:\n\n1. **Identifying symptoms** through proper monitoring and logging\n2. **Isolating root causes** using database-level investigation\n3. **Fixing race conditions** through proper connection lifecycle management\n4. **Preventing recurrence** through comprehensive monitoring and alerting\n\nThe key to successful resolution is maintaining production safety throughout the debugging process while systematically addressing each potential race condition source. \nStart with basic monitoring, then incrementally add resilience features as your application grows\n.",
+  "total_score": 35.1,
+  "max_score": 87,
+  "percentage": 0.403448275862069,
+  "criterion_scores": [
+    {
+      "criterion_id": "pool_config_depth",
+      "points_earned": 5.25,
+      "max_points": 7,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "pool_sizing_methodology",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeout_configuration_specifics",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "connection_lifecycle_management",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pool_sizing_methodology: 75%x40% + timeout_configuration_specifics: 75%x35% + connection_lifecycle_management: 75%x25%",
+      "improvement_hints": [
+        "pool_sizing_methodology: 75% -> 80% (+0.1 pts)",
+        "timeout_configuration_specifics: 75% -> 80% (+0.1 pts)",
+        "connection_lifecycle_management: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "connection_antipattern_detection",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "async_race_condition_identification",
+      "points_earned": 3.0,
+      "max_points": 6,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "event_loop_analysis",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "shared_state_patterns",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "atomic_operation_understanding",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: event_loop_analysis: 50%x40% + shared_state_patterns: 50%x35% + atomic_operation_understanding: 50%x25%",
+      "improvement_hints": [
+        "event_loop_analysis: 50% -> 80% (+0.7 pts)",
+        "shared_state_patterns: 50% -> 80% (+0.6 pts)",
+        "atomic_operation_understanding: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "transaction_isolation_analysis",
+      "points_earned": 1.56,
+      "max_points": 5,
+      "percentage": 0.3125,
+      "sub_scores": [
+        {
+          "sub_id": "isolation_level_specification",
+          "raw_value": 0.25,
+          "weighted_value": 0.1125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "deadlock_prevention",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "transaction_boundary_management",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: isolation_level_specification: 25%x45% + deadlock_prevention: 25%x30% + transaction_boundary_management: 50%x25%",
+      "improvement_hints": [
+        "isolation_level_specification: 25% -> 80% (+1.2 pts)",
+        "deadlock_prevention: 25% -> 80% (+0.8 pts)",
+        "transaction_boundary_management: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "async_error_boundary_implementation",
+      "points_earned": 2.1,
+      "max_points": 6,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "async_error_patterns",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "unhandled_rejection_handling",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "express_error_middleware",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: async_error_patterns: 75%x35% + unhandled_rejection_handling: 0%x30% + express_error_middleware: 25%x35%",
+      "improvement_hints": [
+        "unhandled_rejection_handling: 0% -> 80% (+1.4 pts)",
+        "express_error_middleware: 25% -> 80% (+1.2 pts)",
+        "async_error_patterns: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "circuit_breaker_resilience",
+      "points_earned": 0.62,
+      "max_points": 5,
+      "percentage": 0.125,
+      "sub_scores": [
+        {
+          "sub_id": "circuit_breaker_implementation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "graceful_degradation",
+          "raw_value": 0.25,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: circuit_breaker_implementation: 0%x50% + graceful_degradation: 25%x50%",
+      "improvement_hints": [
+        "circuit_breaker_implementation: 0% -> 80% (+2.0 pts)",
+        "graceful_degradation: 25% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "structured_logging_correlation",
+      "points_earned": 3.0,
+      "max_points": 6,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "correlation_id_implementation",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "structured_logging_format",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "database_query_instrumentation",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: correlation_id_implementation: 50%x35% + structured_logging_format: 50%x35% + database_query_instrumentation: 50%x30%",
+      "improvement_hints": [
+        "correlation_id_implementation: 50% -> 80% (+0.6 pts)",
+        "structured_logging_format: 50% -> 80% (+0.6 pts)",
+        "database_query_instrumentation: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "metrics_monitoring_implementation",
+      "points_earned": 2.56,
+      "max_points": 5,
+      "percentage": 0.5125000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "pool_metrics_specification",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "performance_percentiles",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_rate_alerting",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pool_metrics_specification: 75%x40% + performance_percentiles: 25%x35% + error_rate_alerting: 50%x25%",
+      "improvement_hints": [
+        "performance_percentiles: 25% -> 80% (+1.0 pts)",
+        "error_rate_alerting: 50% -> 80% (+0.4 pts)",
+        "pool_metrics_specification: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "systematic_debugging_approach",
+      "points_earned": 2.85,
+      "max_points": 6,
+      "percentage": 0.475,
+      "sub_scores": [
+        {
+          "sub_id": "reproduction_methodology",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "hypothesis_driven_investigation",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "debugging_tool_proficiency",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: reproduction_methodology: 75%x30% + hypothesis_driven_investigation: 50%x30% + debugging_tool_proficiency: 25%x40%",
+      "improvement_hints": [
+        "debugging_tool_proficiency: 25% -> 80% (+1.3 pts)",
+        "hypothesis_driven_investigation: 50% -> 80% (+0.5 pts)",
+        "reproduction_methodology: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "load_testing_reproduction",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "concurrency_test_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "environment_replication",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "failure_criteria_definition",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: concurrency_test_design: 75%x40% + environment_replication: 50%x35% + failure_criteria_definition: 50%x25%",
+      "improvement_hints": [
+        "environment_replication: 50% -> 80% (+0.4 pts)",
+        "failure_criteria_definition: 50% -> 80% (+0.3 pts)",
+        "concurrency_test_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "postgresql_connection_internals",
+      "points_earned": 2.06,
+      "max_points": 5,
+      "percentage": 0.4125,
+      "sub_scores": [
+        {
+          "sub_id": "max_connections_analysis",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "connection_overhead_understanding",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "server_connection_lifecycle",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: max_connections_analysis: 50%x40% + connection_overhead_understanding: 25%x35% + server_connection_lifecycle: 50%x25%",
+      "improvement_hints": [
+        "connection_overhead_understanding: 25% -> 80% (+1.0 pts)",
+        "max_connections_analysis: 50% -> 80% (+0.6 pts)",
+        "server_connection_lifecycle: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "isolation_level_performance_impact",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "isolation_level_comparison",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "concurrency_recommendation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: isolation_level_comparison: 0%x60% + concurrency_recommendation: 0%x40%",
+      "improvement_hints": [
+        "isolation_level_comparison: 0% -> 80% (+1.9 pts)",
+        "concurrency_recommendation: 0% -> 80% (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "nodejs_event_loop_optimization",
+      "points_earned": 1.19,
+      "max_points": 5,
+      "percentage": 0.2375,
+      "sub_scores": [
+        {
+          "sub_id": "event_loop_monitoring",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "async_pattern_optimization",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "clustering_strategy",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: event_loop_monitoring: 0%x40% + async_pattern_optimization: 50%x35% + clustering_strategy: 25%x25%",
+      "improvement_hints": [
+        "event_loop_monitoring: 0% -> 80% (+1.6 pts)",
+        "clustering_strategy: 25% -> 80% (+0.7 pts)",
+        "async_pattern_optimization: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "memory_leak_profiling",
+      "points_earned": 0.95,
+      "max_points": 4,
+      "percentage": 0.2375,
+      "sub_scores": [
+        {
+          "sub_id": "heap_profiling_methodology",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "connection_memory_tracking",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "async_leak_patterns",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: heap_profiling_methodology: 0%x40% + connection_memory_tracking: 50%x35% + async_leak_patterns: 25%x25%",
+      "improvement_hints": [
+        "heap_profiling_methodology: 0% -> 80% (+1.3 pts)",
+        "async_leak_patterns: 25% -> 80% (+0.6 pts)",
+        "connection_memory_tracking: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "sre_golden_signals_alignment",
+      "points_earned": 1.56,
+      "max_points": 5,
+      "percentage": 0.3125,
+      "sub_scores": [
+        {
+          "sub_id": "latency_sli_definition",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_rate_sli",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "saturation_monitoring",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "traffic_measurement",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: latency_sli_definition: 25%x30% + error_rate_sli: 25%x25% + saturation_monitoring: 50%x25% + traffic_measurement: 25%x20%",
+      "improvement_hints": [
+        "latency_sli_definition: 25% -> 80% (+0.8 pts)",
+        "error_rate_sli: 25% -> 80% (+0.7 pts)",
+        "traffic_measurement: 25% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "production_debugging_safety",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "tool_selection",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "performance_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "sampling_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: tool_selection: 0%x40% + performance_impact: 0%x30% + sampling_strategy: 0%x30%",
+      "improvement_hints": [
+        "tool_selection: 0% -> 80% (+1.3 pts)",
+        "performance_impact: 0% -> 80% (+1.0 pts)",
+        "sampling_strategy: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "postgresql_cancellation_handling",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "cancellation_detection",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "connection_isolation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cancellation_patterns",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: cancellation_detection: 0%x40% + connection_isolation: 0%x30% + cancellation_patterns: 0%x30%",
+      "improvement_hints": [
+        "cancellation_detection: 0% -> 80% (+1.3 pts)",
+        "connection_isolation: 0% -> 80% (+1.0 pts)",
+        "cancellation_patterns: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

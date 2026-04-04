@@ -1,0 +1,90 @@
+{
+  "run_id": "5ac7219a_20260404_184845",
+  "iteration": 2,
+  "total_score": 61.809999999999995,
+  "max_score": 77,
+  "percentage": 0.8027272727272726,
+  "delta_from_prior": 0.2617,
+  "focus_areas": [
+    "iam_policy_composition.policy_data_source_usage",
+    "iam_policy_composition.layered_composition",
+    "iam_policy_composition.least_privilege_granularity",
+    "ecs_security_configuration.container_security_options",
+    "alb_security_integration.cloudfront_integration"
+  ],
+  "content_path": ".eval_iterations/5ac7219a_20260404_184845/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "iam_policy_composition",
+      "points_earned": 5.34,
+      "max_points": 7,
+      "percentage": 0.7625
+    },
+    {
+      "criterion_id": "vpc_endpoints_private_api",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "terraform_anti_patterns",
+      "points_earned": 8.0,
+      "max_points": 8,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "ecs_security_configuration",
+      "points_earned": 4.38,
+      "max_points": 7,
+      "percentage": 0.625
+    },
+    {
+      "criterion_id": "alb_security_integration",
+      "points_earned": 3.38,
+      "max_points": 6,
+      "percentage": 0.5625
+    },
+    {
+      "criterion_id": "rds_security_hardening",
+      "points_earned": 1.75,
+      "max_points": 7,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "state_management_security",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "module_architecture_design",
+      "points_earned": 5.7,
+      "max_points": 6,
+      "percentage": 0.95
+    },
+    {
+      "criterion_id": "workspace_configuration_strategy",
+      "points_earned": 4.19,
+      "max_points": 5,
+      "percentage": 0.8375
+    },
+    {
+      "criterion_id": "role_based_credential_architecture",
+      "points_earned": 6.9,
+      "max_points": 8,
+      "percentage": 0.8625
+    },
+    {
+      "criterion_id": "monitoring_security_integration",
+      "points_earned": 5.17,
+      "max_points": 6,
+      "percentage": 0.8624999999999999
+    },
+    {
+      "criterion_id": "resource_tagging_strategy",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    }
+  ]
+}

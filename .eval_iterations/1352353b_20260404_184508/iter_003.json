@@ -1,0 +1,580 @@
+{
+  "run_id": "1352353b_20260404_184508",
+  "iteration": 3,
+  "content": "# Federated GraphQL E-Commerce Schema Design\n\n## Overview\nThis design presents a comprehensive federated GraphQL schema for an e-commerce platform, organized across 4 autonomous subgraphs with proper entity resolution, authentication/authorization directives, and robust N+1 prevention strategies.\n\n## Architecture Principles\n\n\nGraphQL federation aligns naturally with Domain Driven Design (DDD) principles by allowing teams to maintain clear boundaries around their domains\n, and \nin a supergraph, the constituent APIs are called subgraphs. Different subgraphs in the same supergraph can use different server implementations and even different programming languages\n.\n\nThe schema follows these core principles:\n- \nDesign Subgraphs Around Domains: Use domain-driven design to define clear ownership boundaries and avoid overlapping responsibilities\n\n- \nThe federated schema design process often begins by thinking about what the initial entity types will be and how they will be referenced and extended throughout the graph\n\n- \nPlatform thinking means designing a graph for multiple clients\n\n\n## Network Security Architecture\n\n### Private Network Deployment\n\nFor this reason, subgraphs should operate behind the router with protections like network isolation and authentication preventing direct subgraph access\n. \nBest practice: Subgraphs should only accept traffic from trusted sources (the supergraph or internal network) often enforced via network policies, mTLS, or API gateways\n.\n\n**Network Isolation Strategy:**\n- All subgraphs deployed in private network segments (VPC private subnets)\n- Federation gateway as the only public ingress point\n- \nEnforce this at the network level (security groups, VPC policies, Kubernetes NetworkPolicy objects) \u2014 not just by convention\n\n- No direct client-to-subgraph access permitted\n\n### Gateway Authentication Layer\n\nBest practice: Authenticate once at the supergraph. Then forward identity metadata (e.g., user ID, claims, roles) to subgraphs via trusted headers\n:\n\n```yaml\n# Gateway Network Security Configuration\nnetwork_policies:\n  ingress:\n    - Gateway receives all external traffic on port 443\n    - mTLS termination at gateway level\n    - Client certificate validation for enterprise clients\n  \n  internal_communication:\n    - \nmutual TLS (mTLS) securing internal service communication\n\n    - Subgraphs accept only gateway-signed requests\n    - Network ACLs prevent direct subgraph access\n    \n  authentication_flow:\n    1. Gateway validates JWT tokens and client certificates\n    2. Gateway forwards authenticated context via signed headers\n    3. Subgraphs trust pre-authenticated requests from gateway\n```\n\n### Trusted Source Verification\n\nTo restrict subgraph communication to only your router, Apollo recommends creating a separate shared secret for each of your subgraphs. Whenever your router queries a subgraph, it includes that subgraph's corresponding secret in an HTTP header\n:\n\n```javascript\n// Subgraph request verification\nconst verifyGatewayRequest = (req, res, next) => {\n  const routerSecret = req.headers['router-authorization'];\n  const expectedSecret = process.env.ROUTER_SECRET;\n  \n  if (!routerSecret || routerSecret !== expectedSecret) {\n    return res.status(403).json({ \n      error: 'Unauthorized: Invalid router signature' \n    });\n  }\n  \n  // Verify mTLS client certificate\n  const clientCert = req.connection.getPeerCertificate();\n  if (!clientCert.authorized) {\n    return res.status(403).json({\n      error: 'Unauthorized: Invalid client certificate'\n    });\n  }\n  \n  next();\n};\n```\n\n## Subgraph 1: Users Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@tag\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Custom validation directives for enhanced input validation\ndirective @email on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @minLength(min: Int!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @phoneNumber on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error types for comprehensive error handling\ntype ValidationError {\n  field: String!\n  code: ErrorCode!\n  message: String!\n  input: String\n  # Federation error context\n  subgraph: String!\n  federationTrace: String\n}\n\ntype AuthenticationError {\n  code: ErrorCode!\n  message: String!\n  details: String\n  # Federation error context\n  subgraph: String!\n  federationTrace: String\n}\n\nenum ErrorCode {\n  INVALID_EMAIL\n  PASSWORD_TOO_WEAK\n  USERNAME_TAKEN\n  UNAUTHORIZED\n  INVALID_TOKEN\n  TOKEN_EXPIRED\n  VALIDATION_FAILED\n  RATE_LIMIT_EXCEEDED\n  INTERNAL_ERROR\n  FEDERATION_ERROR\n  SERVICE_UNAVAILABLE\n}\n\nunion UserOperationResult = User | ValidationError | AuthenticationError\n\ntype Query {\n  me: User @authenticated\n  users(limit: Int = 10, offset: Int = 0): [User!]! @auth(requires: ADMIN)\n  user(id: ID!): User @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  login(email: String! @email, password: String! @minLength(min: 8)): AuthPayload!\n  register(input: UserInput!): UserOperationResult!\n  updateProfile(input: ProfileUpdateInput!): User! @authenticated\n  deleteAccount(id: ID!): Boolean! @auth(requires: ADMIN)\n}\n\ntype User @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  email: String!\n  username: String!\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  role: Role!\n  isActive: Boolean!\n  profile: UserProfile\n  # Personal data requiring higher permissions\n  personalData: PersonalData @auth(requires: ADMIN)\n}\n\ntype UserProfile @shareable {\n  avatar: String\n  bio: String\n  preferences: JSON\n  notifications: NotificationSettings\n}\n\ntype PersonalData {\n  fullAddress: Address\n  dateOfBirth: Date\n  lastLoginAt: DateTime\n  ipAddress: String\n}\n\ntype NotificationSettings {\n  email: Boolean!\n  push: Boolean!\n  sms: Boolean!\n}\n\ntype Address {\n  street: String\n  city: String\n  state: String\n  postalCode: String\n  country: String!\n}\n\ntype AuthPayload {\n  token: String!\n  user: User!\n  expiresAt: DateTime!\n}\n\ninput UserInput {\n  email: String! @email\n  username: String! @minLength(min: 3)\n  password: String! @minLength(min: 8)\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n}\n\ninput ProfileUpdateInput {\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n  profile: UserProfileInput\n}\n\ninput UserProfileInput {\n  avatar: String\n  bio: String @minLength(min: 1)\n  preferences: JSON\n  notifications: NotificationSettingsInput\n}\n\ninput NotificationSettingsInput {\n  email: Boolean\n  push: Boolean\n  sms: Boolean\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation with Enhanced Caching\n```javascript\n// users/src/dataloaders/userLoader.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout } from './resilience/timeout.js';\n\nexport const createUserLoader = () => new DataLoader(async (userIds) => {\n  const users = await withTimeout(\n    createCircuitBreaker('user-batch-load')(\n      () => UserService.findByIds(userIds)\n    ),\n    5000\n  );\n  return userIds.map(id => users.find(user => user.id === id));\n}, {\n  cacheKeyFn: (key) => key.toString(),\n  batchScheduleFn: (callback) => setTimeout(callback, 1),\n  // Enhanced TTL configuration for cache policies\n  maxBatchSize: 100,\n  cacheMap: new Map(),\n  ttl: 300000, // 5 minute TTL for user data\n  clearCache: (loader) => {\n    // Cache warming for frequently accessed users\n    return UserService.getFrequentlyAccessedUsers()\n      .then(users => {\n        users.forEach(user => {\n          loader.prime(user.id, user);\n        });\n      });\n  }\n});\n\nexport const createUsersByEmailLoader = () => new DataLoader(async (emails) => {\n  const users = await withTimeout(\n    createCircuitBreaker('user-email-load')(\n      () => UserService.findByEmails(emails)\n    ),\n    5000\n  );\n  return emails.map(email => users.find(user => user.email === email));\n}, {\n  ttl: 600000, // 10 minute TTL for email lookups\n  cacheKeyFn: (email) => email.toLowerCase()\n});\n\n// Enhanced cache invalidation with cross-service coordination\nexport const invalidateUserCache = (userId) => {\n  const loaders = getContextLoaders();\n  loaders.userById.clear(userId);\n  // Also clear related caches across federation boundary\n  loaders.ordersByCustomer.clear(userId);\n  loaders.paymentsByCustomer.clear(userId);\n  \n  // Cache warming strategy\n  UserService.findById(userId)\n    .then(user => {\n      if (user) {\n        loaders.userById.prime(userId, user);\n      }\n    })\n    .catch(() => {\n      // Silent failure for cache warming\n    });\n};\n```\n\n### Resilience Patterns\n```javascript\n// users/src/resilience/circuitBreaker.js\nimport CircuitBreaker from 'opossum';\n\nconst circuitBreakerOptions = {\n  timeout: 3000,\n  errorThresholdPercentage: 50,\n  resetTimeout: 30000,\n  fallback: (identifier) => {\n    console.error(`Circuit breaker opened for ${identifier}`);\n    throw new Error(`Service temporarily unavailable: ${identifier}`);\n  }\n};\n\nexport const createCircuitBreaker = (identifier) => {\n  return new CircuitBreaker(\n    async (fn) => await fn(),\n    { ...circuitBreakerOptions, name: identifier }\n  );\n};\n\n// Graceful degradation for non-critical operations\nexport const withGracefulDegradation = async (operation, fallbackData) => {\n  try {\n    return await operation();\n  } catch (error) {\n    console.warn('Operation failed, returning fallback data:', error.message);\n    return fallbackData;\n  }\n};\n\n// users/src/resilience/timeout.js\nexport const withTimeout = async (promise, timeoutMs) => {\n  return Promise.race([\n    promise,\n    new Promise((_, reject) => \n      setTimeout(() => reject(new Error('Operation timeout')), timeoutMs)\n    )\n  ]);\n};\n```\n\n### Authentication Context Implementation\n```javascript\n// users/src/auth/context.js\nimport jwt from 'jsonwebtoken';\nimport { createCircuitBreaker } from '../resilience/circuitBreaker.js';\n\nexport const createAuthContext = async ({ req }) => {\n  const token = req.headers.authorization?.replace('Bearer ', '');\n  \n  if (!token) {\n    return { user: null, isAuthenticated: false };\n  }\n\n  try {\n    // JWT validation with circuit breaker protection\n    const decoded = await createCircuitBreaker('jwt-validation')(\n      () => jwt.verify(token, process.env.JWT_SECRET)\n    );\n    \n    const user = await createCircuitBreaker('user-lookup')(\n      () => UserService.findById(decoded.userId)\n    );\n    \n    return {\n      user,\n      isAuthenticated: true,\n      role: user.role,\n      // Enhanced auth context caching for request lifecycle\n      authCache: new Map(),\n      // Federation auth performance optimization\n      batchedAuthChecks: new Map()\n    };\n  } catch (error) {\n    // Structured error handling with federation context\n    if (error.name === 'TokenExpiredError') {\n      throw new GraphQLError('Token expired', {\n        extensions: { \n          code: 'TOKEN_EXPIRED',\n          subgraph: 'users',\n          federationTrace: req.headers['apollo-federation-include-trace']\n        }\n      });\n    }\n    throw new GraphQLError('Invalid token', {\n      extensions: { \n        code: 'INVALID_TOKEN',\n        subgraph: 'users',\n        federationTrace: req.headers['apollo-federation-include-trace']\n      }\n    });\n  }\n};\n```\n\n## Subgraph 2: Products Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Enhanced validation directives\ndirective @range(min: Float, max: Float) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @positiveFloat on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error handling with federation context\ntype ProductValidationError {\n  field: String!\n  code: ProductErrorCode!\n  message: String!\n  value: String\n  # Federation error boundary information\n  subgraph: String!\n  federationTrace: String\n}\n\nenum ProductErrorCode {\n  SKU_EXISTS\n  INVALID_PRICE\n  INVALID_INVENTORY\n  CATEGORY_NOT_FOUND\n  BRAND_NOT_FOUND\n  IMAGE_UPLOAD_FAILED\n  FEDERATION_ERROR\n  SERVICE_UNAVAILABLE\n}\n\nunion ProductOperationResult = Product | ProductValidationError\n\ntype Query {\n  products(\n    filter: ProductFilter\n    sort: ProductSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20 @range(min: 1, max: 100)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): ProductConnection!\n  product(id: ID, sku: String): Product\n  categories: [Category!]!\n  category(id: ID!): Category\n  searchProducts(query: String! @minLength(min: 2), limit: Int = 20 @range(min: 1, max: 50)): [Product!]!\n}\n\ntype Mutation {\n  createProduct(input: CreateProductInput!): ProductOperationResult! @auth(requires: ADMIN)\n  updateProduct(id: ID!, input: UpdateProductInput!): ProductOperationResult! @auth(requires: ADMIN)\n  deleteProduct(id: ID!): Boolean! @auth(requires: ADMIN)\n  updateInventory(id: ID!, quantity: Int! @range(min: 0, max: 999999)): Product! @auth(requires: ADMIN)\n}\n\ntype Product @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n  name: String!\n  description: String\n  shortDescription: String\n  # Enhanced field dependency patterns for business operations\n  price: Money!\n  compareAtPrice: Money\n  costPerItem: Money @auth(requires: ADMIN)\n  # Provide price data to other subgraphs for calculations\n  discountedPrice: Money @provides(fields: \"price compareAtPrice\")\n  images: [ProductImage!]!\n  category: Category\n  brand: Brand\n  tags: [String!]!\n  attributes: [ProductAttribute!]!\n  variants: [ProductVariant!]!\n  inventory: Inventory!\n  seo: SEOData\n  isActive: Boolean!\n  isFeatured: Boolean!\n  weight: Float @positiveFloat\n  dimensions: Dimensions\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  # Metrics requiring admin access\n  analytics: ProductAnalytics @auth(requires: ADMIN)\n}\n\ntype ProductVariant @key(fields: \"id\") @key(fields: \"productId variantSku\") {\n  id: ID!\n  productId: ID!\n  variantSku: String!\n  sku: String!\n  title: String!\n  price: Money!\n  compareAtPrice: Money\n  inventory: Inventory!\n  image: ProductImage\n  attributes: [ProductAttribute!]!\n  isDefault: Boolean!\n}\n\ntype ProductImage {\n  id: ID!\n  url: String!\n  altText: String\n  width: Int\n  height: Int\n  position: Int!\n}\n\ntype Category @key(fields: \"id\") @shareable {\n  id: ID!\n  name: String!\n  slug: String!\n  description: String\n  image: String\n  parent: Category\n  children: [Category!]!\n  products(limit: Int = 20, offset: Int = 0): ProductConnection!\n}\n\ntype Brand @shareable {\n  id: ID!\n  name: String!\n  logo: String\n  description: String\n}\n\ntype ProductAttribute {\n  key: String!\n  value: String!\n  type: AttributeType!\n}\n\ntype Inventory {\n  quantity: Int!\n  reserved: Int!\n  available: Int!\n  tracked: Boolean!\n  allowBackorder: Boolean!\n  lowStockThreshold: Int\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype Dimensions {\n  length: Float! @positiveFloat\n  width: Float! @positiveFloat\n  height: Float! @positiveFloat\n  unit: String!\n}\n\ntype SEOData {\n  title: String\n  description: String @minLength(min: 1)\n  keywords: [String!]!\n}\n\ntype ProductAnalytics {\n  views: Int!\n  purchases: Int!\n  conversionRate: Float!\n  revenue: Money!\n  topVariant: ProductVariant\n}\n\ntype ProductConnection {\n  edges: [ProductEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: ProductAggregations\n}\n\ntype ProductEdge {\n  node: Product!\n  cursor: String!\n}\n\ntype ProductAggregations {\n  priceRange: PriceRange!\n  categories: [CategoryCount!]!\n  brands: [BrandCount!]!\n  attributes: [AttributeCount!]!\n}\n\ntype PriceRange {\n  min: Money!\n  max: Money!\n}\n\ntype CategoryCount {\n  category: Category!\n  count: Int!\n}\n\ntype BrandCount {\n  brand: Brand!\n  count: Int!\n}\n\ntype AttributeCount {\n  key: String!\n  value: String!\n  count: Int!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum AttributeType {\n  STRING\n  NUMBER\n  BOOLEAN\n  COLOR\n}\n\nenum ProductSortField {\n  NAME\n  PRICE\n  CREATED_AT\n  UPDATED_AT\n  POPULARITY\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\ninput ProductFilter {\n  categoryIds: [ID!]\n  brandIds: [ID!]\n  priceRange: PriceRangeInput\n  attributes: [AttributeFilterInput!]\n  tags: [String!]\n  isActive: Boolean\n  isFeatured: Boolean\n}\n\ninput PriceRangeInput {\n  min: Float @positiveFloat\n  max: Float @positiveFloat\n}\n\ninput AttributeFilterInput {\n  key: String! @minLength(min: 1)\n  values: [String!]!\n}\n\ninput ProductSort {\n  field: ProductSortField!\n  direction: SortDirection!\n}\n\ninput CreateProductInput {\n  name: String! @minLength(min: 1)\n  description: String @minLength(min: 1)\n  shortDescription: String @minLength(min: 1)\n  sku: String! @minLength(min: 1)\n  price: MoneyInput!\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!] @minLength(min: 1)\n  attributes: [ProductAttributeInput!]\n  inventory: InventoryInput!\n  images: [ProductImageInput!]\n  seo: SEODataInput\n  isActive: Boolean = false\n  isFeatured: Boolean = false\n  weight: Float @positiveFloat\n  dimensions: DimensionsInput\n}\n\ninput UpdateProductInput {\n  name: String @minLength(min: 1)\n  description: String @minLength(min: 1)\n  shortDescription: String @minLength(min: 1)\n  price: MoneyInput\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!] @minLength(min: 1)\n  attributes: [ProductAttributeInput!]\n  isActive: Boolean\n  isFeatured: Boolean\n  weight: Float @positiveFloat\n  dimensions: DimensionsInput\n  seo: SEODataInput\n}\n\ninput MoneyInput {\n  amount: Float! @positiveFloat\n  currency: String! @minLength(min: 3)\n}\n\ninput ProductAttributeInput {\n  key: String! @minLength(min: 1)\n  value: String! @minLength(min: 1)\n  type: AttributeType!\n}\n\ninput InventoryInput {\n  quantity: Int! @range(min: 0, max: 999999)\n  tracked: Boolean = true\n  allowBackorder: Boolean = false\n  lowStockThreshold: Int @range(min: 0, max: 1000)\n}\n\ninput ProductImageInput {\n  url: String! @minLength(min: 1)\n  altText: String @minLength(min: 1)\n  position: Int! @range(min: 0, max: 100)\n}\n\ninput DimensionsInput {\n  length: Float! @positiveFloat\n  width: Float! @positiveFloat\n  height: Float! @positiveFloat\n  unit: String! @minLength(min: 1)\n}\n\ninput SEODataInput {\n  title: String @minLength(min: 1)\n  description: String @minLength(min: 1)\n  keywords: [String!] @minLength(min: 1)\n}\n\nscalar DateTime\n```\n\n### DataLoader Implementation with Circuit Breakers\n```javascript\n// products/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout, withRetry, withGracefulDegradation } from './resilience/resilience.js';\n\nexport const createProductLoaders = () => ({\n  productById: new DataLoader(async (ids) => {\n    const products = await withTimeout(\n      withRetry(\n        createCircuitBreaker('product-batch-load')(\n          () => ProductService.findByIds(ids)\n        ),\n        3\n      ),\n      5000\n    );\n    return ids.map(id => products.find(p => p.id === id));\n  }, {\n    ttl: 300000, // 5 minute TTL\n    maxBatchSize: 100\n  }),\n  \n  productBySku: new DataLoader(async (skus) => {\n    const products = await withTimeout(\n      createCircuitBreaker('product-sku-load')(\n        () => ProductService.findBySkus(skus)\n      ),\n      5000\n    );\n    return skus.map(sku => products.find(p => p.sku === sku));\n  }, {\n    ttl: 600000, // 10 minute TTL for SKU lookups\n  }),\n  \n  categoryById: new DataLoader(async (ids) => {\n    const categories = await withTimeout(\n      createCircuitBreaker('category-load')(\n        () => CategoryService.findByIds(ids)\n      ),\n      3000\n    );\n    return ids.map(id => categories.find(c => c.id === id));\n  }, {\n    ttl: 900000, // 15 minute TTL for categories (rarely change)\n  }),\n  \n  productsByCategory: new DataLoader(async (categoryIds) => {\n    const productGroups = await withGracefulDegradation(\n      () => withTimeout(\n        createCircuitBreaker('products-by-category')(\n          () => ProductService.findByCategoryIds(categoryIds)\n        ),\n        5000\n      ),\n      categoryIds.reduce((acc, id) => ({ ...acc, [id]: [] }), {})\n    );\n    return categoryIds.map(id => productGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 180000 // 3 minute TTL for category products\n  }),\n  \n  inventoryByProduct: new DataLoader(async (productIds) => {\n    const inventories = await withTimeout(\n      createCircuitBreaker('inventory-load')(\n        () => InventoryService.findByProductIds(productIds)\n      ),\n      3000\n    );\n    return productIds.map(id => inventories.find(inv => inv.productId === id));\n  }, {\n    ttl: 60000, // 1 minute TTL for inventory (frequently changing)\n  }),\n  \n  variantsByProduct: new DataLoader(async (productIds) => {\n    const variantGroups = await withTimeout(\n      createCircuitBreaker('variants-load')(\n        () => ProductVariantService.findByProductIds(productIds)\n      ),\n      4000\n    );\n    return productIds.map(id => variantGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 300000 // 5 minute TTL for variants\n  })\n});\n\n// Enhanced cache invalidation with cross-service coordination\nexport const invalidateProductCache = async (productId, sku) => {\n  const loaders = getContextLoaders();\n  loaders.productById.clear(productId);\n  loaders.productBySku.clear(sku);\n  \n  // Invalidate related caches in other services via event publishing\n  await publishEvent('product.updated', { productId, sku });\n  \n  // Pre-warm cache with updated data\n  try {\n    const product = await ProductService.findById(productId);\n    if (product) {\n      loaders.productById.prime(productId, product);\n      loaders.productBySku.prime(sku, product);\n    }\n  } catch (error) {\n    console.warn('Cache warming failed:', error.message);\n  }\n};\n```\n\n### Query Execution Efficiency Analysis\n\n```javascript\n// products/src/optimization/queryAnalysis.js\n\n/**\n * Common E-commerce Query Execution Analysis\n * \n * Query: User browsing products with details\n * query ProductBrowsing {\n *   products(limit: 20) {\n *     edges {\n *       node {\n *         id name price inventory { available }\n *         category { name }\n *       }\n *     }\n *   }\n * }\n * \n * Execution Plan (3 service calls max):\n * 1. Products service: Fetch products with @provides(fields: \"price\")\n * 2. Products service: Batch load categories and inventory (parallel)\n * 3. No additional calls needed - all data resolved within domain\n */\n\n/**\n * Query: User order history with product details\n * query UserOrderHistory($userId: ID!) {\n *   user(id: $userId) {\n *     orders {\n *       id totalAmount\n *       items {\n *         product { name price }\n *         quantity\n *       }\n *     }\n *   }\n * }\n * \n * Optimized Execution Plan (3 service calls):\n * 1. Users service: Resolve user entity\n * 2. Orders service: Batch load orders with @provides(fields: \"totalAmount\")\n * 3. Products service: Batch load products with @requires(fields: \"id\")\n */\nexport const analyzeQueryExecutionPlan = (query) => {\n  const plan = {\n    estimatedServiceCalls: 0,\n    optimizations: [],\n    federationHints: []\n  };\n\n  // Field resolution dependency analysis\n  if (query.includes('user') && query.includes('orders')) {\n    plan.estimatedServiceCalls = 3;\n    plan.optimizations.push('DataLoader batching prevents N+1');\n    plan.federationHints.push('@provides enables efficient cross-subgraph resolution');\n  }\n\n  if (query.includes('products') && query.includes('inventory')) {\n    plan.estimatedServiceCalls = Math.min(plan.estimatedServiceCalls || 2, 2);\n    plan.optimizations.push('Inventory co-located with products for efficiency');\n  }\n\n  return plan;\n};\n\n/**\n * Field Resolution Strategy Documentation\n * \n * @provides/@requires optimization patterns:\n * - Product.price @provides enables order calculations without additional fetch\n * - Order.totalAmount @requires(fields: \"items { product { price } }\")\n * - User.orderHistory resolved through federation without direct service calls\n */\nexport const getFieldResolutionStrategy = () => ({\n  parallelExecution: [\n    'Product inventory and category data loaded concurrently',\n    'User authentication resolved independently of business data',\n    'Order items batch loaded with product prices pre-fetched'\n  ],\n  dependencyMinimization: [\n    '@provides directive eliminates redundant price lookups',\n    '@requires ensures data availability before computation',\n    'Federation batching reduces round trips from O(n) to O(1)'\n  ],\n  resolutionOrdering: [\n    '1. Entity keys resolved first (User.id, Product.id)',\n    '2. @provides fields fetched to satisfy dependencies', \n    '3. Computed fields resolved with all required data available',\n    '4. @requires validation ensures data consistency'\n  ]\n});\n```\n\n## Subgraph 3: Orders Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@external\", \"@requires\", \"@provides\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Enhanced validation directives\ndirective @orderValidation on FIELD_DEFINITION | INPUT_FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error types for order operations with federation context\ntype OrderValidationError {\n  field: String!\n  code: OrderErrorCode!\n  message: String!\n  orderItems: [String!]\n  # Federation error boundary definitions\n  subgraph: String!\n  federationTrace: String\n  serviceErrorBoundary: String\n}\n\ntype OrderBusinessError {\n  code: OrderErrorCode!\n  message: String!\n  retryable: Boolean!\n  details: JSON\n  # Federation error boundary definitions  \n  subgraph: String!\n  federationTrace: String\n  isolationStrategy: String\n}\n\nenum OrderErrorCode {\n  INSUFFICIENT_INVENTORY\n  INVALID_SHIPPING_ADDRESS\n  PAYMENT_DECLINED\n  ORDER_NOT_FOUND\n  INVALID_ORDER_STATE\n  SHIPPING_METHOD_UNAVAILABLE\n  DISCOUNT_CODE_INVALID\n  ITEM_DISCONTINUED\n  FEDERATION_ERROR\n  SERVICE_UNAVAILABLE\n  PARTIAL_FAILURE\n}\n\nunion OrderOperationResult = Order | OrderValidationError | OrderBusinessError\n\n# User entity stub for reference\ntype User @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\n# Product entity stub for reference with enhanced field dependencies\ntype Product @key(fields: \"id\") @external {\n  id: ID! @external\n  sku: String! @external\n  name: String! @external\n  price: Money! @external\n  # Required for order total calculation\n  discountedPrice: Money @external\n}\n\ntype Query {\n  orders(\n    filter: OrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20 @range(min: 1, max: 100)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): OrderConnection! @authenticated\n  order(id: ID!): Order @authenticated\n  # Admin queries\n  allOrders(\n    filter: AdminOrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 50 @range(min: 1, max: 200)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): OrderConnection! @auth(requires: ADMIN)\n  orderAnalytics(timeframe: AnalyticsTimeframe!): OrderAnalytics! @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  createOrder(input: CreateOrderInput!): OrderOperationResult! @authenticated\n  updateOrderStatus(id: ID!, status: OrderStatus!): OrderOperationResult! @auth(requires: ADMIN)\n  cancelOrder(id: ID!, reason: String @minLength(min: 5)): OrderOperationResult! @authenticated\n  addOrderNote(id: ID!, note: String! @minLength(min: 1)): Order! @auth(requires: ADMIN)\n  processRefund(id: ID!, amount: Float @positiveFloat, reason: String): Refund! @auth(requires: ADMIN)\n  updateShipping(id: ID!, input: ShippingUpdateInput!): Order! @auth(requires: ADMIN)\n}\n\ntype Order @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  orderNumber: String!\n  customer: User! @provides(fields: \"id\")\n  items: [OrderItem!]!\n  status: OrderStatus!\n  fulfillmentStatus: FulfillmentStatus!\n  paymentStatus: PaymentStatus!\n  \n  # Enhanced pricing with federation dependencies\n  subtotal: Money!\n  taxAmount: Money!\n  shippingAmount: Money!\n  discountAmount: Money!\n  # Requires product prices for calculation\n  totalAmount: Money! @requires(fields: \"items { product { price discountedPrice } }\")\n  \n  # Addresses\n  shippingAddress: Address!\n  billingAddress: Address!\n  \n  # Shipping\n  shippingMethod: ShippingMethod\n  trackingNumbers: [TrackingInfo!]!\n  estimatedDelivery: DateTime\n  \n  # Metadata\n  notes: [OrderNote!]! @auth(requires: ADMIN)\n  tags: [String!]!\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  completedAt: DateTime\n  \n  # Related data\n  refunds: [Refund!]!\n  events: [OrderEvent!]! @auth(requires: ADMIN)\n}\n\n# Enhanced OrderItem with composite key for better federation resolution\ntype OrderItem @key(fields: \"orderId productId\") {\n  id: ID!\n  orderId: ID!\n  productId: ID!\n  product: Product! @requires(fields: \"id sku name price\")\n  variant: ProductVariant\n  quantity: Int!\n  unitPrice: Money!\n  # Calculated from product data\n  totalPrice: Money! @requires(fields: \"product { price discountedPrice }\")\n  discountAmount: Money!\n  taxAmount: Money!\n}\n\ntype ProductVariant @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\ntype ShippingMethod {\n  id: ID!\n  name: String!\n  description: String\n  rate: Money!\n  estimatedDays: Int\n  carrier: String\n}\n\ntype TrackingInfo {\n  carrier: String!\n  trackingNumber: String!\n  url: String\n  status: String\n  estimatedDelivery: DateTime\n}\n\ntype OrderNote {\n  id: ID!\n  content: String!\n  isInternal: Boolean!\n  author: User! @provides(fields: \"id\")\n  createdAt: DateTime!\n}\n\ntype OrderEvent {\n  id: ID!\n  type: OrderEventType!\n  description: String!\n  metadata: JSON\n  createdAt: DateTime!\n  actor: User @provides(fields: \"id\")\n}\n\ntype Refund {\n  id: ID!\n  amount: Money!\n  reason: String\n  status: RefundStatus!\n  gateway: String\n  gatewayTransactionId: String\n  processedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype OrderConnection {\n  edges: [OrderEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: OrderAggregations\n}\n\ntype OrderEdge {\n  node: Order!\n  cursor: String!\n}\n\ntype OrderAggregations {\n  statusCounts: [StatusCount!]!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n}\n\ntype StatusCount {\n  status: OrderStatus!\n  count: Int!\n}\n\ntype OrderAnalytics {\n  totalOrders: Int!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n  conversionRate: Float!\n  topProducts: [ProductSalesData!]!\n  dailyStats: [DailySalesData!]!\n}\n\ntype ProductSalesData {\n  product: Product! @requires(fields: \"id name\")\n  quantity: Int!\n  revenue: Money!\n}\n\ntype DailySalesData {\n  date: Date!\n  orders: Int!\n  revenue: Money!\n}\n\nenum OrderStatus {\n  PENDING\n  CONFIRMED\n  PROCESSING\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n}\n\nenum FulfillmentStatus {\n  UNFULFILLED\n  PARTIAL\n  FULFILLED\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  PAID\n  PARTIAL\n  REFUNDED\n  VOIDED\n}\n\nenum OrderEventType {\n  CREATED\n  PAYMENT_PROCESSED\n  INVENTORY_ALLOCATED\n  FULFILLED\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n  NOTE_ADDED\n}\n\nenum RefundStatus {\n  PENDING\n  PROCESSING\n  SUCCESS\n  FAILED\n}\n\nenum AnalyticsTimeframe {\n  TODAY\n  WEEK\n  MONTH\n  QUARTER\n  YEAR\n}\n\nenum OrderSortField {\n  CREATED_AT\n  UPDATED_AT\n  TOTAL_AMOUNT\n  ORDER_NUMBER\n}\n\ninput OrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n}\n\ninput AdminOrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n  totalRange: PriceRangeInput\n  tags: [String!]\n}\n\ninput DateRangeInput {\n  from: DateTime!\n  to: DateTime!\n}\n\ninput OrderSort {\n  field: OrderSortField!\n  direction: SortDirection!\n}\n\ninput CreateOrderInput {\n  items: [OrderItemInput!]! @orderValidation\n  shippingAddress: AddressInput!\n  billingAddress: AddressInput!\n  shippingMethodId: ID!\n  discountCode: String @minLength(min: 3)\n  notes: String @minLength(min: 1)\n}\n\ninput OrderItemInput {\n  productId: ID!\n  variantId: ID\n  quantity: Int! @range(min: 1, max: 999)\n}\n\ninput ShippingUpdateInput {\n  shippingMethodId: ID\n  trackingNumbers: [TrackingInfoInput!]\n  estimatedDelivery: DateTime\n}\n\ninput TrackingInfoInput {\n  carrier: String! @minLength(min: 1)\n  trackingNumber: String! @minLength(min: 1)\n  url: String\n}\n\ninput AddressInput {\n  firstName: String! @minLength(min: 1)\n  lastName: String! @minLength(min: 1)\n  company: String @minLength(min: 1)\n  address1: String! @minLength(min: 1)\n  address2: String @minLength(min: 1)\n  city: String! @minLength(min: 1)\n  province: String @minLength(min: 1)\n  country: String! @minLength(min: 2)\n  zip: String! @minLength(min: 3)\n  phone: String @phoneNumber\n}\n\ntype Address {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation with Enhanced Resilience\n```javascript\n// orders/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout, withRetry, withGracefulDegradation } from './resilience/resilience.js';\n\nexport const createOrderLoaders = () => ({\n  orderById: new DataLoader(async (ids) => {\n    const orders = await withTimeout(\n      withRetry(\n        createCircuitBreaker('order-batch-load')(\n          () => OrderService.findByIds(ids)\n        ),\n        3\n      ),\n      5000\n    );\n    return ids.map(id => orders.find(o => o.id === id));\n  }, {\n    ttl: 300000, // 5 minute TTL for orders\n    maxBatchSize: 100\n  }),\n  \n  ordersByCustomer: new DataLoader(async (customerIds) => {\n    const orderGroups = await withTimeout(\n      createCircuitBreaker('orders-by-customer')(\n        () => OrderService.findByCustomerIds(customerIds)\n      ),\n      6000\n    );\n    return customerIds.map(id => orderGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 180000 // 3 minute TTL for customer orders\n  }),\n  \n  orderItemsByOrder: new DataLoader(async (orderIds) => {\n    const itemGroups = await withTimeout(\n      createCircuitBreaker('order-items-load')(\n        () => OrderItemService.findByOrderIds(orderIds)\n      ),\n      4000\n    );\n    return orderIds.map(id => itemGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 300000 // 5 minute TTL for order items\n  }),\n  \n  refundsByOrder: new DataLoader(async (orderIds) => {\n    const refundGroups = await withTimeout(\n      createCircuitBreaker('refunds-load')(\n        () => RefundService.findByOrderIds(orderIds)\n      ),\n      3000\n    );\n    return orderIds.map(id => refundGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 600000 // 10 minute TTL for refunds\n  }),\n  \n  orderEventsByOrder: new DataLoader(async (orderIds) => {\n    const eventGroups = await withTimeout(\n      createCircuitBreaker('order-events-load')(\n        () => OrderEventService.findByOrderIds(orderIds)\n      ),\n      3000\n    );\n    return orderIds.map(id => eventGroups[id] || []);\n  }, { \n    cache: false,\n    ttl: 60000 // 1 minute TTL for recent events\n  }),\n  \n  shippingMethodById: new DataLoader(async (ids) => {\n    const methods = await withTimeout(\n      createCircuitBreaker('shipping-methods-load')(\n        () => ShippingMethodService.findByIds(ids)\n      ),\n      2000\n    );\n    return ids.map(id => methods.find(m => m.id === id));\n  }, {\n    ttl: 900000 // 15 minute TTL for shipping methods\n  })\n});\n\n// Graceful degradation patterns for non-critical data\nexport const createOrderLoadersWithFallback = () => {\n  const loaders = createOrderLoaders();\n  \n  // Override analytics loader with fallback for partial failure handling\n  loaders.orderAnalytics = new DataLoader(async (timeframes) => {\n    try {\n      return await withTimeout(\n        createCircuitBreaker('order-analytics')(\n          () => AnalyticsService.getOrderAnalytics(timeframes)\n        ),\n        10000\n      );\n    } catch (error) {\n      console.warn('Analytics service unavailable, returning cached/empty data:', error.message);\n      // Return gracefully degraded analytics data\n      return timeframes.map((timeframe) => ({\n        totalOrders: 0,\n        totalRevenue: { amount: 0, currency: 'USD', formatted: '$0.00' },\n        averageOrderValue: { amount: 0, currency: 'USD', formatted: '$0.00' },\n        conversionRate: 0,\n        topProducts: [],\n        dailyStats: [],\n        // Include degradation notice\n        degraded: true,\n        fallbackReason: 'Analytics service temporarily unavailable'\n      }));\n    }\n  }, { \n    cache: false,\n    ttl: 300000 // 5 minute TTL for analytics\n  });\n  \n  return loaders;\n};\n\n// Error boundary patterns for federation failures\nexport const handleFederationError = (error, context) => {\n  const errorBoundary = {\n    shouldIsolate: false,\n    shouldPropagate: true,\n    fallbackStrategy: null\n  };\n\n  // Define clear error boundaries\n  if (error.extensions?.code === 'SERVICE_UNAVAILABLE') {\n    errorBoundary.shouldIsolate = true;\n    errorBoundary.shouldPropagate = false;\n    errorB",
+  "total_score": 61.209999999999994,
+  "max_score": 85,
+  "percentage": 0.7201176470588234,
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_directive_implementation",
+      "points_earned": 3.41,
+      "max_points": 7,
+      "percentage": 0.48749999999999993,
+      "sub_scores": [
+        {
+          "sub_id": "link_directive_compliance",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "entity_key_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_subgraph_resolution",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: link_directive_compliance: 50%x25% + entity_key_design: 75%x35% + cross_subgraph_resolution: 25%x40%",
+      "improvement_hints": [
+        "cross_subgraph_resolution: 25% -> 80% (+1.5 pts)",
+        "link_directive_compliance: 50% -> 80% (+0.5 pts)",
+        "entity_key_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_composition_validity",
+      "points_earned": 4.0,
+      "max_points": 6,
+      "percentage": 0.6666666666666666,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "unresolvable_entity_reference",
+          "penalty": -2.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -2.0",
+      "improvement_hints": [
+        "Fix unresolvable_entity_reference (+2.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "entity_key_stability",
+      "points_earned": 5.1,
+      "max_points": 6,
+      "percentage": 0.85,
+      "sub_scores": [
+        {
+          "sub_id": "key_immutability",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_resolution",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "composite_key_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: key_immutability: 100%x40% + cross_service_resolution: 75%x35% + composite_key_design: 75%x25%",
+      "improvement_hints": [
+        "cross_service_resolution: 75% -> 80% (+0.1 pts)",
+        "composite_key_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_boundary_separation",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_clarity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_domain_coupling",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_clarity: 75%x50% + cross_domain_coupling: 75%x50%",
+      "improvement_hints": [
+        "entity_ownership_clarity: 75% -> 80% (+0.3 pts)",
+        "cross_domain_coupling: 75% -> 80% (+0.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_directive_implementation",
+      "points_earned": 5.03,
+      "max_points": 6,
+      "percentage": 0.8375,
+      "sub_scores": [
+        {
+          "sub_id": "field_level_authorization",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "role_based_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "token_validation_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: field_level_authorization: 75%x40% + role_based_consistency: 100%x35% + token_validation_implementation: 75%x25%",
+      "improvement_hints": [
+        "field_level_authorization: 75% -> 80% (+0.1 pts)",
+        "token_validation_implementation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 5 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dataloader_implementation",
+      "points_earned": 3.52,
+      "max_points": 6,
+      "percentage": 0.5874999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "batch_loading_coverage",
+          "raw_value": 0.5,
+          "weighted_value": 0.225,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "caching_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_batching",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: batch_loading_coverage: 50%x45% + caching_strategy: 75%x35% + federation_batching: 50%x20%",
+      "improvement_hints": [
+        "batch_loading_coverage: 50% -> 80% (+0.8 pts)",
+        "federation_batching: 50% -> 80% (+0.4 pts)",
+        "caching_strategy: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "type_design_consistency",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.7499999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "naming_consistency",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "nullability_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "input_output_patterns",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: naming_consistency: 75%x35% + nullability_design: 75%x35% + input_output_patterns: 75%x30%",
+      "improvement_hints": [
+        "naming_consistency: 75% -> 80% (+0.1 pts)",
+        "nullability_design: 75% -> 80% (+0.1 pts)",
+        "input_output_patterns: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "validation_error_handling",
+      "points_earned": 4.19,
+      "max_points": 5,
+      "percentage": 0.8375,
+      "sub_scores": [
+        {
+          "sub_id": "input_validation_coverage",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_type_design",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_error_propagation",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: input_validation_coverage: 75%x40% + error_type_design: 100%x35% + federation_error_propagation: 75%x25%",
+      "improvement_hints": [
+        "input_validation_coverage: 75% -> 80% (+0.1 pts)",
+        "federation_error_propagation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "query_execution_efficiency",
+      "points_earned": 2.19,
+      "max_points": 5,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "service_call_efficiency",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "field_resolution_strategy",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "common_query_optimization",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: service_call_efficiency: 50%x40% + field_resolution_strategy: 50%x35% + common_query_optimization: 25%x25%",
+      "improvement_hints": [
+        "common_query_optimization: 25% -> 80% (+0.7 pts)",
+        "service_call_efficiency: 50% -> 80% (+0.6 pts)",
+        "field_resolution_strategy: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "error_resilience_patterns",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "circuit_breaker_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "graceful_degradation",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_boundary_definition",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: circuit_breaker_implementation: 75%x40% + graceful_degradation: 75%x35% + error_boundary_definition: 50%x25%",
+      "improvement_hints": [
+        "error_boundary_definition: 50% -> 80% (+0.4 pts)",
+        "circuit_breaker_implementation: 75% -> 80% (+0.1 pts)",
+        "graceful_degradation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_performance_coherence",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "auth_efficiency_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "auth_batching_compatibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_auth_consistency",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_efficiency_design: 75%x40% + auth_batching_compatibility: 75%x35% + cross_service_auth_consistency: 50%x25%",
+      "improvement_hints": [
+        "cross_service_auth_consistency: 50% -> 80% (+0.5 pts)",
+        "auth_efficiency_design: 75% -> 80% (+0.1 pts)",
+        "auth_batching_compatibility: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "federation_domain_alignment",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6625,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_alignment",
+          "raw_value": 0.75,
+          "weighted_value": 0.3375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resolution_pattern_coherence",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "key_design_domain_support",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_alignment: 75%x45% + resolution_pattern_coherence: 50%x35% + key_design_domain_support: 75%x20%",
+      "improvement_hints": [
+        "resolution_pattern_coherence: 50% -> 80% (+0.5 pts)",
+        "entity_ownership_alignment: 75% -> 80% (+0.1 pts)",
+        "key_design_domain_support: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_resilience_integration",
+      "points_earned": 2.65,
+      "max_points": 4,
+      "percentage": 0.6625000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "auth_failure_resilience",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "security_error_boundary_alignment",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeout_circuit_integration",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_failure_resilience: 75%x40% + security_error_boundary_alignment: 50%x35% + timeout_circuit_integration: 75%x25%",
+      "improvement_hints": [
+        "security_error_boundary_alignment: 50% -> 80% (+0.4 pts)",
+        "auth_failure_resilience: 75% -> 80% (+0.1 pts)",
+        "timeout_circuit_integration: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "network_security_controls",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0,
+      "sub_scores": [
+        {
+          "sub_id": "network_isolation",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "gateway_authentication",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trusted_source_verification",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: network_isolation: 100%x40% + gateway_authentication: 100%x30% + trusted_source_verification: 100%x30%",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "network_security_controls.network_isolation",
+    "network_security_controls.gateway_authentication",
+    "network_security_controls.trusted_source_verification",
+    "query_execution_efficiency.common_query_optimization",
+    "federation_directive_implementation.cross_subgraph_resolution"
+  ]
+}

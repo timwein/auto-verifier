@@ -1,0 +1,168 @@
+{
+  "run_id": "08ccdb63_20260404_184533",
+  "iteration": 1,
+  "total_score": 16.0,
+  "max_score": 138,
+  "percentage": 0.11594202898550725,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/08ccdb63_20260404_184533/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "executive_strategic_positioning",
+      "points_earned": 0.0,
+      "max_points": 7,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_jargon_translation",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "word_count_compliance",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "actionability_specificity",
+      "points_earned": 0.0,
+      "max_points": 11,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "business_impact_clarity",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "critical_insight_prioritization",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_technical_coherence",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "competitive_impact_consistency",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "executive_decision_synthesis",
+      "points_earned": 0.0,
+      "max_points": 7,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "resolution_first_structure",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "balanced_risk_context",
+      "points_earned": 0.0,
+      "max_points": 7,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "investment_transparency",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "stakeholder_impact_awareness",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "source_fidelity_verification",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "projection_credibility_assessment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_portfolio_logic",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "solution_specificity_authenticity",
+      "points_earned": 0.0,
+      "max_points": 8,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "contextual_business_environment",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "quantitative_credibility",
+      "points_earned": 0.0,
+      "max_points": 8,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "decision_context_completeness",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_clarity_precision",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "contextual_feasibility_assessment",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_substance_depth",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "competitive_differentiation_specificity",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "executive_communication_hierarchy",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "urgency_context_establishment",
+      "points_earned": 0.0,
+      "max_points": 3,
+      "percentage": 0.0
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "run_id": "0c42f2d1_20260404_184550",
+  "iteration": 3,
+  "total_score": 53.26,
+  "max_score": 87,
+  "percentage": 0.612183908045977,
+  "delta_from_prior": -0.034,
+  "focus_areas": [
+    "connection_antipattern_detection.missing_error_handler_release",
+    "connection_antipattern_detection.no_shared_connection_warning",
+    "postgresql_cancellation_handling.cancellation_detection",
+    "postgresql_cancellation_handling.connection_isolation",
+    "postgresql_cancellation_handling.cancellation_patterns"
+  ],
+  "content_path": ".eval_iterations/0c42f2d1_20260404_184550/iter_003_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "pool_config_depth",
+      "points_earned": 6.56,
+      "max_points": 7,
+      "percentage": 0.9375
+    },
+    {
+      "criterion_id": "connection_antipattern_detection",
+      "points_earned": 2.5,
+      "max_points": 6,
+      "percentage": 0.4166666666666667
+    },
+    {
+      "criterion_id": "async_race_condition_identification",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "transaction_isolation_analysis",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "async_error_boundary_implementation",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.7499999999999999
+    },
+    {
+      "criterion_id": "circuit_breaker_resilience",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "structured_logging_correlation",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.7499999999999999
+    },
+    {
+      "criterion_id": "metrics_monitoring_implementation",
+      "points_earned": 1.75,
+      "max_points": 5,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "systematic_debugging_approach",
+      "points_earned": 3.6,
+      "max_points": 6,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "load_testing_reproduction",
+      "points_earned": 1.25,
+      "max_points": 4,
+      "percentage": 0.3125
+    },
+    {
+      "criterion_id": "postgresql_connection_internals",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "isolation_level_performance_impact",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "nodejs_event_loop_optimization",
+      "points_earned": 2.69,
+      "max_points": 5,
+      "percentage": 0.5375000000000001
+    },
+    {
+      "criterion_id": "memory_leak_profiling",
+      "points_earned": 2.2,
+      "max_points": 4,
+      "percentage": 0.5499999999999999
+    },
+    {
+      "criterion_id": "sre_golden_signals_alignment",
+      "points_earned": 1.56,
+      "max_points": 5,
+      "percentage": 0.3125
+    },
+    {
+      "criterion_id": "production_debugging_safety",
+      "points_earned": 3.4,
+      "max_points": 4,
+      "percentage": 0.85
+    },
+    {
+      "criterion_id": "postgresql_cancellation_handling",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

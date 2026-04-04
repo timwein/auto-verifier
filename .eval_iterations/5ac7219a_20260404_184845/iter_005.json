@@ -1,0 +1,463 @@
+{
+  "run_id": "5ac7219a_20260404_184845",
+  "iteration": 5,
+  "content": "```hcl\n# ============================================================================\n# Root Configuration - main.tf\n# ============================================================================\n\nterraform {\n  required_version = \">= 1.6\"\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n  \n  backend \"s3\" {\n    bucket         = \"my-terraform-state-bucket\" # Replace with your bucket\n    key            = \"${terraform.workspace}/terraform.tfstate\"\n    region         = \"us-east-1\"\n    dynamodb_table = \"terraform-state-locks\"\n    encrypt        = true\n  }\n}\n\nprovider \"aws\" {\n  region = var.aws_region\n  \n  default_tags {\n    tags = {\n      Environment   = terraform.workspace\n      Project       = var.project_name\n      ManagedBy     = \"Terraform\"\n      WorkspaceName = terraform.workspace\n    }\n  }\n}\n\nlocals {\n  environment_config = var.environment_configs[terraform.workspace]\n  \n  common_tags = {\n    Environment = terraform.workspace\n    Project     = var.project_name\n    ManagedBy   = \"Terraform\"\n  }\n}\n\n# ============================================================================\n# Data Sources\n# ============================================================================\n\ndata \"aws_availability_zones\" \"available\" {\n  state = \"available\"\n}\n\ndata \"aws_caller_identity\" \"current\" {}\n\ndata \"aws_ec2_managed_prefix_list\" \"cloudfront\" {\n  name = \"com.amazonaws.global.cloudfront.origin-facing\"\n}\n\n# ============================================================================\n# VPC Module\n# ============================================================================\n\nmodule \"vpc\" {\n  source = \"./modules/vpc\"\n  \n  environment    = terraform.workspace\n  project_name   = var.project_name\n  vpc_cidr       = local.environment_config.vpc_cidr\n  azs           = slice(data.aws_availability_zones.available.names, 0, local.environment_config.az_count)\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# Security Groups Module\n# ============================================================================\n\nmodule \"security_groups\" {\n  source = \"./modules/security-groups\"\n  \n  environment  = terraform.workspace\n  project_name = var.project_name\n  vpc_id       = module.vpc.vpc_id\n  cloudfront_prefix_list_id = data.aws_ec2_managed_prefix_list.cloudfront.id\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# CloudFront Module\n# ============================================================================\n\nmodule \"cloudfront\" {\n  source = \"./modules/cloudfront\"\n  \n  environment     = terraform.workspace\n  project_name    = var.project_name\n  alb_dns_name    = module.alb.dns_name\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# ALB Module\n# ============================================================================\n\nmodule \"alb\" {\n  source = \"./modules/alb\"\n  \n  environment         = terraform.workspace\n  project_name        = var.project_name\n  vpc_id              = module.vpc.vpc_id\n  public_subnet_ids   = module.vpc.public_subnet_ids\n  alb_security_groups = [module.security_groups.alb_security_group_id]\n  \n  enable_deletion_protection = local.environment_config.enable_deletion_protection\n  cloudfront_origin_header_value = module.cloudfront.origin_header_value\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# RDS Module\n# ============================================================================\n\nmodule \"rds\" {\n  source = \"./modules/rds\"\n  \n  environment           = terraform.workspace\n  project_name          = var.project_name\n  vpc_id                = module.vpc.vpc_id\n  private_subnet_ids    = module.vpc.private_subnet_ids\n  database_security_groups = [module.security_groups.rds_security_group_id]\n  \n  instance_class        = local.environment_config.rds_instance_class\n  allocated_storage     = local.environment_config.rds_allocated_storage\n  multi_az              = local.environment_config.rds_multi_az\n  backup_retention_days = local.environment_config.rds_backup_retention\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# IAM Module\n# ============================================================================\n\nmodule \"iam\" {\n  source = \"./modules/iam\"\n  \n  environment  = terraform.workspace\n  project_name = var.project_name\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# ECS Module\n# ============================================================================\n\nmodule \"ecs\" {\n  source = \"./modules/ecs\"\n  \n  environment              = terraform.workspace\n  project_name             = var.project_name\n  vpc_id                   = module.vpc.vpc_id\n  private_subnet_ids       = module.vpc.private_subnet_ids\n  ecs_security_groups      = [module.security_groups.ecs_security_group_id]\n  \n  target_group_arn         = module.alb.target_group_arn\n  execution_role_arn       = module.iam.ecs_execution_role_arn\n  web_task_role_arn        = module.iam.ecs_web_task_role_arn\n  api_task_role_arn        = module.iam.ecs_api_task_role_arn\n  \n  desired_count           = local.environment_config.ecs_desired_count\n  cpu                     = local.environment_config.ecs_cpu\n  memory                  = local.environment_config.ecs_memory\n  \n  database_secret_arn = module.rds.secret_arn\n  \n  tags = local.common_tags\n}\n\n# ============================================================================\n# Variables - variables.tf\n# ============================================================================\n\nvariable \"aws_region\" {\n  description = \"AWS region for resources\"\n  type        = string\n  default     = \"us-east-1\"\n  \n  validation {\n    condition     = can(regex(\"^[a-z0-9-]+$\", var.aws_region))\n    error_message = \"AWS region must contain only lowercase letters, numbers, and hyphens.\"\n  }\n}\n\nvariable \"project_name\" {\n  description = \"Name of the project\"\n  type        = string\n  default     = \"myapp\"\n  \n  validation {\n    condition     = can(regex(\"^[a-z0-9-]+$\", var.project_name))\n    error_message = \"Project name must contain only lowercase letters, numbers, and hyphens.\"\n  }\n}\n\nvariable \"environment_configs\" {\n  description = \"Environment-specific configurations\"\n  type = map(object({\n    vpc_cidr                   = string\n    az_count                   = number\n    ecs_desired_count          = number\n    ecs_cpu                    = number\n    ecs_memory                 = number\n    rds_instance_class         = string\n    rds_allocated_storage      = number\n    rds_multi_az               = bool\n    rds_backup_retention       = number\n    enable_deletion_protection = bool\n  }))\n  \n  validation {\n    condition = alltrue([\n      for k, v in var.environment_configs : contains([\"dev\", \"staging\", \"prod\"], k)\n    ])\n    error_message = \"Environment keys must be one of: dev, staging, prod.\"\n  }\n  \n  default = {\n    dev = {\n      vpc_cidr                   = \"10.0.0.0/16\"\n      az_count                   = 2\n      ecs_desired_count          = 1\n      ecs_cpu                    = 256\n      ecs_memory                 = 512\n      rds_instance_class         = \"db.t3.micro\"\n      rds_allocated_storage      = 20\n      rds_multi_az               = false\n      rds_backup_retention       = 1\n      enable_deletion_protection = false\n    }\n    staging = {\n      vpc_cidr                   = \"10.1.0.0/16\"\n      az_count                   = 2\n      ecs_desired_count          = 2\n      ecs_cpu                    = 512\n      ecs_memory                 = 1024\n      rds_instance_class         = \"db.t3.small\"\n      rds_allocated_storage      = 50\n      rds_multi_az               = false\n      rds_backup_retention       = 3\n      enable_deletion_protection = false\n    }\n    prod = {\n      vpc_cidr                   = \"10.2.0.0/16\"\n      az_count                   = 3\n      ecs_desired_count          = 3\n      ecs_cpu                    = 1024\n      ecs_memory                 = 2048\n      rds_instance_class         = \"db.r6g.large\"\n      rds_allocated_storage      = 100\n      rds_multi_az               = true\n      rds_backup_retention       = 7\n      enable_deletion_protection = true\n    }\n  }\n}\n\n# ============================================================================\n# Outputs - outputs.tf\n# ============================================================================\n\noutput \"vpc_id\" {\n  description = \"ID of the VPC\"\n  value       = module.vpc.vpc_id\n}\n\noutput \"vpc_info\" {\n  description = \"VPC information for module composition\"\n  value = {\n    id   = module.vpc.vpc_id\n    cidr = module.vpc.vpc_cidr\n  }\n}\n\noutput \"alb_dns_name\" {\n  description = \"DNS name of the ALB\"\n  value       = module.alb.dns_name\n}\n\noutput \"alb_zone_id\" {\n  description = \"Zone ID of the ALB\"\n  value       = module.alb.zone_id\n}\n\noutput \"cloudfront_distribution_domain_name\" {\n  description = \"CloudFront distribution domain name\"\n  value       = module.cloudfront.distribution_domain_name\n}\n\noutput \"rds_endpoint\" {\n  description = \"RDS endpoint\"\n  value       = module.rds.endpoint\n  sensitive   = true\n}\n\noutput \"ecs_cluster_name\" {\n  description = \"Name of the ECS cluster\"\n  value       = module.ecs.cluster_name\n}\n\noutput \"ecs_service_name\" {\n  description = \"Name of the ECS service\"\n  value       = module.ecs.service_name\n}\n\n# ============================================================================\n# VPC Module - modules/vpc/main.tf\n# ============================================================================\n\nterraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n\nlocals {\n  private_subnets = [for i, az in var.azs : cidrsubnet(var.vpc_cidr, 4, i)]\n  public_subnets  = [for i, az in var.azs : cidrsubnet(var.vpc_cidr, 4, i + length(var.azs))]\n  database_subnets = [for i, az in var.azs : cidrsubnet(var.vpc_cidr, 4, i + (length(var.azs) * 2))]\n}\n\nresource \"aws_vpc\" \"main\" {\n  cidr_block           = var.vpc_cidr\n  enable_dns_hostnames = true\n  enable_dns_support   = true\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-vpc\"\n  })\n}\n\n# VPC Flow Logs\nresource \"aws_flow_log\" \"vpc\" {\n  iam_role_arn         = aws_iam_role.flow_log.arn\n  log_destination      = aws_cloudwatch_log_group.vpc_flow_logs.arn\n  traffic_type         = \"ALL\"\n  vpc_id               = aws_vpc.main.id\n  log_destination_type = \"cloud-watch-logs\"\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-vpc-flow-logs\"\n  })\n}\n\nresource \"aws_cloudwatch_log_group\" \"vpc_flow_logs\" {\n  name              = \"/aws/vpc/flowlogs/${var.project_name}-${var.environment}\"\n  retention_in_days = var.environment == \"prod\" ? 365 : 30\n  kms_key_id        = aws_kms_key.logs.arn\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_role\" \"flow_log\" {\n  name = \"${var.project_name}-${var.environment}-flow-log-role\"\n  \n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Action = \"sts:AssumeRole\"\n        Effect = \"Allow\"\n        Principal = {\n          Service = \"vpc-flow-logs.amazonaws.com\"\n        }\n      }\n    ]\n  })\n  \n  tags = var.tags\n}\n\ndata \"aws_iam_policy_document\" \"flow_log\" {\n  statement {\n    effect = \"Allow\"\n    actions = [\n      \"logs:CreateLogGroup\",\n      \"logs:CreateLogStream\",\n      \"logs:PutLogEvents\",\n      \"logs:DescribeLogGroups\",\n      \"logs:DescribeLogStreams\"\n    ]\n    resources = [\"${aws_cloudwatch_log_group.vpc_flow_logs.arn}:*\"]\n  }\n}\n\nresource \"aws_iam_policy\" \"flow_log\" {\n  name   = \"${var.project_name}-${var.environment}-flow-log-policy\"\n  policy = data.aws_iam_policy_document.flow_log.json\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_role_policy_attachment\" \"flow_log\" {\n  role       = aws_iam_role.flow_log.name\n  policy_arn = aws_iam_policy.flow_log.arn\n}\n\n# KMS Key for Log Encryption\nresource \"aws_kms_key\" \"logs\" {\n  description             = \"KMS key for log encryption\"\n  deletion_window_in_days = var.environment == \"prod\" ? 30 : 7\n  \n  policy = data.aws_iam_policy_document.logs_kms.json\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-logs-key\"\n  })\n}\n\nresource \"aws_kms_alias\" \"logs\" {\n  name          = \"alias/${var.project_name}-${var.environment}-logs\"\n  target_key_id = aws_kms_key.logs.key_id\n}\n\ndata \"aws_iam_policy_document\" \"logs_kms\" {\n  statement {\n    sid       = \"Enable IAM User Permissions\"\n    effect    = \"Allow\"\n    principals {\n      type        = \"AWS\"\n      identifiers = [\"arn:aws:iam::${data.aws_caller_identity.current.account_id}:root\"]\n    }\n    actions   = [\"kms:*\"]\n    resources = [\"*\"]\n  }\n  \n  statement {\n    sid       = \"Allow CloudWatch Logs\"\n    effect    = \"Allow\"\n    principals {\n      type        = \"Service\"\n      identifiers = [\"logs.${data.aws_region.current.name}.amazonaws.com\"]\n    }\n    actions = [\n      \"kms:Encrypt\",\n      \"kms:Decrypt\",\n      \"kms:ReEncrypt*\",\n      \"kms:GenerateDataKey*\",\n      \"kms:DescribeKey\"\n    ]\n    resources = [\"*\"]\n  }\n}\n\nresource \"aws_subnet\" \"private\" {\n  count = length(var.azs)\n  \n  vpc_id            = aws_vpc.main.id\n  cidr_block        = local.private_subnets[count.index]\n  availability_zone = var.azs[count.index]\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-private-${var.azs[count.index]}\"\n    Type = \"Private\"\n  })\n}\n\nresource \"aws_subnet\" \"public\" {\n  count = length(var.azs)\n  \n  vpc_id                  = aws_vpc.main.id\n  cidr_block              = local.public_subnets[count.index]\n  availability_zone       = var.azs[count.index]\n  map_public_ip_on_launch = true\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-public-${var.azs[count.index]}\"\n    Type = \"Public\"\n  })\n}\n\nresource \"aws_subnet\" \"database\" {\n  count = length(var.azs)\n  \n  vpc_id            = aws_vpc.main.id\n  cidr_block        = local.database_subnets[count.index]\n  availability_zone = var.azs[count.index]\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-database-${var.azs[count.index]}\"\n    Type = \"Database\"\n  })\n}\n\nresource \"aws_internet_gateway\" \"main\" {\n  vpc_id = aws_vpc.main.id\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-igw\"\n  })\n}\n\nresource \"aws_eip\" \"nat\" {\n  count = length(var.azs)\n  \n  domain = \"vpc\"\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-nat-eip-${count.index + 1}\"\n  })\n  \n  depends_on = [aws_internet_gateway.main]\n}\n\nresource \"aws_nat_gateway\" \"main\" {\n  count = length(var.azs)\n  \n  allocation_id = aws_eip.nat[count.index].id\n  subnet_id     = aws_subnet.public[count.index].id\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-nat-${count.index + 1}\"\n  })\n  \n  depends_on = [aws_internet_gateway.main]\n}\n\nresource \"aws_route_table\" \"public\" {\n  vpc_id = aws_vpc.main.id\n  \n  route {\n    cidr_block = \"0.0.0.0/0\"\n    gateway_id = aws_internet_gateway.main.id\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-public-rt\"\n  })\n}\n\nresource \"aws_route_table\" \"private\" {\n  count = length(var.azs)\n  \n  vpc_id = aws_vpc.main.id\n  \n  route {\n    cidr_block     = \"0.0.0.0/0\"\n    nat_gateway_id = aws_nat_gateway.main[count.index].id\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-private-rt-${count.index + 1}\"\n  })\n}\n\nresource \"aws_route_table\" \"database\" {\n  vpc_id = aws_vpc.main.id\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-database-rt\"\n  })\n}\n\nresource \"aws_route_table_association\" \"public\" {\n  count = length(var.azs)\n  \n  subnet_id      = aws_subnet.public[count.index].id\n  route_table_id = aws_route_table.public.id\n}\n\nresource \"aws_route_table_association\" \"private\" {\n  count = length(var.azs)\n  \n  subnet_id      = aws_subnet.private[count.index].id\n  route_table_id = aws_route_table.private[count.index].id\n}\n\nresource \"aws_route_table_association\" \"database\" {\n  count = length(var.azs)\n  \n  subnet_id      = aws_subnet.database[count.index].id\n  route_table_id = aws_route_table.database.id\n}\n\n# VPC Endpoints for cost optimization and security\nresource \"aws_vpc_endpoint\" \"s3\" {\n  vpc_id              = aws_vpc.main.id\n  service_name        = \"com.amazonaws.${data.aws_region.current.name}.s3\"\n  vpc_endpoint_type   = \"Gateway\"\n  route_table_ids     = concat(aws_route_table.private[*].id, [aws_route_table.database.id])\n  \n  policy = jsonencode({\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = \"*\"\n        Action = [\n          \"s3:GetObject\",\n          \"s3:PutObject\"\n        ]\n        Resource = [\n          \"arn:aws:s3:::${var.project_name}-*/*\",\n          \"arn:aws:s3:::aws-cli/*\",\n          \"arn:aws:s3:::amazon-ssm-${data.aws_region.current.name}/*\"\n        ]\n      }\n    ]\n  })\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-s3-endpoint\"\n  })\n}\n\nresource \"aws_vpc_endpoint\" \"ecr_dkr\" {\n  vpc_id              = aws_vpc.main.id\n  service_name        = \"com.amazonaws.${data.aws_region.current.name}.ecr.dkr\"\n  vpc_endpoint_type   = \"Interface\"\n  subnet_ids          = aws_subnet.private[*].id\n  security_group_ids  = [aws_security_group.vpc_endpoints.id]\n  \n  private_dns_enabled = true\n  \n  policy = jsonencode({\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = \"*\"\n        Action = [\n          \"ecr:BatchCheckLayerAvailability\",\n          \"ecr:GetDownloadUrlForLayer\",\n          \"ecr:BatchGetImage\"\n        ]\n        Resource = \"arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.project_name}-*\"\n      }\n    ]\n  })\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-ecr-dkr-endpoint\"\n  })\n}\n\nresource \"aws_vpc_endpoint\" \"ecr_api\" {\n  vpc_id              = aws_vpc.main.id\n  service_name        = \"com.amazonaws.${data.aws_region.current.name}.ecr.api\"\n  vpc_endpoint_type   = \"Interface\"\n  subnet_ids          = aws_subnet.private[*].id\n  security_group_ids  = [aws_security_group.vpc_endpoints.id]\n  \n  private_dns_enabled = true\n  \n  policy = jsonencode({\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = \"*\"\n        Action = [\n          \"ecr:GetAuthorizationToken\",\n          \"ecr:BatchCheckLayerAvailability\"\n        ]\n        Resource = \"arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.project_name}-*\"\n      }\n    ]\n  })\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-ecr-api-endpoint\"\n  })\n}\n\nresource \"aws_vpc_endpoint\" \"logs\" {\n  vpc_id              = aws_vpc.main.id\n  service_name        = \"com.amazonaws.${data.aws_region.current.name}.logs\"\n  vpc_endpoint_type   = \"Interface\"\n  subnet_ids          = aws_subnet.private[*].id\n  security_group_ids  = [aws_security_group.vpc_endpoints.id]\n  \n  private_dns_enabled = true\n  \n  policy = jsonencode({\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = \"*\"\n        Action = [\n          \"logs:CreateLogGroup\",\n          \"logs:CreateLogStream\",\n          \"logs:PutLogEvents\"\n        ]\n        Resource = \"arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${var.project_name}-${var.environment}-*\"\n      }\n    ]\n  })\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-logs-endpoint\"\n  })\n}\n\nresource \"aws_vpc_endpoint\" \"ecs\" {\n  vpc_id              = aws_vpc.main.id\n  service_name        = \"com.amazonaws.${data.aws_region.current.name}.ecs\"\n  vpc_endpoint_type   = \"Interface\"\n  subnet_ids          = aws_subnet.private[*].id\n  security_group_ids  = [aws_security_group.vpc_endpoints.id]\n  \n  private_dns_enabled = true\n  \n  policy = jsonencode({\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = \"*\"\n        Action = [\n          \"ecs:CreateCluster\",\n          \"ecs:DescribeClusters\",\n          \"ecs:RegisterTaskDefinition\",\n          \"ecs:RunTask\",\n          \"ecs:StopTask\",\n          \"ecs:DescribeTasks\"\n        ]\n        Resource = [\n          \"arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster/${var.project_name}-${var.environment}-*\",\n          \"arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:task-definition/${var.project_name}-${var.environment}-*\"\n        ]\n      }\n    ]\n  })\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-ecs-endpoint\"\n  })\n}\n\nresource \"aws_security_group\" \"vpc_endpoints\" {\n  name_prefix = \"${var.project_name}-${var.environment}-vpc-endpoints-\"\n  description = \"Security group for VPC endpoints\"\n  vpc_id      = aws_vpc.main.id\n  \n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [var.vpc_cidr]\n  }\n  \n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-vpc-endpoints-sg\"\n  })\n  \n  lifecycle {\n    create_before_destroy = true\n  }\n}\n\ndata \"aws_region\" \"current\" {}\ndata \"aws_caller_identity\" \"current\" {}\n\n# ============================================================================\n# VPC Module Variables - modules/vpc/variables.tf\n# ============================================================================\n\nvariable \"environment\" {\n  description = \"Environment name\"\n  type        = string\n}\n\nvariable \"project_name\" {\n  description = \"Project name\"\n  type        = string\n}\n\nvariable \"vpc_cidr\" {\n  description = \"CIDR block for the VPC\"\n  type        = string\n}\n\nvariable \"azs\" {\n  description = \"List of availability zones\"\n  type        = list(string)\n}\n\nvariable \"tags\" {\n  description = \"Tags to apply to resources\"\n  type        = map(string)\n  default     = {}\n}\n\n# ============================================================================\n# VPC Module Outputs - modules/vpc/outputs.tf\n# ============================================================================\n\noutput \"vpc_id\" {\n  description = \"ID of the VPC\"\n  value       = aws_vpc.main.id\n}\n\noutput \"vpc_cidr\" {\n  description = \"CIDR block of the VPC\"\n  value       = aws_vpc.main.cidr_block\n}\n\noutput \"private_subnet_ids\" {\n  description = \"IDs of the private subnets\"\n  value       = aws_subnet.private[*].id\n}\n\noutput \"public_subnet_ids\" {\n  description = \"IDs of the public subnets\"\n  value       = aws_subnet.public[*].id\n}\n\noutput \"database_subnet_ids\" {\n  description = \"IDs of the database subnets\"\n  value       = aws_subnet.database[*].id\n}\n\noutput \"internet_gateway_id\" {\n  description = \"ID of the Internet Gateway\"\n  value       = aws_internet_gateway.main.id\n}\n\noutput \"nat_gateway_ids\" {\n  description = \"IDs of the NAT Gateways\"\n  value       = aws_nat_gateway.main[*].id\n}\n\n# ============================================================================\n# Security Groups Module - modules/security-groups/main.tf\n# ============================================================================\n\nterraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n\nresource \"aws_security_group\" \"alb\" {\n  name_prefix = \"${var.project_name}-${var.environment}-alb-\"\n  description = \"Security group for Application Load Balancer\"\n  vpc_id      = var.vpc_id\n  \n  ingress {\n    description     = \"HTTP from CloudFront\"\n    from_port       = 80\n    to_port         = 80\n    protocol        = \"tcp\"\n    prefix_list_ids = [var.cloudfront_prefix_list_id]\n  }\n  \n  ingress {\n    description     = \"HTTPS from CloudFront\"\n    from_port       = 443\n    to_port         = 443\n    protocol        = \"tcp\"\n    prefix_list_ids = [var.cloudfront_prefix_list_id]\n  }\n  \n  egress {\n    description = \"All outbound traffic to ECS\"\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    security_groups = [aws_security_group.ecs.id]\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-alb-sg\"\n  })\n  \n  lifecycle {\n    create_before_destroy = true\n  }\n}\n\nresource \"aws_security_group\" \"ecs\" {\n  name_prefix = \"${var.project_name}-${var.environment}-ecs-\"\n  description = \"Security group for ECS tasks\"\n  vpc_id      = var.vpc_id\n  \n  ingress {\n    description     = \"HTTP from ALB\"\n    from_port       = 80\n    to_port         = 80\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.alb.id]\n  }\n  \n  ingress {\n    description     = \"Application port from ALB\"\n    from_port       = 3000\n    to_port         = 3000\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.alb.id]\n  }\n  \n  egress {\n    description = \"HTTPS for API calls\"\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n  \n  egress {\n    description     = \"Database access\"\n    from_port       = 5432\n    to_port         = 5432\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.rds.id]\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-ecs-sg\"\n  })\n  \n  lifecycle {\n    create_before_destroy = true\n  }\n}\n\nresource \"aws_security_group\" \"rds\" {\n  name_prefix = \"${var.project_name}-${var.environment}-rds-\"\n  description = \"Security group for RDS database\"\n  vpc_id      = var.vpc_id\n  \n  ingress {\n    description     = \"PostgreSQL from ECS\"\n    from_port       = 5432\n    to_port         = 5432\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.ecs.id]\n  }\n  \n  tags = merge(var.tags, {\n    Name = \"${var.project_name}-${var.environment}-rds-sg\"\n  })\n  \n  lifecycle {\n    create_before_destroy = true\n  }\n}\n\n# ============================================================================\n# Security Groups Module Variables - modules/security-groups/variables.tf\n# ============================================================================\n\nvariable \"environment\" {\n  description = \"Environment name\"\n  type        = string\n}\n\nvariable \"project_name\" {\n  description = \"Project name\"\n  type        = string\n}\n\nvariable \"vpc_id\" {\n  description = \"ID of the VPC\"\n  type        = string\n}\n\nvariable \"cloudfront_prefix_list_id\" {\n  description = \"CloudFront managed prefix list ID\"\n  type        = string\n}\n\nvariable \"tags\" {\n  description = \"Tags to apply to resources\"\n  type        = map(string)\n  default     = {}\n}\n\n# ============================================================================\n# Security Groups Module Outputs - modules/security-groups/outputs.tf\n# ============================================================================\n\noutput \"alb_security_group_id\" {\n  description = \"ID of the ALB security group\"\n  value       = aws_security_group.alb.id\n}\n\noutput \"ecs_security_group_id\" {\n  description = \"ID of the ECS security group\"\n  value       = aws_security_group.ecs.id\n}\n\noutput \"rds_security_group_id\" {\n  description = \"ID of the RDS security group\"\n  value       = aws_security_group.rds.id\n}\n\n# ============================================================================\n# IAM Module - modules/iam/main.tf\n# ============================================================================\n\nterraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n\ndata \"aws_caller_identity\" \"current\" {}\ndata \"aws_region\" \"current\" {}\n\n# Base IAM Policy Documents for Layered Composition\ndata \"aws_iam_policy_document\" \"base_ecs_task\" {\n  statement {\n    sid       = \"BaseRegionRestriction\"\n    effect    = \"Allow\"\n    actions   = [\"sts:AssumeRole\"]\n    resources = [\"*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\ndata \"aws_iam_policy_document\" \"base_secrets_access\" {\n  statement {\n    sid    = \"BaseSecretsAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"secretsmanager:GetSecretValue\"\n    ]\n    resources = [\"arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}/${var.environment}/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\n# ECS Task Execution Role - for pulling images and logging\nresource \"aws_iam_role\" \"ecs_execution_role\" {\n  name                 = \"${var.project_name}-${var.environment}-ecs-execution-role\"\n  max_session_duration = 3600\n  \n  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json\n  \n  tags = var.tags\n}\n\ndata \"aws_iam_policy_document\" \"ecs_assume_role\" {\n  statement {\n    effect = \"Allow\"\n    \n    principals {\n      type        = \"Service\"\n      identifiers = [\"ecs-tasks.amazonaws.com\"]\n    }\n    \n    actions = [\"sts:AssumeRole\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\ndata \"aws_iam_policy_document\" \"ecs_execution\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_ecs_task.json]\n  \n  statement {\n    sid    = \"ECRRegistryAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"ecr:GetAuthorizationToken\"\n    ]\n    resources = [\"*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n  \n  statement {\n    sid    = \"ECRRepositoryAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"ecr:BatchCheckLayerAvailability\",\n      \"ecr:GetDownloadUrlForLayer\",\n      \"ecr:BatchGetImage\"\n    ]\n    resources = [\"arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.project_name}-*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n  \n  statement {\n    sid    = \"CloudWatchLogsAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"logs:CreateLogGroup\",\n      \"logs:CreateLogStream\",\n      \"logs:PutLogEvents\",\n      \"logs:DescribeLogStreams\"\n    ]\n    resources = [\"arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${var.project_name}-${var.environment}-*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\ndata \"aws_iam_policy_document\" \"ecs_execution_secrets\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_secrets_access.json]\n  \n  statement {\n    sid    = \"SecretsManagerTaskExecution\"\n    effect = \"Allow\"\n    actions = [\n      \"secretsmanager:GetSecretValue\"\n    ]\n    resources = [\"arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}/${var.environment}/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\nresource \"aws_iam_policy\" \"ecs_execution_policy\" {\n  name        = \"${var.project_name}-${var.environment}-ecs-execution-policy\"\n  description = \"Least privilege policy for ECS task execution\"\n  \n  policy = data.aws_iam_policy_document.ecs_execution.json\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_policy\" \"ecs_execution_secrets_policy\" {\n  name        = \"${var.project_name}-${var.environment}-ecs-execution-secrets-policy\"\n  description = \"Secrets access policy for ECS task execution\"\n  \n  policy = data.aws_iam_policy_document.ecs_execution_secrets.json\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_role_policy_attachment\" \"ecs_execution_policy_attachment\" {\n  role       = aws_iam_role.ecs_execution_role.name\n  policy_arn = aws_iam_policy.ecs_execution_policy.arn\n}\n\nresource \"aws_iam_role_policy_attachment\" \"ecs_execution_secrets_policy_attachment\" {\n  role       = aws_iam_role.ecs_execution_role.name\n  policy_arn = aws_iam_policy.ecs_execution_secrets_policy.arn\n}\n\n# ECS Web Task Role - for web service application permissions\nresource \"aws_iam_role\" \"ecs_web_task_role\" {\n  name                 = \"${var.project_name}-${var.environment}-ecs-web-task-role\"\n  max_session_duration = 3600\n  \n  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json\n  \n  tags = var.tags\n}\n\ndata \"aws_iam_policy_document\" \"ecs_web_task\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_ecs_task.json]\n  \n  statement {\n    sid    = \"S3WebAssetAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"s3:GetObject\"\n    ]\n    resources = [\"arn:aws:s3:::${var.project_name}-${var.environment}-web/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"s3:RequestObjectTag/Environment\"\n      values   = [var.environment]\n    }\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\ndata \"aws_iam_policy_document\" \"ecs_web_secrets\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_secrets_access.json]\n  \n  statement {\n    sid    = \"WebSpecificSecrets\"\n    effect = \"Allow\"\n    actions = [\n      \"secretsmanager:GetSecretValue\"\n    ]\n    resources = [\"arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}/${var.environment}/web/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\nresource \"aws_iam_policy\" \"ecs_web_task_policy\" {\n  name        = \"${var.project_name}-${var.environment}-ecs-web-task-policy\"\n  description = \"Least privilege policy for ECS web tasks\"\n  \n  policy = data.aws_iam_policy_document.ecs_web_task.json\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_policy\" \"ecs_web_secrets_policy\" {\n  name        = \"${var.project_name}-${var.environment}-ecs-web-secrets-policy\"\n  description = \"Web-specific secrets access policy\"\n  \n  policy = data.aws_iam_policy_document.ecs_web_secrets.json\n  \n  tags = var.tags\n}\n\nresource \"aws_iam_role_policy_attachment\" \"ecs_web_task_policy_attachment\" {\n  role       = aws_iam_role.ecs_web_task_role.name\n  policy_arn = aws_iam_policy.ecs_web_task_policy.arn\n}\n\nresource \"aws_iam_role_policy_attachment\" \"ecs_web_secrets_policy_attachment\" {\n  role       = aws_iam_role.ecs_web_task_role.name\n  policy_arn = aws_iam_policy.ecs_web_secrets_policy.arn\n}\n\n# ECS API Task Role - for API service application permissions\nresource \"aws_iam_role\" \"ecs_api_task_role\" {\n  name                 = \"${var.project_name}-${var.environment}-ecs-api-task-role\"\n  max_session_duration = 1800\n  \n  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json\n  \n  tags = var.tags\n}\n\ndata \"aws_iam_policy_document\" \"ecs_api_task\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_ecs_task.json]\n  \n  statement {\n    sid    = \"S3APIAssetAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"s3:GetObject\",\n      \"s3:PutObject\"\n    ]\n    resources = [\"arn:aws:s3:::${var.project_name}-${var.environment}-api/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"s3:RequestObjectTag/Environment\"\n      values   = [var.environment]\n    }\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n  \n  statement {\n    sid    = \"SSMParameterAccess\"\n    effect = \"Allow\"\n    actions = [\n      \"ssm:GetParameter\",\n      \"ssm:GetParameters\"\n    ]\n    resources = [\"arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.environment}/api/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"ssm:GetParameter.Overwrite\"\n      values   = [\"false\"]\n    }\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\ndata \"aws_iam_policy_document\" \"ecs_api_secrets\" {\n  source_policy_documents = [data.aws_iam_policy_document.base_secrets_access.json]\n  \n  statement {\n    sid    = \"APISpecificSecrets\"\n    effect = \"Allow\"\n    actions = [\n      \"secretsmanager:GetSecretValue\"\n    ]\n    resources = [\"arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}/${var.environment}/api/*\"]\n    \n    condition {\n      test     = \"StringEquals\"\n      variable = \"aws:RequestedRegion\"\n      values   = [data.aws_region.current.name]\n    }\n  }\n}\n\nresource \"aws_iam_policy\" \"",
+  "total_score": 64.44999999999999,
+  "max_score": 77,
+  "percentage": 0.8370129870129869,
+  "criterion_scores": [
+    {
+      "criterion_id": "iam_policy_composition",
+      "points_earned": 5.34,
+      "max_points": 7,
+      "percentage": 0.7625,
+      "sub_scores": [
+        {
+          "sub_id": "policy_data_source_usage",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "layered_composition",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "least_privilege_granularity",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: policy_data_source_usage: 100%x40% + layered_composition: 50%x35% + least_privilege_granularity: 75%x25%",
+      "improvement_hints": [
+        "layered_composition: 50% -> 80% (+0.7 pts)",
+        "least_privilege_granularity: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "vpc_endpoints_private_api",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [
+        {
+          "sub_id": "endpoint_coverage",
+          "raw_value": 1.0,
+          "weighted_value": 0.5,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "endpoint_security_configuration",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "dns_configuration",
+          "raw_value": 1.0,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: endpoint_coverage: 100%x50% + endpoint_security_configuration: 100%x30% + dns_configuration: 100%x20%",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "terraform_anti_patterns",
+      "points_earned": 8.0,
+      "max_points": 8,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 8 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "ecs_security_configuration",
+      "points_earned": 4.81,
+      "max_points": 7,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "task_role_separation",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "network_isolation",
+          "raw_value": 1.0,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "container_security_options",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "secrets_management",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: task_role_separation: 75%x30% + network_isolation: 100%x25% + container_security_options: 25%x25% + secrets_management: 75%x20%",
+      "improvement_hints": [
+        "container_security_options: 25% -> 80% (+1.0 pts)",
+        "task_role_separation: 75% -> 80% (+0.1 pts)",
+        "secrets_management: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "alb_security_integration",
+      "points_earned": 3.75,
+      "max_points": 6,
+      "percentage": 0.625,
+      "sub_scores": [
+        {
+          "sub_id": "cloudfront_integration",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "network_access_control",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ssl_security",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: cloudfront_integration: 75%x40% + network_access_control: 75%x35% + ssl_security: 25%x25%",
+      "improvement_hints": [
+        "ssl_security: 25% -> 80% (+0.8 pts)",
+        "cloudfront_integration: 75% -> 80% (+0.1 pts)",
+        "network_access_control: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "rds_security_hardening",
+      "points_earned": 3.06,
+      "max_points": 7,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "encryption_configuration",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "network_security",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "backup_security",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "parameter_hardening",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: encryption_configuration: 25%x30% + network_security: 75%x25% + backup_security: 50%x25% + parameter_hardening: 25%x20%",
+      "improvement_hints": [
+        "encryption_configuration: 25% -> 80% (+1.2 pts)",
+        "parameter_hardening: 25% -> 80% (+0.8 pts)",
+        "backup_security: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "state_management_security",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "module_architecture_design",
+      "points_earned": 5.7,
+      "max_points": 6,
+      "percentage": 0.95,
+      "sub_scores": [
+        {
+          "sub_id": "separation_of_concerns",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "variable_validation",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "output_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "environment_parameterization",
+          "raw_value": 1.0,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: separation_of_concerns: 100%x35% + variable_validation: 100%x30% + output_design: 75%x20% + environment_parameterization: 100%x15%",
+      "improvement_hints": [
+        "output_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "workspace_configuration_strategy",
+      "points_earned": 4.19,
+      "max_points": 5,
+      "percentage": 0.8375,
+      "sub_scores": [
+        {
+          "sub_id": "variable_management",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "naming_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "workspace_isolation",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: variable_management: 75%x40% + naming_consistency: 100%x35% + workspace_isolation: 75%x25%",
+      "improvement_hints": [
+        "variable_management: 75% -> 80% (+0.1 pts)",
+        "workspace_isolation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "role_based_credential_architecture",
+      "points_earned": 6.9,
+      "max_points": 8,
+      "percentage": 0.8625,
+      "sub_scores": [
+        {
+          "sub_id": "cross_service_roles",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "container_authentication",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "credential_elimination",
+          "raw_value": 1.0,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "temporary_credential_patterns",
+          "raw_value": 0.5,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: cross_service_roles: 75%x35% + container_authentication: 100%x30% + credential_elimination: 100%x25% + temporary_credential_patterns: 50%x10%",
+      "improvement_hints": [
+        "temporary_credential_patterns: 50% -> 80% (+0.2 pts)",
+        "cross_service_roles: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "monitoring_security_integration",
+      "points_earned": 5.7,
+      "max_points": 6,
+      "percentage": 0.95,
+      "sub_scores": [
+        {
+          "sub_id": "log_encryption",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "comprehensive_logging",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "log_retention_policies",
+          "raw_value": 1.0,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "structured_logging",
+          "raw_value": 0.5,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: log_encryption: 100%x30% + comprehensive_logging: 100%x35% + log_retention_policies: 100%x25% + structured_logging: 50%x10%",
+      "improvement_hints": [
+        "structured_logging: 50% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "resource_tagging_strategy",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 5 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "ecs_security_configuration.container_security_options",
+    "alb_security_integration.ssl_security",
+    "rds_security_hardening.encryption_configuration",
+    "rds_security_hardening.parameter_hardening",
+    "rds_security_hardening.backup_security"
+  ]
+}

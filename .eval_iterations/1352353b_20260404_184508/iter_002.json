@@ -1,0 +1,574 @@
+{
+  "run_id": "1352353b_20260404_184508",
+  "iteration": 2,
+  "content": "# Federated GraphQL E-Commerce Schema Design\n\n## Overview\nThis design presents a comprehensive federated GraphQL schema for an e-commerce platform, organized across 4 autonomous subgraphs with proper entity resolution, authentication/authorization directives, and robust N+1 prevention strategies.\n\n## Architecture Principles\n\n\nGraphQL federation aligns naturally with Domain Driven Design (DDD) principles by allowing teams to maintain clear boundaries around their domains\n, and \nin a supergraph, the constituent APIs are called subgraphs. Different subgraphs in the same supergraph can use different server implementations and even different programming languages\n.\n\nThe schema follows these core principles:\n- \nDesign Subgraphs Around Domains: Use domain-driven design to define clear ownership boundaries and avoid overlapping responsibilities\n\n- \nThe federated schema design process often begins by thinking about what the initial entity types will be and how they will be referenced and extended throughout the graph\n\n- \nPlatform thinking means designing a graph for multiple clients\n\n\n## Subgraph 1: Users Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@tag\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Custom validation directives for enhanced input validation\ndirective @email on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @minLength(min: Int!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @phoneNumber on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error types for comprehensive error handling\ntype ValidationError {\n  field: String!\n  code: ErrorCode!\n  message: String!\n  input: String\n}\n\ntype AuthenticationError {\n  code: ErrorCode!\n  message: String!\n  details: String\n}\n\nenum ErrorCode {\n  INVALID_EMAIL\n  PASSWORD_TOO_WEAK\n  USERNAME_TAKEN\n  UNAUTHORIZED\n  INVALID_TOKEN\n  TOKEN_EXPIRED\n  VALIDATION_FAILED\n  RATE_LIMIT_EXCEEDED\n  INTERNAL_ERROR\n}\n\nunion UserOperationResult = User | ValidationError | AuthenticationError\n\ntype Query {\n  me: User @authenticated\n  users(limit: Int = 10, offset: Int = 0): [User!]! @auth(requires: ADMIN)\n  user(id: ID!): User @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  login(email: String! @email, password: String! @minLength(min: 8)): AuthPayload!\n  register(input: UserInput!): UserOperationResult!\n  updateProfile(input: ProfileUpdateInput!): User! @authenticated\n  deleteAccount(id: ID!): Boolean! @auth(requires: ADMIN)\n}\n\ntype User @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  email: String!\n  username: String!\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  role: Role!\n  isActive: Boolean!\n  profile: UserProfile\n  # Personal data requiring higher permissions\n  personalData: PersonalData @auth(requires: ADMIN)\n}\n\ntype UserProfile @shareable {\n  avatar: String\n  bio: String\n  preferences: JSON\n  notifications: NotificationSettings\n}\n\ntype PersonalData {\n  fullAddress: Address\n  dateOfBirth: Date\n  lastLoginAt: DateTime\n  ipAddress: String\n}\n\ntype NotificationSettings {\n  email: Boolean!\n  push: Boolean!\n  sms: Boolean!\n}\n\ntype Address {\n  street: String\n  city: String\n  state: String\n  postalCode: String\n  country: String!\n}\n\ntype AuthPayload {\n  token: String!\n  user: User!\n  expiresAt: DateTime!\n}\n\ninput UserInput {\n  email: String! @email\n  username: String! @minLength(min: 3)\n  password: String! @minLength(min: 8)\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n}\n\ninput ProfileUpdateInput {\n  firstName: String\n  lastName: String\n  phone: String @phoneNumber\n  profile: UserProfileInput\n}\n\ninput UserProfileInput {\n  avatar: String\n  bio: String @minLength(min: 1)\n  preferences: JSON\n  notifications: NotificationSettingsInput\n}\n\ninput NotificationSettingsInput {\n  email: Boolean\n  push: Boolean\n  sms: Boolean\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation\n```javascript\n// users/src/dataloaders/userLoader.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout } from './resilience/timeout.js';\n\nexport const createUserLoader = () => new DataLoader(async (userIds) => {\n  const users = await withTimeout(\n    createCircuitBreaker('user-batch-load')(\n      () => UserService.findByIds(userIds)\n    ),\n    5000\n  );\n  return userIds.map(id => users.find(user => user.id === id));\n}, {\n  cacheKeyFn: (key) => key.toString(),\n  batchScheduleFn: (callback) => setTimeout(callback, 1)\n});\n\nexport const createUsersByEmailLoader = () => new DataLoader(async (emails) => {\n  const users = await withTimeout(\n    createCircuitBreaker('user-email-load')(\n      () => UserService.findByEmails(emails)\n    ),\n    5000\n  );\n  return emails.map(email => users.find(user => user.email === email));\n});\n\n// Cache invalidation strategy\nexport const invalidateUserCache = (userId) => {\n  const loaders = getContextLoaders();\n  loaders.userById.clear(userId);\n  // Also clear related caches\n  loaders.ordersByCustomer.clear(userId);\n  loaders.paymentsByCustomer.clear(userId);\n};\n```\n\n### Resilience Patterns\n```javascript\n// users/src/resilience/circuitBreaker.js\nimport CircuitBreaker from 'opossum';\n\nconst circuitBreakerOptions = {\n  timeout: 3000,\n  errorThresholdPercentage: 50,\n  resetTimeout: 30000,\n  fallback: (identifier) => {\n    console.error(`Circuit breaker opened for ${identifier}`);\n    throw new Error(`Service temporarily unavailable: ${identifier}`);\n  }\n};\n\nexport const createCircuitBreaker = (identifier) => {\n  return new CircuitBreaker(\n    async (fn) => await fn(),\n    { ...circuitBreakerOptions, name: identifier }\n  );\n};\n\n// users/src/resilience/timeout.js\nexport const withTimeout = async (promise, timeoutMs) => {\n  return Promise.race([\n    promise,\n    new Promise((_, reject) => \n      setTimeout(() => reject(new Error('Operation timeout')), timeoutMs)\n    )\n  ]);\n};\n```\n\n### Authentication Context Implementation\n```javascript\n// users/src/auth/context.js\nimport jwt from 'jsonwebtoken';\nimport { createCircuitBreaker } from '../resilience/circuitBreaker.js';\n\nexport const createAuthContext = async ({ req }) => {\n  const token = req.headers.authorization?.replace('Bearer ', '');\n  \n  if (!token) {\n    return { user: null, isAuthenticated: false };\n  }\n\n  try {\n    // JWT validation with circuit breaker protection\n    const decoded = await createCircuitBreaker('jwt-validation')(\n      () => jwt.verify(token, process.env.JWT_SECRET)\n    );\n    \n    const user = await createCircuitBreaker('user-lookup')(\n      () => UserService.findById(decoded.userId)\n    );\n    \n    return {\n      user,\n      isAuthenticated: true,\n      role: user.role,\n      // Cache auth context for request lifecycle\n      authCache: new Map()\n    };\n  } catch (error) {\n    // Structured error handling for auth failures\n    if (error.name === 'TokenExpiredError') {\n      throw new GraphQLError('Token expired', {\n        extensions: { code: 'TOKEN_EXPIRED' }\n      });\n    }\n    throw new GraphQLError('Invalid token', {\n      extensions: { code: 'INVALID_TOKEN' }\n    });\n  }\n};\n```\n\n## Subgraph 2: Products Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Enhanced validation directives\ndirective @range(min: Float, max: Float) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\ndirective @positiveFloat on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error handling\ntype ProductValidationError {\n  field: String!\n  code: ProductErrorCode!\n  message: String!\n  value: String\n}\n\nenum ProductErrorCode {\n  SKU_EXISTS\n  INVALID_PRICE\n  INVALID_INVENTORY\n  CATEGORY_NOT_FOUND\n  BRAND_NOT_FOUND\n  IMAGE_UPLOAD_FAILED\n}\n\nunion ProductOperationResult = Product | ProductValidationError\n\ntype Query {\n  products(\n    filter: ProductFilter\n    sort: ProductSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20 @range(min: 1, max: 100)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): ProductConnection!\n  product(id: ID, sku: String): Product\n  categories: [Category!]!\n  category(id: ID!): Category\n  searchProducts(query: String! @minLength(min: 2), limit: Int = 20 @range(min: 1, max: 50)): [Product!]!\n}\n\ntype Mutation {\n  createProduct(input: CreateProductInput!): ProductOperationResult! @auth(requires: ADMIN)\n  updateProduct(id: ID!, input: UpdateProductInput!): ProductOperationResult! @auth(requires: ADMIN)\n  deleteProduct(id: ID!): Boolean! @auth(requires: ADMIN)\n  updateInventory(id: ID!, quantity: Int! @range(min: 0, max: 999999)): Product! @auth(requires: ADMIN)\n}\n\ntype Product @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n  name: String!\n  description: String\n  shortDescription: String\n  price: Money!\n  compareAtPrice: Money\n  costPerItem: Money @auth(requires: ADMIN)\n  images: [ProductImage!]!\n  category: Category\n  brand: Brand\n  tags: [String!]!\n  attributes: [ProductAttribute!]!\n  variants: [ProductVariant!]!\n  inventory: Inventory!\n  seo: SEOData\n  isActive: Boolean!\n  isFeatured: Boolean!\n  weight: Float @positiveFloat\n  dimensions: Dimensions\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  # Metrics requiring admin access\n  analytics: ProductAnalytics @auth(requires: ADMIN)\n}\n\ntype ProductVariant @key(fields: \"id\") {\n  id: ID!\n  sku: String!\n  title: String!\n  price: Money!\n  compareAtPrice: Money\n  inventory: Inventory!\n  image: ProductImage\n  attributes: [ProductAttribute!]!\n  isDefault: Boolean!\n}\n\ntype ProductImage {\n  id: ID!\n  url: String!\n  altText: String\n  width: Int\n  height: Int\n  position: Int!\n}\n\ntype Category @key(fields: \"id\") @shareable {\n  id: ID!\n  name: String!\n  slug: String!\n  description: String\n  image: String\n  parent: Category\n  children: [Category!]!\n  products(limit: Int = 20, offset: Int = 0): ProductConnection!\n}\n\ntype Brand @shareable {\n  id: ID!\n  name: String!\n  logo: String\n  description: String\n}\n\ntype ProductAttribute {\n  key: String!\n  value: String!\n  type: AttributeType!\n}\n\ntype Inventory {\n  quantity: Int!\n  reserved: Int!\n  available: Int!\n  tracked: Boolean!\n  allowBackorder: Boolean!\n  lowStockThreshold: Int\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype Dimensions {\n  length: Float! @positiveFloat\n  width: Float! @positiveFloat\n  height: Float! @positiveFloat\n  unit: String!\n}\n\ntype SEOData {\n  title: String\n  description: String @minLength(min: 1)\n  keywords: [String!]!\n}\n\ntype ProductAnalytics {\n  views: Int!\n  purchases: Int!\n  conversionRate: Float!\n  revenue: Money!\n  topVariant: ProductVariant\n}\n\ntype ProductConnection {\n  edges: [ProductEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: ProductAggregations\n}\n\ntype ProductEdge {\n  node: Product!\n  cursor: String!\n}\n\ntype ProductAggregations {\n  priceRange: PriceRange!\n  categories: [CategoryCount!]!\n  brands: [BrandCount!]!\n  attributes: [AttributeCount!]!\n}\n\ntype PriceRange {\n  min: Money!\n  max: Money!\n}\n\ntype CategoryCount {\n  category: Category!\n  count: Int!\n}\n\ntype BrandCount {\n  brand: Brand!\n  count: Int!\n}\n\ntype AttributeCount {\n  key: String!\n  value: String!\n  count: Int!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum AttributeType {\n  STRING\n  NUMBER\n  BOOLEAN\n  COLOR\n}\n\nenum ProductSortField {\n  NAME\n  PRICE\n  CREATED_AT\n  UPDATED_AT\n  POPULARITY\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\ninput ProductFilter {\n  categoryIds: [ID!]\n  brandIds: [ID!]\n  priceRange: PriceRangeInput\n  attributes: [AttributeFilterInput!]\n  tags: [String!]\n  isActive: Boolean\n  isFeatured: Boolean\n}\n\ninput PriceRangeInput {\n  min: Float @positiveFloat\n  max: Float @positiveFloat\n}\n\ninput AttributeFilterInput {\n  key: String! @minLength(min: 1)\n  values: [String!]!\n}\n\ninput ProductSort {\n  field: ProductSortField!\n  direction: SortDirection!\n}\n\ninput CreateProductInput {\n  name: String! @minLength(min: 1)\n  description: String @minLength(min: 1)\n  shortDescription: String @minLength(min: 1)\n  sku: String! @minLength(min: 1)\n  price: MoneyInput!\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!] @minLength(min: 1)\n  attributes: [ProductAttributeInput!]\n  inventory: InventoryInput!\n  images: [ProductImageInput!]\n  seo: SEODataInput\n  isActive: Boolean = false\n  isFeatured: Boolean = false\n  weight: Float @positiveFloat\n  dimensions: DimensionsInput\n}\n\ninput UpdateProductInput {\n  name: String @minLength(min: 1)\n  description: String @minLength(min: 1)\n  shortDescription: String @minLength(min: 1)\n  price: MoneyInput\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!] @minLength(min: 1)\n  attributes: [ProductAttributeInput!]\n  isActive: Boolean\n  isFeatured: Boolean\n  weight: Float @positiveFloat\n  dimensions: DimensionsInput\n  seo: SEODataInput\n}\n\ninput MoneyInput {\n  amount: Float! @positiveFloat\n  currency: String! @minLength(min: 3)\n}\n\ninput ProductAttributeInput {\n  key: String! @minLength(min: 1)\n  value: String! @minLength(min: 1)\n  type: AttributeType!\n}\n\ninput InventoryInput {\n  quantity: Int! @range(min: 0, max: 999999)\n  tracked: Boolean = true\n  allowBackorder: Boolean = false\n  lowStockThreshold: Int @range(min: 0, max: 1000)\n}\n\ninput ProductImageInput {\n  url: String! @minLength(min: 1)\n  altText: String @minLength(min: 1)\n  position: Int! @range(min: 0, max: 100)\n}\n\ninput DimensionsInput {\n  length: Float! @positiveFloat\n  width: Float! @positiveFloat\n  height: Float! @positiveFloat\n  unit: String! @minLength(min: 1)\n}\n\ninput SEODataInput {\n  title: String @minLength(min: 1)\n  description: String @minLength(min: 1)\n  keywords: [String!] @minLength(min: 1)\n}\n\nscalar DateTime\n```\n\n### DataLoader Implementation with Circuit Breakers\n```javascript\n// products/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout, withRetry } from './resilience/resilience.js';\n\nexport const createProductLoaders = () => ({\n  productById: new DataLoader(async (ids) => {\n    const products = await withTimeout(\n      withRetry(\n        createCircuitBreaker('product-batch-load')(\n          () => ProductService.findByIds(ids)\n        ),\n        3\n      ),\n      5000\n    );\n    return ids.map(id => products.find(p => p.id === id));\n  }),\n  \n  productBySku: new DataLoader(async (skus) => {\n    const products = await withTimeout(\n      createCircuitBreaker('product-sku-load')(\n        () => ProductService.findBySkus(skus)\n      ),\n      5000\n    );\n    return skus.map(sku => products.find(p => p.sku === sku));\n  }),\n  \n  categoryById: new DataLoader(async (ids) => {\n    const categories = await withTimeout(\n      createCircuitBreaker('category-load')(\n        () => CategoryService.findByIds(ids)\n      ),\n      3000\n    );\n    return ids.map(id => categories.find(c => c.id === id));\n  }),\n  \n  productsByCategory: new DataLoader(async (categoryIds) => {\n    const productGroups = await withTimeout(\n      createCircuitBreaker('products-by-category')(\n        () => ProductService.findByCategoryIds(categoryIds)\n      ),\n      5000\n    );\n    return categoryIds.map(id => productGroups[id] || []);\n  }, { cache: false }),\n  \n  inventoryByProduct: new DataLoader(async (productIds) => {\n    const inventories = await withTimeout(\n      createCircuitBreaker('inventory-load')(\n        () => InventoryService.findByProductIds(productIds)\n      ),\n      3000\n    );\n    return productIds.map(id => inventories.find(inv => inv.productId === id));\n  }),\n  \n  variantsByProduct: new DataLoader(async (productIds) => {\n    const variantGroups = await withTimeout(\n      createCircuitBreaker('variants-load')(\n        () => ProductVariantService.findByProductIds(productIds)\n      ),\n      4000\n    );\n    return productIds.map(id => variantGroups[id] || []);\n  }, { cache: false })\n});\n\n// Enhanced cache invalidation with cross-service coordination\nexport const invalidateProductCache = async (productId, sku) => {\n  const loaders = getContextLoaders();\n  loaders.productById.clear(productId);\n  loaders.productBySku.clear(sku);\n  \n  // Invalidate related caches in other services via event publishing\n  await publishEvent('product.updated', { productId, sku });\n};\n```\n\n## Subgraph 3: Orders Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@external\", \"@requires\", \"@provides\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Enhanced validation directives\ndirective @orderValidation on FIELD_DEFINITION | INPUT_FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Structured error types for order operations\ntype OrderValidationError {\n  field: String!\n  code: OrderErrorCode!\n  message: String!\n  orderItems: [String!]\n}\n\ntype OrderBusinessError {\n  code: OrderErrorCode!\n  message: String!\n  retryable: Boolean!\n  details: JSON\n}\n\nenum OrderErrorCode {\n  INSUFFICIENT_INVENTORY\n  INVALID_SHIPPING_ADDRESS\n  PAYMENT_DECLINED\n  ORDER_NOT_FOUND\n  INVALID_ORDER_STATE\n  SHIPPING_METHOD_UNAVAILABLE\n  DISCOUNT_CODE_INVALID\n  ITEM_DISCONTINUED\n}\n\nunion OrderOperationResult = Order | OrderValidationError | OrderBusinessError\n\n# User entity stub for reference\ntype User @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\n# Product entity stub for reference  \ntype Product @key(fields: \"id\") @external {\n  id: ID! @external\n  sku: String! @external\n  name: String! @external\n  price: Money! @external\n}\n\ntype Query {\n  orders(\n    filter: OrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20 @range(min: 1, max: 100)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): OrderConnection! @authenticated\n  order(id: ID!): Order @authenticated\n  # Admin queries\n  allOrders(\n    filter: AdminOrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 50 @range(min: 1, max: 200)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): OrderConnection! @auth(requires: ADMIN)\n  orderAnalytics(timeframe: AnalyticsTimeframe!): OrderAnalytics! @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  createOrder(input: CreateOrderInput!): OrderOperationResult! @authenticated\n  updateOrderStatus(id: ID!, status: OrderStatus!): OrderOperationResult! @auth(requires: ADMIN)\n  cancelOrder(id: ID!, reason: String @minLength(min: 5)): OrderOperationResult! @authenticated\n  addOrderNote(id: ID!, note: String! @minLength(min: 1)): Order! @auth(requires: ADMIN)\n  processRefund(id: ID!, amount: Float @positiveFloat, reason: String): Refund! @auth(requires: ADMIN)\n  updateShipping(id: ID!, input: ShippingUpdateInput!): Order! @auth(requires: ADMIN)\n}\n\ntype Order @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  orderNumber: String!\n  customer: User! @provides(fields: \"id\")\n  items: [OrderItem!]!\n  status: OrderStatus!\n  fulfillmentStatus: FulfillmentStatus!\n  paymentStatus: PaymentStatus!\n  \n  # Pricing\n  subtotal: Money!\n  taxAmount: Money!\n  shippingAmount: Money!\n  discountAmount: Money!\n  totalAmount: Money!\n  \n  # Addresses\n  shippingAddress: Address!\n  billingAddress: Address!\n  \n  # Shipping\n  shippingMethod: ShippingMethod\n  trackingNumbers: [TrackingInfo!]!\n  estimatedDelivery: DateTime\n  \n  # Metadata\n  notes: [OrderNote!]! @auth(requires: ADMIN)\n  tags: [String!]!\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  completedAt: DateTime\n  \n  # Related data\n  refunds: [Refund!]!\n  events: [OrderEvent!]! @auth(requires: ADMIN)\n}\n\n# Enhanced OrderItem with composite key for better federation resolution\ntype OrderItem @key(fields: \"orderId productId\") {\n  id: ID!\n  orderId: ID!\n  productId: ID!\n  product: Product! @requires(fields: \"id sku name price\")\n  variant: ProductVariant\n  quantity: Int!\n  unitPrice: Money!\n  totalPrice: Money!\n  discountAmount: Money!\n  taxAmount: Money!\n}\n\ntype ProductVariant @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\ntype ShippingMethod {\n  id: ID!\n  name: String!\n  description: String\n  rate: Money!\n  estimatedDays: Int\n  carrier: String\n}\n\ntype TrackingInfo {\n  carrier: String!\n  trackingNumber: String!\n  url: String\n  status: String\n  estimatedDelivery: DateTime\n}\n\ntype OrderNote {\n  id: ID!\n  content: String!\n  isInternal: Boolean!\n  author: User! @provides(fields: \"id\")\n  createdAt: DateTime!\n}\n\ntype OrderEvent {\n  id: ID!\n  type: OrderEventType!\n  description: String!\n  metadata: JSON\n  createdAt: DateTime!\n  actor: User @provides(fields: \"id\")\n}\n\ntype Refund {\n  id: ID!\n  amount: Money!\n  reason: String\n  status: RefundStatus!\n  gateway: String\n  gatewayTransactionId: String\n  processedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype OrderConnection {\n  edges: [OrderEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: OrderAggregations\n}\n\ntype OrderEdge {\n  node: Order!\n  cursor: String!\n}\n\ntype OrderAggregations {\n  statusCounts: [StatusCount!]!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n}\n\ntype StatusCount {\n  status: OrderStatus!\n  count: Int!\n}\n\ntype OrderAnalytics {\n  totalOrders: Int!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n  conversionRate: Float!\n  topProducts: [ProductSalesData!]!\n  dailyStats: [DailySalesData!]!\n}\n\ntype ProductSalesData {\n  product: Product! @requires(fields: \"id name\")\n  quantity: Int!\n  revenue: Money!\n}\n\ntype DailySalesData {\n  date: Date!\n  orders: Int!\n  revenue: Money!\n}\n\nenum OrderStatus {\n  PENDING\n  CONFIRMED\n  PROCESSING\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n}\n\nenum FulfillmentStatus {\n  UNFULFILLED\n  PARTIAL\n  FULFILLED\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  PAID\n  PARTIAL\n  REFUNDED\n  VOIDED\n}\n\nenum OrderEventType {\n  CREATED\n  PAYMENT_PROCESSED\n  INVENTORY_ALLOCATED\n  FULFILLED\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n  NOTE_ADDED\n}\n\nenum RefundStatus {\n  PENDING\n  PROCESSING\n  SUCCESS\n  FAILED\n}\n\nenum AnalyticsTimeframe {\n  TODAY\n  WEEK\n  MONTH\n  QUARTER\n  YEAR\n}\n\nenum OrderSortField {\n  CREATED_AT\n  UPDATED_AT\n  TOTAL_AMOUNT\n  ORDER_NUMBER\n}\n\ninput OrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n}\n\ninput AdminOrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n  totalRange: PriceRangeInput\n  tags: [String!]\n}\n\ninput DateRangeInput {\n  from: DateTime!\n  to: DateTime!\n}\n\ninput OrderSort {\n  field: OrderSortField!\n  direction: SortDirection!\n}\n\ninput CreateOrderInput {\n  items: [OrderItemInput!]! @orderValidation\n  shippingAddress: AddressInput!\n  billingAddress: AddressInput!\n  shippingMethodId: ID!\n  discountCode: String @minLength(min: 3)\n  notes: String @minLength(min: 1)\n}\n\ninput OrderItemInput {\n  productId: ID!\n  variantId: ID\n  quantity: Int! @range(min: 1, max: 999)\n}\n\ninput ShippingUpdateInput {\n  shippingMethodId: ID\n  trackingNumbers: [TrackingInfoInput!]\n  estimatedDelivery: DateTime\n}\n\ninput TrackingInfoInput {\n  carrier: String! @minLength(min: 1)\n  trackingNumber: String! @minLength(min: 1)\n  url: String\n}\n\ninput AddressInput {\n  firstName: String! @minLength(min: 1)\n  lastName: String! @minLength(min: 1)\n  company: String @minLength(min: 1)\n  address1: String! @minLength(min: 1)\n  address2: String @minLength(min: 1)\n  city: String! @minLength(min: 1)\n  province: String @minLength(min: 1)\n  country: String! @minLength(min: 2)\n  zip: String! @minLength(min: 3)\n  phone: String @phoneNumber\n}\n\ntype Address {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation with Enhanced Resilience\n```javascript\n// orders/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\nimport { createCircuitBreaker } from './resilience/circuitBreaker.js';\nimport { withTimeout, withRetry } from './resilience/resilience.js';\n\nexport const createOrderLoaders = () => ({\n  orderById: new DataLoader(async (ids) => {\n    const orders = await withTimeout(\n      withRetry(\n        createCircuitBreaker('order-batch-load')(\n          () => OrderService.findByIds(ids)\n        ),\n        3\n      ),\n      5000\n    );\n    return ids.map(id => orders.find(o => o.id === id));\n  }),\n  \n  ordersByCustomer: new DataLoader(async (customerIds) => {\n    const orderGroups = await withTimeout(\n      createCircuitBreaker('orders-by-customer')(\n        () => OrderService.findByCustomerIds(customerIds)\n      ),\n      6000\n    );\n    return customerIds.map(id => orderGroups[id] || []);\n  }, { cache: false }),\n  \n  orderItemsByOrder: new DataLoader(async (orderIds) => {\n    const itemGroups = await withTimeout(\n      createCircuitBreaker('order-items-load')(\n        () => OrderItemService.findByOrderIds(orderIds)\n      ),\n      4000\n    );\n    return orderIds.map(id => itemGroups[id] || []);\n  }, { cache: false }),\n  \n  refundsByOrder: new DataLoader(async (orderIds) => {\n    const refundGroups = await withTimeout(\n      createCircuitBreaker('refunds-load')(\n        () => RefundService.findByOrderIds(orderIds)\n      ),\n      3000\n    );\n    return orderIds.map(id => refundGroups[id] || []);\n  }, { cache: false }),\n  \n  orderEventsByOrder: new DataLoader(async (orderIds) => {\n    const eventGroups = await withTimeout(\n      createCircuitBreaker('order-events-load')(\n        () => OrderEventService.findByOrderIds(orderIds)\n      ),\n      3000\n    );\n    return orderIds.map(id => eventGroups[id] || []);\n  }, { cache: false }),\n  \n  shippingMethodById: new DataLoader(async (ids) => {\n    const methods = await withTimeout(\n      createCircuitBreaker('shipping-methods-load')(\n        () => ShippingMethodService.findByIds(ids)\n      ),\n      2000\n    );\n    return ids.map(id => methods.find(m => m.id === id));\n  })\n});\n\n// Graceful degradation patterns for non-critical data\nexport const createOrderLoadersWithFallback = () => {\n  const loaders = createOrderLoaders();\n  \n  // Override analytics loader with fallback\n  loaders.orderAnalytics = new DataLoader(async (timeframes) => {\n    try {\n      return await withTimeout(\n        createCircuitBreaker('order-analytics')(\n          () => AnalyticsService.getOrderAnalytics(timeframes)\n        ),\n        10000\n      );\n    } catch (error) {\n      console.warn('Analytics service unavailable, returning empty data:', error.message);\n      // Return empty analytics data instead of failing\n      return timeframes.map(() => ({\n        totalOrders: 0,\n        totalRevenue: { amount: 0, currency: 'USD', formatted: '$0.00' },\n        averageOrderValue: { amount: 0, currency: 'USD', formatted: '$0.00' },\n        conversionRate: 0,\n        topProducts: [],\n        dailyStats: []\n      }));\n    }\n  }, { cache: false });\n  \n  return loaders;\n};\n```\n\n## Subgraph 4: Payments Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@external\", \"@requires\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\n# Enhanced validation directives for payment security\ndirective @creditCard on FIELD_DEFINITION | INPUT_FIELD_DEFINITION\ndirective @currency on FIELD_DEFINITION | INPUT_FIELD_DEFINITION\ndirective @paymentValidation on FIELD_DEFINITION | INPUT_FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Comprehensive error handling for payment operations\ntype PaymentValidationError {\n  field: String!\n  code: PaymentErrorCode!\n  message: String!\n  details: JSON\n}\n\ntype PaymentSecurityError {\n  code: PaymentErrorCode!\n  message: String!\n  fraudScore: Float\n  blocked: Boolean!\n}\n\ntype PaymentBusinessError {\n  code: PaymentErrorCode!\n  message: String!\n  retryable: Boolean!\n  gatewayCode: String\n}\n\nenum PaymentErrorCode {\n  INVALID_PAYMENT_METHOD\n  INSUFFICIENT_FUNDS\n  PAYMENT_DECLINED\n  FRAUD_DETECTED\n  GATEWAY_ERROR\n  INVALID_AMOUNT\n  CURRENCY_NOT_SUPPORTED\n  PAYMENT_ALREADY_PROCESSED\n  REFUND_FAILED\n  AUTHORIZATION_EXPIRED\n}\n\nunion PaymentOperationResult = Payment | PaymentValidationError | PaymentSecurityError | PaymentBusinessError\nunion PaymentIntentResult = PaymentIntent | PaymentValidationError | PaymentBusinessError\n\n# Entity stubs for reference\ntype User @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\ntype Order @key(fields: \"id\") @external {\n  id: ID! @external\n  orderNumber: String! @external\n  totalAmount: Money! @external\n  customer: User! @external @requires(fields: \"id\")\n}\n\ntype Query {\n  payment(id: ID!): Payment @authenticated\n  payments(\n    filter: PaymentFilter\n    sort: PaymentSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20 @range(min: 1, max: 100)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): PaymentConnection! @authenticated\n  \n  # Admin queries\n  allPayments(\n    filter: AdminPaymentFilter\n    sort: PaymentSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 50 @range(min: 1, max: 200)\n    offset: Int = 0 @range(min: 0, max: 10000)\n  ): PaymentConnection! @auth(requires: ADMIN)\n  \n  paymentMethods: [PaymentMethod!]! @authenticated\n  paymentAnalytics(timeframe: AnalyticsTimeframe!): PaymentAnalytics! @auth(requires: ADMIN)\n  fraudAlerts(limit: Int = 20 @range(min: 1, max: 100)): [FraudAlert!]! @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  createPaymentIntent(input: PaymentIntentInput!): PaymentIntentResult! @authenticated\n  confirmPayment(paymentIntentId: ID!, paymentMethodId: ID!): PaymentOperationResult! @authenticated\n  processRefund(paymentId: ID!, amount: Float @positiveFloat, reason: String @minLength(min: 5)): PaymentOperationResult! @auth(requires: ADMIN)\n  captureAuthorization(paymentId: ID!, amount: Float @positiveFloat): PaymentOperationResult! @auth(requires: ADMIN)\n  voidAuthorization(paymentId: ID!): PaymentOperationResult! @auth(requires: ADMIN)\n  \n  # Payment methods management\n  savePaymentMethod(input: PaymentMethodInput!): PaymentOperationResult! @authenticated\n  removePaymentMethod(id: ID!): Boolean! @authenticated\n  updatePaymentMethod(id: ID!, input: PaymentMethodUpdateInput!): PaymentOperationResult! @authenticated\n  \n  # Fraud management\n  markFraudulent(paymentId: ID!, reason: String! @minLength(min: 5)): PaymentOperationResult! @auth(requires: ADMIN)\n  approveFraudAlert(alertId: ID!): FraudAlert! @auth(requires: ADMIN)\n}\n\ntype Payment @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  order: Order! @requires(fields: \"id orderNumber totalAmount\")\n  amount: Money!\n  currency: String! @currency\n  status: PaymentStatus!\n  method: PaymentMethod!\n  gateway: PaymentGateway!\n  \n  # Gateway details\n  gatewayTransactionId: String\n  gatewayResponse: JSON @auth(requires: ADMIN)\n  \n  # Authorization/Capture tracking\n  authorizedAmount: Money\n  capturedAmount: Money!\n  refundedAmount: Money!\n  \n  # Security\n  fraudScore: Float @auth(requires: ADMIN)\n  fraudFlags: [FraudFlag!]! @auth(requires: ADMIN)\n  riskLevel: RiskLevel!\n  \n  # Billing\n  billingAddress: Address!\n  \n  # Metadata\n  description: String\n  metadata: JSON\n  fees: [PaymentFee!]! @auth(requires: ADMIN)\n  \n  # Timestamps\n  authorizedAt: DateTime\n  capturedAt: DateTime\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  \n  # Related data\n  refunds: [PaymentRefund!]!\n  events: [PaymentEvent!]! @auth(requires: ADMIN)\n}\n\ntype PaymentIntent {\n  id: ID!\n  clientSecret: String!\n  amount: Money!\n  currency: String! @currency\n  status: PaymentIntentStatus!\n  order: Order! @requires(fields: \"id\")\n  availablePaymentMethods: [PaymentMethod!]!\n  expiresAt: DateTime!\n  createdAt: DateTime!\n}\n\ntype SavedPaymentMethod @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  customer: User! @requires(fields: \"id\")\n  type: PaymentMethodType!\n  last4: String! @creditCard\n  brand: String\n  expiryMonth: Int @range(min: 1, max: 12)\n  expiryYear: Int @range(min: 2024, max: 2050)\n  billingAddress: Address\n  isDefault: Boolean!\n  createdAt: DateTime!\n}\n\ntype PaymentMethod {\n  id: ID!\n  name: String!\n  type: PaymentMethodType!\n  enabled: Boolean!\n  supportedCurrencies: [String!]! @currency\n  processingFee: ProcessingFee!\n  minimumAmount: Money\n  maximumAmount: Money\n  countries: [String!]!\n}\n\ntype PaymentGateway {\n  id: ID!\n  name: String!\n  type: String!\n  enabled: Boolean!\n  supportedMethods: [PaymentMethodType!]!\n  supportedCurrencies: [String!]! @currency\n}\n\ntype PaymentRefund {\n  id: ID!\n  amount: Money!\n  reason: String\n  status: RefundStatus!\n  gatewayRefundId: String\n  processedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype PaymentEvent {\n  id: ID!\n  type: PaymentEventType!\n  amount: Money\n  description: String!\n  gatewayResponse: JSON\n  createdAt: DateTime!\n}\n\ntype PaymentFee {\n  type: FeeType!\n  amount: Money!\n  description: String\n}\n\ntype FraudAlert {\n  id: ID!\n  payment: Payment! @requires(fields: \"id\")\n  rule: String!\n  score: Float! @range(min: 0.0, max: 1.0)\n  reason: String!\n  status: FraudAlertStatus!\n  reviewedBy: User @requires(fields: \"id\")\n  reviewedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype FraudFlag {\n  type: FraudFlagType!\n  severity: FraudSeverity!\n  description: String!\n}\n\ntype ProcessingFee {\n  fixed: Money\n  percentage: Float! @range(min: 0.0, max: 100.0)\n}\n\ntype PaymentConnection {\n  edges: [PaymentEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: PaymentAggregations\n}\n\ntype PaymentEdge {\n  node: Payment!\n  cursor: String!\n}\n\ntype PaymentAggregations {\n  statusCounts: [PaymentStatusCount!]!\n  totalVolume: Money!\n  totalFees: Money!\n  averageAmount: Money!\n}\n\ntype PaymentStatusCount {\n  status: PaymentStatus!\n  count: Int!\n  amount: Money!\n}\n\ntype PaymentAnalytics {\n  totalVolume: Money!\n  totalFees: Money!\n  successRate: Float! @range(min: 0.0, max: 1.0)\n  fraudRate: Float! @range(min: 0.0, max: 1.0)\n  averageAmount: Money!\n  methodBreakdown: [PaymentMethodStats!]!\n  dailyVolume: [DailyVolumeData!]!\n  topDeclineReasons: [DeclineReasonData!]!\n}\n\ntype PaymentMethodStats {\n  method: PaymentMethodType!\n  volume: Money!\n  count: Int!\n  successRate: Float! @range(min: 0.0, max: 1.0)\n}\n\ntype DailyVolumeData {\n  date: Date!\n  volume: Money!\n  count: Int!\n  successRate: Float! @range(min: 0.0, max: 1.0)\n}\n\ntype DeclineReasonData {\n  reason: String!\n  count: Int!\n  percentage: Float! @range(min: 0.0, max: 100.0)\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  CAPTURED\n  PARTIALLY_CAPTURED\n  PARTIALLY_REFUNDED\n  REFUNDED\n  VOIDED\n  FAILED\n  CANCELLED\n}\n\nenum PaymentIntentStatus {\n  REQUIRES_PAYMENT_METHOD\n  REQUIRES_CONFIRMATION\n  REQUIRES_ACTION\n  PROCESSING\n  SUCCEEDED\n  CANCELLED\n}\n\nenum PaymentMethodType {\n  CREDIT_CARD\n  DEBIT_CARD\n  PAYPAL\n  APPLE_PAY\n  GOOGLE_PAY\n  BANK_TRANSFER\n  BUY_NOW_PAY_LATER\n  CRYPTOCURRENCY\n  GIFT_CARD\n}\n\nenum RefundStatus {\n  PENDING\n  PROCESSING\n  SUCCESS\n  FAILED\n  CANCELLED\n}\n\nenum PaymentEventType {\n  AUTHORIZATION_REQUESTED\n  AUTHORIZED\n  AUTHORIZATION_FAILED\n  CAPTURE_REQUESTED\n  CAPTURED\n  CAPTURE_FAILED\n  REFUND_REQUESTED\n  REFUNDED\n  REFUND_FAILED\n  VOIDED\n  CHARGEBACK_CREATED\n  CHARGEBACK_RESOLVED\n}\n\nenum RiskLevel {\n  LOW\n  MEDIUM\n  HIGH\n  BLOCKED\n}\n\nenum FraudFlagType {\n  VELOCITY\n  GEOLOCATION\n  DEVICE_FINGERPRINT\n  BIN_CHECK\n  CVV_MISMATCH\n  AVS_MISMATCH\n  BLACKLIST\n  SUSPICIOUS_PATTERN\n}\n\nenum FraudSeverity {",
+  "total_score": 62.63,
+  "max_score": 85,
+  "percentage": 0.7368235294117648,
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_directive_implementation",
+      "points_earned": 4.99,
+      "max_points": 7,
+      "percentage": 0.7124999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "link_directive_compliance",
+          "raw_value": 1.0,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "entity_key_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_subgraph_resolution",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: link_directive_compliance: 100%x25% + entity_key_design: 75%x35% + cross_subgraph_resolution: 50%x40%",
+      "improvement_hints": [
+        "cross_subgraph_resolution: 50% -> 80% (+0.8 pts)",
+        "entity_key_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_composition_validity",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "entity_key_stability",
+      "points_earned": 4.72,
+      "max_points": 6,
+      "percentage": 0.7875,
+      "sub_scores": [
+        {
+          "sub_id": "key_immutability",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_resolution",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "composite_key_design",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: key_immutability: 100%x40% + cross_service_resolution: 75%x35% + composite_key_design: 50%x25%",
+      "improvement_hints": [
+        "composite_key_design: 50% -> 80% (+0.5 pts)",
+        "cross_service_resolution: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_boundary_separation",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_clarity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_domain_coupling",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_clarity: 75%x50% + cross_domain_coupling: 75%x50%",
+      "improvement_hints": [
+        "entity_ownership_clarity: 75% -> 80% (+0.3 pts)",
+        "cross_domain_coupling: 75% -> 80% (+0.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_directive_implementation",
+      "points_earned": 5.03,
+      "max_points": 6,
+      "percentage": 0.8375,
+      "sub_scores": [
+        {
+          "sub_id": "field_level_authorization",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "role_based_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "token_validation_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: field_level_authorization: 75%x40% + role_based_consistency: 100%x35% + token_validation_implementation: 75%x25%",
+      "improvement_hints": [
+        "field_level_authorization: 75% -> 80% (+0.1 pts)",
+        "token_validation_implementation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 5 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dataloader_implementation",
+      "points_earned": 5.17,
+      "max_points": 6,
+      "percentage": 0.8624999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "batch_loading_coverage",
+          "raw_value": 1.0,
+          "weighted_value": 0.45,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "caching_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_batching",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: batch_loading_coverage: 100%x45% + caching_strategy: 75%x35% + federation_batching: 75%x20%",
+      "improvement_hints": [
+        "caching_strategy: 75% -> 80% (+0.1 pts)",
+        "federation_batching: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "type_design_consistency",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.7499999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "naming_consistency",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "nullability_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "input_output_patterns",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: naming_consistency: 75%x35% + nullability_design: 75%x35% + input_output_patterns: 75%x30%",
+      "improvement_hints": [
+        "naming_consistency: 75% -> 80% (+0.1 pts)",
+        "nullability_design: 75% -> 80% (+0.1 pts)",
+        "input_output_patterns: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "validation_error_handling",
+      "points_earned": 3.88,
+      "max_points": 5,
+      "percentage": 0.775,
+      "sub_scores": [
+        {
+          "sub_id": "input_validation_coverage",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_type_design",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_error_propagation",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: input_validation_coverage: 75%x40% + error_type_design: 100%x35% + federation_error_propagation: 50%x25%",
+      "improvement_hints": [
+        "federation_error_propagation: 50% -> 80% (+0.4 pts)",
+        "input_validation_coverage: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "query_execution_efficiency",
+      "points_earned": 2.19,
+      "max_points": 5,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "service_call_efficiency",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "field_resolution_strategy",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "common_query_optimization",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: service_call_efficiency: 50%x40% + field_resolution_strategy: 50%x35% + common_query_optimization: 25%x25%",
+      "improvement_hints": [
+        "common_query_optimization: 25% -> 80% (+0.7 pts)",
+        "service_call_efficiency: 50% -> 80% (+0.6 pts)",
+        "field_resolution_strategy: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "error_resilience_patterns",
+      "points_earned": 3.94,
+      "max_points": 5,
+      "percentage": 0.7875,
+      "sub_scores": [
+        {
+          "sub_id": "circuit_breaker_implementation",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "graceful_degradation",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_boundary_definition",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: circuit_breaker_implementation: 100%x40% + graceful_degradation: 75%x35% + error_boundary_definition: 50%x25%",
+      "improvement_hints": [
+        "error_boundary_definition: 50% -> 80% (+0.4 pts)",
+        "graceful_degradation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_performance_coherence",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "auth_efficiency_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "auth_batching_compatibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_auth_consistency",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_efficiency_design: 75%x40% + auth_batching_compatibility: 75%x35% + cross_service_auth_consistency: 75%x25%",
+      "improvement_hints": [
+        "auth_efficiency_design: 75% -> 80% (+0.1 pts)",
+        "auth_batching_compatibility: 75% -> 80% (+0.1 pts)",
+        "cross_service_auth_consistency: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "federation_domain_alignment",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6625,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_alignment",
+          "raw_value": 0.75,
+          "weighted_value": 0.3375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resolution_pattern_coherence",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "key_design_domain_support",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_alignment: 75%x45% + resolution_pattern_coherence: 50%x35% + key_design_domain_support: 75%x20%",
+      "improvement_hints": [
+        "resolution_pattern_coherence: 50% -> 80% (+0.5 pts)",
+        "entity_ownership_alignment: 75% -> 80% (+0.1 pts)",
+        "key_design_domain_support: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_resilience_integration",
+      "points_earned": 2.65,
+      "max_points": 4,
+      "percentage": 0.6625000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "auth_failure_resilience",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "security_error_boundary_alignment",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeout_circuit_integration",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_failure_resilience: 75%x40% + security_error_boundary_alignment: 50%x35% + timeout_circuit_integration: 75%x25%",
+      "improvement_hints": [
+        "security_error_boundary_alignment: 50% -> 80% (+0.4 pts)",
+        "auth_failure_resilience: 75% -> 80% (+0.1 pts)",
+        "timeout_circuit_integration: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "network_security_controls",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "network_isolation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "gateway_authentication",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trusted_source_verification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: network_isolation: 0%x40% + gateway_authentication: 0%x30% + trusted_source_verification: 0%x30%",
+      "improvement_hints": [
+        "network_isolation: 0% -> 80% (+1.3 pts)",
+        "gateway_authentication: 0% -> 80% (+1.0 pts)",
+        "trusted_source_verification: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "error_resilience_patterns.circuit_breaker_implementation",
+    "error_resilience_patterns.graceful_degradation",
+    "error_resilience_patterns.error_boundary_definition",
+    "security_resilience_integration.auth_failure_resilience",
+    "security_resilience_integration.security_error_boundary_alignment"
+  ]
+}

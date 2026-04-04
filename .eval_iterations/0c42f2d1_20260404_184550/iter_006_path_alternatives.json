@@ -1,0 +1,29 @@
+[
+  {
+    "current_approach_summary": "The generator is creating a general connection pool debugging walkthrough focused on pool exhaustion and connection leaks rather than specifically addressing PostgreSQL query cancellation race conditions.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Focus specifically on PostgreSQL's query cancellation protocol race conditions where cancel requests can target the wrong query due to timing issues between connection reuse and cancellation signals. Build a walkthrough that demonstrates how to detect when a cancel request affects a different query than intended, and implement proper cancellation handling with connection isolation.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on 'PostgreSQL query cancellation race conditions' rather than general connection pool issues.",
+        "example_signal": "A debugging section that shows how to trace cancel request process IDs against actual running queries and detect mismatched cancellations."
+      },
+      {
+        "rank": 2,
+        "strategy": "Create a walkthrough centered on PostgreSQL's SIGINT/SIGTERM cancellation mechanism race conditions, where the QueryCancelPending flag can be set during connection handoff between requests. Focus on detecting when cancellation signals affect newly acquired connections that are executing different queries than the originally intended target.",
+        "why_it_might_work": "This targets the specific PostgreSQL cancellation handling patterns mentioned in the measurement spec rather than generic pool management.",
+        "example_signal": "Code examples showing how to correlate cancellation timestamps with connection acquisition events to identify race conditions."
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the walkthrough around PostgreSQL's connection-level cancellation architecture where cancel requests use process IDs rather than query IDs, creating race conditions when connections are rapidly recycled. Include detection methods for when cancellation affects unintended queries due to connection reuse timing.",
+        "why_it_might_work": "This addresses the fundamental PostgreSQL cancellation design that creates race conditions, which is what the measurement spec specifically targets.",
+        "example_signal": "Debugging steps that track connection process ID reuse patterns and correlate them with cancellation request timing."
+      }
+    ],
+    "recommendation": "Alternative 1, because it most directly addresses PostgreSQL-specific query cancellation race conditions rather than general connection pool issues, which aligns with the measurement spec's focus on cancellation handling patterns.",
+    "criterion_id": "postgresql_cancellation_handling",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0% \u2192 0% \u2192 0%"
+  }
+]

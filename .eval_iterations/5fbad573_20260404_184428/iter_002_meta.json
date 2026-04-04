@@ -1,0 +1,78 @@
+{
+  "run_id": "5fbad573_20260404_184428",
+  "iteration": 2,
+  "total_score": 31.990000000000002,
+  "max_score": 51,
+  "percentage": 0.6272549019607844,
+  "delta_from_prior": 0.3069,
+  "focus_areas": [
+    "pg_consistent_snapshot_config.serializable_isolation",
+    "postgresql_aware_error_handling.serializable_retry_logic",
+    "postgresql_aware_error_handling.pg_error_classification",
+    "aws_cli_security_integration.hardcoded_credentials",
+    "s3_lifecycle_backup_rotation.compliance_retention"
+  ],
+  "content_path": ".eval_iterations/5fbad573_20260404_184428/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "pg_consistent_snapshot_config",
+      "points_earned": 2.55,
+      "max_points": 6,
+      "percentage": 0.42500000000000004
+    },
+    {
+      "criterion_id": "postgresql_aware_error_handling",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "aws_cli_security_integration",
+      "points_earned": 3.0,
+      "max_points": 6,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "s3_lifecycle_backup_rotation",
+      "points_earned": 3.45,
+      "max_points": 6,
+      "percentage": 0.5750000000000001
+    },
+    {
+      "criterion_id": "backup_integrity_verification",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "structured_logging_monitoring",
+      "points_earned": 4.69,
+      "max_points": 5,
+      "percentage": 0.9375
+    },
+    {
+      "criterion_id": "encryption_compliance_framework",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "pgbackrest_enterprise_backup",
+      "points_earned": 1.4,
+      "max_points": 4,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "wal_archiving_pitr",
+      "points_earned": 0.6,
+      "max_points": 4,
+      "percentage": 0.15
+    },
+    {
+      "criterion_id": "disaster_recovery_procedures",
+      "points_earned": 1.55,
+      "max_points": 4,
+      "percentage": 0.38749999999999996
+    }
+  ]
+}

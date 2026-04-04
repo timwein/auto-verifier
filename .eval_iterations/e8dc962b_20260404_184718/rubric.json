@@ -1,0 +1,523 @@
+{
+  "task": "Create a procurement negotiation playbook for a $500K enterprise SaaS deal, including BATNA analysis, concession strategy, anchoring tactics, and scripted responses to 5 common vendor objections",
+  "domain": "Enterprise SaaS Procurement",
+  "total_points": 67,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "batna_quantified_alternatives_analysis",
+      "category": "BATNA Analysis & Alternatives Quantification",
+      "description": "Evaluates whether BATNA analysis includes structured financial alternatives with realistic cost modeling frameworks, competitive analysis methodology, and implementation timeline considerations that procurement teams can adapt with their specific market intelligence",
+      "pass_condition": "Must include at least 5 alternative scenarios with detailed cost modeling frameworks including sensitivity analysis, competitive analysis template with specific vendor intelligence gathering methodologies and pricing validation approaches, build vs. buy analysis with quantified risk-adjusted TCO calculations over 3+ years including integration complexity factors, and vendor financial health assessment framework",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "competitive_pricing_depth",
+            "description": "Depth and specificity of competitive vendor pricing analysis with named competitors and actual pricing ranges",
+            "weight": 0.35,
+            "measurement": "1.0 if includes 3+ named competitors with specific pricing ranges and discount structures, 0.7 if includes 2 competitors with pricing ranges, 0.4 if mentions competitors but lacks specific pricing, 0.0 if generic or absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "build_vs_buy_quantification",
+            "description": "Financial rigor of build vs. buy analysis including development costs, ongoing maintenance, and opportunity costs",
+            "weight": 0.3,
+            "measurement": "1.0 if includes detailed TCO model with development costs, staffing requirements, timeline to value, and opportunity costs, 0.7 if includes basic cost comparison with timelines, 0.4 if mentions build option without detailed analysis, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "delayed_implementation_modeling",
+            "description": "Analysis of delayed implementation scenarios with quantified business impact and cost implications",
+            "weight": 0.35,
+            "measurement": "1.0 if includes specific financial impact of delays with productivity loss calculations and timeline dependencies, 0.7 if includes delay scenarios with basic cost impact, 0.4 if mentions delay option without quantification, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "BATNA includes Salesforce at $125/user/month vs. HubSpot at $95/user/month, build option estimated at $2.3M over 3 years with 18-month development timeline, delayed implementation costing $450K in productivity losses quarterly"
+      ],
+      "fail_examples": [
+        "BATNA mentions 'competitive options available' and 'could build internally' without specific vendors, pricing, or timelines"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "BATNA includes 3+ quantified alternatives with detailed cost analysis, risk assessment, and implementation timelines"
+    },
+    {
+      "id": "batna_margin_structure_alignment",
+      "category": "BATNA Analysis & Alternatives Quantification",
+      "description": "Evaluates whether BATNA alternatives demonstrate understanding of common SaaS vendor business model pressures and typical margin structures to create realistic negotiation leverage frameworks",
+      "pass_condition": "Must reference typical SaaS margin levers like multi-year commits, user scaling economics, module bundling strategies, and fiscal timing considerations with frameworks for assessing vendor flexibility based on common industry patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "saas_specific_leverage_points",
+            "description": "Identification and quantification of SaaS-specific negotiation levers based on vendor business model",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 4+ specific SaaS levers with quantified impact (multi-year, user tiers, modules, support levels), 0.7 if identifies 3 levers with some quantification, 0.4 if identifies levers without quantification, 0.0 if generic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "vendor_quota_timing_analysis",
+            "description": "Analysis of vendor fiscal pressures and quota timing to optimize negotiation timing and leverage",
+            "weight": 0.35,
+            "measurement": "1.0 if includes specific vendor fiscal calendar, quota pressures, and discount authority escalation, 0.7 if includes basic timing considerations, 0.4 if mentions timing without vendor-specific analysis, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "margin_impact_quantification",
+            "description": "Understanding of how different contract structures impact vendor margins and negotiation flexibility",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates clear understanding of vendor margin impact from different deal structures with specific percentages, 0.7 if shows basic margin awareness, 0.4 if surface-level understanding, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis shows 3-year commit provides 15-20% vendor discount flexibility, Q4 timing creates 8-12% additional leverage, enterprise module bundling vs. individual licenses impacts vendor margin by 25-30%"
+      ],
+      "fail_examples": [
+        "BATNA mentions 'vendor will be flexible on pricing' and 'timing matters' without specific understanding of SaaS business model levers or quantified vendor economics"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Concession strategy accounts for software vendor margin structures, quota pressures, fiscal quarter timing, and upgrade path dependencies"
+    },
+    {
+      "id": "saas_concession_levers",
+      "category": "SaaS-Specific Concession Strategy",
+      "description": "Evaluates sophisticated use of SaaS-specific concession levers that exploit vendor margin structures, quota pressures, and enterprise software economics rather than generic price reduction tactics",
+      "pass_condition": "Must include at least 4 different SaaS-specific concession levers with quantified ranges, map each lever to specific vendor pressure points, and sequence concessions based on vendor cost structure hierarchy",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "lever_sophistication",
+            "description": "Use of advanced SaaS concession levers beyond basic volume discounts",
+            "weight": 0.35,
+            "measurement": "1.0 if includes 5+ sophisticated levers with quantified ranges, 0.7 if 3-4 levers with some quantification, 0.4 if basic volume/term discounts only, 0.0 if generic concessions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "vendor_pressure_mapping",
+            "description": "Alignment of concession timing with vendor-specific pressure points",
+            "weight": 0.35,
+            "measurement": "1.0 if maps concessions to fiscal quarter timing, quota attainment cycles, and competitive displacement threats with specific timing strategies, 0.7 if addresses 2 pressure points, 0.4 if mentions timing but lacks specificity, 0.0 if ignores vendor pressure dynamics",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "concession_sequencing",
+            "description": "Strategic sequencing of concessions based on vendor cost impact hierarchy",
+            "weight": 0.3,
+            "measurement": "1.0 if provides clear concession sequence from low-cost to high-cost vendor concessions with rationale, 0.7 if shows some sequencing logic, 0.4 if lists concessions without sequence, 0.0 if random or absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Concession sequence: Start with implementation service credits (low vendor cost), then extended payment terms, followed by multi-year pricing locks, finally user scaling tier improvements - timed to vendor Q4 with quota pressure"
+      ],
+      "fail_examples": [
+        "Concession strategy suggests 'ask for discount, then ask for better terms, then negotiate support' without understanding vendor economics or SaaS-specific levers"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Understanding of SaaS pricing models (size-based, transaction-based) and multi-year commits, user scaling, module bundling levers"
+    },
+    {
+      "id": "anchoring_market_intelligence",
+      "category": "Anchoring & Price Discovery Tactics",
+      "description": "Evaluates use of market intelligence frameworks and competitive benchmarking methodologies to establish favorable anchoring positions with guidance for obtaining current market data",
+      "pass_condition": "Must include comprehensive market benchmarking framework with methodology for gathering pricing ranges from at least 3 different intelligence sources, guidance for leveraging analyst reports with specific questioning frameworks for vendor interviews, competitive positioning analysis template with intelligence gathering strategies including reference customer analysis, and price validation methodology using multiple data triangulation approaches",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "benchmark_specificity",
+            "description": "Quality and specificity of market pricing benchmarks and competitive intelligence",
+            "weight": 0.4,
+            "measurement": "1.0 if includes specific pricing benchmarks from named sources (Gartner, analyst reports, peer networks) with quantified ranges, 0.7 if includes benchmarks with some specificity, 0.4 if mentions market pricing without sources, 0.0 if absent or vague",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_positioning_analysis",
+            "description": "Understanding of vendor competitive positioning and vulnerability points for anchoring leverage",
+            "weight": 0.35,
+            "measurement": "1.0 if demonstrates deep understanding of vendor competitive threats and positioning with specific market share or feature gaps, 0.7 if shows basic competitive awareness, 0.4 if mentions competition without analysis, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "anchoring_sequence_strategy",
+            "description": "Strategic sequencing of anchoring tactics beyond initial price point establishment",
+            "weight": 0.25,
+            "measurement": "1.0 if provides multi-layered anchoring strategy across price, terms, and value with specific sequence, 0.7 if shows some anchoring sophistication, 0.4 if basic price anchoring only, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Anchoring uses Gartner Magic Quadrant positioning data, Salesforce pricing at $150/user benchmark from peer CFO network, vendor's 23% market share decline vs. Microsoft, sequence: value anchor first, then competitive price, then term optimization"
+      ],
+      "fail_examples": [
+        "Anchoring strategy suggests 'research competitor pricing and use in negotiations' without specific sources, benchmarks, or sophisticated anchoring beyond price comparison"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "[Partial] using market intelligence, benchmarks, and spend analysis"
+    },
+    {
+      "id": "vendor_objection_enterprise_responses",
+      "category": "Vendor Objection Response Framework",
+      "description": "Evaluates quality of scripted responses to sophisticated vendor objections specific to enterprise SaaS deals, including artificial urgency, upgrade dependencies, and margin protection strategies",
+      "pass_condition": "Must provide scripted responses to at least 7 sophisticated enterprise SaaS vendor objections with specific counter-arguments including data-backed rebuttals, alternative value propositions that address enterprise buying concerns, and follow-up questioning frameworks to expose vendor negotiation positions and cost structures",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 7,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_urgency_tactics_response": -0.2,
+          "absent_upgrade_dependency_counter": -0.15,
+          "no_margin_protection_rebuttal": -0.15,
+          "generic_objection_responses": -0.25,
+          "missing_evidence_based_counters": -0.15,
+          "fewer_than_5_objections": -0.1
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Objection responses include: Urgency tactics - 'We understand Q4 timing but our fiscal year allows flexible start dates, let's optimize for mutual value'; Upgrade dependencies - 'We've verified current modules meet 80% of requirements with APIs for gaps'; Non-negotiable pricing - 'Gartner benchmarks show 15-25% variance in similar deals, let's explore value-based pricing'"
+      ],
+      "fail_examples": [
+        "Objection responses like 'We'll consider your concerns' or 'Let's discuss alternatives' without specific enterprise SaaS objection categories, evidence-based counters, or sophisticated vendor tactics understanding"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "[Partial] Vendor sales reps have hundreds of 'at bats' with complex pricing schemas designed to maximize enterprise payments"
+    },
+    {
+      "id": "risk_mitigation_contract_protection",
+      "category": "Risk Mitigation & Contract Protection",
+      "description": "Evaluates comprehensive enterprise risk assessment including vendor lock-in, data portability, SLA enforcement, and specific contract language that protects enterprise interests",
+      "pass_condition": "Must address at least 4 enterprise risk categories with specific mitigation strategies, include quantified switching costs and lock-in scenarios, and provide specific contract language for key protection mechanisms",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_vendor_lockin_analysis": -0.25,
+          "absent_data_portability_provisions": -0.2,
+          "no_sla_enforcement_mechanisms": -0.15,
+          "missing_financial_stability_assessment": -0.15,
+          "absent_specific_contract_language": -0.15,
+          "unquantified_switching_costs": -0.1
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Risk mitigation includes vendor lock-in exit costs of $340K for data migration, specific contract language for data portability in standard formats, SLA enforcement with 5% monthly credit for <99.5% uptime, financial stability assessment with D&B rating requirements"
+      ],
+      "fail_examples": [
+        "Risk section mentions 'standard enterprise risks' and 'appropriate contract protections' without specific risk categories, quantified impacts, or detailed mitigation strategies"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Contractual provisions for data export rights in standard formats (CSV, JSON, XML), 30-90 day post-termination access periods, and explicit data ownership clauses"
+    },
+    {
+      "id": "compliance_sox_governance",
+      "category": "Compliance & Governance Alignment",
+      "description": "Evaluates comprehensive enterprise governance frameworks for software acquisitions with integrated compliance execution controls, including software capitalization considerations, audit documentation standards, security assessment protocols, and specific compliance checkpoints embedded in stakeholder workflows and decision processes",
+      "pass_condition": "Must include software capitalization framework with asset vs. expense considerations, audit trail documentation requirements including approval workflows and change management, enterprise procurement policy compliance framework, security assessment protocol with vendor due diligence requirements, compliance verification checkpoints explicitly embedded in stakeholder approval matrix with assigned responsibilities, and governance milestone gates integrated into negotiation timeline with specific deliverables and escalation protocols",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_sox_compliance_requirements": -0.3,
+          "absent_audit_trail_standards": -0.2,
+          "no_security_assessment_protocols": -0.2,
+          "missing_procurement_policy_alignment": -0.15,
+          "absent_approval_workflow_mapping": -0.15
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Compliance framework includes SOX requirements for software asset capitalization >$100K, audit trail documentation with approval timestamps, security assessment requiring SOC2 Type II certification, procurement policy alignment with 3-vendor evaluation requirement"
+      ],
+      "fail_examples": [
+        "Compliance section mentions 'following corporate policies' and 'standard approvals' without specific SOX, security, or audit requirements for enterprise software acquisitions"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Contract audit trails, change management controls, segregation of duties for software capitalization, and Section 404 compliance documentation"
+    },
+    {
+      "id": "financial_tco_modeling",
+      "category": "Financial Impact Modeling",
+      "description": "Evaluates total cost of ownership calculations, multi-year financial modeling, and integration with corporate financial planning processes beyond simple purchase price analysis",
+      "pass_condition": "Must include comprehensive 5-year TCO model with implementation costs, ongoing operational expenses, integration costs, clear budget impact analysis with cash flow timing considerations, risk-adjusted cost scenarios with sensitivity analysis, and integration with corporate budgeting cycles including capital vs. operational expense treatment",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "tco_comprehensiveness",
+            "description": "Completeness of total cost of ownership modeling beyond license costs",
+            "weight": 0.4,
+            "measurement": "1.0 if includes all major cost categories (license, implementation, training, integration, ongoing support, exit costs) with specific amounts over 3+ years, 0.7 if includes most categories with some quantification, 0.4 if basic cost categories without detail, 0.0 if license cost only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cash_flow_analysis",
+            "description": "Analysis of cash flow impact and budget timing considerations",
+            "weight": 0.35,
+            "measurement": "1.0 if includes detailed cash flow analysis with monthly/quarterly impact, budget period allocation, and payment timing optimization, 0.7 if includes basic cash flow considerations, 0.4 if mentions timing without analysis, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "corporate_planning_integration",
+            "description": "Integration with corporate financial planning and cost allocation frameworks",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates integration with corporate budgeting cycles, departmental cost allocation, and capital vs. operational expense treatment, 0.7 if shows some corporate planning alignment, 0.4 if basic budget considerations, 0.0 if standalone analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "TCO model shows $500K license, $150K implementation, $75K annual training, $200K integration costs over 3 years = $925K total; cash flow analysis spreads costs across fiscal years 2024-2026 with Q1 budget impact of $225K"
+      ],
+      "fail_examples": [
+        "Financial analysis shows '$500K software cost plus implementation' without detailed TCO breakdown, multi-year modeling, or corporate financial planning integration"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "[Partial] Teams lack understanding of complex licensing/subscription models, leading to purchases of overpowered SKUs or bundles with unnecessary functionality"
+    },
+    {
+      "id": "negotiation_stakeholder_execution",
+      "category": "Negotiation Process & Execution",
+      "description": "Evaluates structured negotiation methodology including stakeholder alignment, decision authority mapping, timeline management, and escalation protocols for enterprise software negotiations",
+      "pass_condition": "Must include comprehensive stakeholder decision matrix with specific roles, authority levels, and influence mapping, negotiation timeline with key milestones and contingency planning, escalation protocols for deadlocks with specific trigger points and authority chains, post-negotiation implementation planning framework with success metrics, and change management protocols for stakeholder alignment throughout negotiation phases",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "stakeholder_authority_mapping",
+            "description": "Clear mapping of stakeholder roles, decision authority, and approval requirements",
+            "weight": 0.3,
+            "measurement": "1.0 if includes detailed stakeholder matrix with specific authority levels, approval thresholds, and decision-making roles for all key participants, 0.7 if includes basic stakeholder mapping, 0.4 if mentions stakeholders without authority clarity, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_milestone_management",
+            "description": "Structured timeline with key negotiation milestones and critical path dependencies",
+            "weight": 0.25,
+            "measurement": "1.0 if provides detailed negotiation timeline with specific milestones, dependencies, and contingency planning, 0.7 if includes basic timeline structure, 0.4 if mentions timing without detail, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "escalation_protocol_framework",
+            "description": "Clear escalation protocols and deadlock resolution mechanisms",
+            "weight": 0.25,
+            "measurement": "1.0 if includes specific escalation triggers, authority levels, and alternative resolution mechanisms, 0.7 if includes basic escalation planning, 0.4 if mentions escalation without specifics, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_transition_planning",
+            "description": "Post-negotiation implementation planning and success measurement framework",
+            "weight": 0.2,
+            "measurement": "1.0 if includes detailed implementation planning with success metrics, timeline, and resource allocation, 0.7 if includes basic implementation considerations, 0.4 if mentions implementation without detail, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Stakeholder matrix: CFO approval >$250K, CTO technical sign-off, Legal contract approval; Timeline: 6-week negotiation with weekly milestones; Escalation: procurement director \u2192 VP level \u2192 C-suite mediation; Implementation: 90-day rollout plan with success metrics"
+      ],
+      "fail_examples": [
+        "Negotiation process mentions 'involve key stakeholders' and 'follow standard timeline' without specific authority mapping, milestone planning, or escalation protocols"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "[Partial] Procurement brought in too late after business stakeholders are 'emotionally sold'"
+    },
+    {
+      "id": "contract_renewal_protection",
+      "category": "Contract Risk Management",
+      "description": "Evaluates contract provisions that eliminate auto-renewal traps and establish price escalation caps to prevent vendor lock-in and uncontrolled cost increases",
+      "pass_condition": "Includes explicit auto-renewal elimination clauses with specific notice periods and termination rights, price escalation caps with percentage limits tied to relevant economic indices, contract modification restrictions requiring mutual consent, and vendor lock-in prevention mechanisms including data portability guarantees and competitive transition assistance",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "auto_renewal_elimination",
+            "description": "Contract language that requires explicit renewal approval rather than automatic continuation",
+            "weight": 0.6,
+            "measurement": "4=Explicit opt-in renewal required with 90+ day notice, 3=Opt-in with 60-90 day notice, 2=Opt-out with adequate notice, 1=Limited opt-out provisions, 0=Auto-renewal with minimal notice",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "price_escalation_caps",
+            "description": "Specific percentage limits on annual price increases with market benchmarking provisions",
+            "weight": 0.4,
+            "measurement": "4=Hard caps \u22645% with CPI indexing, 3=Caps 5-10% with benchmarking rights, 2=Caps 10-15% with some protections, 1=Vague escalation limits, 0=No price protection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Contract requires written renewal notice 120 days before expiration with explicit approval, price increases capped at 3% annually or CPI, whichever is lower",
+        "No automatic renewal clause, all renewals require new SOW execution, price escalation limited to 5% with right to benchmark against peer pricing"
+      ],
+      "fail_examples": [
+        "Standard auto-renewal with 30-day opt-out notice and no price escalation limits",
+        "Automatic renewal unless cancelled 60 days prior, price increases at vendor discretion with market rate justification"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Failure to eliminate auto-renewal clauses allows vendors to continue invoicing, while lack of price caps enables steep increases"
+    },
+    {
+      "id": "shadow_it_prevention_controls",
+      "category": "Procurement Governance",
+      "description": "Evaluates controls and processes to prevent shadow IT purchases and ensure centralized procurement oversight for enterprise software acquisitions",
+      "pass_condition": "Includes comprehensive preventive controls (approval workflows with spending thresholds, mandatory vendor evaluation processes, centralized software inventory management) AND sophisticated detective controls (automated spend monitoring with anomaly detection, compliance auditing with specific violation protocols, regular software discovery scans) with enforcement mechanisms and penalty frameworks for policy violations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "preventive_controls",
+            "description": "Mandatory approval workflows and spending thresholds that route software purchases through procurement",
+            "weight": 0.5,
+            "measurement": "4=All software purchases >$1K require procurement approval with automated workflow, 3=Purchases >$5K require approval, 2=Purchases >$10K require approval, 1=High threshold or manual process, 0=No mandatory routing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "detective_controls",
+            "description": "Monitoring and auditing processes to identify unauthorized software purchases and ensure compliance",
+            "weight": 0.5,
+            "measurement": "4=Automated spend monitoring with monthly compliance audits and violation reporting, 3=Quarterly audits with systematic review, 2=Semi-annual audits, 1=Annual or ad-hoc review, 0=No systematic monitoring",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "All software purchases over $1,000 automatically route through procurement approval workflow, with monthly spend analysis reports identifying potential shadow IT purchases",
+        "Mandatory procurement involvement for any software subscription, quarterly compliance audits of departmental spending with violation escalation to department heads"
+      ],
+      "fail_examples": [
+        "Departments can purchase software under $25,000 without procurement involvement, annual review of major contracts only",
+        "Procurement notified of software purchases after contract execution, no systematic monitoring of decentralized spending"
+      ],
+      "domain": "Enterprise SaaS Procurement",
+      "research_basis": "Shadow IT and decentralized purchasing result in security risks, duplicate tools, missed renewals, and decentralized spending"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "batna_analysis",
+      "name": "BATNA Analysis & Alternatives Quantification",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "saas_specific_strategy",
+      "name": "SaaS-Specific Concession Strategy",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "anchoring_tactics",
+      "name": "Anchoring & Price Discovery Tactics",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "vendor_objection_responses",
+      "name": "Vendor Objection Response Framework",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "risk_mitigation",
+      "name": "Risk Mitigation & Contract Protection",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "compliance_governance",
+      "name": "Compliance & Governance Alignment",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "financial_modeling",
+      "name": "Financial Impact Modeling",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "negotiation_execution",
+      "name": "Negotiation Process & Execution",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    }
+  ]
+}

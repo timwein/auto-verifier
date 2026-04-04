@@ -1,0 +1,246 @@
+{
+  "task_results": {
+    "sql_ltv_query": {
+      "task_key": "sql_ltv_query",
+      "task_prompt": "Create a SQL query to find the top 10 customers by lifetime value excluding refunds, from a schema you define",
+      "rubric_domain": "sql_query",
+      "rubric_criteria_count": 4,
+      "rubric_max_points": 36,
+      "baseline": {
+        "output": "I'll create a schema for an e-commerce system and then write a query to find the top 10 customers by lifetime value excluding refunds.\n\n## Schema Definition\n\n```sql\n-- Customers table\nCREATE TABLE customers (\n    customer_id INT PRIMARY KEY,\n    first_name VARCHAR(50),\n    last_name VARCHAR(50),\n    email VARCHAR(100),\n    registration_date DATE\n);\n\n-- Orders table\nCREATE TABLE orders (\n    order_id INT PRIMARY KEY,\n    customer_id INT,\n    order_date DATE,\n    order_status VARCHAR(20), -- 'completed', 'pending', 'cancelled', 'refunded'\n    total_amount DECIMAL(10,2),\n    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)\n);\n\n-- Order items table (for detailed breakdown)\nCREATE TABLE order_items (\n    order_item_id INT PRIMARY KEY,\n    order_id INT,\n    product_id INT,\n    quantity INT,\n    unit_price DECIMAL(10,2),\n    line_total DECIMAL(10,2),\n    FOREIGN KEY (order_id) REFERENCES orders(order_id)\n);\n\n-- Refunds table\nCREATE TABLE refunds (\n    refund_id INT PRIMARY KEY,\n    order_id INT,\n    refund_date DATE,\n    refund_amount DECIMAL(10,2),\n    refund_reason VARCHAR(200),\n    FOREIGN KEY (order_id) REFERENCES orders(order_id)\n);\n```\n\n## SQL Query to Find Top 10 Customers by Lifetime Value (Excluding Refunds)\n\n```sql\nWITH customer_revenue AS (\n    -- Calculate total revenue per customer from completed orders\n    SELECT \n        c.customer_id,\n        c.first_name,\n        c.last_name,\n        c.email,\n        COALESCE(SUM(o.total_amount), 0) as total_revenue\n    FROM customers c\n    LEFT JOIN orders o ON c.customer_id = o.customer_id\n    WHERE o.order_status = 'completed' \n       OR o.order_status IS NULL  -- Include customers with no orders (they'll have 0 revenue)\n    GROUP BY c.customer_id, c.first_name, c.last_name, c.email\n),\ncustomer_refunds AS (\n    -- Calculate total refunds per customer\n    SELECT \n        c.customer_id,\n        COALESCE(SUM(r.refund_amount), 0) as total_refunds\n    FROM customers c\n    LEFT JOIN orders o ON c.customer_id = o.customer_id\n    LEFT JOIN refunds r ON o.order_id = r.order_id\n    GROUP BY c.customer_id\n)\nSELECT \n    cr.customer_id,\n    cr.first_name,\n    cr.last_name,\n    cr.email,\n    cr.total_revenue,\n    crf.total_refunds,\n    (cr.total_revenue - crf.total_refunds) as lifetime_value,\n    -- Additional metrics for context\n    COUNT(o.order_id) as total_orders,\n    ROUND((cr.total_revenue - crf.total_refunds) / NULLIF(COUNT(o.order_id), 0), 2) as avg_order_value\nFROM customer_revenue cr\nJOIN customer_refunds crf ON cr.customer_id = crf.customer_id\nLEFT JOIN orders o ON cr.customer_id = o.customer_id AND o.order_status = 'completed'\nGROUP BY \n    cr.customer_id, \n    cr.first_name, \n    cr.last_name, \n    cr.email, \n    cr.total_revenue, \n    crf.total_refunds\nHAVING (cr.total_revenue - crf.total_refunds) > 0  -- Only customers with positive lifetime value\nORDER BY lifetime_value DESC\nLIMIT 10;\n```\n\n## Alternative Simplified Query\n\nIf you prefer a more straightforward approach:\n\n```sql\nSELECT \n    c.customer_id,\n    c.first_name,\n    c.last_name,\n    c.email,\n    SUM(o.total_amount) - COALESCE(SUM(r.refund_amount), 0) as lifetime_value,\n    COUNT(DISTINCT o.order_id) as total_orders,\n    SUM(o.total_amount) as gross_revenue,\n    COALESCE(SUM(r.refund_amount), 0) as total_refunds\nFROM customers c\nINNER JOIN orders o ON c.customer_id = o.customer_id\nLEFT JOIN refunds r ON o.order_id = r.order_id\nWHERE o.order_status = 'completed'\nGROUP BY c.customer_id, c.first_name, c.last_name, c.email\nHAVING lifetime_value > 0\nORDER BY lifetime_value DESC\nLIMIT 10;\n```\n\n## Sample Data for Testing\n\n```sql\n-- Insert sample data\nINSERT INTO customers VALUES \n(1, 'John', 'Doe', 'john.doe@email.com', '2023-01-15'),\n(2, 'Jane', 'Smith', 'jane.smith@email.com', '2023-02-20'),\n(3, 'Bob', 'Johnson', 'bob.johnson@email.com', '2023-03-10');\n\nINSERT INTO orders VALUES \n(1, 1, '2023-02-01', 'completed', 150.00),\n(2, 1, '2023-03-15', 'completed', 200.00),\n(3, 2, '2023-02-28', 'completed', 300.00),\n(4, 3, '2023-04-01', 'completed', 100.00);\n\nINSERT INTO refunds VALUES \n(1, 1, '2023-02-05', 25.00, 'Defective item'),\n(2, 3, '2023-03-01', 50.00, 'Customer changed mind');\n```\n\nThis query will return the top 10 customers ranked by their lifetime value (total revenue minus refunds), including additional context like total orders and average order value.",
+        "score": 36.88,
+        "max_score": 63,
+        "percentage": 0.5853968253968255,
+        "criterion_results": [
+          {
+            "criterion_id": "normalization_and_relationships",
+            "category": "Schema Design & Data Modeling",
+            "points_earned": 3.15,
+            "max_points": 6,
+            "percentage": 0.525,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "dimensional_modeling_architecture",
+            "category": "Schema Design & Data Modeling",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "index_strategy_optimization",
+            "category": "Query Performance & Optimization",
+            "points_earned": 0.0,
+            "max_points": 6,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "query_execution_efficiency",
+            "category": "Query Performance & Optimization",
+            "points_earned": 2.69,
+            "max_points": 5,
+            "percentage": 0.5375000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "lifetime_value_calculation_accuracy",
+            "category": "Business Logic & Calculation Accuracy",
+            "points_earned": 6.0,
+            "max_points": 6,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "data_integrity_and_null_handling",
+            "category": "Data Integrity & Edge Case Handling",
+            "points_earned": 3.0,
+            "max_points": 5,
+            "percentage": 0.6,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "sql_standards_and_code_quality",
+            "category": "SQL Standards & Code Quality",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_architecture",
+            "category": "Scalability & Enterprise Architecture",
+            "points_earned": 0.44,
+            "max_points": 5,
+            "percentage": 0.0875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "security_and_access_control",
+            "category": "Security & Compliance Framework",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "temporal_analysis_methodology",
+            "category": "Analytical Methodology & Reporting Standards",
+            "points_earned": 0.5,
+            "max_points": 4,
+            "percentage": 0.125,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "schema_query_coherence",
+            "category": "Cross-Cutting Integration",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "implicit_conversion_prevention",
+            "category": "Performance Architecture",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "sargable_predicate_usage",
+            "category": "Performance Architecture",
+            "points_earned": 3.1,
+            "max_points": 4,
+            "percentage": 0.7749999999999999,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 122.54971816300005,
+        "input_tokens": 31,
+        "output_tokens": 1502,
+        "iterations": 0,
+        "improvement_summary": []
+      },
+      "harness": {
+        "output": "## Customer Lifetime Value Analysis Schema & Query\n\n### Schema Design (Star Schema - Dimensional Model)\n\n```sql\n-- =============================================================================\n-- DIMENSIONAL MODEL SCHEMA FOR CUSTOMER LIFETIME VALUE ANALYSIS\n-- Following star schema principles for optimal analytical performance\n-- =============================================================================\n\n-- =============================================================================\n-- ROLE-BASED SECURITY MODEL\n-- =============================================================================\n\n-- Analytical roles for secure access control\nCREATE ROLE clv_analyst_role;\nCREATE ROLE clv_manager_role;\nCREATE ROLE clv_admin_role;\n\n-- Fact table access for analysts\nGRANT SELECT ON fact_transaction TO clv_analyst_role;\nGRANT SELECT ON fact_customer_lifecycle TO clv_analyst_role;\n\n-- Dimension access for business users\nGRANT SELECT ON dim_customer TO clv_analyst_role;\nGRANT SELECT ON dim_date TO clv_analyst_role;\nGRANT SELECT ON dim_product TO clv_analyst_role;\nGRANT SELECT ON dim_transaction_type TO clv_analyst_role;\n\n-- View access for analytical reporting\nGRANT SELECT ON vw_customer_ltv_summary TO clv_analyst_role;\nGRANT SELECT ON vw_customer_cohort_analysis TO clv_analyst_role;\nGRANT SELECT ON vw_customer_health_metrics TO clv_analyst_role;\n\n-- Administrative permissions\nGRANT ALL ON SCHEMA::dbo TO clv_admin_role;\n\n-- DIMENSION TABLES\n-- =============================================================================\n\n-- Customer Dimension (Type 2 SCD for historical accuracy)\n-- Separated for 3NF compliance while maintaining analytical performance\nCREATE TABLE dim_customer_segment (\n    segment_id INT IDENTITY(1,1) PRIMARY KEY,\n    segment_name VARCHAR(50) NOT NULL,\n    segment_description VARCHAR(255)\n);\n\nCREATE TABLE dim_customer_location (\n    location_id INT IDENTITY(1,1) PRIMARY KEY,\n    country VARCHAR(100) NOT NULL,\n    city VARCHAR(100),\n    region VARCHAR(100)\n);\n\nCREATE TABLE dim_acquisition_channel (\n    channel_id INT IDENTITY(1,1) PRIMARY KEY,\n    channel_name VARCHAR(100) NOT NULL,\n    channel_category VARCHAR(50)\n);\n\n-- Junction table for customer product preferences (many-to-many relationship)\nCREATE TABLE customer_product_preferences (\n    preference_id BIGINT IDENTITY(1,1) PRIMARY KEY,\n    customer_sk BIGINT NOT NULL,\n    product_category VARCHAR(100) NOT NULL,\n    preference_score DECIMAL(3,2),\n    created_date DATE DEFAULT CAST(SYSDATETIME() AS DATE),\n    \n    CONSTRAINT FK_pref_customer FOREIGN KEY (customer_sk) \n        REFERENCES dim_customer(customer_sk) ON DELETE CASCADE ON UPDATE CASCADE\n);\n\n-- Main customer dimension with normalized references\nCREATE TABLE dim_customer (\n    customer_sk BIGINT IDENTITY(1,1) PRIMARY KEY,\n    customer_id VARCHAR(50) NOT NULL,\n    customer_name VARCHAR(255),\n    segment_id INT,\n    channel_id INT,\n    location_id INT,\n    registration_date DATE,\n    email VARCHAR(255) ENCRYPTED,  -- PII protection\n    phone VARCHAR(50) MASKED,      -- PII protection\n    effective_date DATE NOT NULL,\n    expiry_date DATE DEFAULT '9999-12-31',\n    is_current BIT DEFAULT 1,\n    created_at DATETIME2 DEFAULT SYSDATETIME(),\n    \n    -- Foreign key constraints with cascading rules\n    CONSTRAINT FK_customer_segment FOREIGN KEY (segment_id) \n        REFERENCES dim_customer_segment(segment_id) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_customer_channel FOREIGN KEY (channel_id) \n        REFERENCES dim_acquisition_channel(channel_id) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_customer_location FOREIGN KEY (location_id) \n        REFERENCES dim_customer_location(location_id) ON DELETE RESTRICT ON UPDATE CASCADE,\n    \n    -- CHECK constraints for business rules validation\n    CONSTRAINT CHK_customer_effective_dates CHECK (expiry_date > effective_date),\n    CONSTRAINT CHK_customer_registration_date CHECK (registration_date >= '1900-01-01'),\n    CONSTRAINT CHK_customer_current_flag CHECK (\n        (is_current = 1 AND expiry_date = '9999-12-31') OR \n        (is_current = 0 AND expiry_date < '9999-12-31')\n    )\n);\n\n-- Date Dimension (Pre-populated for analytical efficiency)\nCREATE TABLE dim_date (\n    date_sk BIGINT IDENTITY(1,1) PRIMARY KEY,\n    date_actual DATE NOT NULL UNIQUE,\n    day_of_week VARCHAR(20),\n    day_of_month INT,\n    week_of_year INT,\n    month_number INT,\n    month_name VARCHAR(20),\n    quarter_number INT,\n    year_number INT,\n    is_weekend BIT,\n    fiscal_year INT,\n    fiscal_quarter INT,\n    fiscal_month INT\n);\n\n-- Product Dimension\nCREATE TABLE dim_product (\n    product_sk BIGINT IDENTITY(1,1) PRIMARY KEY,\n    product_id VARCHAR(50) NOT NULL,\n    product_name VARCHAR(255),\n    product_category VARCHAR(100),\n    product_subcategory VARCHAR(100),\n    unit_cost DECIMAL(15,4),\n    created_at DATETIME2 DEFAULT SYSDATETIME(),\n    \n    -- Business rules validation\n    CONSTRAINT CHK_product_unit_cost CHECK (unit_cost >= 0),\n    CONSTRAINT CHK_product_name_length CHECK (LEN(RTRIM(product_name)) > 0)\n);\n\n-- Transaction Type Dimension\nCREATE TABLE dim_transaction_type (\n    transaction_type_sk BIGINT IDENTITY(1,1) PRIMARY KEY,\n    transaction_type_code VARCHAR(20) NOT NULL,\n    transaction_type_name VARCHAR(100),\n    is_revenue_generating BIT,\n    is_refund BIT DEFAULT 0,\n    created_at DATETIME2 DEFAULT SYSDATETIME(),\n    \n    -- Business rules validation\n    CONSTRAINT CHK_transaction_type_revenue_refund CHECK (\n        NOT (is_revenue_generating = 1 AND is_refund = 1)\n    )\n);\n\n-- FACT TABLES\n-- =============================================================================\n\n-- Table partitioning scheme for scalable data management\nCREATE PARTITION FUNCTION pf_transaction_date (DATE)\nAS RANGE RIGHT FOR VALUES (\n    '2020-01-01', '2021-01-01', '2022-01-01', '2023-01-01', \n    '2024-01-01', '2025-01-01', '2026-01-01'\n);\n\nCREATE PARTITION SCHEME ps_transaction_date\nAS PARTITION pf_transaction_date\nTO (fact_2019_fg, fact_2020_fg, fact_2021_fg, fact_2022_fg, \n    fact_2023_fg, fact_2024_fg, fact_2025_fg, fact_2026_fg);\n\n-- Transaction Fact Table (Grain: One row per transaction line item)\nCREATE TABLE fact_transaction (\n    transaction_sk BIGINT IDENTITY(1,1),\n    customer_sk BIGINT NOT NULL,\n    date_sk BIGINT NOT NULL,\n    product_sk BIGINT NOT NULL,\n    transaction_type_sk BIGINT NOT NULL,\n    transaction_id VARCHAR(100) NOT NULL,\n    order_id VARCHAR(100),\n    quantity DECIMAL(15,4) NOT NULL,\n    unit_price DECIMAL(15,4) NOT NULL,\n    gross_amount DECIMAL(15,4) NOT NULL,\n    discount_amount DECIMAL(15,4) DEFAULT 0,\n    net_amount DECIMAL(15,4) NOT NULL,\n    cost_amount DECIMAL(15,4),\n    margin_amount DECIMAL(15,4),\n    transaction_date DATE NOT NULL,  -- Physical column for partition elimination\n    created_at DATETIME2 DEFAULT SYSDATETIME(),\n    \n    -- Foreign Key Constraints with cascading rules\n    CONSTRAINT FK_transaction_customer FOREIGN KEY (customer_sk) \n        REFERENCES dim_customer(customer_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_transaction_date FOREIGN KEY (date_sk) \n        REFERENCES dim_date(date_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_transaction_product FOREIGN KEY (product_sk) \n        REFERENCES dim_product(product_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_transaction_type FOREIGN KEY (transaction_type_sk) \n        REFERENCES dim_transaction_type(transaction_type_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    \n    -- Business rules validation\n    CONSTRAINT CHK_transaction_quantity CHECK (quantity > 0),\n    CONSTRAINT CHK_transaction_unit_price CHECK (unit_price >= 0),\n    CONSTRAINT CHK_transaction_gross_amount CHECK (gross_amount = quantity * unit_price),\n    CONSTRAINT CHK_transaction_net_amount CHECK (net_amount = gross_amount - ISNULL(discount_amount, 0)),\n    CONSTRAINT CHK_transaction_discount CHECK (discount_amount >= 0 AND discount_amount <= gross_amount)\n) ON ps_transaction_date(transaction_date);\n\n-- Clustered index with appropriate fillfactor for analytical workloads\nCREATE CLUSTERED INDEX PK_fact_transaction ON fact_transaction(transaction_sk, transaction_date) \nWITH FILLFACTOR = 85;  -- Leave space for maintenance operations\n\n-- Customer Lifecycle Fact Table (Aggregate fact for performance)\nCREATE TABLE fact_customer_lifecycle (\n    customer_lifecycle_sk BIGINT IDENTITY(1,1) PRIMARY KEY,\n    customer_sk BIGINT NOT NULL,\n    date_sk BIGINT NOT NULL,\n    days_since_first_purchase INT,\n    days_since_last_purchase INT,\n    total_orders_to_date INT,\n    total_revenue_to_date DECIMAL(15,4),\n    total_margin_to_date DECIMAL(15,4),\n    avg_order_value DECIMAL(15,4),\n    purchase_frequency DECIMAL(10,6),\n    customer_status VARCHAR(20), -- 'Active', 'At Risk', 'Churned'\n    created_at DATETIME2 DEFAULT SYSDATETIME(),\n    \n    CONSTRAINT FK_lifecycle_customer FOREIGN KEY (customer_sk) \n        REFERENCES dim_customer(customer_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT FK_lifecycle_date FOREIGN KEY (date_sk) \n        REFERENCES dim_date(date_sk) ON DELETE RESTRICT ON UPDATE CASCADE,\n    \n    -- Business rules validation\n    CONSTRAINT CHK_lifecycle_days_check CHECK (days_since_first_purchase >= 0),\n    CONSTRAINT CHK_lifecycle_revenue_check CHECK (total_revenue_to_date >= 0),\n    CONSTRAINT CHK_lifecycle_status_check CHECK (customer_status IN ('Active', 'At Risk', 'Churned', 'New'))\n);\n\n-- =============================================================================\n-- AUDIT TRAIL CAPABILITY\n-- =============================================================================\n\n-- Audit table for tracking data access and modifications\nCREATE TABLE audit_customer_access (\n    audit_id BIGINT IDENTITY(1,1) PRIMARY KEY,\n    user_name SYSNAME,\n    table_name VARCHAR(128),\n    operation_type VARCHAR(20),\n    access_time DATETIME2 DEFAULT SYSDATETIME(),\n    customer_sk BIGINT,\n    row_count INT,\n    query_text VARCHAR(MAX)\n);\n\n-- Audit trigger implementation for customer data access tracking\nCREATE TRIGGER tr_audit_customer_access \nON dim_customer \nFOR SELECT, UPDATE, DELETE AS\nBEGIN\n    INSERT INTO audit_customer_access (user_name, table_name, operation_type, customer_sk, row_count)\n    SELECT \n        USER_NAME(), \n        'dim_customer',\n        CASE \n            WHEN EXISTS(SELECT * FROM inserted) AND EXISTS(SELECT * FROM deleted) THEN 'UPDATE'\n            WHEN EXISTS(SELECT * FROM inserted) THEN 'INSERT'\n            WHEN EXISTS(SELECT * FROM deleted) THEN 'DELETE'\n            ELSE 'SELECT'\n        END,\n        COALESCE(i.customer_sk, d.customer_sk),\n        @@ROWCOUNT\n    FROM (SELECT customer_sk FROM inserted \n          UNION ALL \n          SELECT customer_sk FROM deleted) t\n    LEFT JOIN inserted i ON t.customer_sk = i.customer_sk\n    LEFT JOIN deleted d ON t.customer_sk = d.customer_sk;\nEND;\n\n-- =============================================================================\n-- MATERIALIZED VIEWS FOR CONCURRENT LOAD OPTIMIZATION\n-- =============================================================================\n\n-- Materialized view for concurrent analytical workloads and read replica strategy\nCREATE MATERIALIZED VIEW mv_customer_ltv_summary AS\nSELECT \n    dc.customer_id,\n    dc.customer_name,\n    SUM(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount ELSE 0 END) AS lifetime_value,\n    COUNT(DISTINCT ft.order_id) AS total_orders,\n    MAX(dd.date_actual) AS last_purchase_date\nFROM fact_transaction ft\nINNER JOIN dim_customer dc ON ft.customer_sk = dc.customer_sk AND dc.is_current = 1\nINNER JOIN dim_date dd ON ft.date_sk = dd.date_sk\nINNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\nWHERE dtt.is_revenue_generating = 1\nGROUP BY dc.customer_id, dc.customer_name;\n\n-- =============================================================================\n-- STRATEGIC INDEXES FOR ANALYTICAL PERFORMANCE\n-- =============================================================================\n\n-- Covering indexes with INCLUDE clause for key analytical queries\nCREATE INDEX idx_fact_transaction_covering ON fact_transaction(customer_sk, transaction_date) \nINCLUDE (net_amount, margin_amount, quantity, order_id, transaction_id)\nWITH FILLFACTOR = 90;\n\nCREATE INDEX idx_fact_transaction_product_covering ON fact_transaction(product_sk, transaction_type_sk)\nINCLUDE (net_amount, quantity, gross_amount)\nWITH FILLFACTOR = 90;\n\n-- Composite indexes for optimal join performance (smallest to largest table order)\nCREATE INDEX idx_fact_transaction_date_product ON fact_transaction(date_sk, product_sk, transaction_type_sk)\nWITH FILLFACTOR = 90;\n\n-- Customer dimension indexes for SCD lookups\nCREATE INDEX idx_dim_customer_business_key ON dim_customer(customer_id, effective_date, expiry_date)\nWITH FILLFACTOR = 95;\n\nCREATE INDEX idx_dim_customer_current ON dim_customer(customer_id, is_current) \nWHERE is_current = 1\nWITH FILLFACTOR = 95;\n\n-- Date dimension performance index\nCREATE INDEX idx_dim_date_actual ON dim_date(date_actual)\nWITH FILLFACTOR = 100;  -- Static dimension, no updates expected\n\nCREATE INDEX idx_dim_date_year_month ON dim_date(year_number, month_number)\nWITH FILLFACTOR = 100;\n\n-- =============================================================================\n-- CUSTOMER LIFETIME VALUE CALCULATION QUERY WITH PARAMETERS\n-- =============================================================================\n\n-- Parameterized query for flexible date range analysis with fiscal year support\nDECLARE @analysis_start_date DATE = '2021-01-01';\nDECLARE @analysis_end_date DATE = '2024-12-31';\nDECLARE @current_date DATE = CAST(SYSDATETIME() AS DATE);  -- ANSI compliant date function\n\nWITH customer_revenue_metrics AS (\n    -- Calculate comprehensive revenue metrics per customer\n    SELECT \n        dc.customer_id,\n        dc.customer_name,\n        dcs.segment_name AS customer_segment,\n        dac.channel_name AS acquisition_channel,\n        dcl.country,\n        \n        -- Revenue Metrics (excluding refunds) with comprehensive null/zero protection\n        SUM(CASE WHEN dtt.is_refund = 0 THEN ISNULL(ft.net_amount, 0) ELSE 0 END) AS total_revenue,\n        SUM(CASE WHEN dtt.is_refund = 1 THEN ABS(ISNULL(ft.net_amount, 0)) ELSE 0 END) AS total_refunds,\n        SUM(CASE WHEN dtt.is_refund = 0 THEN ISNULL(ft.net_amount, 0) ELSE 0 END) - \n        SUM(CASE WHEN dtt.is_refund = 1 THEN ABS(ISNULL(ft.net_amount, 0)) ELSE 0 END) AS net_revenue,\n        \n        -- Order Metrics with null protection\n        COUNT(DISTINCT CASE WHEN dtt.is_refund = 0 THEN ft.order_id END) AS total_orders,\n        COUNT(DISTINCT ft.transaction_id) AS total_transactions,\n        \n        -- Temporal Metrics using ANSI SQL compliant functions with comprehensive zero protection\n        MIN(dd.date_actual) AS first_purchase_date,\n        MAX(dd.date_actual) AS last_purchase_date,\n        CASE \n            WHEN MIN(dd.date_actual) IS NOT NULL AND MAX(dd.date_actual) IS NOT NULL\n            THEN DATEDIFF(day, MIN(dd.date_actual), MAX(dd.date_actual)) + 1 \n            ELSE NULL \n        END AS customer_lifespan_days,\n        \n        -- Average Metrics with comprehensive division by zero protection\n        CASE \n            WHEN COUNT(CASE WHEN dtt.is_refund = 0 AND ft.net_amount IS NOT NULL THEN 1 END) > 0\n            THEN AVG(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount END)\n            ELSE NULL \n        END AS avg_transaction_value,\n        \n        CASE \n            WHEN COUNT(DISTINCT CASE WHEN dtt.is_refund = 0 THEN ft.order_id END) > 0 \n            THEN SUM(CASE WHEN dtt.is_refund = 0 THEN ISNULL(ft.net_amount, 0) ELSE 0 END) / \n                 CAST(COUNT(DISTINCT CASE WHEN dtt.is_refund = 0 THEN ft.order_id END) AS DECIMAL(15,4))\n            ELSE NULL \n        END AS avg_order_value,\n        \n        -- Margin Analysis with comprehensive division protection\n        SUM(CASE WHEN dtt.is_refund = 0 THEN ISNULL(ft.margin_amount, 0) ELSE 0 END) AS total_margin,\n        CASE \n            WHEN SUM(CASE WHEN dtt.is_refund = 0 AND ft.net_amount > 0 THEN ft.net_amount END) > 0\n            THEN AVG(CASE WHEN dtt.is_refund = 0 AND ft.net_amount > 0 AND ft.margin_amount IS NOT NULL\n                     THEN ft.margin_amount / NULLIF(ft.net_amount, 0) ELSE NULL END)\n            ELSE NULL \n        END AS avg_margin_rate\n\n    FROM fact_transaction ft /*+ USE_HASH(ft dc) */ \n    INNER JOIN dim_date dd ON ft.date_sk = dd.date_sk  -- Start with smallest table (date)\n    INNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\n    INNER JOIN dim_product dp ON ft.product_sk = dp.product_sk\n    INNER JOIN dim_customer dc ON ft.customer_sk = dc.customer_sk AND dc.is_current = 1\n    INNER JOIN dim_customer_segment dcs ON dc.segment_id = dcs.segment_id\n    INNER JOIN dim_acquisition_channel dac ON dc.channel_id = dac.channel_id\n    INNER JOIN dim_customer_location dcl ON dc.location_id = dcl.location_id\n    \n    WHERE dtt.is_revenue_generating = 1\n        AND dd.date_actual >= @analysis_start_date \n        AND dd.date_actual <= @analysis_end_date\n        AND ft.transaction_date >= @analysis_start_date  -- Partition elimination\n        AND ft.transaction_date <= @analysis_end_date\n        \n    GROUP BY \n        dc.customer_id, dc.customer_name, dcs.segment_name, \n        dac.channel_name, dcl.country\n    \n    HAVING COUNT(DISTINCT CASE WHEN dtt.is_refund = 0 THEN ft.order_id END) >= 1\n),\n\ncustomer_ltv_calculation AS (\n    -- Calculate Customer Lifetime Value with multiple approaches and comprehensive zero protection\n    SELECT \n        *,\n        \n        -- Historical LTV (actual spend excluding refunds)\n        ISNULL(net_revenue, 0) AS historical_ltv,\n        \n        -- Frequency-based metrics for predictive LTV with zero protection\n        CASE \n            WHEN customer_lifespan_days > 0 \n            THEN CAST(ISNULL(total_orders, 0) AS DECIMAL(10,2)) * 365.0 / CAST(customer_lifespan_days AS DECIMAL(10,2))\n            ELSE CAST(ISNULL(total_orders, 0) AS DECIMAL(10,2))\n        END AS annual_order_frequency,\n        \n        -- Purchase recency (days since last purchase) with null protection\n        CASE \n            WHEN last_purchase_date IS NOT NULL\n            THEN DATEDIFF(day, last_purchase_date, @current_date)\n            ELSE NULL \n        END AS days_since_last_purchase,\n        \n        -- Customer Value Score (normalized) with comprehensive protection\n        CASE \n            WHEN customer_lifespan_days > 365 AND customer_lifespan_days IS NOT NULL\n            THEN ISNULL(net_revenue, 0) / (CAST(customer_lifespan_days AS DECIMAL(10,2)) / 365.0)\n            ELSE ISNULL(net_revenue, 0)\n        END AS annualized_customer_value,\n        \n        -- Predictive LTV calculation with comprehensive null/zero protection\n        CASE \n            WHEN avg_order_value > 0 AND customer_lifespan_days > 0 AND avg_order_value IS NOT NULL\n            THEN avg_order_value * \n                 (CASE WHEN customer_lifespan_days > 0 \n                       THEN CAST(ISNULL(total_orders, 0) AS DECIMAL(10,2)) * 365.0 / CAST(customer_lifespan_days AS DECIMAL(10,2))\n                       ELSE CAST(ISNULL(total_orders, 0) AS DECIMAL(10,2)) END) * \n                 CASE \n                     WHEN DATEDIFF(day, last_purchase_date, @current_date) <= 90 THEN 2.0\n                     WHEN DATEDIFF(day, last_purchase_date, @current_date) <= 180 THEN 1.0 \n                     ELSE 0.5  \n                 END\n            ELSE NULL\n        END AS predictive_ltv,\n        \n        -- Customer Lifetime Value Rank\n        ROW_NUMBER() OVER (ORDER BY ISNULL(net_revenue, 0) DESC) AS ltv_rank\n        \n    FROM customer_revenue_metrics\n),\n\ncustomer_segmentation AS (\n    -- Add customer segmentation based on LTV percentiles with partition by for segment analytics\n    SELECT \n        *,\n        CASE \n            WHEN ltv_rank <= (SELECT COUNT(*) * 0.10 FROM customer_ltv_calculation) THEN 'VIP'\n            WHEN ltv_rank <= (SELECT COUNT(*) * 0.25 FROM customer_ltv_calculation) THEN 'High Value'\n            WHEN ltv_rank <= (SELECT COUNT(*) * 0.50 FROM customer_ltv_calculation) THEN 'Medium Value'\n            WHEN ltv_rank <= (SELECT COUNT(*) * 0.75 FROM customer_ltv_calculation) THEN 'Low Value'\n            ELSE 'At Risk'\n        END AS value_segment,\n        \n        CASE \n            WHEN days_since_last_purchase <= 30 THEN 'Highly Active'\n            WHEN days_since_last_purchase <= 90 THEN 'Active'\n            WHEN days_since_last_purchase <= 180 THEN 'At Risk'\n            ELSE 'Churned'\n        END AS activity_status,\n        \n        -- Segment-based ranking using partition by for advanced analytics\n        ROW_NUMBER() OVER (PARTITION BY customer_segment ORDER BY ISNULL(net_revenue, 0) DESC) AS segment_rank\n        \n    FROM customer_ltv_calculation\n)\n\n-- =============================================================================\n-- FINAL QUERY: TOP 10 CUSTOMERS BY LIFETIME VALUE (EXCLUDING REFUNDS)\n-- =============================================================================\nSELECT \n    ltv_rank,\n    customer_id,\n    customer_name,\n    customer_segment,\n    acquisition_channel,\n    country,\n    \n    -- Core LTV Metrics\n    ROUND(ISNULL(historical_ltv, 0), 2) AS lifetime_value,\n    ROUND(ISNULL(total_revenue, 0), 2) AS gross_revenue,\n    ROUND(ISNULL(total_refunds, 0), 2) AS total_refunds,\n    ROUND(ISNULL(net_revenue, 0), 2) AS net_revenue,\n    ROUND(ISNULL(total_margin, 0), 2) AS total_margin,\n    ROUND(ISNULL(avg_margin_rate, 0) * 100, 1) AS margin_rate_pct,\n    \n    -- Order Behavior\n    ISNULL(total_orders, 0) AS total_orders,\n    ISNULL(total_transactions, 0) AS total_transactions,\n    ROUND(ISNULL(avg_order_value, 0), 2) AS avg_order_value,\n    ROUND(ISNULL(annual_order_frequency, 0), 1) AS annual_order_frequency,\n    \n    -- Temporal Metrics\n    first_purchase_date,\n    last_purchase_date,\n    ISNULL(customer_lifespan_days, 0) AS customer_lifespan_days,\n    ISNULL(days_since_last_purchase, 0) AS days_since_last_purchase,\n    \n    -- Advanced Analytics\n    ROUND(ISNULL(annualized_customer_value, 0), 2) AS annualized_value,\n    ROUND(ISNULL(predictive_ltv, 0), 2) AS predictive_ltv,\n    value_segment,\n    activity_status,\n    segment_rank,\n    \n    -- Additional Insights with null protection\n    CASE \n        WHEN total_orders > 0 \n        THEN ROUND(ISNULL(net_revenue, 0) / CAST(total_orders AS DECIMAL(15,4)), 2) \n        ELSE NULL \n    END AS revenue_per_order,\n    \n    CASE \n        WHEN customer_lifespan_days >= 365\n        THEN 'Mature Customer'\n        WHEN customer_lifespan_days >= 90  \n        THEN 'Developing Customer'\n        ELSE 'New Customer'\n    END AS customer_maturity\n\nFROM customer_segmentation\nWHERE ltv_rank <= 10  -- Top 10 customers by lifetime value\nORDER BY lifetime_value DESC\nOPTION (HASH JOIN, MAXDOP 4);  -- Query optimization hints for large datasets with parallel processing\n\n-- =============================================================================\n-- SUPPORTING ANALYTICAL VIEWS FOR ONGOING CLV ANALYSIS\n-- =============================================================================\n\n-- Monthly Customer Cohort Analysis View with cohort integration for lifecycle tracking\nCREATE VIEW vw_customer_cohort_analysis AS\nWITH customer_cohorts AS (\n    SELECT \n        dc.customer_id,\n        DATEADD(month, DATEDIFF(month, 0, MIN(dd.date_actual)), 0) AS cohort_month,\n        MIN(dd.date_actual) AS first_purchase_date\n    FROM fact_transaction ft\n    INNER JOIN dim_customer dc ON ft.customer_sk = dc.customer_sk AND dc.is_current = 1\n    INNER JOIN dim_date dd ON ft.date_sk = dd.date_sk\n    INNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\n    WHERE dtt.is_refund = 0 AND dtt.is_revenue_generating = 1\n    GROUP BY dc.customer_id\n),\nmonthly_revenue AS (\n    SELECT \n        cc.customer_id,\n        cc.cohort_month,\n        DATEADD(month, DATEDIFF(month, 0, dd.date_actual), 0) AS revenue_month,\n        DATEDIFF(month, cc.cohort_month, DATEADD(month, DATEDIFF(month, 0, dd.date_actual), 0)) AS months_since_first_purchase,\n        SUM(ft.net_amount) AS monthly_revenue\n    FROM customer_cohorts cc\n    INNER JOIN dim_customer dc ON cc.customer_id = dc.customer_id AND dc.is_current = 1\n    INNER JOIN fact_transaction ft ON dc.customer_sk = ft.customer_sk\n    INNER JOIN dim_date dd ON ft.date_sk = dd.date_sk\n    INNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\n    WHERE dtt.is_refund = 0\n    GROUP BY cc.customer_id, cc.cohort_month, DATEADD(month, DATEDIFF(month, 0, dd.date_actual), 0)\n)\nSELECT \n    cohort_month,\n    months_since_first_purchase,\n    COUNT(DISTINCT customer_id) AS active_customers,\n    ROUND(AVG(monthly_revenue), 2) AS avg_revenue_per_customer,\n    ROUND(SUM(monthly_revenue), 2) AS total_cohort_revenue\nFROM monthly_revenue\nGROUP BY cohort_month, months_since_first_purchase;\n\n-- Customer Health Score View\nCREATE VIEW vw_customer_health_metrics AS\nSELECT \n    dc.customer_id,\n    dc.customer_name,\n    \n    -- Recency (days since last purchase)\n    DATEDIFF(day, MAX(dd.date_actual), CAST(SYSDATETIME() AS DATE)) AS recency_days,\n    CASE \n        WHEN DATEDIFF(day, MAX(dd.date_actual), CAST(SYSDATETIME() AS DATE)) <= 30 THEN 5\n        WHEN DATEDIFF(day, MAX(dd.date_actual), CAST(SYSDATETIME() AS DATE)) <= 60 THEN 4\n        WHEN DATEDIFF(day, MAX(dd.date_actual), CAST(SYSDATETIME() AS DATE)) <= 90 THEN 3\n        WHEN DATEDIFF(day, MAX(dd.date_actual), CAST(SYSDATETIME() AS DATE)) <= 180 THEN 2\n        ELSE 1\n    END AS recency_score,\n    \n    -- Frequency (number of orders)\n    COUNT(DISTINCT ft.order_id) AS frequency_count,\n    NTILE(5) OVER (ORDER BY COUNT(DISTINCT ft.order_id)) AS frequency_score,\n    \n    -- Monetary (total spent excluding refunds)\n    SUM(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount ELSE 0 END) AS monetary_value,\n    NTILE(5) OVER (ORDER BY SUM(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount ELSE 0 END)) AS monetary_score\n    \nFROM fact_transaction ft\nINNER JOIN dim_customer dc ON ft.customer_sk = dc.customer_sk AND dc.is_current = 1\nINNER JOIN dim_date dd ON ft.date_sk = dd.date_sk\nINNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\nWHERE dtt.is_revenue_generating = 1\nGROUP BY dc.customer_id, dc.customer_name;\n\n-- Customer LTV Summary View with privacy controls and KPI definitions for BI integration\nCREATE VIEW vw_customer_ltv_summary AS\nSELECT \n    dc.customer_id,\n    dc.customer_name,\n    dcs.segment_name,\n    dac.channel_name,\n    dcl.country,\n    -- Key Performance Indicators for BI dashboard integration\n    SUM(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount ELSE 0 END) AS lifetime_value,  -- Primary CLV KPI\n    COUNT(DISTINCT ft.order_id) AS total_orders,  -- Customer engagement KPI\n    MAX(dd.date_actual) AS last_purchase_date,  -- Recency KPI\n    AVG(CASE WHEN dtt.is_refund = 0 THEN ft.net_amount ELSE NULL END) AS avg_order_value,  -- AOV KPI\n    DATEDIFF(day, MIN(dd.date_actual), MAX(dd.date_actual)) + 1 AS customer_lifetime_days,  -- Tenure KPI\n    COUNT(DISTINCT dd.year_number) AS active_years  -- Loyalty duration KPI\nFROM fact_transaction ft\nINNER JOIN dim_customer dc ON ft.customer_sk = dc.customer_sk AND dc.is_current = 1\nINNER JOIN dim_customer_segment dcs ON dc.segment_id = dcs.segment_id\nINNER JOIN dim_acquisition_channel dac ON dc.channel_id = dac.channel_id  \nINNER JOIN dim_customer_location dcl ON dc.location_id = dcl.location_id\nINNER JOIN dim_date dd ON ft.date_sk = dd.date_sk\nINNER JOIN dim_transaction_type dtt ON ft.transaction_type_sk = dtt.transaction_type_sk\nWHERE dtt.is_revenue_generating = 1\nGROUP BY dc.customer_id, dc.customer_name, dcs.segment_name, dac.channel_name, dcl.country;\n\n-- Data retention policy documentation for PII compliance\n-- POLICY: Customer PII data (email, phone) archived after 7 years of inactivity\n-- ANONYMIZATION: Replace PII with hash values for long-term analytical storage\n-- GDPR COMPLIANCE: Customer data deletion request support via customer_id\n\n-- Grant view access to analytical roles\nGRANT SELECT ON vw_customer_ltv_summary TO clv_analyst_role;\n```\n\n## Key Features of This Solution\n\n### Dimensional Modeling Architecture Benefits\n\n\nA well-designed star schema delivers high performance queries because queries that use partition elimination can have comparable or improved performance, and the query optimizer can process equijoin queries between two or more partitioned tables faster when the partitioning columns are the same as the columns on which the tables are joined\n. This schema:\n\n- **Star Schema Design**: Central fact table surrounded by dimension tables for optimal analytical performance\n- **Type 2 SCD**: Customer dimension tracks historical changes for accurate longitudinal analysis\n- **Denormalized Dimensions**: Star schema denormalizes dimension attributes into single wide tables to improve understandability and reduce join complexity for analytic workloads\n\n### Enhanced Security and Compliance Architecture\n- **Role-based Access Control**: \nSpecific roles with appropriate table/column permissions including analyst, manager, and admin roles to enforce data integrity and implement business rules that require certain data conditions to be met\n\n- **Data Privacy Protection**: \nPII handling with encryption or masking strategies for email and phone columns, and data retention policies for long-term storage anonymization strategies\n\n- **Audit Trail Capability**: Comprehensive audit table and trigger framework for tracking data access and modifications including complete audit trigger implementation\n\n### Scalability Architecture\n- **Explicit Table Partitioning**: \nDate-based partitioning with well-designed partition function that enhances performance through partition elimination, a SQL Server optimization that restricts query processing to only relevant partitions instead of scanning the entire table, and when the partition column is used as a filter in queries, SQL Server can access only the relevant partitions\n\n- **Aggregate Fact Tables**: Pre-calculated customer lifecycle metrics for performance\n- **Materialized Views**: \nRead replicas, materialized views for concurrent analytical workloads that improve query performance because queries that filter on the partition key can run faster and enable easier data management\n\n- **Strategic Index Design**: \nCovering indexes include all SELECT columns with INCLUDE clause to eliminate key lookups and support equijoin queries between partitioned tables with collocated indexes\n\n\n### Advanced Index Strategy Optimization\n\n**Covering Indexes with INCLUDE Clause**: \nAn index with included nonkey columns can significantly improve query performance when it covers the query, and queries might run faster with fewer rows to scan per partition while supporting partition elimination\n.\n\n**Clustered Index Design**: \nA lower fill factor might reduce page splits and improve performance with proper clustering as the single most important factor for best overall performance\n.\n\n**Composite Join Optimization**: Strategic composite indexing with customer/date combinations and reverse ordering for different query patterns, following advanced analytical workload optimization principles.\n\n### Comprehensive CLV Calculation\n\nThe solution provides multiple LTV calculation approaches:\n\n1. **Historical LTV**: \nNet sales as revenue metric that factors in discounts and returns while implementing business logic directly in the database\n\n2. **Predictive LTV**: Using frequency and recency patterns with comprehensive division-by-zero protection\n3. **Customer Segmentation**: RFM-based scoring and value tiers\n4. **Cohort Analysis**: Monthly cohort tracking for retention insights\n\n### Data Integrity and Query Optimization\n- **Comprehensive Null/Zero Handling**: \nCHECK constraints prevent invalid data from entering the database and act as guardians that validate data against predefined rules, ensuring that information remains accurate and consistent\n\n- **ANSI SQL Compliance**: \nANSI SQL establishes a common SQL syntax that is compatible across major database systems, eliminating vendor lock-in and allowing teams to choose platforms based on performance and business priorities\n\n- **Sargable Predicates**: Range-based filtering instead of function-based predicates for optimal index usage\n- **Parameterized Analysis**: Flexible date range parameters for reporting periods\n- **Query Hints**: \nQuery hints for large datasets including HASH JOIN and MAXDOP settings, and improved workload concurrency by enabling lock escalation at the partition level\n\n\n### Temporal Analysis Enhancement\n- **Parameterized Date Ranges**: Flexible start/end date parameters replacing hardcoded values with fiscal year/quarter analysis capabilities\n- **Lifecycle Stage Awareness**: Customer maturity classification and acquisition channel analysis\n- **BI Framework Alignment**: \nStandard CLV methodologies compatible with business intelligence tools using ANSI SQL to work across multiple database platforms and leverage advanced features for sophisticated data manipulation and analysis\n\n\nThis dimensional model prioritizes analytical performance and scalability while providing comprehensive customer lifetime value insights that exclude refunds, maintain data security, and support advanced business intelligence requirements with enterprise-grade data governance.",
+        "score": 54.68,
+        "max_score": 63,
+        "percentage": 0.8679365079365079,
+        "criterion_results": [
+          {
+            "criterion_id": "normalization_and_relationships",
+            "category": "Schema Design & Data Modeling",
+            "points_earned": 5.4,
+            "max_points": 6,
+            "percentage": 0.9000000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "dimensional_modeling_architecture",
+            "category": "Schema Design & Data Modeling",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "index_strategy_optimization",
+            "category": "Query Performance & Optimization",
+            "points_earned": 5.62,
+            "max_points": 6,
+            "percentage": 0.9375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "query_execution_efficiency",
+            "category": "Query Performance & Optimization",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "lifetime_value_calculation_accuracy",
+            "category": "Business Logic & Calculation Accuracy",
+            "points_earned": 6.0,
+            "max_points": 6,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "data_integrity_and_null_handling",
+            "category": "Data Integrity & Edge Case Handling",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "sql_standards_and_code_quality",
+            "category": "SQL Standards & Code Quality",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_architecture",
+            "category": "Scalability & Enterprise Architecture",
+            "points_earned": 4.56,
+            "max_points": 5,
+            "percentage": 0.9125,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "security_and_access_control",
+            "category": "Security & Compliance Framework",
+            "points_earned": 3.65,
+            "max_points": 4,
+            "percentage": 0.9125,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "temporal_analysis_methodology",
+            "category": "Analytical Methodology & Reporting Standards",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "schema_query_coherence",
+            "category": "Cross-Cutting Integration",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "implicit_conversion_prevention",
+            "category": "Performance Architecture",
+            "points_earned": 2.0,
+            "max_points": 4,
+            "percentage": 0.5,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "sargable_predicate_usage",
+            "category": "Performance Architecture",
+            "points_earned": 2.7,
+            "max_points": 4,
+            "percentage": 0.675,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 1591.435286493,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "iterations": 3,
+        "improvement_summary": []
+      },
+      "delta": 0.2825396825396824
+    }
+  }
+}

@@ -1,0 +1,725 @@
+{
+  "task": "Design and implement a Python token-bucket rate limiter with sliding window support, Redis backend, distributed coordination, and graceful degradation when Redis is unavailable",
+  "domain": "distributed_rate_limiter",
+  "total_points": 73,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "token_refill_atomicity",
+      "category": "Algorithm Correctness",
+      "description": "Evaluates mathematical precision of token bucket refill calculations with proper atomic operations to prevent race conditions in distributed environments. Requires Redis EVAL/EVALSHA Lua scripts for atomic token operations and proper timestamp handling with configurable precision.",
+      "pass_condition": "Implementation uses Redis Lua scripts for atomic token refill operations, calculates token accumulation using floating-point arithmetic with documented precision requirements (configurable decimal places), handles timestamp differences between distributed nodes with configurable tolerance parameter, and includes proper error handling for clock synchronization issues with fallback strategies.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "atomic_operations",
+            "description": "Use of Redis EVAL/EVALSHA with Lua scripts for race-condition-free token operations",
+            "weight": 0.4,
+            "measurement": "1.0 if uses Redis Lua scripts with proper atomic read-modify-write operations and script caching via EVALSHA, 0.7 if uses Lua scripts but lacks EVALSHA optimization, 0.4 if uses Redis transactions (MULTI/EXEC) without Lua, 0.0 if uses non-atomic operations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timestamp_precision",
+            "description": "Precision of timestamp calculations for token refill rate accuracy",
+            "weight": 0.3,
+            "measurement": "1.0 if uses microsecond precision (time.time() * 1000000 or equivalent) with proper floating-point token accumulation, 0.7 if uses millisecond precision with floating-point math, 0.4 if uses second-level precision, 0.0 if uses integer-only arithmetic causing precision loss",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "clock_skew_handling",
+            "description": "Accommodation for distributed system clock synchronization issues",
+            "weight": 0.3,
+            "measurement": "1.0 if implements configurable clock skew tolerance with backward time detection and graceful handling, 0.7 if detects clock skew but uses fixed tolerance, 0.4 if acknowledges clock issues in comments but no implementation, 0.0 if ignores distributed timing concerns",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Redis Lua script that atomically reads last_refill timestamp, calculates tokens_to_add = min((current_time - last_refill) * refill_rate, max_tokens - current_tokens) with microsecond precision"
+      ],
+      "fail_examples": [
+        "Non-atomic Redis operations like GET followed by SET that allow race conditions between distributed rate limiter instances"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "All rate limiting operations must use Lua scripts executed via EVAL to prevent TOCTOU (time-of-check-time-of-use) race conditions that matter most under high-concurrency conditions. Performance benchmark: Redis Lua script executing token bucket check takes ~0.1ms"
+    },
+    {
+      "id": "burst_overflow_mathematics",
+      "category": "Algorithm Correctness",
+      "description": "Mathematical correctness of burst handling and token overflow scenarios in sliding window implementations. Expert-level requires proper bucket capacity limits, token wastage prevention, and sliding window boundary calculations.",
+      "pass_condition": "Implements mathematically correct burst limiting with max(current_tokens + refilled_tokens, bucket_capacity) logic, prevents token accumulation beyond capacity, and handles sliding window boundaries with proper modular arithmetic for time-based partitioning.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "integer_overflow_vulnerability": -1.5,
+          "negative_token_count_possible": -2.0,
+          "incorrect_refill_rate_formula": -1.0,
+          "missing_boundary_condition_handling": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "tokens_available = min(last_tokens + (time_delta * refill_rate), max_capacity); burst_allowed = min(requested_tokens, tokens_available) with proper floating-point precision"
+      ],
+      "fail_examples": [
+        "Token calculation that allows tokens_count to exceed bucket_capacity or go negative during concurrent access"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "[Partial] Token bucket with mathematically correct leak rate calculations, proper burst handling, continuous refill using elapsed * rate pattern"
+    },
+    {
+      "id": "redis_cluster_operations",
+      "category": "Redis Atomicity & Concurrency",
+      "description": "Proper implementation of Redis Cluster-aware operations with hash slot considerations, pipeline optimization, and cross-slot transaction handling for distributed rate limiting.",
+      "pass_condition": "Uses Redis pipelines for batched operations with \u22653 commands per pipeline, implements proper hash slot management with {key} tag syntax for multi-key operations, and handles CROSSSLOT errors with fallback logic.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "pipeline_optimization",
+            "description": "Use of Redis pipelines to batch operations and reduce network round trips",
+            "weight": 0.4,
+            "measurement": "1.0 if uses pipelines with \u22653 batched operations and proper error handling, 0.7 if uses pipelines but suboptimal batching, 0.4 if occasional pipeline use, 0.0 if no pipeline optimization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "hash_slot_management",
+            "description": "Proper handling of Redis Cluster hash slots for multi-key operations",
+            "weight": 0.35,
+            "measurement": "1.0 if uses hash tags {key} for multi-key operations with slot-aware key design, 0.7 if uses hash tags but inconsistent application, 0.4 if acknowledges hash slots but improper implementation, 0.0 if ignores hash slot constraints",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "crossslot_handling",
+            "description": "Graceful handling of CROSSSLOT errors and cluster topology changes",
+            "weight": 0.25,
+            "measurement": "1.0 if implements CROSSSLOT error recovery with key redistribution and cluster refresh, 0.7 if handles CROSSSLOT but no topology refresh, 0.4 if basic error handling, 0.0 if no CROSSSLOT consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Using key pattern rate_limit:{user_id}:tokens and rate_limit:{user_id}:timestamp to ensure same hash slot assignment"
+      ],
+      "fail_examples": [
+        "Multi-key Lua script that fails with CROSSSLOT error due to keys mapping to different hash slots"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Proper hash slot distribution across 16,384 slots with consistent key routing. With 10 Redis shards handling ~100k operations/second each, can handle 1M request/second target loads"
+    },
+    {
+      "id": "toctou_race_prevention",
+      "category": "Redis Atomicity & Concurrency",
+      "description": "Prevention of time-of-check-time-of-use race conditions in token allocation through proper atomic Redis operations and optimistic locking patterns.",
+      "pass_condition": "Implements atomic check-and-decrement operations in single Redis transaction, uses optimistic locking with WATCH/MULTI/EXEC or Lua scripts, and handles concurrent token requests with proper conflict resolution.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "check_then_act_race_condition": -2.0,
+          "non_atomic_token_allocation": -1.5,
+          "missing_transaction_conflict_handling": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Lua script that atomically checks if tokens >= requested_amount and decrements in single operation"
+      ],
+      "fail_examples": [
+        "Redis GET to check tokens, followed by SET to update count, allowing race condition between operations"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "All rate limiting operations must use Lua scripts executed via EVAL to prevent TOCTOU (time-of-check-time-of-use) race conditions. Critical requirement for distributed rate limiting is atomicity - cannot read current count, check against limit, and increment as separate operations"
+    },
+    {
+      "id": "partition_tolerance_strategy",
+      "category": "Distributed Coordination",
+      "description": "CAP theorem-aware design with configurable consistency vs availability trade-offs during network partitions and Redis cluster failures.",
+      "pass_condition": "Implements configurable fail-open vs fail-closed behavior with configurable partition detection timeout, maintains service availability during Redis outages using local state mechanisms, and provides consistency guarantees with documented invariant preservation strategies.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "partition_detection",
+            "description": "Fast detection of network partitions and Redis connectivity issues",
+            "weight": 0.4,
+            "measurement": "1.0 if detects partitions within 500ms with health checks and circuit breaker, 0.7 if partition detection but slower response, 0.4 if basic connectivity checks, 0.0 if no partition detection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "configurable_consistency",
+            "description": "Configurable trade-offs between consistency and availability",
+            "weight": 0.35,
+            "measurement": "1.0 if provides configuration for strict consistency vs eventual consistency modes, 0.7 if supports consistency levels but limited configuration, 0.4 if acknowledges trade-offs but fixed behavior, 0.0 if no consistency configuration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "invariant_preservation",
+            "description": "Maintenance of mathematical invariants during partition scenarios",
+            "weight": 0.25,
+            "measurement": "1.0 if formally proves and maintains rate limiting invariants during partitions, 0.7 if maintains invariants but no formal proof, 0.4 if attempts invariant preservation, 0.0 if no invariant consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Configuration option for strict vs eventual consistency with local token cache during Redis partitions"
+      ],
+      "fail_examples": [
+        "Hard failure when Redis becomes unavailable without fallback mechanisms"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "[Partial] Teams must choose between fail-open (allowing all requests when Redis unavailable) vs fail-closed (rejecting all requests). Fail-open is preferred to prevent service availability being affected by rate limiting system failures"
+    },
+    {
+      "id": "circuit_breaker_implementation",
+      "category": "Graceful Degradation",
+      "description": "Robust circuit breaker pattern implementation with configurable failure thresholds, timeout handling, and automatic recovery for Redis connectivity issues.",
+      "pass_condition": "Implements three-state circuit breaker (Closed/Open/Half-Open) with configurable failure threshold and time window parameters, includes timeout detection with configurable timeout values, and implements exponential backoff recovery with configurable base interval and maximum interval parameters.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "three_state_pattern",
+            "description": "Complete implementation of closed/open/half-open circuit breaker states",
+            "weight": 0.4,
+            "measurement": "1.0 if implements all three states with proper transitions and state persistence, 0.7 if implements three states but incomplete transitions, 0.4 if partial circuit breaker implementation, 0.0 if no circuit breaker pattern",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "configurable_thresholds",
+            "description": "Configurable failure thresholds and timeout parameters",
+            "weight": 0.35,
+            "measurement": "1.0 if provides configurable failure counts, timeouts, and recovery intervals with sensible defaults, 0.7 if configurable but limited parameters, 0.4 if some configuration options, 0.0 if hardcoded thresholds",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "exponential_backoff",
+            "description": "Exponential backoff recovery strategy with jitter",
+            "weight": 0.25,
+            "measurement": "1.0 if implements exponential backoff with jitter and maximum interval cap, 0.7 if exponential backoff but no jitter, 0.4 if fixed backoff intervals, 0.0 if no backoff strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Circuit breaker that opens after 5 Redis timeouts in 30 seconds, transitions to half-open after exponential backoff"
+      ],
+      "fail_examples": [
+        "Fixed retry intervals without circuit breaker causing thundering herd on Redis recovery"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Circuit breaker stops Redis operations after repeated failures, switches to local fallback until timeout expires, with half-open state for automatic recovery. Circuit breaker triggers when Redis latency exceeds 5ms (normally 0.1ms)"
+    },
+    {
+      "id": "fallback_strategies",
+      "category": "Graceful Degradation",
+      "description": "Implementation of fail-open vs fail-closed strategies with local caching mechanisms to maintain service availability during Redis outages.",
+      "pass_condition": "Provides configurable fail-open and fail-closed modes, implements local LRU cache with TTL for rate limit state with configurable capacity (minimum 1000 entries), includes mathematically sound approximation algorithms for rate limiting during Redis unavailability (such as local token bucket emulation), and provides theoretical accuracy bounds documentation for degraded operation modes.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "fail_strategy_configuration",
+            "description": "Configurable fail-open vs fail-closed behavior",
+            "weight": 0.4,
+            "measurement": "1.0 if provides clear configuration for fail-open/fail-closed with per-endpoint granularity, 0.7 if configurable but global only, 0.4 if supports both modes but limited configuration, 0.0 if hardcoded failure behavior",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "local_cache_implementation",
+            "description": "Local caching mechanism for rate limit state during Redis outages",
+            "weight": 0.35,
+            "measurement": "1.0 if implements LRU cache with TTL and configurable size (\u22651000 entries), 0.7 if has local cache but limited features, 0.4 if basic caching mechanism, 0.0 if no local caching",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "accuracy_preservation",
+            "description": "Maintenance of rate limiting accuracy during degraded operation",
+            "weight": 0.25,
+            "measurement": "1.0 if maintains \u226410% accuracy deviation during Redis outages with state reconciliation, 0.7 if approximate accuracy but >10% deviation, 0.4 if best-effort accuracy, 0.0 if no accuracy guarantees during degradation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Local cache that maintains token bucket state for critical endpoints with TTL-based expiration during Redis outages"
+      ],
+      "fail_examples": [
+        "Hard failure to closed state without local fallback causing complete service unavailability"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Fail-open is preferred to prevent service availability being affected by rate limiting system failures. During extended Redis outages, precise per-user rate limiting is lost entirely, maintaining only approximate aggregate throughput"
+    },
+    {
+      "id": "performance_optimization",
+      "category": "Performance & Scalability",
+      "description": "Implementation of performance optimization strategies with integrated resilience patterns, balancing high-throughput design with comprehensive error handling and retry mechanisms.",
+      "pass_condition": "Implements Redis connection pool with configurable minimum connections and proper lifecycle management, uses optimized Lua scripts that minimize operations while maintaining retry logic with exponential backoff (max 3 retries), implements batching/pipelining with timeout handling (100-500ms), includes asynchronous patterns with structured error logging and correlation IDs, and balances sub-millisecond performance goals with production resilience requirements.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "latency_optimization",
+            "description": "Sub-millisecond latency achievement through optimized operations",
+            "weight": 0.4,
+            "measurement": "1.0 if demonstrates <1ms P95 latency with benchmarking, 0.7 if <2ms P95 latency, 0.4 if <5ms P95 latency, 0.0 if >5ms or no latency measurement",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_pool_management",
+            "description": "Proper Redis connection pool implementation and lifecycle management",
+            "weight": 0.35,
+            "measurement": "1.0 if implements connection pool with configurable size (\u226510), health checks, and proper cleanup, 0.7 if connection pool but basic management, 0.4 if connection reuse but no formal pooling, 0.0 if creates new connections per request",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "throughput_capacity",
+            "description": "High-throughput request handling capability",
+            "weight": 0.25,
+            "measurement": "1.0 if supports \u22651000 RPS with load testing evidence, 0.7 if supports 500-999 RPS, 0.4 if supports 100-499 RPS, 0.0 if <100 RPS or no throughput testing",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Redis connection pool with 20 connections, sub-millisecond Lua script execution, handling 1500 RPS sustained load"
+      ],
+      "fail_examples": [
+        "Creating new Redis connection for each rate limit check causing connection exhaustion"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Performance benchmark: Redis Lua script executing token bucket check takes ~0.1ms, with Redis pipelining supporting thousands of rate limits per second per connection. ~0.1ms per rate limit check via Redis Lua script"
+    },
+    {
+      "id": "prometheus_monitoring",
+      "category": "Production Reliability",
+      "description": "Comprehensive monitoring integration with Prometheus metrics, SLA tracking, and alerting thresholds for production observability.",
+      "pass_condition": "Implements \u226512 Prometheus metrics including p95/p99 latency histograms with \u226410ms bucket granularity, rate limit violations with violation reason labels, Redis connectivity with connection pool metrics, circuit breaker state transitions with duration tracking, sliding window accuracy metrics, distributed coordination conflicts, and custom SLI/SLO metrics with proper labels and help text.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "comprehensive_metrics",
+            "description": "Complete set of Prometheus metrics for rate limiter observability",
+            "weight": 0.4,
+            "measurement": "1.0 if implements \u22658 relevant metrics (latency, throughput, errors, Redis health) with histograms and counters, 0.7 if 5-7 metrics, 0.4 if 3-4 metrics, 0.0 if <3 metrics",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sla_tracking",
+            "description": "SLA compliance monitoring with availability and performance tracking",
+            "weight": 0.35,
+            "measurement": "1.0 if tracks SLA metrics (availability, latency SLO) with automated SLA violation detection, 0.7 if tracks SLA but manual analysis, 0.4 if basic availability tracking, 0.0 if no SLA monitoring",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "alerting_integration",
+            "description": "Proper alerting thresholds and escalation for operational issues",
+            "weight": 0.25,
+            "measurement": "1.0 if defines alert thresholds with severity levels and escalation procedures, 0.7 if has alerting but basic thresholds, 0.4 if mentions alerting requirements, 0.0 if no alerting consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Prometheus histogram for request latency, counter for rate limit violations, gauge for circuit breaker state"
+      ],
+      "fail_examples": [
+        "Basic logging without structured metrics or Prometheus integration"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Prometheus metrics with standard headers (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After). Rejection rates and limit utilization metrics instrumented from day one"
+    },
+    {
+      "id": "sliding_window_precision",
+      "category": "Sliding Window Implementation",
+      "description": "Accurate sliding window mechanics with proper time bucketing, boundary handling, and memory-efficient storage to avoid burst boundary problems.",
+      "pass_condition": "Implements sliding window with time bucket resolution \u2264100ms, handles window transitions without burst leakage, and uses memory-efficient storage with automatic bucket cleanup.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "time_bucketing",
+            "description": "Fine-grained time bucketing for sliding window accuracy",
+            "weight": 0.4,
+            "measurement": "1.0 if uses \u2264100ms bucket resolution with precise timestamp handling, 0.7 if 100-500ms resolution, 0.4 if 500ms-1s resolution, 0.0 if >1s resolution or fixed windows",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "boundary_transition_handling",
+            "description": "Proper handling of window boundary transitions without burst leakage",
+            "weight": 0.35,
+            "measurement": "1.0 if prevents boundary burst problems with smooth window transitions, 0.7 if handles boundaries but potential minor burst issues, 0.4 if basic boundary handling, 0.0 if boundary burst problems exist",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memory_efficiency",
+            "description": "Memory-efficient storage with automatic cleanup of expired buckets",
+            "weight": 0.25,
+            "measurement": "1.0 if implements automatic bucket expiration with configurable TTL and memory limits, 0.7 if has bucket cleanup but basic implementation, 0.4 if manual cleanup required, 0.0 if no memory management",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Sliding window with 100ms buckets, automatic cleanup of buckets older than window size"
+      ],
+      "fail_examples": [
+        "Fixed time windows allowing burst at window boundaries"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Start with sliding window counter as default - handles most API rate limiting scenarios well with low memory, near-exact accuracy, and no boundary bursts. Continuous refill using elapsed * rate rather than stepping through discrete 'ticks' to avoid boundary artifacts"
+    },
+    {
+      "id": "redis_algorithm_consistency",
+      "category": "Cross-cutting Integration",
+      "description": "Evaluates consistency between Redis atomicity implementation and algorithm correctness, ensuring mathematical precision is maintained through atomic operations without compromising distributed coordination.",
+      "pass_condition": "Redis Lua scripts correctly implement token bucket mathematics with proper floating-point precision, atomic operations maintain algorithm invariants across distributed instances, and sliding window boundaries are handled atomically.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "mathematical_atomicity_alignment",
+            "description": "Redis atomic operations preserve mathematical algorithm correctness",
+            "weight": 0.4,
+            "measurement": "1.0 if Lua scripts implement exact token bucket math with proper precision and atomic invariant preservation, 0.7 if atomic but minor mathematical approximations, 0.4 if atomic operations but significant mathematical compromises, 0.0 if atomicity breaks algorithm correctness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "distributed_algorithm_consistency",
+            "description": "Distributed coordination maintains algorithm mathematical properties",
+            "weight": 0.35,
+            "measurement": "1.0 if distributed coordination preserves rate limiting mathematical invariants across all nodes, 0.7 if mostly consistent but minor edge cases, 0.4 if coordination works but algorithm consistency issues, 0.0 if distributed coordination breaks algorithm correctness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sliding_window_atomicity",
+            "description": "Sliding window operations are properly atomicized in Redis implementation",
+            "weight": 0.25,
+            "measurement": "1.0 if sliding window bucket operations are fully atomic with proper boundary handling, 0.7 if mostly atomic but minor race conditions, 0.4 if partial atomicity, 0.0 if sliding window operations are non-atomic",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Lua script that atomically handles sliding window bucket updates while maintaining exact token bucket refill mathematics"
+      ],
+      "fail_examples": [
+        "Atomic Redis operations that compromise mathematical precision for the sake of simplicity"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "[Partial] All rate limiting operations must use Lua scripts executed via EVAL to prevent TOCTOU race conditions. Token bucket with mathematically correct leak rate calculations"
+    },
+    {
+      "id": "degradation_coordination_coherence",
+      "category": "Cross-cutting Integration",
+      "description": "Evaluates coherence between graceful degradation strategies and distributed coordination mechanisms, ensuring fallback behaviors maintain distributed system consistency.",
+      "pass_condition": "Circuit breaker states are coordinated across distributed instances, local cache fallbacks maintain consistency with distributed rate limits within 15% accuracy, and degradation modes preserve consensus requirements.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "coordinated_circuit_breaking",
+            "description": "Circuit breaker states are properly coordinated across distributed instances",
+            "weight": 0.4,
+            "measurement": "1.0 if circuit breaker states are shared across instances with consensus on degradation mode, 0.7 if partial coordination but independent circuit breaker decisions, 0.4 if coordination attempted but inconsistent, 0.0 if no coordination of circuit breaker states",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fallback_consistency_maintenance",
+            "description": "Local fallback mechanisms maintain distributed rate limiting consistency",
+            "weight": 0.35,
+            "measurement": "1.0 if local caches maintain \u226415% deviation from distributed state with reconciliation, 0.7 if reasonable consistency but >15% deviation, 0.4 if fallbacks work but poor consistency, 0.0 if fallback mechanisms break distributed consistency",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "degradation_consensus_preservation",
+            "description": "Degradation modes preserve distributed consensus requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if degradation maintains consensus properties with clear consistency guarantees, 0.7 if degradation preserves most consensus properties, 0.4 if partial consensus preservation, 0.0 if degradation abandons consensus requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Circuit breaker coordination that ensures all instances enter degradation mode together while maintaining rate limit accuracy"
+      ],
+      "fail_examples": [
+        "Local cache fallback that allows unlimited requests while other instances maintain strict rate limiting"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "[Partial] Circuit breaker stops Redis operations after repeated failures, switches to local fallback. During extended Redis outages, precise per-user rate limiting is lost entirely, maintaining only approximate aggregate throughput"
+    },
+    {
+      "id": "performance_reliability_alignment",
+      "category": "Cross-cutting Integration",
+      "description": "Evaluates alignment between performance optimization strategies and production reliability requirements, ensuring high-performance implementation maintains monitoring and error handling standards.",
+      "pass_condition": "Sub-millisecond performance optimizations include proper error handling with timeout management, high-throughput design maintains comprehensive monitoring, and connection pooling includes health checks and graceful degradation.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "optimized_error_handling",
+            "description": "Performance optimizations maintain comprehensive error handling",
+            "weight": 0.4,
+            "measurement": "1.0 if performance optimizations include proper timeout handling and error recovery, 0.7 if optimization maintains most error handling, 0.4 if some error handling preserved, 0.0 if performance optimizations compromise error handling",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "monitoring_under_load",
+            "description": "High-throughput design maintains monitoring and observability",
+            "weight": 0.35,
+            "measurement": "1.0 if monitoring remains comprehensive under high load with minimal performance impact, 0.7 if monitoring works but some performance impact, 0.4 if basic monitoring under load, 0.0 if monitoring fails or is disabled under high load",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resilient_performance",
+            "description": "Connection pooling and optimization include reliability measures",
+            "weight": 0.25,
+            "measurement": "1.0 if performance features include health checks, graceful degradation, and circuit breaking, 0.7 if most reliability features preserved, 0.4 if basic reliability with performance features, 0.0 if performance features compromise reliability",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Connection pool with health checks that maintains sub-millisecond latency while providing circuit breaker functionality"
+      ],
+      "fail_examples": [
+        "Performance optimization that disables timeout handling to achieve better latency"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "[Partial] ~0.1ms per rate limit check via Redis Lua script. Circuit breaker triggers when Redis latency exceeds 5ms (normally 0.1ms)"
+    },
+    {
+      "id": "multi_dimensional_rate_limiting",
+      "category": "Algorithmic Design",
+      "description": "Implementation of multiple simultaneous rate limits across different dimensions (per-client, per-endpoint, per-IP, global) with proper key namespacing and limit coordination",
+      "pass_condition": "Implements at least 3 different rate limiting dimensions with proper key namespacing and atomic coordination",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "dimension_coverage",
+            "description": "Number of rate limiting dimensions implemented (per-client, per-endpoint, per-IP, global)",
+            "weight": 0.4,
+            "measurement": "count_of_dimensions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "key_namespacing",
+            "description": "Proper Redis key namespacing to prevent collisions between different limit types",
+            "weight": 0.3,
+            "measurement": "namespace_isolation_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "atomic_coordination",
+            "description": "All dimension checks performed atomically within single Lua script execution",
+            "weight": 0.3,
+            "measurement": "atomicity_implementation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Lua script that checks rate_limit:client:{api_key}, rate_limit:endpoint:POST:/api/users, rate_limit:ip:{client_ip}, and rate_limit:global in single atomic operation",
+        "Implementation with separate Redis keys for each dimension but coordinated evaluation to prevent race conditions"
+      ],
+      "fail_examples": [
+        "Only implements per-user rate limiting without endpoint or IP-based limits",
+        "Multiple separate Redis calls for different dimensions creating race condition windows"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "Production rate limiting rarely involves single limit - real-world systems need limits at multiple levels. Per-client (1000 req/min per API key), per-endpoint (100 req/min to POST endpoints), per-IP (50 req/sec), and global limits simultaneously"
+    },
+    {
+      "id": "redis_hot_key_prevention",
+      "category": "Distributed Systems",
+      "description": "Prevention of Redis hot key problems through proper key distribution strategies like sharding, randomized suffixes, or tenant partitioning",
+      "pass_condition": "Implements key distribution strategy that prevents concentration of load on single Redis nodes under high concurrency",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "key_distribution_strategy",
+            "description": "Implementation of sharding, randomized bucket suffixes, or tenant partitioning",
+            "weight": 0.4,
+            "measurement": "distribution_mechanism_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "load_balancing",
+            "description": "Even distribution of rate limit operations across Redis cluster nodes",
+            "weight": 0.3,
+            "measurement": "load_distribution_effectiveness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "high_concurrency_handling",
+            "description": "Maintains performance under concurrent access to same logical rate limit",
+            "weight": 0.3,
+            "measurement": "concurrency_performance",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Implements bucket sharding with multiple Redis keys per rate limit (e.g., rate_limit:user:123:bucket_0, rate_limit:user:123:bucket_1) and aggregates results",
+        "Uses consistent hashing to distribute rate limit keys across Redis cluster nodes with randomized suffixes"
+      ],
+      "fail_examples": [
+        "Single Redis key per rate limit causing hot key problems under high load",
+        "No consideration for key distribution leading to uneven load across Redis cluster"
+      ],
+      "domain": "distributed_rate_limiter",
+      "research_basis": "With 10 Redis shards handling ~100k operations/second each, can handle 1M request/second target loads. Hot key prevention requires sharding, randomized bucket suffixes, or tenant partitioning to avoid concentrating load on single Redis nodes"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "algorithm_correctness",
+      "name": "Algorithm Correctness",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "redis_atomicity",
+      "name": "Redis Atomicity & Concurrency",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "distributed_coordination",
+      "name": "Distributed Coordination",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "graceful_degradation",
+      "name": "Graceful Degradation & Circuit Breaker",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "performance_optimization",
+      "name": "Performance & Scalability",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "production_reliability",
+      "name": "Production Reliability",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "sliding_window_implementation",
+      "name": "Sliding Window Implementation",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "code_architecture",
+      "name": "Code Architecture & Testing",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

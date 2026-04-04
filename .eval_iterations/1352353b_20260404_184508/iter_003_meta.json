@@ -1,0 +1,108 @@
+{
+  "run_id": "1352353b_20260404_184508",
+  "iteration": 3,
+  "total_score": 61.209999999999994,
+  "max_score": 85,
+  "percentage": 0.7201176470588234,
+  "delta_from_prior": -0.0167,
+  "focus_areas": [
+    "network_security_controls.network_isolation",
+    "network_security_controls.gateway_authentication",
+    "network_security_controls.trusted_source_verification",
+    "query_execution_efficiency.common_query_optimization",
+    "federation_directive_implementation.cross_subgraph_resolution"
+  ],
+  "content_path": ".eval_iterations/1352353b_20260404_184508/iter_003_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_directive_implementation",
+      "points_earned": 3.41,
+      "max_points": 7,
+      "percentage": 0.48749999999999993
+    },
+    {
+      "criterion_id": "schema_composition_validity",
+      "points_earned": 4.0,
+      "max_points": 6,
+      "percentage": 0.6666666666666666
+    },
+    {
+      "criterion_id": "entity_key_stability",
+      "points_earned": 5.1,
+      "max_points": 6,
+      "percentage": 0.85
+    },
+    {
+      "criterion_id": "domain_boundary_separation",
+      "points_earned": 7.5,
+      "max_points": 10,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "auth_directive_implementation",
+      "points_earned": 5.03,
+      "max_points": 6,
+      "percentage": 0.8375
+    },
+    {
+      "criterion_id": "security_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "dataloader_implementation",
+      "points_earned": 3.52,
+      "max_points": 6,
+      "percentage": 0.5874999999999999
+    },
+    {
+      "criterion_id": "type_design_consistency",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.7499999999999999
+    },
+    {
+      "criterion_id": "validation_error_handling",
+      "points_earned": 4.19,
+      "max_points": 5,
+      "percentage": 0.8375
+    },
+    {
+      "criterion_id": "query_execution_efficiency",
+      "points_earned": 2.19,
+      "max_points": 5,
+      "percentage": 0.4375
+    },
+    {
+      "criterion_id": "error_resilience_patterns",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "auth_performance_coherence",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "federation_domain_alignment",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6625
+    },
+    {
+      "criterion_id": "security_resilience_integration",
+      "points_earned": 2.65,
+      "max_points": 4,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "network_security_controls",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    }
+  ]
+}

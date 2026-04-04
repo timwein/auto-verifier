@@ -1,0 +1,1684 @@
+{
+  "run_id": "62a29398_20260404_185442",
+  "iteration": 1,
+  "content": "# INVESTMENT MEMO\n\n**SKYGUARD DYNAMICS**  \n*Series A Defense Drone Company*\n\n## EXECUTIVE SUMMARY\n\nSkyGuard Dynamics represents a compelling Series A investment opportunity in the rapidly expanding defense drone market. The company develops AI-enabled autonomous surveillance and reconnaissance drones specifically designed for military and border security applications. With proprietary edge computing capabilities and swarm coordination technology, SkyGuard is positioned to capture significant market share in a sector experiencing unprecedented growth and government investment.\n\n## MARKET OPPORTUNITY\n\n\nThe global military drone market size was estimated at $47.38 billion in 2025 and is projected to reach $98.24 billion by 2033, at a CAGR of 8.9%\n. \nSpending on UAVs in 2025 has been estimated to reach $8.2 billion, with the US leading investments at $1.9 billion (23.8% of global spending)\n.\n\nSeveral macro factors are driving exceptional market growth:\n- **Government Spending Surge**: \nThe U.S. Department of Defense funded USD 1.8 billion in fiscal year 2025, especially for autonomous unmanned systems development, representing a growth of about 24% from the 2024\n\n- **Ukraine Validation**: \nThe war in Ukraine demonstrated\u2014at scale\u2014that drones, autonomous platforms, and AI-enabled systems can deliver real battlefield impact. Cheap, rapidly produced systems paired with faster decision-making have proven just as critical as traditional high-end platforms\n\n- **ISR Dominance**: \nThe ISR segment dominated the market in 2025, mainly driven by the demand for watching, tracking, and gathering intelligence\n\n\n## PRODUCT & TECHNOLOGY\n\nSkyGuard's platform features:\n- **AI-Powered Autonomy**: Advanced machine learning for real-time threat assessment and target identification\n- **Swarm Coordination**: Proprietary algorithms enabling multi-drone collaborative missions\n- **Edge Computing**: On-device processing for low-latency decision making in contested environments  \n- **Modular Design**: Configurable payloads for ISR, electronic warfare, and precision strike missions\n- **Secure Communications**: Military-grade encryption and mesh networking capabilities\n\nThe technology addresses critical DoD requirements: \nRising investments from major players such as the U.S. DoD's Replicator initiative, NATO modernization programs, and partnerships between defense contractors and tech firms are accelerating R&D in stealth, 5G-enabled real-time communication, and counter-drone defenses\n.\n\n## COMPETITIVE LANDSCAPE\n\nSkyGuard operates in a market dominated by legacy defense contractors but increasingly open to innovation. \nThe global Military Drone Market is moderately consolidated, with a small number of defense primes including Northrop Grumman, General Atomics Aeronautical Systems, Lockheed Martin, and Israel Aerospace Industries commanding significant revenue shares\n. However, \nthe war in Ukraine demonstrated that cheap, rapidly produced systems paired with faster decision-making have proven just as critical as traditional high-end platforms\n, creating opportunities for agile startups.\n\nKey differentiators include faster development cycles, lower unit costs, and AI-native design compared to legacy systems adapted for autonomous operations.\n\n## FINANCIAL HIGHLIGHTS\n\n**Series A Fundraising**: $35M  \n**Pre-money Valuation**: $125M  \n**Use of Funds**: 40% R&D, 30% Manufacturing Scale-up, 20% Sales & Marketing, 10% Working Capital\n\n**Revenue Projections**:\n- 2025E: $8M (government pilot contracts)\n- 2026E: $25M (production scale-up)\n- 2027E: $65M (international expansion)\n\n## INVESTMENT RATIONALE\n\n1. **Massive Market Tailwinds**: \nEquity funding for defense technology startups more than doubled to $17.9 billion last year from $7.3 billion in 2024\n, with \n77% of 2025's investment went to dual-use drone companies\n\n\n2. **Government Demand Signal**: \n\"Drone dominance is a billion-dollar program funded by President Trump's Big Beautiful Bill,\" with the War Department making concrete plans to buy lots of drones, on a regular schedule, over a long period of time\n\n\n3. **Proven Team**: Leadership combines Silicon Valley AI expertise with military operational experience, ensuring both technical excellence and mission understanding\n\n4. **Clear Path to Scale**: \nIn 2026, startups will face a tougher test: can they turn capital into production at scale? Manufacturing, once an afterthought in venture-backed defense companies, is now the next competitive frontier\n\n\n## RISKS & MITIGATION\n\n**Primary Risks**:\n- Government procurement cycles and budget dependencies\n- Export control (ITAR) compliance complexity\n- Competitive pressure from well-funded incumbents\n\n**Mitigation Strategies**:\n- Dual-use commercial applications (infrastructure monitoring, border patrol)\n- Strong government relations and compliance infrastructure\n- Focus on rapid innovation cycles and cost advantages\n\n## RECOMMENDATION\n\n**STRONG BUY** - SkyGuard Dynamics represents an exceptional Series A opportunity at the intersection of three powerful trends: defense modernization, AI advancement, and autonomous systems adoption. The company's technology-first approach, experienced team, and clear government market demand create a compelling investment thesis with significant upside potential in a rapidly expanding market.",
+  "total_score": 10.59,
+  "max_score": 209,
+  "percentage": 0.05066985645933014,
+  "criterion_scores": [
+    {
+      "criterion_id": "itar_compliance_cost_modeling",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "compliance_cost_quantification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "export_revenue_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "regulatory_category_specificity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: compliance_cost_quantification: 0%x40% + export_revenue_impact: 0%x35% + regulatory_category_specificity: 0%x25%",
+      "improvement_hints": [
+        "compliance_cost_quantification: 0% -> 80% (+1.9 pts)",
+        "export_revenue_impact: 0% -> 80% (+1.7 pts)",
+        "regulatory_category_specificity: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_clearance_scaling_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "clearance_level_requirements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_cost_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "talent_pool_constraints",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: clearance_level_requirements: 0%x30% + timeline_cost_impact: 0%x40% + talent_pool_constraints: 0%x30%",
+      "improvement_hints": [
+        "clearance_level_requirements: 0% -> 80% (+1.2 pts)",
+        "timeline_cost_impact: 0% -> 80% (+1.6 pts)",
+        "talent_pool_constraints: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "procurement_cycle_pathway_analysis",
+      "points_earned": 0.7,
+      "max_points": 7,
+      "percentage": 0.1,
+      "sub_scores": [
+        {
+          "sub_id": "program_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_realism",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "pathway_selection_rationale",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: program_specificity: 25%x40% + timeline_realism: 0%x35% + pathway_selection_rationale: 0%x25%",
+      "improvement_hints": [
+        "timeline_realism: 0% -> 80% (+2.0 pts)",
+        "pathway_selection_rationale: 0% -> 80% (+1.4 pts)",
+        "program_specificity: 25% -> 80% (+1.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_market_program_validation",
+      "points_earned": 1.14,
+      "max_points": 7,
+      "percentage": 0.1625,
+      "sub_scores": [
+        {
+          "sub_id": "program_identification_sizing",
+          "raw_value": 0.25,
+          "weighted_value": 0.1125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "capability_gap_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "budget_cycle_alignment",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: program_identification_sizing: 25%x45% + capability_gap_analysis: 0%x35% + budget_cycle_alignment: 25%x20%",
+      "improvement_hints": [
+        "capability_gap_analysis: 0% -> 80% (+2.0 pts)",
+        "program_identification_sizing: 25% -> 80% (+1.7 pts)",
+        "budget_cycle_alignment: 25% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technical_differentiation_incumbents",
+      "points_earned": 3.5,
+      "max_points": 6,
+      "percentage": 0.5833333333333334,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "cost_only_differentiation",
+          "penalty": -1.5
+        },
+        {
+          "violation": "ignoring_incumbent_advantages",
+          "penalty": -1.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -2.5",
+      "improvement_hints": [
+        "Fix cost_only_differentiation (+1.5 pts)",
+        "Fix ignoring_incumbent_advantages (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_financial_modeling_realism",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "discount_rate_appropriateness",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "payment_structure_realism",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "revenue_cycle_alignment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: discount_rate_appropriateness: 0%x30% + payment_structure_realism: 0%x40% + revenue_cycle_alignment: 0%x30%",
+      "improvement_hints": [
+        "discount_rate_appropriateness: 0% -> 80% (+1.4 pts)",
+        "payment_structure_realism: 0% -> 80% (+1.9 pts)",
+        "revenue_cycle_alignment: 0% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dual_use_revenue_strategy",
+      "points_earned": 0.5,
+      "max_points": 5,
+      "percentage": 0.1,
+      "sub_scores": [
+        {
+          "sub_id": "commercial_market_identification",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_revenue_acceleration",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "revenue_mix_optimization",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: commercial_market_identification: 25%x40% + timeline_revenue_acceleration: 0%x35% + revenue_mix_optimization: 0%x25%",
+      "improvement_hints": [
+        "timeline_revenue_acceleration: 0% -> 80% (+1.4 pts)",
+        "revenue_mix_optimization: 0% -> 80% (+1.0 pts)",
+        "commercial_market_identification: 25% -> 80% (+1.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_team_credentials_assessment",
+      "points_earned": 4.0,
+      "max_points": 5,
+      "percentage": 0.8,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "generic_defense_experience_claims",
+          "penalty": -1.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 5 - -1.0",
+      "improvement_hints": [
+        "Fix generic_defense_experience_claims (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "policy_geopolitical_risk_analysis",
+      "points_earned": 0.75,
+      "max_points": 5,
+      "percentage": 0.15,
+      "sub_scores": [
+        {
+          "sub_id": "policy_risk_quantification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "export_control_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "geopolitical_demand_assessment",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: policy_risk_quantification: 0%x40% + export_control_analysis: 0%x30% + geopolitical_demand_assessment: 50%x30%",
+      "improvement_hints": [
+        "policy_risk_quantification: 0% -> 80% (+1.6 pts)",
+        "export_control_analysis: 0% -> 80% (+1.2 pts)",
+        "geopolitical_demand_assessment: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_partnership_ecosystem_strategy",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "platform_integration_specificity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "partnership_positioning_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "systems_integration_capability",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: platform_integration_specificity: 0%x40% + partnership_positioning_strategy: 0%x35% + systems_integration_capability: 0%x25%",
+      "improvement_hints": [
+        "platform_integration_specificity: 0% -> 80% (+1.6 pts)",
+        "partnership_positioning_strategy: 0% -> 80% (+1.4 pts)",
+        "systems_integration_capability: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "corporate_venture_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "partner_identification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "collaboration_framework",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "transformative_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: partner_identification: 0%x40% + collaboration_framework: 0%x40% + transformative_impact: 0%x20%",
+      "improvement_hints": [
+        "partner_identification: 0% -> 80% (+1.3 pts)",
+        "collaboration_framework: 0% -> 80% (+1.3 pts)",
+        "transformative_impact: 0% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "investor_credibility_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "defense_investor_focus",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "government_derisking",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "procurement_advantage",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: defense_investor_focus: 0%x50% + government_derisking: 0%x30% + procurement_advantage: 0%x20%",
+      "improvement_hints": [
+        "defense_investor_focus: 0% -> 80% (+1.6 pts)",
+        "government_derisking: 0% -> 80% (+1.0 pts)",
+        "procurement_advantage: 0% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "manufacturing_excellence_capability",
+      "points_earned": 0.0,
+      "max_points": 8,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "quality_standards",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "supply_chain_security",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "production_scalability",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: quality_standards: 0%x30% + supply_chain_security: 0%x40% + production_scalability: 0%x30%",
+      "improvement_hints": [
+        "quality_standards: 0% -> 80% (+1.9 pts)",
+        "supply_chain_security: 0% -> 80% (+2.6 pts)",
+        "production_scalability: 0% -> 80% (+1.9 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technical_feasibility_risk_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "prototype_validation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "risk_identification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trl_progression",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: prototype_validation: 0%x40% + risk_identification: 0%x30% + trl_progression: 0%x30%",
+      "improvement_hints": [
+        "prototype_validation: 0% -> 80% (+1.9 pts)",
+        "risk_identification: 0% -> 80% (+1.4 pts)",
+        "trl_progression: 0% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_unit_economics_modeling",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "unit_cost_breakdown",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "margin_progression",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "sensitivity_modeling",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: unit_cost_breakdown: 0%x40% + margin_progression: 0%x30% + sensitivity_modeling: 0%x30%",
+      "improvement_hints": [
+        "unit_cost_breakdown: 0% -> 80% (+1.6 pts)",
+        "margin_progression: 0% -> 80% (+1.2 pts)",
+        "sensitivity_modeling: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "regulatory_certification_pathway_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "certification_requirements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_realism",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "operational_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: certification_requirements: 0%x30% + timeline_realism: 0%x40% + operational_impact: 0%x30%",
+      "improvement_hints": [
+        "certification_requirements: 0% -> 80% (+1.2 pts)",
+        "timeline_realism: 0% -> 80% (+1.6 pts)",
+        "operational_impact: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_capital_requirements_analysis",
+      "points_earned": 0.0,
+      "max_points": 9,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "capital_intensity_modeling",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "working_capital_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "financing_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: capital_intensity_modeling: 0%x30% + working_capital_analysis: 0%x40% + financing_strategy: 0%x30%",
+      "improvement_hints": [
+        "capital_intensity_modeling: 0% -> 80% (+2.2 pts)",
+        "working_capital_analysis: 0% -> 80% (+2.9 pts)",
+        "financing_strategy: 0% -> 80% (+2.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technology_readiness_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "trl_specification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "milestone_mapping",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "risk_assessment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: trl_specification: 0%x30% + milestone_mapping: 0%x40% + risk_assessment: 0%x30%",
+      "improvement_hints": [
+        "trl_specification: 0% -> 80% (+1.4 pts)",
+        "milestone_mapping: 0% -> 80% (+1.9 pts)",
+        "risk_assessment: 0% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "operational_deployment_feasibility",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "testing_standards",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "training_logistics",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "integration_complexity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: testing_standards: 0%x30% + training_logistics: 0%x40% + integration_complexity: 0%x30%",
+      "improvement_hints": [
+        "testing_standards: 0% -> 80% (+1.0 pts)",
+        "training_logistics: 0% -> 80% (+1.3 pts)",
+        "integration_complexity: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "cybersecurity_compliance_framework",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "framework_compliance",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ato_process",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ongoing_compliance",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: framework_compliance: 0%x40% + ato_process: 0%x30% + ongoing_compliance: 0%x30%",
+      "improvement_hints": [
+        "framework_compliance: 0% -> 80% (+1.3 pts)",
+        "ato_process: 0% -> 80% (+1.0 pts)",
+        "ongoing_compliance: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "customer_validation_evidence",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "stakeholder_interviews",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "pilot_agreements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "user_feedback",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: stakeholder_interviews: 0%x40% + pilot_agreements: 0%x35% + user_feedback: 0%x25%",
+      "improvement_hints": [
+        "stakeholder_interviews: 0% -> 80% (+1.9 pts)",
+        "pilot_agreements: 0% -> 80% (+1.7 pts)",
+        "user_feedback: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "risk_adjusted_financial_realism",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "scenario_modeling",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "program_risk_quantification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cash_flow_volatility",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: scenario_modeling: 0%x40% + program_risk_quantification: 0%x35% + cash_flow_volatility: 0%x25%",
+      "improvement_hints": [
+        "scenario_modeling: 0% -> 80% (+1.6 pts)",
+        "program_risk_quantification: 0% -> 80% (+1.4 pts)",
+        "cash_flow_volatility: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technical_execution_risk_assessment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "technical_risk_identification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "certification_requirements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "feasibility_evidence",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: technical_risk_identification: 0%x35% + certification_requirements: 0%x35% + feasibility_evidence: 0%x30%",
+      "improvement_hints": [
+        "technical_risk_identification: 0% -> 80% (+1.4 pts)",
+        "certification_requirements: 0% -> 80% (+1.4 pts)",
+        "feasibility_evidence: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "competitive_response_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "incumbent_response_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "acquisition_threat_mitigation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "sustainable_differentiation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: incumbent_response_analysis: 0%x40% + acquisition_threat_mitigation: 0%x35% + sustainable_differentiation: 0%x25%",
+      "improvement_hints": [
+        "incumbent_response_analysis: 0% -> 80% (+1.3 pts)",
+        "acquisition_threat_mitigation: 0% -> 80% (+1.1 pts)",
+        "sustainable_differentiation: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "regulatory_operational_complexity_assessment",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "cybersecurity_compliance_costs",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "quality_system_requirements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "operational_overhead_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: cybersecurity_compliance_costs: 0%x40% + quality_system_requirements: 0%x30% + operational_overhead_impact: 0%x30%",
+      "improvement_hints": [
+        "cybersecurity_compliance_costs: 0% -> 80% (+1.3 pts)",
+        "quality_system_requirements: 0% -> 80% (+1.0 pts)",
+        "operational_overhead_impact: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technical_performance_credibility_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "performance_superiority",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trade_off_justification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_positioning",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: performance_superiority: 0%x40% + trade_off_justification: 0%x30% + competitive_positioning: 0%x30%",
+      "improvement_hints": [
+        "performance_superiority: 0% -> 80% (+1.9 pts)",
+        "trade_off_justification: 0% -> 80% (+1.4 pts)",
+        "competitive_positioning: 0% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_coherence_assessment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "technical_market_alignment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_strategy_coherence",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "financial_strategic_consistency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: technical_market_alignment: 0%x40% + competitive_strategy_coherence: 0%x30% + financial_strategic_consistency: 0%x30%",
+      "improvement_hints": [
+        "technical_market_alignment: 0% -> 80% (+1.6 pts)",
+        "competitive_strategy_coherence: 0% -> 80% (+1.2 pts)",
+        "financial_strategic_consistency: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_expertise_authenticity_assessment",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "industry_insight_depth",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "nuanced_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "authentic_expertise",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: industry_insight_depth: 0%x40% + nuanced_analysis: 0%x35% + authentic_expertise: 0%x25%",
+      "improvement_hints": [
+        "industry_insight_depth: 0% -> 80% (+1.3 pts)",
+        "nuanced_analysis: 0% -> 80% (+1.1 pts)",
+        "authentic_expertise: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "binding_customer_commitment_evidence",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "binding_agreements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "procurement_progression",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_commitments",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: binding_agreements: 0%x40% + procurement_progression: 0%x35% + timeline_commitments: 0%x25%",
+      "improvement_hints": [
+        "binding_agreements: 0% -> 80% (+1.9 pts)",
+        "procurement_progression: 0% -> 80% (+1.7 pts)",
+        "timeline_commitments: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "market_penetration_barrier_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "switching_cost_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "incumbent_advantages",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "entry_barrier_mitigation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: switching_cost_analysis: 0%x35% + incumbent_advantages: 0%x35% + entry_barrier_mitigation: 0%x30%",
+      "improvement_hints": [
+        "switching_cost_analysis: 0% -> 80% (+1.4 pts)",
+        "incumbent_advantages: 0% -> 80% (+1.4 pts)",
+        "entry_barrier_mitigation: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "technology_obsolescence_defense_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "obsolescence_timeline",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "rd_investment_requirements",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "innovation_pipeline",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: obsolescence_timeline: 0%x30% + rd_investment_requirements: 0%x40% + innovation_pipeline: 0%x30%",
+      "improvement_hints": [
+        "obsolescence_timeline: 0% -> 80% (+1.0 pts)",
+        "rd_investment_requirements: 0% -> 80% (+1.3 pts)",
+        "innovation_pipeline: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_revenue_scalability_model",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "concentration_risk_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "revenue_predictability",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "recurring_revenue_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: concentration_risk_analysis: 0%x35% + revenue_predictability: 0%x35% + recurring_revenue_strategy: 0%x30%",
+      "improvement_hints": [
+        "concentration_risk_analysis: 0% -> 80% (+1.4 pts)",
+        "revenue_predictability: 0% -> 80% (+1.4 pts)",
+        "recurring_revenue_strategy: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_dependency_risk_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "key_personnel_dependency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "supplier_concentration_risk",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "technology_obsolescence_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "customer_concentration_vulnerability",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: key_personnel_dependency: 0%x30% + supplier_concentration_risk: 0%x25% + technology_obsolescence_analysis: 0%x25% + customer_concentration_vulnerability: 0%x20%",
+      "improvement_hints": [
+        "key_personnel_dependency: 0% -> 80% (+1.2 pts)",
+        "supplier_concentration_risk: 0% -> 80% (+1.0 pts)",
+        "technology_obsolescence_analysis: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "implementation_complexity_depth_analysis",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "resource_allocation_granularity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "capability_gap_identification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "milestone_dependency_mapping",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "execution_risk_quantification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: resource_allocation_granularity: 0%x30% + capability_gap_identification: 0%x25% + milestone_dependency_mapping: 0%x25% + execution_risk_quantification: 0%x20%",
+      "improvement_hints": [
+        "resource_allocation_granularity: 0% -> 80% (+1.4 pts)",
+        "capability_gap_identification: 0% -> 80% (+1.2 pts)",
+        "milestone_dependency_mapping: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dynamic_market_evolution_strategy",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "market_trend_evolution_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_landscape_shifts",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "adaptive_strategy_framework",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "disruption_cycle_awareness",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: market_trend_evolution_analysis: 0%x30% + competitive_landscape_shifts: 0%x30% + adaptive_strategy_framework: 0%x25% + disruption_cycle_awareness: 0%x15%",
+      "improvement_hints": [
+        "market_trend_evolution_analysis: 0% -> 80% (+1.2 pts)",
+        "competitive_landscape_shifts: 0% -> 80% (+1.2 pts)",
+        "adaptive_strategy_framework: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "intellectual_property_landscape_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "freedom_to_operate_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_ip_landscape",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "comprehensive_ip_protection",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ip_risk_quantification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: freedom_to_operate_analysis: 0%x30% + competitive_ip_landscape: 0%x30% + comprehensive_ip_protection: 0%x25% + ip_risk_quantification: 0%x15%",
+      "improvement_hints": [
+        "freedom_to_operate_analysis: 0% -> 80% (+1.0 pts)",
+        "competitive_ip_landscape: 0% -> 80% (+1.0 pts)",
+        "comprehensive_ip_protection: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_ecosystem_positioning_analysis",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "supply_chain_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "platform_integration_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "sustainable_moats",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: supply_chain_analysis: 0%x30% + platform_integration_strategy: 0%x40% + sustainable_moats: 0%x30%",
+      "improvement_hints": [
+        "supply_chain_analysis: 0% -> 80% (+1.4 pts)",
+        "platform_integration_strategy: 0% -> 80% (+1.9 pts)",
+        "sustainable_moats: 0% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_organizational_scaling_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "security_compartmentalization_impact",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "talent_integration_strategy",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "classified_program_management",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: security_compartmentalization_impact: 0%x30% + talent_integration_strategy: 0%x40% + classified_program_management: 0%x30%",
+      "improvement_hints": [
+        "security_compartmentalization_impact: 0% -> 80% (+1.0 pts)",
+        "talent_integration_strategy: 0% -> 80% (+1.3 pts)",
+        "classified_program_management: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "defense_exit_strategy_constraints_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "regulatory_exit_constraints",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "acquirer_pool_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "valuation_impact_assessment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: regulatory_exit_constraints: 0%x40% + acquirer_pool_analysis: 0%x30% + valuation_impact_assessment: 0%x30%",
+      "improvement_hints": [
+        "regulatory_exit_constraints: 0% -> 80% (+1.3 pts)",
+        "acquirer_pool_analysis: 0% -> 80% (+1.0 pts)",
+        "valuation_impact_assessment: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "execution_timeline_realism",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "timeline_dependency_mapping",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resource_allocation_realism",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "contingency_planning",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: timeline_dependency_mapping: 0%x40% + resource_allocation_realism: 0%x30% + contingency_planning: 0%x30%",
+      "improvement_hints": [
+        "timeline_dependency_mapping: 0% -> 80% (+1.3 pts)",
+        "resource_allocation_realism: 0% -> 80% (+1.0 pts)",
+        "contingency_planning: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

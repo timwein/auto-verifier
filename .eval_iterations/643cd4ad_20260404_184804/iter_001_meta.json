@@ -1,0 +1,174 @@
+{
+  "run_id": "643cd4ad_20260404_184804",
+  "iteration": 1,
+  "total_score": 111.14,
+  "max_score": 218,
+  "percentage": 0.5098165137614679,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/643cd4ad_20260404_184804/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "legal_authority_compliance",
+      "points_earned": 15.0,
+      "max_points": 15,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "trademark_legal_risk",
+      "points_earned": 9.0,
+      "max_points": 9,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "competitive_differentiation",
+      "points_earned": 12.6,
+      "max_points": 21,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "professional_memorability",
+      "points_earned": 2.81,
+      "max_points": 5,
+      "percentage": 0.5625
+    },
+    {
+      "criterion_id": "legal_workflow_credibility",
+      "points_earned": 1.69,
+      "max_points": 5,
+      "percentage": 0.3375
+    },
+    {
+      "criterion_id": "scalability_positioning",
+      "points_earned": 4.9,
+      "max_points": 8,
+      "percentage": 0.6124999999999999
+    },
+    {
+      "criterion_id": "cultural_tone_appropriateness",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "domain_digital_asset_availability",
+      "points_earned": 0.4,
+      "max_points": 4,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "brand_emotional_resonance",
+      "points_earned": 6.0,
+      "max_points": 12,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "legal_domain_sophistication",
+      "points_earned": 2.5,
+      "max_points": 10,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "linguistic_distinctiveness",
+      "points_earned": 5.5,
+      "max_points": 8,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "innovation_premium_positioning",
+      "points_earned": 4.0,
+      "max_points": 8,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "contract_domain_relevance",
+      "points_earned": 5.0,
+      "max_points": 20,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "legal_industry_authenticity",
+      "points_earned": 6.38,
+      "max_points": 15,
+      "percentage": 0.42500000000000004
+    },
+    {
+      "criterion_id": "ai_trust_positioning",
+      "points_earned": 4.05,
+      "max_points": 9,
+      "percentage": 0.45
+    },
+    {
+      "criterion_id": "category_definition_leadership",
+      "points_earned": 2.0,
+      "max_points": 4,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "practical_usability_efficiency",
+      "points_earned": 0.04,
+      "max_points": 4,
+      "percentage": 0.009433962264150943
+    },
+    {
+      "criterion_id": "economic_value_signaling",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "ai_methodology_transparency",
+      "points_earned": 2.92,
+      "max_points": 9,
+      "percentage": 0.32499999999999996
+    },
+    {
+      "criterion_id": "integration_workflow_harmony",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "semantic_conceptual_coherence",
+      "points_earned": 6.75,
+      "max_points": 9,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "brand_personality_distinctiveness",
+      "points_earned": 4.5,
+      "max_points": 9,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "strategic_market_intelligence",
+      "points_earned": 2.3,
+      "max_points": 4,
+      "percentage": 0.575
+    },
+    {
+      "criterion_id": "psychological_adoption_dynamics",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "business_model_sophistication",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "narrative_storytelling_power",
+      "points_earned": 4.2,
+      "max_points": 7,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "global_cultural_adaptability",
+      "points_earned": 0.6,
+      "max_points": 3,
+      "percentage": 0.2
+    }
+  ]
+}

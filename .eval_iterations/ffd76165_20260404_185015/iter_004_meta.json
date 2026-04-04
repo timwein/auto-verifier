@@ -1,0 +1,228 @@
+{
+  "run_id": "ffd76165_20260404_185015",
+  "iteration": 4,
+  "total_score": 166.69,
+  "max_score": 193,
+  "percentage": 0.8636787564766839,
+  "delta_from_prior": 0.2096,
+  "focus_areas": [
+    "business_model_clarity.revenue_model_explicit",
+    "positive_signal_strength.team_credentials",
+    "credibility_anchoring_strategy.positioning_strategy",
+    "credibility_anchoring_strategy.validation_context",
+    "unique_value_proposition_clarity.market_opportunity_sizing"
+  ],
+  "content_path": ".eval_iterations/ffd76165_20260404_185015/iter_004_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "optimal_word_count",
+      "points_earned": 1.57,
+      "max_points": 4,
+      "percentage": 0.39184952978056425
+    },
+    {
+      "criterion_id": "mobile_subject_optimization",
+      "points_earned": 0.13,
+      "max_points": 5,
+      "percentage": 0.026362038664323375
+    },
+    {
+      "criterion_id": "portfolio_personalization",
+      "points_earned": 8.66,
+      "max_points": 11,
+      "percentage": 0.7875
+    },
+    {
+      "criterion_id": "positive_signal_strength",
+      "points_earned": 6.56,
+      "max_points": 7,
+      "percentage": 0.9375
+    },
+    {
+      "criterion_id": "domain_authentication",
+      "points_earned": 3.0,
+      "max_points": 3,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "specific_call_to_action",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "preheader_optimization",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "angel_vs_vc_understanding",
+      "points_earned": 4.5,
+      "max_points": 5,
+      "percentage": 0.9
+    },
+    {
+      "criterion_id": "founder_direct_outreach",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "no_readily_available_info",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "credibility_anchoring_strategy",
+      "points_earned": 4.69,
+      "max_points": 5,
+      "percentage": 0.9375
+    },
+    {
+      "criterion_id": "go_to_market_strategy_articulation",
+      "points_earned": 4.19,
+      "max_points": 5,
+      "percentage": 0.8375
+    },
+    {
+      "criterion_id": "low_drama_professionalism",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "anti_mass_email_signals",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "targeted_contact_selection",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "metrics_integrity_and_context",
+      "points_earned": 11.0,
+      "max_points": 11,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "claim_specificity_and_verifiability",
+      "points_earned": 8.53,
+      "max_points": 11,
+      "percentage": 0.775
+    },
+    {
+      "criterion_id": "unique_value_proposition_clarity",
+      "points_earned": 5.55,
+      "max_points": 6,
+      "percentage": 0.9249999999999999
+    },
+    {
+      "criterion_id": "investment_ask_appropriateness",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "strategic_investment_thesis",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "business_model_clarity",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "competitive_differentiation",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "investment_rationale_clarity",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "mutual_value_recognition",
+      "points_earned": 3.2,
+      "max_points": 4,
+      "percentage": 0.8
+    },
+    {
+      "criterion_id": "strategic_risk_awareness",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "social_proof_pathway",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "investment_stage_coherence",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "manipulation_tactics_absence",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "operational_depth_sufficiency",
+      "points_earned": 4.62,
+      "max_points": 5,
+      "percentage": 0.9249999999999999
+    },
+    {
+      "criterion_id": "authentic_founder_voice",
+      "points_earned": 4.62,
+      "max_points": 5,
+      "percentage": 0.9249999999999999
+    },
+    {
+      "criterion_id": "organic_communication_flow",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "operational_reality_grounding",
+      "points_earned": 4.62,
+      "max_points": 5,
+      "percentage": 0.925
+    },
+    {
+      "criterion_id": "investment_urgency_articulation",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "narrative_coherence_quality",
+      "points_earned": 3.25,
+      "max_points": 5,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "relationship_building_intent",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    }
+  ]
+}

@@ -1,0 +1,1293 @@
+{
+  "task": "Write the narrative script (speaker notes) for a 12-slide Series B board deck covering financials, product roadmap, competitive landscape, hiring plan, and key risks, for a $30M ARR vertical SaaS company",
+  "domain": "Series B SaaS Board Deck",
+  "total_points": 170,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "rule_of_40_compliance_depth",
+      "category": "Unit Economics & SaaS Metrics",
+      "description": "Evaluates whether the narrative demonstrates sophisticated understanding of Rule of 40 calculations, including proper component breakdowns, trend analysis, and forward-looking projections that account for investment timing effects.",
+      "pass_condition": "Must present Rule of 40 calculation with quarterly breakdown for last 4-6 quarters, show growth rate and margin components separately, project forward 4 quarters with investment impact considerations, and score \u226535 currently with path to 40+ within 12 months",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "calculation_precision",
+            "description": "Accuracy and sophistication of Rule of 40 calculation methodology",
+            "weight": 0.35,
+            "measurement": "1.0 if uses ARR growth rate + FCF margin with quarterly trend analysis, 0.7 if uses correct components but limited historical data, 0.4 if uses revenue growth instead of ARR or EBITDA instead of FCF, 0.0 if calculation method unclear or incorrect",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "component_attribution",
+            "description": "Breakdown of growth rate vs. margin contribution to overall score",
+            "weight": 0.3,
+            "measurement": "1.0 if shows specific percentage contribution of growth vs. margin with 8+ quarter trend, 0.7 if shows breakdown for current period only, 0.4 if mentions components but no quantification, 0.0 if presents only aggregate score",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "forward_projection",
+            "description": "Quality of Rule of 40 trajectory modeling with investment impact",
+            "weight": 0.35,
+            "measurement": "1.0 if models 8+ quarters forward with specific assumptions about growth deceleration and margin expansion timing, 0.7 if projects 4-6 quarters with general assumptions, 0.4 if shows target without path modeling, 0.0 if no forward-looking analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Q3 Rule of 40 score of 38 (22% ARR growth + 16% FCF margin), trending up from 31 in Q1, with path to 42+ by Q4 2024 as gross margin expansion from new enterprise tier offsets planned growth investment deceleration"
+      ],
+      "fail_examples": [
+        "Our Rule of 40 is strong at 35% and improving"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Rule of 40 Adherence: A healthy SaaS company's annual revenue growth rate and profit margin should add up to 40% or more. Barely one-third of software companies achieve the Rule of 40, making this a critical differentiator."
+    },
+    {
+      "id": "nrr_expansion_mechanics",
+      "category": "Unit Economics & SaaS Metrics",
+      "description": "Evaluates the sophistication of net revenue retention analysis including expansion revenue breakdown, logo retention vs. dollar retention distinction, and specific drivers of expansion with actionable improvement levers.",
+      "pass_condition": "Must demonstrate NRR >110% with breakdown of expansion vs. contraction components, show logo retention >90%, segment NRR by customer cohort/size, and identify specific expansion drivers with attachment rates or usage metrics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "nrr_component_breakdown",
+            "description": "Granular analysis of NRR components including expansion, contraction, and churn",
+            "weight": 0.4,
+            "measurement": "1.0 if shows gross retention, expansion rate, and contraction rate separately with customer segment analysis, 0.7 if breaks down NRR components without segmentation, 0.4 if presents only net figure with basic breakdown, 0.0 if NRR presented without component analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "expansion_revenue_drivers",
+            "description": "Specific identification and quantification of revenue expansion mechanisms",
+            "weight": 0.35,
+            "measurement": "1.0 if quantifies specific drivers (seat expansion %, cross-sell attach rates, usage tier upgrades) with success metrics, 0.7 if identifies drivers with some quantification, 0.4 if lists expansion sources without metrics, 0.0 if expansion drivers unclear or generic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "improvement_roadmap",
+            "description": "Specific initiatives and targets for NRR improvement with timeline",
+            "weight": 0.25,
+            "measurement": "1.0 if presents specific NRR improvement initiatives with quantified targets and timelines, 0.7 if identifies improvement areas with general targets, 0.4 if mentions improvement plans without specifics, 0.0 if no NRR improvement strategy discussed",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "NRR of 115% driven by 92% logo retention + 25% expansion rate, with API usage tier upgrades contributing 12pts and new workflow module cross-sell adding 8pts"
+      ],
+      "fail_examples": [
+        "Net revenue retention of 112% with strong expansion in enterprise segment"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Net revenue retention (NRR) tells you what percentage of recurring revenue you're holding onto from current customers, considering losses from churn and gains from upsells. Series B vertical SaaS companies are expected to exceed 110% NRR."
+    },
+    {
+      "id": "arr_growth_trajectory_modeling",
+      "category": "Financial Projections & ARR Trajectory",
+      "description": "Evaluates the mathematical rigor and credibility of ARR growth projections from $30M to $100M+ within 24-36 months, including cohort-based revenue modeling and growth rate sustainability analysis",
+      "pass_condition": "Must present cohort-based ARR buildup with quarterly granularity, demonstrate net revenue retention \u2265110%, and include realistic hiring velocity assumptions with 3-6 month rep ramp periods",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "cohort_based_modeling",
+            "description": "Quality of cohort-based ARR projection methodology",
+            "weight": 0.35,
+            "measurement": "1.0 if uses customer cohort vintages with individual retention curves and expansion modeling, 0.7 if basic cohort approach with aggregate assumptions, 0.4 if mentions cohorts but uses simple growth curves, 0.0 if no cohort-based methodology",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "growth_sustainability",
+            "description": "Realistic deceleration curves and supporting assumptions",
+            "weight": 0.3,
+            "measurement": "1.0 if models growth rate deceleration with market size constraints and hiring velocity limits, 0.7 if shows deceleration without constraint modeling, 0.4 if mentions deceleration but maintains unrealistic curves, 0.0 if no growth rate deceleration modeled",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scenario_modeling",
+            "description": "Quality of upside/downside scenario analysis",
+            "weight": 0.35,
+            "measurement": "1.0 if presents 3 scenarios with specific assumption variations and outcome ranges, 0.7 if shows base and stretch scenarios with key assumptions, 0.4 if mentions scenarios without quantification, 0.0 if only single-point projections",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Base case: $30M to $95M ARR in 30 months (65% CAGR declining to 45%) with new logo growth of 180% and existing customer expansion at 115% NRR"
+      ],
+      "fail_examples": [
+        "Projecting $100M ARR within 24 months through accelerating growth"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "ARR growth is one of the most important metrics investors consider, with preference for 3x YOY growth rate"
+    },
+    {
+      "id": "revenue_quality_recognition",
+      "category": "Financial Projections & ARR Trajectory",
+      "description": "Assesses sophistication of revenue quality analysis including contract duration, payment terms, professional services mix, and recurring revenue composition with revenue recognition considerations",
+      "pass_condition": "Must show >90% recurring revenue with contract duration analysis, payment terms impact on cash flow, professional services <15% of total revenue, and demonstrate understanding of revenue recognition timing and quality indicators",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "services_revenue_above_20": -1.5,
+          "monthly_contracts_majority": -1.0,
+          "revenue_recognition_red_flags": -2.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "94% recurring subscription revenue with 24-month average contract length, 68% annual prepaid improving cash conversion"
+      ],
+      "fail_examples": [
+        "Strong recurring revenue base with flexible contract terms"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Critical for Series B evaluation is separating recurring revenue (predictable, recurring contracts) from non-recurring revenue. Percentage of revenue that is recurring vs. one-time Great: >90% recurring | Acceptable: 80-90% | Poor: <80%"
+    },
+    {
+      "id": "sales_efficiency_productivity",
+      "category": "Go-to-Market & Sales Efficiency",
+      "description": "Evaluates sales productivity assumptions including quota-carrying rep performance, sales cycle analysis, and conversion funnel metrics with realistic ramp assumptions",
+      "pass_condition": "Must show quota-carrying AE productivity of $1.2-1.5M ARR annually, average sales cycles <6 months for mid-market, and realistic 3-6 month rep ramp curves with supporting data",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "rep_productivity_metrics",
+            "description": "Individual sales rep performance and quota attainment analysis",
+            "weight": 0.35,
+            "measurement": "1.0 if shows individual rep performance with quota attainment rates and productivity curves by tenure, 0.7 if presents average productivity with basic segmentation, 0.4 if shows only aggregate sales metrics, 0.0 if no individual productivity data",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sales_cycle_analysis",
+            "description": "Sales process efficiency and cycle time breakdown",
+            "weight": 0.3,
+            "measurement": "1.0 if segments sales cycles by deal size and shows stage conversion rates with cycle time trends, 0.7 if presents average cycles with basic segmentation, 0.4 if shows only average cycle times, 0.0 if sales cycle data missing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "ramp_curve_modeling",
+            "description": "New hire productivity ramp assumptions and historical validation",
+            "weight": 0.35,
+            "measurement": "1.0 if shows monthly productivity curves for new hires with historical validation and time-to-full-productivity data, 0.7 if presents ramp assumptions with some historical basis, 0.4 if mentions ramp periods without detailed modeling, 0.0 if no ramp analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Average AE productivity of $1.35M ARR with 3.5 month sales cycles for $50K+ deals; new hires reach 80% productivity by month 5"
+      ],
+      "fail_examples": [
+        "Sales team productivity trending positively with efficient sales cycles"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Expert VCs expect specific quota-carrying rep productivity assumptions of $1.2-1.5M ARR per account executive"
+    },
+    {
+      "id": "gtm_scaling_execution",
+      "category": "Go-to-Market & Sales Efficiency",
+      "description": "Assesses the realism and sophistication of go-to-market scaling plans including channel strategy, market segment prioritization, and international expansion considerations",
+      "pass_condition": "Must present specific hiring velocity with role-by-role breakdown, channel strategy with partner economics, and customer acquisition cost trends by segment and channel",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "hiring_velocity_realism",
+            "description": "Realistic assessment of hiring capability and market constraints",
+            "weight": 0.4,
+            "measurement": "1.0 if provides role-specific hiring timeline with market availability and competitive landscape analysis, 0.7 if shows hiring plan with basic market considerations, 0.4 if presents hiring targets without feasibility analysis, 0.0 if unrealistic or unsupported hiring projections",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "channel_strategy_depth",
+            "description": "Multi-channel go-to-market strategy with specific economics and execution",
+            "weight": 0.35,
+            "measurement": "1.0 if details channel partner economics, revenue splits, and CAC by channel with performance data, 0.7 if presents channel strategy with basic economics, 0.4 if mentions channels without detailed strategy, 0.0 if single-channel approach or unclear channel strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "segment_prioritization",
+            "description": "Customer segment prioritization with addressable market analysis",
+            "weight": 0.25,
+            "measurement": "1.0 if prioritizes segments with TAM sizing, competitive positioning, and resource allocation, 0.7 if shows segment strategy with basic analysis, 0.4 if mentions segments without prioritization framework, 0.0 if no clear segmentation strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Scaling from 12 to 35 quota-carrying reps over 18 months, focusing on enterprise segment ($100K+ ACV) with 40% partner-sourced leads at 25% lower CAC"
+      ],
+      "fail_examples": [
+        "Aggressive hiring plan to support growth targets"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Pacific Crest SaaS surveys show successful Series B companies typically maintain 2-3 primary channels with clear segment focus"
+    },
+    {
+      "id": "competitive_moat_durability",
+      "category": "Competitive Positioning & Defensibility",
+      "description": "Evaluates articulation of sustainable competitive advantages including switching costs, network effects, vertical-specific moats, and barriers to competitive entry",
+      "pass_condition": "Must identify specific switching costs with quantification, demonstrate vertical market expertise advantages, and address competitive threats with concrete differentiation beyond feature comparisons",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "switching_cost_analysis",
+            "description": "Quantified analysis of customer switching barriers and retention drivers",
+            "weight": 0.35,
+            "measurement": "1.0 if quantifies switching costs (time, money, risk) with customer validation and integration complexity analysis, 0.7 if identifies switching barriers with some quantification, 0.4 if mentions switching costs without specific analysis, 0.0 if no switching cost discussion",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "vertical_specialization_depth",
+            "description": "Demonstration of deep vertical market expertise as competitive barrier",
+            "weight": 0.3,
+            "measurement": "1.0 if shows specific vertical workflows, compliance requirements, and domain expertise that creates barriers, 0.7 if demonstrates vertical knowledge with competitive advantages, 0.4 if mentions vertical focus without depth demonstration, 0.0 if generic solution positioning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_threat_response",
+            "description": "Assessment of competitive landscape and response to specific threats",
+            "weight": 0.35,
+            "measurement": "1.0 if analyzes specific competitors with response strategies and differentiation beyond features, 0.7 if identifies key competitors with basic positioning, 0.4 if mentions competition without specific analysis, 0.0 if inadequate competitive analysis or generic positioning",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Customer switching requires 6-12 months re-implementation with average $200K transition cost; proprietary healthcare compliance engine creates 18-month barrier for new entrants"
+      ],
+      "fail_examples": [
+        "Strong competitive position with unique features and market leadership"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Hamilton Helmer's 7 Powers framework emphasizes switching costs and process power as key moats for B2B software companies"
+    },
+    {
+      "id": "product_roadmap_alignment",
+      "category": "Product Roadmap & Market Expansion",
+      "description": "Evaluates product development priorities alignment with customer retention and expansion, including feature-revenue correlation and competitive response capabilities",
+      "pass_condition": "Must link product roadmap to specific retention/expansion metrics, show customer-driven prioritization with revenue impact projections, and address competitive product gaps",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "feature_revenue_correlation",
+            "description": "Demonstrated connection between product features and revenue outcomes",
+            "weight": 0.35,
+            "measurement": "1.0 if quantifies specific feature impact on retention, expansion, and new customer acquisition with A/B test results or cohort analysis, 0.7 if shows general feature-revenue correlation with basic data, 0.4 if mentions feature value without quantification, 0.0 if no feature-outcome correlation demonstrated",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_driven_prioritization",
+            "description": "Evidence of customer feedback integration in product planning",
+            "weight": 0.3,
+            "measurement": "1.0 if shows systematic customer feedback collection with request prioritization and churn prevention analysis, 0.7 if demonstrates customer input with basic prioritization, 0.4 if mentions customer feedback without systematic approach, 0.0 if product planning appears internally driven",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_product_gaps",
+            "description": "Assessment of product gaps versus competition with remediation timeline",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies specific competitive gaps with customer impact analysis and development timeline, 0.7 if acknowledges gaps with general remediation plans, 0.4 if mentions competitive considerations without gap analysis, 0.0 if inadequate competitive product assessment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Q3 mobile app launch drove 8pt NRR improvement; API v3.0 addresses 40% of enterprise churn risk with Q1 2024 delivery"
+      ],
+      "fail_examples": [
+        "Strong product roadmap aligned with market needs and customer requests"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "First Round State of Startups emphasizes product-market fit deepening through systematic customer feedback and retention correlation"
+    },
+    {
+      "id": "risk_assessment_mitigation",
+      "category": "Risk Assessment & Mitigation",
+      "description": "Evaluates identification and mitigation of key business risks including customer concentration, competitive threats, execution risks, and market dependencies with specific contingency plans",
+      "pass_condition": "Must identify customer concentration risks (>10% single customer), competitive threats with response plans, execution risks with probability assessment, and market dependency vulnerabilities",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "customer_concentration_above_15": -2.0,
+          "no_competitive_response_plan": -1.5,
+          "execution_risks_understated": -1.0,
+          "regulatory_risk_ignored": -1.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Largest customer represents 12% of ARR with contract renewal secured and diversification target of <8% by Q4 2024; competitive response budget of $2M allocated for pricing pressure scenarios"
+      ],
+      "fail_examples": [
+        "Standard business risks with appropriate management attention"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Revenue concentration with single customer representing 20%+ of revenue is a red flag. Institutional investors typically require customer concentration below 10% for any single account."
+    },
+    {
+      "id": "capital_efficiency_burn",
+      "category": "Capital Efficiency & Burn Management",
+      "description": "Evaluates capital allocation efficiency including cash runway optimization, operational leverage demonstration, and path to cash flow positive operations",
+      "pass_condition": "Must show current burn rate with quarterly projections, demonstrate operational leverage metrics, identify path to cash flow positive within 24-36 months, and present scenario-based runway analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "burn_rate_trajectory",
+            "description": "Quarterly burn rate projections with operational scaling assumptions",
+            "weight": 0.35,
+            "measurement": "1.0 if presents monthly burn with quarterly projections and operational scaling impact analysis, 0.7 if shows burn projections with basic scaling assumptions, 0.4 if presents current burn without detailed projections, 0.0 if burn analysis insufficient",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operational_leverage_metrics",
+            "description": "Demonstration of operational leverage and efficiency improvements",
+            "weight": 0.3,
+            "measurement": "1.0 if shows specific operational leverage metrics (revenue per employee, gross margin expansion) with improvement trajectory, 0.7 if demonstrates leverage with basic metrics, 0.4 if mentions efficiency without quantification, 0.0 if no operational leverage analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cash_flow_positive_path",
+            "description": "Clear path to cash flow positive operations with specific timeline",
+            "weight": 0.35,
+            "measurement": "1.0 if models path to cash flow positive with quarterly milestones and assumption sensitivity, 0.7 if shows general timeline with key assumptions, 0.4 if mentions cash flow goals without detailed path, 0.0 if no cash flow positive planning",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Current burn of $2.1M/month scaling to $2.8M by Q4 with 40% gross margin expansion driving cash flow positive by Q3 2025"
+      ],
+      "fail_examples": [
+        "Efficient capital allocation with strong path to profitability"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Profitability path must be clear and near-term (18-36 months post-funding) as Series B investors focus on scalability and efficiency"
+    },
+    {
+      "id": "investment_thesis_narrative",
+      "category": "Investment Thesis & Narrative Flow",
+      "description": "Evaluates logical progression building toward clear investment thesis, slide-to-slide connectivity, and institutional VC presentation standards that support valuation expectations",
+      "pass_condition": "Must present cohesive investment thesis with supporting evidence flow, address likely investor objections preemptively, and maintain logical progression from market opportunity through execution capability",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "thesis_coherence",
+            "description": "Logical flow building to clear investment thesis statement",
+            "weight": 0.4,
+            "measurement": "1.0 if each slide builds toward unified investment thesis with clear evidence progression, 0.7 if general narrative flow with identifiable thesis, 0.4 if thesis present but weak supporting flow, 0.0 if unclear or inconsistent investment thesis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "objection_anticipation",
+            "description": "Proactive addressing of likely investor concerns and objections",
+            "weight": 0.35,
+            "measurement": "1.0 if anticipates and addresses key investor objections with supporting data throughout presentation, 0.7 if addresses some concerns with basic support, 0.4 if mentions potential concerns without detailed responses, 0.0 if fails to address likely objections",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "institutional_standards",
+            "description": "Adherence to institutional VC presentation expectations and format",
+            "weight": 0.25,
+            "measurement": "1.0 if follows institutional board deck standards with appropriate detail level and professional presentation quality, 0.7 if meets basic standards with minor gaps, 0.4 if adequate presentation with some format issues, 0.0 if substandard presentation quality or format",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Clear thesis: 'Vertical SaaS leader capturing expanding $8B market with 50%+ growth, >110% NRR, and path to $200M ARR' supported by systematic evidence progression"
+      ],
+      "fail_examples": [
+        "Strong company with significant growth opportunity requiring investment"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "First Round and Bessemer presentation guidelines establish institutional standards for Series B board deck structure and content depth"
+    },
+    {
+      "id": "financial_operational_coherence",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates alignment between financial projections, operational scaling plans, and market opportunity sizing to ensure internal consistency across the investment thesis",
+      "pass_condition": "Must demonstrate mathematical consistency between ARR projections, hiring velocity, market penetration assumptions, and capital requirements with realistic operational constraints",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "hiring_growth_mismatch": -2.0,
+          "market_penetration_unrealistic": -1.5,
+          "capital_execution_gap": -2.0,
+          "productivity_assumptions_inflated": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "$30M to $95M ARR projection supported by 35 AE hires at $1.3M productivity with 4.2% market penetration over 30 months"
+      ],
+      "fail_examples": [
+        "Aggressive but achievable growth targets with strong execution team"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Critical red flags include: numbers that don't align across different documents, insufficient historical context to validate growth trajectories"
+    },
+    {
+      "id": "competitive_risk_product_alignment",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates consistency between identified competitive threats, product roadmap priorities, and defensive moat development to ensure strategic coherence",
+      "pass_condition": "Must show product roadmap addresses competitive gaps identified in risk assessment, competitive positioning aligns with stated moats, and defensive strategies match threat severity",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "roadmap_threat_alignment",
+            "description": "Product development priorities address identified competitive threats",
+            "weight": 0.4,
+            "measurement": "1.0 if product roadmap specifically addresses competitive gaps and threats identified in risk assessment, 0.7 if general alignment between roadmap and competitive needs, 0.4 if weak connection between roadmap and threats, 0.0 if roadmap ignores competitive considerations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "moat_positioning_consistency",
+            "description": "Competitive moats align with stated competitive positioning and advantages",
+            "weight": 0.35,
+            "measurement": "1.0 if competitive advantages claimed are supported by specific moat development and positioning evidence, 0.7 if general consistency between moats and positioning, 0.4 if some gaps between claimed advantages and supporting evidence, 0.0 if significant inconsistency between moats and positioning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "defensive_strategy_proportionality",
+            "description": "Defensive resource allocation matches competitive threat assessment severity",
+            "weight": 0.25,
+            "measurement": "1.0 if resource allocation for competitive response proportional to threat severity and impact assessment, 0.7 if generally appropriate resource allocation, 0.4 if minor misalignment in defensive priorities, 0.0 if defensive strategy inadequate for identified threats",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Q1 2024 API v3.0 release directly addresses Competitor X integration advantage identified as primary churn risk; $1.5M R&D allocation matches high severity competitive threat"
+      ],
+      "fail_examples": [
+        "Product roadmap focused on customer needs with competitive considerations"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "Strategic planning frameworks require alignment between threat assessment, product development, and resource allocation for effective competitive response"
+    },
+    {
+      "id": "valuation_metrics_justification",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates whether financial metrics, growth trajectory, and market positioning support implied valuation expectations for Series B round sizing and terms",
+      "pass_condition": "Must demonstrate valuation multiples align with growth rate, Rule of 40 score, market size, and competitive positioning relative to public and private SaaS benchmarks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "multiple_benchmark_alignment",
+            "description": "Implied valuation multiples align with comparable company benchmarks",
+            "weight": 0.4,
+            "measurement": "1.0 if implied ARR multiple aligns with growth rate, profitability, and market position relative to public/private comps, 0.7 if generally aligned with minor premium justified, 0.4 if modest disconnect from benchmarks, 0.0 if significant valuation-metrics disconnect",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "growth_quality_premium",
+            "description": "Premium valuation justification through growth quality metrics",
+            "weight": 0.35,
+            "measurement": "1.0 if higher multiples supported by superior NRR, Rule of 40, or market position metrics, 0.7 if some quality metrics support premium, 0.4 if weak premium justification, 0.0 if no justification for valuation premium",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "milestone_valuation_progression",
+            "description": "Clear path from current to next round valuation through milestone achievement",
+            "weight": 0.25,
+            "measurement": "1.0 if shows specific milestones (ARR, efficiency metrics) that support next round valuation progression, 0.7 if general milestone path identified, 0.4 if vague next round positioning, 0.0 if no clear valuation progression strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implied 12x ARR multiple justified by 65% growth rate + 38 Rule of 40 score, comparable to top-quartile vertical SaaS at similar scale"
+      ],
+      "fail_examples": [
+        "Strong growth metrics support attractive valuation in current market"
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "PitchBook and CapIQ data establish clear correlation between SaaS growth/efficiency metrics and valuation multiples across market cycles"
+    },
+    {
+      "id": "cac_payback_sophistication",
+      "category": "Financial Metrics",
+      "description": "Evaluates CAC payback calculation sophistication including segment-specific analysis, billing terms impact, and realistic benchmarking against 15-month median rather than generic 12-month rule",
+      "pass_condition": "CAC payback analysis includes segment breakdown, billing terms consideration, and benchmarks against 15-month industry median",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "segment_analysis",
+            "description": "Breaks down CAC payback by customer segment (SMB, mid-market, enterprise) rather than blended average",
+            "weight": 0.4,
+            "measurement": "Present/absent with quality assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "billing_terms_impact",
+            "description": "Accounts for annual vs monthly billing impact on payback calculation",
+            "weight": 0.3,
+            "measurement": "Explicitly addressed/partially addressed/not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "realistic_benchmarking",
+            "description": "Benchmarks against 15-month industry median rather than generic 12-month rule",
+            "weight": 0.3,
+            "measurement": "Uses 15-month benchmark/uses 12-month benchmark/no benchmark",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "CAC payback varies by segment: SMB 18 months, mid-market 12 months, enterprise 24 months due to longer sales cycles, with annual billing reducing effective payback by 3-4 months. Our blended 15-month payback aligns with industry median."
+      ],
+      "fail_examples": [
+        "Our CAC payback is 12 months, which meets industry standards.",
+        "CAC payback of 14 months shows strong unit economics."
+      ],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": "The median CAC payback across 939 B2B SaaS companies is 15 months - not 12. The '12-month rule' is lazy shorthand that ignores ACV segment, NDR, and billing terms."
+    },
+    {
+      "id": "market_strategy_depth",
+      "category": "Strategic Analysis",
+      "description": "Evaluates sophistication of market strategy including vertical market penetration analysis, customer decision-making journey mapping, competitive positioning strategy, and market timing rationale with supporting evidence",
+      "pass_condition": "Must demonstrate TAM/SAM/SOM analysis with bottom-up validation, map customer buying process with decision criteria and stakeholders, show competitive win/loss analysis with specific positioning strategies, and justify market timing with industry trend analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "market_sizing_validation",
+            "description": "TAM/SAM/SOM with bottom-up validation methodology",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_journey_mapping",
+            "description": "Detailed buying process and decision criteria analysis",
+            "weight": 0.35,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_positioning",
+            "description": "Win/loss analysis with positioning strategy",
+            "weight": 0.35,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "executive_communication_quality",
+      "category": "Presentation Excellence",
+      "description": "Evaluates executive communication sophistication including narrative storytelling, investor objection anticipation, board-level presentation polish, and demonstration of management team strategic thinking maturity",
+      "pass_condition": "Must demonstrate compelling narrative arc with problem-solution-traction-opportunity flow, preemptively address likely investor concerns with data-driven responses, show board-ready communication style with appropriate detail levels, and exhibit strategic thinking depth beyond operational metrics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "narrative_storytelling",
+            "description": "Compelling story arc with logical flow and emotional resonance",
+            "weight": 0.4,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "investor_psychology",
+            "description": "Anticipation and addressing of investor concerns and objections",
+            "weight": 0.35,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "strategic_maturity",
+            "description": "Demonstration of strategic thinking beyond operational execution",
+            "weight": 0.25,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "investment_sophistication",
+      "category": "Investment Analysis",
+      "description": "Evaluates sophistication of investment thesis including comparable company analysis, valuation methodology justification, Series B investor expectation alignment, and exit strategy implications",
+      "pass_condition": "Must present detailed comparable analysis with public/private SaaS multiples, justify valuation methodology with multiple approaches, demonstrate understanding of Series B investor return expectations (3-5x minimum), and address exit strategy timeline with market precedents",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "comparable_analysis",
+            "description": "Detailed public/private SaaS comparable analysis with multiple metrics",
+            "weight": 0.35,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "valuation_methodology",
+            "description": "Multiple valuation approaches with justification",
+            "weight": 0.35,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "investor_return_modeling",
+            "description": "Series B return expectations and exit strategy analysis",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "competitive_intelligence_depth",
+      "category": "Strategic Analysis",
+      "description": "Evaluates sophistication of competitive analysis including specific competitor identification, win/loss analysis with quantified reasons, competitive feature gap analysis with customer impact assessment, and strategic positioning relative to market leaders",
+      "pass_condition": "Must identify top 3 competitors by name with specific differentiation, present win/loss analysis with quantified reasons (>60% win rate), show competitive feature matrix with customer impact scoring, and demonstrate strategic positioning with market share analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "competitor_identification",
+            "description": "Specific competitor analysis with market positioning",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "win_loss_analysis",
+            "description": "Quantified win/loss reasons with improvement actions",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "strategic_positioning",
+            "description": "Market share analysis and positioning strategy",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "organizational_scaling_execution",
+      "category": "Operational Planning",
+      "description": "Evaluates depth of organizational scaling strategy including detailed org chart evolution, compensation budget modeling, talent acquisition strategy with timeline and success metrics, and leadership team development plans",
+      "pass_condition": "Must present detailed org chart with role progression, compensation budget as % of revenue with benchmarking, talent acquisition strategy with source mix and timeline, and leadership development plan with succession planning",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "org_structure_evolution",
+            "description": "Detailed organizational design with role progression",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compensation_modeling",
+            "description": "Compensation budget with market benchmarking",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "talent_acquisition_strategy",
+            "description": "Recruitment strategy with metrics and timeline",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "saas_unit_economics_sophistication",
+      "category": "Financial Analysis",
+      "description": "Evaluates depth of SaaS unit economics understanding including LTV:CAC ratios with cohort decay modeling, gross margin evolution by product line, and sophisticated cash conversion cycle analysis that demonstrates financial modeling maturity; also: Evaluates depth of SaaS unit economics understanding including LTV:CAC ratios with churn impact modeling, cash flow timing analysis, and multi-scenario sensitivity analysis showing understanding of metric interdependencies; also: Evaluates the sophistication of unit economics including customer lifetime value (LTV), variable cost breakdown, contribution margins by segment, and LTV/CAC ratios with realistic churn and expansion assumptions",
+      "pass_condition": "Must present LTV:CAC ratios >3:1 with cohort-specific decay curves, gross margin breakdown by product/service line with trend analysis, cash conversion cycle optimization strategies, and demonstrate understanding of SaaS capital intensity through working capital projections",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 17,
+        "sub_attributes": [
+          {
+            "sub_id": "ltv_cac_modeling",
+            "description": "Cohort-based LTV:CAC with decay assumptions",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "margin_evolution",
+            "description": "Product-line gross margin trends and drivers",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cash_conversion",
+            "description": "Working capital and cash conversion optimization",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "competitive_strategy_depth",
+      "category": "Strategic Analysis",
+      "description": "Evaluates strategic sophistication of competitive analysis including competitive response modeling, market share dynamics, pricing power demonstration, and strategic positioning that goes beyond feature comparisons to business model advantages",
+      "pass_condition": "Must model likely competitive responses to growth initiatives, demonstrate pricing power through win/loss analysis, show market share trajectory with competitive displacement strategies, and articulate business model advantages that create sustainable competitive positioning",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "competitive_response_modeling",
+            "description": "Scenarios for competitive reactions and counter-strategies",
+            "weight": 0.35,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pricing_power_evidence",
+            "description": "Win/loss data and pricing elasticity analysis",
+            "weight": 0.35,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "market_share_strategy",
+            "description": "Competitive displacement and market capture plans",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "executive_strategic_maturity",
+      "category": "Leadership Assessment",
+      "description": "Evaluates whether the narrative demonstrates executive-level strategic thinking including trade-off analysis, scenario planning sophistication, and business judgment that indicates management team readiness for scaling challenges",
+      "pass_condition": "Must demonstrate explicit trade-off analysis between growth and profitability scenarios, show sophisticated scenario planning with contingency strategies, articulate strategic priorities with clear rationale, and display business judgment through nuanced risk-reward assessments",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "strategic_tradeoffs",
+            "description": "Explicit analysis of strategic choices and opportunity costs",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scenario_sophistication",
+            "description": "Multi-scenario planning with contingency strategies",
+            "weight": 0.35,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "business_judgment",
+            "description": "Nuanced risk-reward assessment and decision rationale",
+            "weight": 0.25,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_narrative_depth",
+      "category": "Strategic Thinking",
+      "description": "Evaluates strategic sophistication including market timing insights, customer behavior analysis, business model evolution understanding, and ability to connect tactical metrics to strategic outcomes",
+      "pass_condition": "Must demonstrate deep market timing rationale, analyze customer behavior patterns beyond surface metrics, articulate business model advantages, and connect operational metrics to strategic positioning with industry-specific insights",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "market_timing_insight",
+            "description": "Sophisticated understanding of market dynamics and timing",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_behavior_analysis",
+            "description": "Deep insights into customer decision-making and usage patterns",
+            "weight": 0.4,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "strategic_metric_connection",
+            "description": "Ability to connect tactical metrics to strategic outcomes",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "investor_sophistication_alignment",
+      "category": "Investment Readiness",
+      "description": "Evaluates alignment with Series B investor expectations including scalability proof points, market expansion credibility, team capability demonstration, and anticipation of sophisticated due diligence questions",
+      "pass_condition": "Must demonstrate scalability beyond linear hiring, show credible path to $100M+ ARR, address team capability for next growth phase, anticipate complex investor questions about market saturation and competitive dynamics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "scalability_proof",
+            "description": "Evidence of non-linear scalability and operational leverage",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "market_expansion_credibility",
+            "description": "Realistic and detailed market expansion strategy",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "investor_question_anticipation",
+            "description": "Proactive addressing of sophisticated investor concerns",
+            "weight": 0.4,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "operational_execution_realism",
+      "category": "Execution Planning",
+      "description": "Evaluates operational planning sophistication including detailed hiring sequences, system scaling requirements, process evolution needs, and realistic constraint identification with mitigation strategies",
+      "pass_condition": "Must show detailed hiring sequences with interdependencies, identify system/process scaling bottlenecks with solutions, demonstrate understanding of operational complexity at scale, and provide realistic timeline constraints",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "hiring_sequence_sophistication",
+            "description": "Detailed understanding of hiring interdependencies and timing",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scaling_bottleneck_identification",
+            "description": "Proactive identification of operational scaling challenges",
+            "weight": 0.4,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "execution_timeline_realism",
+            "description": "Realistic assessment of execution timelines and constraints",
+            "weight": 0.3,
+            "measurement": "0-2 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "market_sizing_penetration_analysis",
+      "category": "Market Analysis",
+      "description": "Evaluates the quantitative rigor of total addressable market (TAM), serviceable addressable market (SAM), and serviceable obtainable market (SOM) analysis with realistic penetration assumptions and competitive market share dynamics; also: Evaluates sophistication of market analysis including TAM/SAM/SOM breakdown with bottoms-up validation, market penetration rate analysis with realistic capture assumptions, and geographic/segment expansion prioritization with entry strategy; also: Evaluates sophistication of market opportunity analysis including TAM/SAM/SOM breakdown with penetration assumptions, market growth drivers, and competitive market share capture strategies with realistic timeline and resource requirements",
+      "pass_condition": "Must present TAM/SAM/SOM breakdown with bottom-up validation, current market penetration percentage, realistic 5-year penetration targets with competitive displacement assumptions, and segment-specific market sizing with growth rate justification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 15,
+        "sub_attributes": [
+          {
+            "sub_id": "tam_sam_som_rigor",
+            "description": "Bottom-up market sizing with validation sources",
+            "weight": 0.4,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "penetration_realism",
+            "description": "Current and projected market penetration with competitive dynamics",
+            "weight": 0.35,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "segment_granularity",
+            "description": "Segment-specific sizing and growth assumptions",
+            "weight": 0.25,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "technical_infrastructure_scaling",
+      "category": "Operational Planning",
+      "description": "Evaluates the technical infrastructure scaling plan including system architecture, data security compliance, integration complexity, and engineering resource requirements to support projected growth",
+      "pass_condition": "Must address system scalability to 10x customer base, data security/compliance requirements (SOC2, PCI), API/integration maintenance costs, engineering headcount scaling plan, and technical debt management strategy",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "scalability_architecture",
+            "description": "Technical architecture scalability and performance planning",
+            "weight": 0.4,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compliance_security",
+            "description": "Security and compliance infrastructure requirements",
+            "weight": 0.35,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "engineering_resource_planning",
+            "description": "Engineering team scaling and technical debt management",
+            "weight": 0.25,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    },
+    {
+      "id": "customer_success_retention_operations",
+      "category": "Customer Operations",
+      "description": "Evaluates customer success strategy including retention drivers, expansion mechanisms, and customer health management approaches that support growth projections",
+      "pass_condition": "Must present customer retention strategy with key success drivers, expansion playbook approach with target rates, customer health indicators that predict churn/expansion, and customer success investment rationale tied to retention targets",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "churn_prediction_sophistication",
+            "description": "Predictive analytics and early warning systems for churn",
+            "weight": 0.4,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_success_operations",
+            "description": "Customer success team structure and operational processes",
+            "weight": 0.35,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "expansion_playbook_execution",
+            "description": "Systematic expansion and upsell process with metrics",
+            "weight": 0.25,
+            "measurement": "0-10 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Series B SaaS Board Deck",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "unit_economics_modeling",
+      "name": "Unit Economics & SaaS Metrics",
+      "description": "",
+      "weight": 0.2,
+      "criteria_ids": []
+    },
+    {
+      "id": "financial_projections",
+      "name": "Financial Projections & ARR Trajectory",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "go_to_market_execution",
+      "name": "Go-to-Market & Sales Efficiency",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "competitive_moats",
+      "name": "Competitive Positioning & Defensibility",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "product_market_strategy",
+      "name": "Product Roadmap & Market Expansion",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "risk_mitigation",
+      "name": "Risk Assessment & Mitigation",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "capital_efficiency",
+      "name": "Capital Efficiency & Burn Management",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "narrative_coherence",
+      "name": "Investment Thesis & Narrative Flow",
+      "description": "",
+      "weight": 0.07,
+      "criteria_ids": []
+    }
+  ]
+}

@@ -1,0 +1,751 @@
+{
+  "task": "Produce a STRIDE threat model for a mobile banking app with biometric auth, P2P payments, and third-party integrations, including threat matrix, risk ratings, and prioritized mitigations",
+  "domain": "cybersecurity_threat_modeling",
+  "total_points": 79,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "stride_threat_coverage_depth",
+      "category": "STRIDE Methodology Application",
+      "description": "Evaluates comprehensive threat identification across all six STRIDE categories with mobile banking-specific attack vectors, requiring minimum threshold counts per category and specific technical depth that reflects documented attack patterns and regulatory compliance requirements",
+      "pass_condition": "Minimum 4 distinct threats per STRIDE category (24 total), with at least 15 threats (60%) demonstrating mobile banking domain expertise (biometric bypass, cryptographic key extraction, API abuse, etc.) and at least 6 threats (25%) incorporating documented attack patterns from the past 12 months",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "category_completeness",
+            "description": "Systematic coverage across all six STRIDE categories with minimum viable threat counts",
+            "weight": 0.3,
+            "measurement": "1.0 if 4+ threats per category with balanced distribution, 0.7 if 3+ threats per category with minor gaps, 0.4 if 2+ threats per category with significant gaps, 0.0 if any STRIDE category missing or <2 threats",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "mobile_banking_specificity",
+            "description": "Domain-specific threat modeling demonstrating financial services and mobile platform expertise",
+            "weight": 0.4,
+            "measurement": "1.0 if 60%+ threats show mobile banking expertise (jailbreak detection bypass, secure element attacks, PCI tokenization vulnerabilities), 0.7 if 40-59%, 0.4 if 20-39%, 0.0 if <20%",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "threat_intelligence_integration",
+            "description": "Incorporation of current APT tactics and real-world attack vectors targeting financial mobile applications",
+            "weight": 0.3,
+            "measurement": "1.0 if 25%+ threats reference current techniques (SIM swapping, SS7 attacks, supply chain compromises), 0.7 if 15-24%, 0.4 if 5-14%, 0.0 if <5%",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Spoofing category includes: biometric template injection, FIDO authenticator cloning, certificate pinning bypass, and fake banking app distribution with detailed attack vectors"
+      ],
+      "fail_examples": [
+        "Generic spoofing threats like 'user impersonation' without mobile banking context or technical depth"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST SP 800-154 guidance on mobile threat modeling requiring platform-specific threat identification and FFIEC authentication guidelines mandating comprehensive attack vector analysis"
+    },
+    {
+      "id": "stride_regulatory_compliance_alignment",
+      "category": "STRIDE Methodology Application",
+      "description": "Evaluates comprehensive alignment between STRIDE threat categories and financial services regulatory requirements (PCI DSS, PSD2, FFIEC, FIDO Alliance), including explicit compliance gap analysis and control mapping",
+      "pass_condition": "Explicit mapping of at least 18 threats (75% of minimum 24) to specific regulatory controls with numbered citations, plus one compliance impact assessment per STRIDE category (6 total), identify at least 5 compliance gaps with remediation recommendations, and assess regulatory impact categories for non-compliance",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_pci_dss_payment_data_protection": -1.5,
+          "inadequate_psd2_strong_authentication_analysis": -1.2,
+          "absent_ffiec_mobile_banking_guidelines": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Tampering threats explicitly reference PCI DSS 3.4.1 cryptographic key protection and include analysis of mobile secure element vulnerabilities against FIDO Alliance security certification requirements"
+      ],
+      "fail_examples": [
+        "Mentions 'regulatory compliance' generally without mapping specific threats to numbered control requirements or impact analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "PCI Security Standards Council Mobile Payment Acceptance Security Guidelines and EBA RTS on Strong Customer Authentication requiring explicit threat-to-control mapping for compliance validation"
+    },
+    {
+      "id": "biometric_template_cryptographic_protection",
+      "category": "Biometric Authentication Security",
+      "description": "Evaluates the cryptographic protection mechanisms for biometric templates throughout their lifecycle, including secure enclave/TEE storage, template transformation techniques, and key derivation alignment with FIDO Alliance standards",
+      "pass_condition": "Must identify at least 4 specific cryptographic protection mechanisms (e.g., template hashing with salting, secure enclave storage, biometric cryptosystems, fuzzy extractors), specify minimum AES-256 encryption for template storage, and reference at least 2 FIDO Alliance UAF/WebAuthn specifications",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "template_storage_encryption",
+            "description": "Analysis of biometric template encryption in secure hardware elements",
+            "weight": 0.3,
+            "measurement": "1.0 if specifies AES-256+ with hardware key derivation and TEE/secure enclave isolation, 0.7 if mentions strong encryption but lacks hardware specificity, 0.4 if generic encryption discussion, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "template_irreversibility",
+            "description": "Evaluation of cancelable biometrics and template transformation techniques",
+            "weight": 0.3,
+            "measurement": "1.0 if details fuzzy extractors, helper data separation, or template hashing with biometric-specific transforms, 0.7 if mentions cancelable biometrics concept, 0.4 if generic one-way functions, 0.0 if raw template storage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fido_alignment",
+            "description": "Compliance assessment against FIDO Alliance UAF/WebAuthn biometric authenticator specifications",
+            "weight": 0.25,
+            "measurement": "1.0 if cites specific FIDO UAF authenticator metadata or WebAuthn authenticatorGetAssertion flows, 0.7 if mentions FIDO standards generally, 0.4 if references biometric standards without FIDO specificity, 0.0 if no standards reference",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "key_lifecycle_management",
+            "description": "Cryptographic key derivation and rotation for biometric template protection",
+            "weight": 0.15,
+            "measurement": "1.0 if specifies PBKDF2/Argon2 key derivation with biometric entropy and rotation schedules, 0.7 if mentions key derivation from biometrics, 0.4 if basic key management, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Specifies AES-256-GCM encryption in iOS Secure Enclave with biometric template hashing using SHA-256 with device-specific salt, cancelable biometric transforms, and FIDO UAF authenticator metadata compliance"
+      ],
+      "fail_examples": [
+        "Generic mention of 'encrypted biometric storage' without cryptographic algorithm specification or hardware security element details"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "FIDO Alliance UAF Authenticator-Specific Module API and ISO/IEC 24745 biometric information protection standard requiring specific cryptographic controls for template protection"
+    },
+    {
+      "id": "biometric_liveness_detection_threats",
+      "category": "Biometric Authentication Security",
+      "description": "Analyzes sophisticated biometric spoofing attack vectors and liveness detection bypass techniques specific to mobile device cameras and sensors, including presentation attacks and synthetic biometric generation",
+      "pass_condition": "Must identify at least 5 distinct presentation attack methods (photo replay, 3D masks, deepfake videos, infrared spoofing, synthetic fingerprints), assess effectiveness of mobile hardware countermeasures (depth sensors, pulse detection), and reference ISO/IEC 30107 PAD standards",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "superficial_spoofing_analysis": -1.0,
+          "missing_mobile_sensor_assessment": -0.8,
+          "no_deepfake_consideration": -0.6
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Details photo replay attacks, 3D printed masks, deepfake video injection, pulse detection bypass, and synthetic fingerprint generation with assessment of iPhone Face ID depth sensor countermeasures and ISO/IEC 30107-3 PAD evaluation"
+      ],
+      "fail_examples": [
+        "Generic mention of 'biometric spoofing' without specific attack vectors or mobile hardware countermeasure analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "ISO/IEC 30107 Presentation Attack Detection standards and NIST SP 800-76 biometric data specification requiring comprehensive presentation attack analysis for financial authentication systems"
+    },
+    {
+      "id": "mobile_platform_owasp_coverage",
+      "category": "Mobile Platform Security",
+      "description": "Thorough analysis of mobile-specific attack vectors covering OWASP Mobile Top 10 threats with platform-specific technical details for iOS/Android security architectures",
+      "pass_condition": "Must address at least 8 of 10 OWASP Mobile Top 10 threats with platform-specific technical details, include root/jailbreak detection bypass techniques, and analyze mobile app runtime protection mechanisms",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "owasp_mobile_coverage",
+            "description": "Coverage of OWASP Mobile Top 10 threat categories",
+            "weight": 0.4,
+            "measurement": "1.0 if 8+ categories addressed with technical detail, 0.7 if 6-7 categories, 0.4 if 4-5 categories, 0.0 if <4 categories",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "platform_specific_analysis",
+            "description": "iOS/Android specific technical implementation details",
+            "weight": 0.3,
+            "measurement": "1.0 if includes iOS Keychain/Android Keystore analysis, platform-specific malware, and OS security feature bypass, 0.7 if partial platform specificity, 0.4 if mentions platforms without detail, 0.0 if generic mobile analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "runtime_protection_assessment",
+            "description": "Analysis of mobile app runtime application self-protection (RASP) and anti-tampering mechanisms",
+            "weight": 0.3,
+            "measurement": "1.0 if details code obfuscation, runtime integrity checks, anti-debugging, and RASP bypass techniques, 0.7 if mentions some protection mechanisms, 0.4 if basic anti-tampering discussion, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Addresses M1 (Improper Platform Usage), M2 (Insecure Data Storage), M6 (Insecure Authorization) with iOS Keychain encryption analysis, Android root detection bypass via Magisk Hide, and runtime application self-protection evasion techniques"
+      ],
+      "fail_examples": [
+        "Generic mobile security threats without OWASP Mobile Top 10 mapping or platform-specific technical implementation details"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "OWASP Mobile Security Testing Guide and NIST SP 800-124 Guidelines for Managing the Security of Mobile Devices requiring platform-specific threat analysis for enterprise mobile applications"
+    },
+    {
+      "id": "mobile_crypto_key_management",
+      "category": "Mobile Platform Security",
+      "description": "Evaluates mobile cryptographic key storage, derivation, and lifecycle management using platform secure elements with analysis of key extraction attack vectors",
+      "pass_condition": "Must analyze iOS Secure Enclave and Android Hardware Security Module key protection, identify at least 3 key extraction attack vectors (memory dumps, side-channel, hardware), and specify key rotation requirements for mobile banking applications",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "superficial_secure_element_analysis": -1.0,
+          "missing_side_channel_attack_consideration": -0.8
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Details iOS Secure Enclave key derivation with UID entropy, Android Hardware-backed Keystore attestation, memory dump attacks via cold boot, electromagnetic side-channel analysis, and 90-day key rotation for payment processing"
+      ],
+      "fail_examples": [
+        "Generic mention of 'secure key storage' without platform-specific hardware security module analysis or key extraction threat vectors"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST SP 800-57 Key Management Guidelines and FIDO Alliance security reference architecture requiring hardware-based key protection for high-value authentication systems"
+    },
+    {
+      "id": "api_oauth_security_analysis",
+      "category": "API and Third-Party Integration Security",
+      "description": "Comprehensive threat modeling of OAuth 2.0/OpenID Connect implementations for mobile banking with analysis of token security, PKCE implementation, and authorization flow vulnerabilities",
+      "pass_condition": "Must analyze OAuth 2.0 authorization code flow with PKCE, identify at least 4 token-related threats (token theft, replay, injection, privilege escalation), and assess OpenID Connect security considerations for financial services",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "oauth_flow_analysis",
+            "description": "Technical analysis of OAuth 2.0 authorization flows and PKCE implementation",
+            "weight": 0.3,
+            "measurement": "1.0 if details authorization code flow with PKCE, token endpoint security, and mobile app registration, 0.7 if covers OAuth basics with some mobile specificity, 0.4 if generic OAuth discussion, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "token_threat_identification",
+            "description": "Comprehensive identification of token-related security threats",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 4+ token threats (theft, replay, injection, privilege escalation) with attack scenarios, 0.7 if 3 threats, 0.4 if 2 threats, 0.0 if <2 threats",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "openid_connect_financial_considerations",
+            "description": "Assessment of OpenID Connect security for financial services identity verification",
+            "weight": 0.3,
+            "measurement": "1.0 if addresses financial-specific OIDC considerations (identity verification levels, customer authentication), 0.7 if mentions OIDC with some financial context, 0.4 if basic OIDC discussion, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analyzes OAuth 2.0 authorization code flow with PKCE code challenge, identifies authorization code interception, access token theft via XSS, refresh token replay attacks, and scope privilege escalation with OpenID Connect financial identity verification requirements"
+      ],
+      "fail_examples": [
+        "Generic API authentication discussion without OAuth 2.0 flow specificity or token-related threat analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "RFC 6749 OAuth 2.0 Authorization Framework, RFC 7636 PKCE, and OpenID Connect Core specification with financial services identity verification requirements per PSD2 RTS"
+    },
+    {
+      "id": "api_rate_limiting_ddos_protection",
+      "category": "API and Third-Party Integration Security",
+      "description": "Evaluates API gateway security controls including rate limiting, DDoS protection, and input validation mechanisms specific to high-volume mobile banking transaction processing",
+      "pass_condition": "Must specify quantitative rate limiting thresholds for different API endpoints (authentication, payments, account queries), analyze at least 3 DDoS attack vectors (volumetric, protocol, application layer), and detail input validation controls for financial data",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_quantitative_rate_limits": -1.0,
+          "superficial_ddos_analysis": -0.8
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Specifies 5 authentication attempts per minute, 100 balance queries per hour, 10 P2P transfers per day rate limits, analyzes volumetric UDP flood and application-layer account enumeration attacks, with input validation for IBAN format and transaction amount limits"
+      ],
+      "fail_examples": [
+        "Generic mention of 'rate limiting and DDoS protection' without quantitative thresholds or banking-specific attack scenario analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST SP 800-61 Computer Security Incident Handling Guide and OWASP API Security Top 10 requiring quantitative security controls for high-availability financial services"
+    },
+    {
+      "id": "payment_infrastructure_tokenization",
+      "category": "Payment Infrastructure Security",
+      "description": "Deep analysis of payment card tokenization, P2P payment processing security, and transaction integrity mechanisms with EMV and PCI tokenization standard compliance",
+      "pass_condition": "Must analyze EMV payment tokenization, domain-restricted tokens, P2P payment flow security with at least 3 transaction integrity controls (digital signatures, timestamps, non-repudiation), and PCI tokenization standard compliance assessment",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "payment_tokenization_analysis",
+            "description": "EMV and PCI tokenization standard implementation analysis",
+            "weight": 0.4,
+            "measurement": "1.0 if details EMV tokenization, domain-restricted tokens, and PCI DSS tokenization guidelines, 0.7 if covers payment tokenization with some standard reference, 0.4 if basic tokenization discussion, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "p2p_payment_flow_security",
+            "description": "Security analysis of peer-to-peer payment processing flows",
+            "weight": 0.3,
+            "measurement": "1.0 if analyzes P2P initiation, authorization, clearing, and settlement security with threat identification, 0.7 if covers P2P flow with some security analysis, 0.4 if basic P2P discussion, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transaction_integrity_controls",
+            "description": "Digital signature, timestamp, and non-repudiation mechanisms for payment transactions",
+            "weight": 0.3,
+            "measurement": "1.0 if details 3+ integrity controls (digital signatures, timestamps, audit trails, non-repudiation), 0.7 if 2 controls, 0.4 if 1 control, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analyzes EMV payment token provisioning with domain restriction to mobile app, P2P payment flow from initiation through ACH settlement, digital signature validation, transaction timestamps, and audit trail generation for non-repudiation compliance"
+      ],
+      "fail_examples": [
+        "Generic payment processing discussion without tokenization standard specificity or transaction integrity control analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "EMVCo Payment Tokenisation Specification, PCI Tokenization Guidelines, and NACHA Operating Rules requiring specific security controls for electronic payment processing"
+    },
+    {
+      "id": "fraud_detection_integration",
+      "category": "Payment Infrastructure Security",
+      "description": "Assessment of real-time fraud detection system integration with mobile banking application including behavioral analytics, device fingerprinting, and transaction monitoring",
+      "pass_condition": "Must identify at least 4 fraud detection techniques (behavioral analytics, device fingerprinting, velocity checks, geolocation analysis), analyze real-time decision engine integration, and assess false positive/negative impact on customer experience",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "fraud_detection_techniques",
+            "description": "Comprehensive coverage of modern fraud detection methodologies",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 4+ techniques (behavioral analytics, device fingerprinting, velocity checks, geolocation, machine learning), 0.7 if 3 techniques, 0.4 if 2 techniques, 0.0 if <2 techniques",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "real_time_integration",
+            "description": "Analysis of real-time fraud decision engine integration with mobile app transaction flows",
+            "weight": 0.3,
+            "measurement": "1.0 if details API integration, decision latency requirements, and escalation workflows, 0.7 if mentions real-time processing with some detail, 0.4 if basic integration discussion, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_experience_impact",
+            "description": "Assessment of fraud controls impact on legitimate customer transactions",
+            "weight": 0.3,
+            "measurement": "1.0 if analyzes false positive rates, customer friction, and adaptive authentication, 0.7 if mentions customer impact considerations, 0.4 if basic usability discussion, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies behavioral analytics for typing patterns, device fingerprinting via hardware characteristics, transaction velocity checks, geolocation verification, with sub-100ms decision engine API integration and adaptive step-up authentication to minimize customer friction"
+      ],
+      "fail_examples": [
+        "Generic fraud detection mention without specific techniques or real-time integration analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "FFIEC Authentication in an Internet Banking Environment guidance and NIST SP 800-63B requiring multi-factor fraud detection for high-risk financial transactions"
+    },
+    {
+      "id": "quantitative_risk_assessment_methodology",
+      "category": "Risk Assessment and Prioritization",
+      "description": "Implementation of quantitative risk scoring methodology using industry-standard frameworks with business impact weighting and exploitability analysis specific to mobile banking threat landscape",
+      "pass_condition": "Must implement quantitative risk framework (DREAD, CVSS-adapted, or custom) with minimum 3 clearly defined scoring factors, numerical scores for at least 20 threats (80% of minimum 24), clear prioritization ranking with technical justification for top 10 threats, and qualitative business impact categories (High/Medium/Low)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "quantitative_framework_implementation",
+            "description": "Sophistication and completeness of numerical risk scoring framework",
+            "weight": 0.3,
+            "measurement": "1.0 if implements DREAD, CVSS-adapted, or equivalent with 3+ factors and documented scale, 0.7 if 2 factors with clear methodology, 0.4 if basic numeric scoring, 0.0 if qualitative only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "threat_scoring_coverage",
+            "description": "Percentage of identified threats receiving quantitative risk scores",
+            "weight": 0.25,
+            "measurement": "1.0 if 80%+ threats scored, 0.7 if 60-79%, 0.4 if 40-59%, 0.0 if <40%",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "business_impact_weighting",
+            "description": "Integration of mobile banking business impact factors in threat prioritization",
+            "weight": 0.25,
+            "measurement": "1.0 if includes customer trust impact, regulatory penalties, revenue loss with monetary estimates, 0.7 if partial business impact analysis, 0.4 if mentions business context, 0.0 if technical-only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "top_threat_justification",
+            "description": "Clear justification and ranking of highest priority threats with business context",
+            "weight": 0.2,
+            "measurement": "1.0 if provides top 10 ranked threats with business justification and remediation priority, 0.7 if top 5-9 threats ranked, 0.4 if some prioritization, 0.0 if no ranking",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements modified DREAD scoring with Damage, Reproducibility, Exploitability, Affected Users, Discoverability factors, scores API authentication bypass as 8.2/10 due to high customer data exposure and $2M potential regulatory penalty, ranks in top 3 threats"
+      ],
+      "fail_examples": [
+        "Lists threats as 'high/medium/low' without quantitative methodology or provides numeric scores without documented framework or business impact consideration"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST SP 800-30 Risk Assessment methodology requiring quantitative analysis and FAIR (Factor Analysis of Information Risk) standard for monetary impact assessment in financial services"
+    },
+    {
+      "id": "threat_intelligence_integration",
+      "category": "Risk Assessment and Prioritization",
+      "description": "Integration of publicly available threat intelligence and documented attack patterns to inform risk prioritization with focus on tactics targeting financial institutions and mobile banking platforms",
+      "pass_condition": "Must reference at least 3 threat intelligence sources (MITRE ATT&CK, public vendor reports, security advisories), map identified threats to documented attack techniques, and adjust risk scores based on attack frequency or sophistication factors",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "outdated_threat_intelligence": -1.0,
+          "generic_apt_references": -0.8
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "References FS-ISAC alerts on mobile banking malware, maps SIM swapping to MITRE ATT&CK T1111 Multi-Factor Authentication Interception, and increases risk scores for SMS-based authentication based on recent Lazarus Group campaigns targeting financial institutions"
+      ],
+      "fail_examples": [
+        "Generic mention of 'advanced persistent threats' without specific intelligence sources, techniques, or financial sector context"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "MITRE ATT&CK for Enterprise framework and FS-ISAC threat intelligence sharing requirements for financial institution cybersecurity risk management"
+    },
+    {
+      "id": "advanced_attack_scenarios",
+      "category": "Advanced Threat Vectors",
+      "description": "Analysis of sophisticated attack scenarios including SIM swapping, SS7/Diameter protocol attacks, supply chain compromises, and multi-stage attacks targeting mobile banking infrastructure",
+      "pass_condition": "Must analyze at least 4 advanced attack scenarios (SIM swapping, SS7/Diameter attacks, supply chain compromise, social engineering campaigns), detail multi-stage attack chains, and assess nation-state or organized crime threat actor capabilities",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "advanced_attack_coverage",
+            "description": "Coverage of sophisticated attack scenarios beyond standard threat models",
+            "weight": 0.4,
+            "measurement": "1.0 if analyzes 4+ scenarios (SIM swapping, SS7 attacks, supply chain, social engineering) with technical detail, 0.7 if 3 scenarios, 0.4 if 2 scenarios, 0.0 if <2 scenarios",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "attack_chain_analysis",
+            "description": "Detailed analysis of multi-stage attack progression and kill chain methodology",
+            "weight": 0.3,
+            "measurement": "1.0 if details complete attack chains with initial access, persistence, privilege escalation, and exfiltration stages, 0.7 if partial chain analysis, 0.4 if mentions multi-stage attacks, 0.0 if single-stage only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "threat_actor_capability_assessment",
+            "description": "Assessment of threat actor sophistication and resource requirements",
+            "weight": 0.3,
+            "measurement": "1.0 if assesses nation-state, organized crime, or insider threat capabilities with resource requirements, 0.7 if mentions threat actor types, 0.4 if basic actor discussion, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analyzes SIM swapping attack chain: social engineering carrier support \u2192 SIM transfer \u2192 SMS OTP interception \u2192 account takeover \u2192 funds transfer, with assessment of organized crime group capabilities and $50K-$100K per campaign resource requirements"
+      ],
+      "fail_examples": [
+        "Generic advanced threat discussion without specific attack scenario detail or multi-stage progression analysis"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST Cybersecurity Framework and Lockheed Martin Cyber Kill Chain methodology requiring comprehensive analysis of sophisticated attack progression for high-value financial targets"
+    },
+    {
+      "id": "mitigation_strategy_implementation",
+      "category": "Mitigation Strategy and Controls",
+      "description": "Comprehensive security control recommendations mapped to identified threats with implementation guidance, cost-benefit analysis, and integration with existing security architecture using defense-in-depth principles",
+      "pass_condition": "Must provide specific mitigation controls for 80% of identified threats, include implementation timeline and cost estimates for top 10 threats, map controls to NIST CSF or ISO 27002, and demonstrate defense-in-depth layering",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "threat_mitigation_coverage",
+            "description": "Percentage of identified threats with specific mitigation controls",
+            "weight": 0.3,
+            "measurement": "1.0 if 80%+ threats have specific mitigation controls, 0.7 if 60-79%, 0.4 if 40-59%, 0.0 if <40%",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_guidance",
+            "description": "Practical implementation details including timeline and cost estimates",
+            "weight": 0.25,
+            "measurement": "1.0 if provides timeline and cost estimates for top 10 threats with implementation details, 0.7 if partial implementation guidance, 0.4 if basic recommendations, 0.0 if theoretical only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "framework_alignment",
+            "description": "Mapping of controls to established security frameworks",
+            "weight": 0.25,
+            "measurement": "1.0 if explicitly maps controls to NIST CSF, ISO 27002, or COBIT with control numbers, 0.7 if mentions frameworks with some mapping, 0.4 if generic framework reference, 0.0 if no framework alignment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "defense_in_depth",
+            "description": "Demonstration of layered security control strategy",
+            "weight": 0.2,
+            "measurement": "1.0 if demonstrates multiple control layers (preventive, detective, corrective) with redundancy, 0.7 if shows some layering, 0.4 if mentions defense-in-depth, 0.0 if single-layer controls",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Provides biometric spoofing mitigation: liveness detection (6 months, $200K), secure template storage (3 months, $50K), FIDO authentication (12 months, $500K) mapped to NIST CSF PR.AC-1 and ISO 27002 A.9.2.1 with defense-in-depth layering"
+      ],
+      "fail_examples": [
+        "Generic recommendations like 'implement strong authentication' without specific controls, implementation details, or framework mapping"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "NIST Cybersecurity Framework Implementation Guidance and ISO/IEC 27002 security control implementation requiring specific, measurable security control recommendations with practical implementation guidance"
+    },
+    {
+      "id": "threat_risk_mitigation_coherence",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluates logical consistency between identified threats, assigned risk scores, and proposed mitigation strategies, ensuring highest-risk threats receive proportional mitigation investment and attention",
+      "pass_condition": "Top 10 highest-risk threats must have corresponding detailed mitigation strategies with implementation priority alignment, and mitigation recommendations must demonstrate clear prioritization based on risk scores (high-risk threats get comprehensive controls, low-risk threats get basic controls)",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "high_risk_threats_with_minimal_mitigations": -1.5,
+          "low_risk_threats_with_excessive_mitigation_detail": -1.0,
+          "contradictory_risk_and_priority_assignments": -1.2
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "API authentication bypass scored 8.5/10 receives $500K mitigation investment and 3-month implementation timeline, while low-risk UI spoofing (3.2/10) gets basic awareness training ($5K, 1 month)"
+      ],
+      "fail_examples": [
+        "Biometric spoofing identified as highest risk (9.1/10) but receives generic 'improve security' recommendation while lower-risk certificate pinning (4.3/10) gets detailed technical implementation plan"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "Risk management coherence principles requiring proportional response allocation based on quantitative risk assessment outcomes"
+    },
+    {
+      "id": "regulatory_compliance_threat_integration",
+      "category": "Cross-Cutting Analysis",
+      "description": "Assesses integration between regulatory compliance requirements and technical threat identification, ensuring compliance-driven threats receive appropriate technical analysis and vice versa",
+      "pass_condition": "All referenced regulatory controls (PCI DSS, PSD2, FFIEC) must have corresponding technical threat analysis, and all high-risk technical threats must include compliance impact assessment with specific regulatory citations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "compliance_to_technical_mapping",
+            "description": "Technical threat analysis coverage for each referenced regulatory requirement",
+            "weight": 0.5,
+            "measurement": "1.0 if all regulatory controls have corresponding technical threat analysis, 0.7 if 75-99% mapped, 0.4 if 50-74% mapped, 0.0 if <50% mapped",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "technical_to_compliance_mapping",
+            "description": "Compliance impact assessment for high-risk technical threats",
+            "weight": 0.5,
+            "measurement": "1.0 if all high-risk technical threats include specific compliance citations and impact analysis, 0.7 if 75-99% coverage, 0.4 if 50-74% coverage, 0.0 if <50% coverage",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "PCI DSS 3.4.1 cryptographic key protection requirement mapped to technical analysis of mobile secure element key extraction attacks, while API tampering threat includes specific PSD2 RTS Article 4 strong authentication compliance impact"
+      ],
+      "fail_examples": [
+        "Lists PCI DSS requirements without corresponding technical threat analysis, or identifies cryptographic vulnerabilities without assessing PCI DSS compliance implications"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "Integrated risk management requiring alignment between regulatory compliance obligations and technical security threat assessment for comprehensive risk coverage"
+    },
+    {
+      "id": "platform_payment_security_integration",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluates integration between mobile platform security analysis and payment infrastructure security, ensuring mobile-specific vulnerabilities are properly assessed for payment transaction impact",
+      "pass_condition": "Mobile platform vulnerabilities (root/jailbreak, app tampering, key extraction) must include analysis of payment transaction security impact, and payment infrastructure threats must consider mobile platform attack vectors",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "mobile_to_payment_impact_analysis",
+            "description": "Assessment of mobile platform vulnerabilities on payment transaction security",
+            "weight": 0.5,
+            "measurement": "1.0 if mobile vulnerabilities include specific payment impact analysis (transaction integrity, tokenization bypass), 0.7 if partial payment impact consideration, 0.4 if mentions payments generally, 0.0 if no payment impact analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "payment_to_mobile_threat_consideration",
+            "description": "Integration of mobile attack vectors in payment infrastructure threat modeling",
+            "weight": 0.5,
+            "measurement": "1.0 if payment threats specifically consider mobile platform attack vectors (app tampering, device compromise), 0.7 if partial mobile consideration, 0.4 if basic mobile mentions, 0.0 if no mobile attack vector integration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Android root detection bypass analysis includes impact on payment tokenization security and transaction signing key protection, while P2P payment flow analysis considers mobile app tampering attack vectors"
+      ],
+      "fail_examples": [
+        "Mobile security analysis mentions jailbreak detection but doesn't assess impact on payment card token security, or payment analysis ignores mobile platform compromise scenarios"
+      ],
+      "domain": "cybersecurity_threat_modeling",
+      "research_basis": "Holistic mobile payment security requiring integrated analysis of platform security and payment infrastructure interdependencies for comprehensive risk assessment"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "stride_methodology",
+      "name": "STRIDE Methodology Application",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "biometric_security",
+      "name": "Biometric Authentication Security",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "financial_compliance",
+      "name": "Financial Services Compliance",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "mobile_platform_threats",
+      "name": "Mobile Platform Security",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "api_integration_security",
+      "name": "API and Third-Party Integration Security",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "payment_infrastructure",
+      "name": "Payment Infrastructure Security",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "risk_assessment",
+      "name": "Risk Assessment and Prioritization",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "advanced_threat_vectors",
+      "name": "Advanced Threat Vectors",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "mitigation_strategy",
+      "name": "Mitigation Strategy and Controls",
+      "description": "",
+      "weight": 0.05,
+      "criteria_ids": []
+    }
+  ]
+}

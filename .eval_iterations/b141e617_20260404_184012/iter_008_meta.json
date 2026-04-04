@@ -1,0 +1,78 @@
+{
+  "run_id": "b141e617_20260404_184012",
+  "iteration": 8,
+  "total_score": 31.629999999999995,
+  "max_score": 50,
+  "percentage": 0.6325999999999999,
+  "delta_from_prior": -0.1124,
+  "focus_areas": [
+    "async_runtime_integration.cancellation_safety",
+    "async_runtime_integration.async_ecosystem_integration",
+    "error_handling_system_coherence.async_error_isolation",
+    "ttl_expiry_system.background_thread_lifecycle",
+    "ttl_expiry_system.timer_structure_efficiency"
+  ],
+  "content_path": ".eval_iterations/b141e617_20260404_184012/iter_008_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "memory_ordering_correctness",
+      "points_earned": 4.95,
+      "max_points": 6,
+      "percentage": 0.825
+    },
+    {
+      "criterion_id": "deadlock_prevention_design",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "lru_ordering_correctness",
+      "points_earned": 4.27,
+      "max_points": 6,
+      "percentage": 0.7124999999999999
+    },
+    {
+      "criterion_id": "ttl_expiry_system",
+      "points_earned": 3.08,
+      "max_points": 6,
+      "percentage": 0.5125000000000001
+    },
+    {
+      "criterion_id": "memory_bounds_enforcement",
+      "points_earned": 2.12,
+      "max_points": 5,
+      "percentage": 0.42499999999999993
+    },
+    {
+      "criterion_id": "rust_api_guidelines_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "async_runtime_integration",
+      "points_earned": 1.05,
+      "max_points": 4,
+      "percentage": 0.2625
+    },
+    {
+      "criterion_id": "concurrency_correctness_integration",
+      "points_earned": 2.31,
+      "max_points": 5,
+      "percentage": 0.4625
+    },
+    {
+      "criterion_id": "error_handling_system_coherence",
+      "points_earned": 2.2,
+      "max_points": 4,
+      "percentage": 0.55
+    },
+    {
+      "criterion_id": "performance_safety_tradeoff_analysis",
+      "points_earned": 1.65,
+      "max_points": 4,
+      "percentage": 0.4125
+    }
+  ]
+}

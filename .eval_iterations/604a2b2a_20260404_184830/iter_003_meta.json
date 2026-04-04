@@ -1,0 +1,108 @@
+{
+  "run_id": "604a2b2a_20260404_184830",
+  "iteration": 3,
+  "total_score": 52.129999999999995,
+  "max_score": 86,
+  "percentage": 0.6061627906976743,
+  "delta_from_prior": -0.1041,
+  "focus_areas": [
+    "enterprise_security_compliance.missing_ip_protection_evaluation",
+    "latency_flow_state_impact.productivity_correlation_analysis",
+    "code_telemetry_data_governance.telemetry_transparency_analysis",
+    "developer_productivity_quantification.cycle_time_measurement",
+    "learning_curve_adoption_analysis.barrier_identification_mitigation"
+  ],
+  "content_path": ".eval_iterations/604a2b2a_20260404_184830/iter_003_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "latency_flow_state_impact",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "enterprise_security_compliance",
+      "points_earned": 8.0,
+      "max_points": 8,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "code_telemetry_data_governance",
+      "points_earned": 1.75,
+      "max_points": 7,
+      "percentage": 0.24999999999999997
+    },
+    {
+      "criterion_id": "developer_productivity_quantification",
+      "points_earned": 3.4,
+      "max_points": 8,
+      "percentage": 0.42499999999999993
+    },
+    {
+      "criterion_id": "learning_curve_adoption_analysis",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "integration_ecosystem_compatibility",
+      "points_earned": 7.0,
+      "max_points": 7,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "offline_capability_assessment",
+      "points_earned": 2.06,
+      "max_points": 5,
+      "percentage": 0.4125
+    },
+    {
+      "criterion_id": "total_cost_ownership_analysis",
+      "points_earned": 6.0,
+      "max_points": 8,
+      "percentage": 0.7499999999999999
+    },
+    {
+      "criterion_id": "pilot_program_rollout_strategy",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_security_alignment_coherence",
+      "points_earned": 3.0,
+      "max_points": 5,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "productivity_cost_roi_coherence",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "scalability_adoption_risk_coherence",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "ai_code_quality_rework_rate",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "dora_ai_capabilities_model",
+      "points_earned": 1.3,
+      "max_points": 4,
+      "percentage": 0.32499999999999996
+    },
+    {
+      "criterion_id": "context_window_architectural_understanding",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    }
+  ]
+}

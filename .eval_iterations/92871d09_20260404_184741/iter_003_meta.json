@@ -1,0 +1,90 @@
+{
+  "run_id": "92871d09_20260404_184741",
+  "iteration": 3,
+  "total_score": 32.18,
+  "max_score": 53,
+  "percentage": 0.6071698113207548,
+  "delta_from_prior": -0.1123,
+  "focus_areas": [
+    "liability_limitation_risk_analysis.missing_cyber_insurance_requirements",
+    "pricing_escalation_and_fee_clarity.commencement_clarity",
+    "pricing_escalation_and_fee_clarity.scope_specificity",
+    "pricing_escalation_and_fee_clarity.escalation_caps",
+    "pricing_escalation_and_fee_clarity.fee_transparency"
+  ],
+  "content_path": ".eval_iterations/92871d09_20260404_184741/iter_003_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "liability_limitation_risk_analysis",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "security_audit_rights_adequacy",
+      "points_earned": 0.5,
+      "max_points": 4,
+      "percentage": 0.125
+    },
+    {
+      "criterion_id": "comprehensive_dpa_evaluation",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "justification_quality_analysis",
+      "points_earned": 2.75,
+      "max_points": 4,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "sla_performance_framework",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "indemnification_scope_analysis",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "termination_data_portability",
+      "points_earned": 2.75,
+      "max_points": 4,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "business_continuity_impact",
+      "points_earned": 1.88,
+      "max_points": 3,
+      "percentage": 0.625
+    },
+    {
+      "criterion_id": "risk_remediation_coherence",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "commercial_legal_balance",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "pricing_escalation_and_fee_clarity",
+      "points_earned": 0.25,
+      "max_points": 4,
+      "percentage": 0.0625
+    },
+    {
+      "criterion_id": "vendor_security_accountability_mechanisms",
+      "points_earned": 1.9,
+      "max_points": 4,
+      "percentage": 0.475
+    }
+  ]
+}

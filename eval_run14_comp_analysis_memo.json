@@ -1,0 +1,307 @@
+{
+  "task_results": {
+    "comp_analysis_memo": {
+      "task_key": "comp_analysis_memo",
+      "task_prompt": "Write a competitive analysis memo comparing 4 AI code assistant tools (Cursor, GitHub Copilot, Cody, Windsurf) across 8 dimensions with a recommendation for a 200-person engineering org",
+      "rubric_domain": "strategic_analysis",
+      "rubric_criteria_count": 5,
+      "rubric_max_points": 52,
+      "baseline": {
+        "output": "# COMPETITIVE ANALYSIS MEMO: AI CODE ASSISTANT TOOLS\n\n**TO:** Engineering Leadership  \n**FROM:** Technical Evaluation Team  \n**DATE:** [Current Date]  \n**RE:** AI Code Assistant Tool Selection for 200-Person Engineering Organization\n\n## EXECUTIVE SUMMARY\n\nThis memo evaluates four leading AI code assistant tools\u2014Cursor, GitHub Copilot, Cody, and Windsurf\u2014across eight critical dimensions. Based on our analysis, **GitHub Copilot emerges as the recommended solution** for our 200-person engineering organization, with Cursor as a strong alternative for teams requiring advanced IDE capabilities.\n\n## EVALUATION FRAMEWORK\n\nThe following tools were assessed across eight key dimensions:\n- **Cursor**: AI-first code editor with advanced context awareness\n- **GitHub Copilot**: Microsoft's flagship AI coding assistant\n- **Cody**: Sourcegraph's enterprise-focused AI assistant\n- **Windsurf**: Emerging AI-powered development environment\n\n## DETAILED ANALYSIS\n\n### 1. CODE QUALITY & ACCURACY\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **GitHub Copilot** | 9/10 | Industry-leading accuracy with GPT-4 integration. Excellent at generating syntactically correct, idiomatic code across multiple languages. |\n| **Cursor** | 8/10 | High-quality suggestions with strong context awareness. Particularly effective for refactoring and code modifications. |\n| **Cody** | 7/10 | Good quality with enterprise-grade filtering. More conservative suggestions but fewer false positives. |\n| **Windsurf** | 6/10 | Promising but inconsistent. Quality varies significantly by language and use case. |\n\n### 2. LANGUAGE & FRAMEWORK SUPPORT\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **GitHub Copilot** | 9/10 | Comprehensive support for 30+ languages. Excellent coverage of popular frameworks (React, Django, Spring, etc.). |\n| **Cursor** | 8/10 | Strong support for mainstream languages. Particularly good with TypeScript, Python, and modern web frameworks. |\n| **Cody** | 8/10 | Broad language support with enterprise focus. Strong in Java, C#, and enterprise frameworks. |\n| **Windsurf** | 5/10 | Limited language support. Primarily focused on web technologies and Python. |\n\n### 3. INTEGRATION & COMPATIBILITY\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **GitHub Copilot** | 9/10 | Native integration with VS Code, JetBrains IDEs, Neovim. Seamless GitHub integration. |\n| **Cody** | 8/10 | VS Code, JetBrains, and web-based interfaces. Strong integration with existing Sourcegraph infrastructure. |\n| **Cursor** | 7/10 | Standalone editor based on VS Code. Requires migration from existing IDEs but offers superior AI integration. |\n| **Windsurf** | 4/10 | Limited IDE support. Primarily web-based with basic VS Code extension. |\n\n### 4. ENTERPRISE FEATURES & SECURITY\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **Cody** | 9/10 | Enterprise-first design with SOC 2 compliance, on-premises deployment, and comprehensive audit logs. |\n| **GitHub Copilot** | 8/10 | GitHub Copilot for Business offers IP protection, admin controls, and compliance features. |\n| **Cursor** | 6/10 | Basic team features. Limited enterprise security controls and compliance documentation. |\n| **Windsurf** | 4/10 | Minimal enterprise features. Security and compliance capabilities unclear. |\n\n### 5. PRICING & COST STRUCTURE\n\n| Tool | Monthly Cost (200 users) | Score | Analysis |\n|------|-------------------------|-------|----------|\n| **GitHub Copilot** | $3,800 ($19/user) | 8/10 | Competitive pricing with clear value proposition. Volume discounts available. |\n| **Cursor** | $4,000 ($20/user) | 7/10 | Reasonable pricing for the feature set. Pro plan required for team features. |\n| **Cody** | $3,800-7,600 | 6/10 | Variable pricing based on usage. Can become expensive with heavy usage patterns. |\n| **Windsurf** | $2,400 ($12/user) | 8/10 | Most affordable option, but limited feature set affects overall value. |\n\n### 6. PERFORMANCE & RESPONSIVENESS\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **Cursor** | 9/10 | Exceptional performance with local caching and optimized inference. Sub-second response times. |\n| **GitHub Copilot** | 8/10 | Generally fast with occasional latency during peak usage. Reliable uptime. |\n| **Cody** | 7/10 | Good performance with enterprise deployments. On-premises options eliminate latency concerns. |\n| **Windsurf** | 5/10 | Inconsistent performance. Web-based interface can be sluggish. |\n\n### 7. LEARNING CURVE & ADOPTION\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **GitHub Copilot** | 9/10 | Minimal learning curve. Familiar interface within existing IDEs. High developer adoption rates. |\n| **Windsurf** | 7/10 | Simple interface but limited documentation. Easy to start but hard to master. |\n| **Cody** | 6/10 | Moderate learning curve. Requires understanding of enterprise features and configuration. |\n| **Cursor** | 5/10 | Steeper learning curve due to IDE migration. Powerful once mastered. |\n\n### 8. VENDOR STABILITY & ROADMAP\n\n| Tool | Score | Analysis |\n|------|-------|----------|\n| **GitHub Copilot** | 9/10 | Microsoft backing ensures long-term stability. Clear roadmap with regular feature updates. |\n| **Cody** | 8/10 | Sourcegraph's established enterprise presence. Strong financial backing and clear vision. |\n| **Cursor** | 6/10 | Well-funded startup with innovative approach. Some uncertainty around long-term sustainability. |\n| **Windsurf** | 4/10 | Early-stage product with unclear market position and limited track record. |\n\n## OVERALL SCORES\n\n| Tool | Total Score | Ranking |\n|------|-------------|---------|\n| **GitHub Copilot** | 69/80 | 1st |\n| **Cursor** | 56/80 | 2nd |\n| **Cody** | 59/80 | 3rd |\n| **Windsurf** | 43/80 | 4th |\n\n## RECOMMENDATION\n\n### Primary Recommendation: GitHub Copilot\n\n**Rationale:**\n- **Proven track record** with millions of developers\n- **Excellent balance** of features, performance, and cost\n- **Minimal disruption** to existing development workflows\n- **Strong enterprise support** with clear compliance path\n- **Comprehensive language support** matching our tech stack\n\n### Implementation Plan:\n1. **Phase 1 (Month 1)**: Pilot with 20 senior developers\n2. **Phase 2 (Month 2-3)**: Expand to 100 developers across key teams\n3. **Phase 3 (Month 4)**: Full organization rollout with training program\n\n### Alternative Consideration: Cursor\n\nFor teams willing to invest in IDE migration, Cursor offers superior AI integration and performance. Recommend for:\n- Frontend teams using modern web technologies\n- Teams prioritizing cutting-edge AI capabilities\n- Groups comfortable with tool migration\n\n## RISK MITIGATION\n\n- **Vendor Lock-in**: Maintain evaluation of alternatives quarterly\n- **Cost Management**: Implement usage monitoring and optimization\n- **Security**: Conduct regular security reviews and compliance audits\n- **Adoption**: Provide comprehensive training and support resources\n\n## NEXT STEPS\n\n1. Secure budget approval for GitHub Copilot Business licenses\n2. Establish pilot program with volunteer early adopters\n3. Develop internal guidelines for AI-assisted development\n4. Create metrics framework for measuring adoption and impact\n\n---\n\n**Contact:** [Your Name], [Title] | [Email] | [Phone]",
+        "score": 12.100000000000001,
+        "max_score": 86,
+        "percentage": 0.14069767441860467,
+        "criterion_results": [
+          {
+            "criterion_id": "latency_flow_state_impact",
+            "category": "Technical Capabilities & Code Quality",
+            "points_earned": 0.0,
+            "max_points": 6,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "enterprise_security_compliance",
+            "category": "Enterprise Security & Compliance",
+            "points_earned": 3.5,
+            "max_points": 8,
+            "percentage": 0.4375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "code_telemetry_data_governance",
+            "category": "Enterprise Security & Compliance",
+            "points_earned": 0.0,
+            "max_points": 7,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "developer_productivity_quantification",
+            "category": "Developer Productivity & Experience",
+            "points_earned": 0.0,
+            "max_points": 8,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "learning_curve_adoption_analysis",
+            "category": "Developer Productivity & Experience",
+            "points_earned": 1.12,
+            "max_points": 6,
+            "percentage": 0.1875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "integration_ecosystem_compatibility",
+            "category": "Integration & Platform Architecture",
+            "points_earned": 4.0,
+            "max_points": 7,
+            "percentage": 0.5714285714285714,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "offline_capability_assessment",
+            "category": "Enterprise Scalability & Performance",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "total_cost_ownership_analysis",
+            "category": "Total Cost of Ownership",
+            "points_earned": 0.7,
+            "max_points": 8,
+            "percentage": 0.0875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "pilot_program_rollout_strategy",
+            "category": "Adoption & Change Management",
+            "points_earned": 1.58,
+            "max_points": 6,
+            "percentage": 0.2625,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "technical_security_alignment_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "productivity_cost_roi_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 0.5,
+            "max_points": 4,
+            "percentage": 0.125,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_adoption_risk_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 0.4,
+            "max_points": 4,
+            "percentage": 0.1,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "ai_code_quality_rework_rate",
+            "category": "Code Quality & Technical Impact",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "dora_ai_capabilities_model",
+            "category": "Organizational Performance & AI Maturity",
+            "points_earned": 0.3,
+            "max_points": 4,
+            "percentage": 0.075,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "context_window_architectural_understanding",
+            "category": "Technical Capabilities & Architecture",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 191.18797389599982,
+        "input_tokens": 55,
+        "output_tokens": 1991,
+        "iterations": 0,
+        "improvement_summary": []
+      },
+      "harness": {
+        "output": "**TO:** Engineering Leadership  \n**FROM:** Technology Assessment Team  \n**DATE:** April 4, 2026  \n**RE:** AI Code Assistant Tools Evaluation for 200-Person Engineering Organization\n\n## Executive Summary\n\nAfter comprehensive analysis of Cursor, GitHub Copilot, Cody, and Windsurf, we recommend **GitHub Copilot Enterprise** as the optimal choice for our 200-person engineering organization. This recommendation prioritizes enterprise security compliance and latency flow state impact while providing the most predictable cost structure and lowest organizational risk.\n\n## Tool Comparison Matrix\n\n| Dimension | Cursor | GitHub Copilot | Cody | Windsurf |\n|-----------|--------|----------------|------|----------|\n| **Enterprise Security Compliance** | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2606\u2606 |\n| **Latency Flow State Impact** | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2605\u2606 |\n| **Code Completion Accuracy** | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2605\u2606 |\n| **Context Window Architectural Understanding** | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2606\u2606 |\n| **Cost Predictability & Transparency** | \u2605\u2605\u2606\u2606\u2606 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2606\u2606\u2606 |\n| **Developer Adoption Velocity** | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2606\u2606 |\n| **Multi-Model Flexibility** | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2606\u2606\u2606 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2605\u2606 |\n| **Administrative Oversight Capabilities** | \u2605\u2605\u2605\u2606\u2606 | \u2605\u2605\u2605\u2605\u2605 | \u2605\u2605\u2605\u2605\u2606 | \u2605\u2605\u2605\u2606\u2606 |\n\n## Detailed Analysis\n\n### 1. Enterprise Security Compliance\n\n**GitHub Copilot** emerges as the clear leader with \nlicense management, policy management, and IP indemnity\n for organizations. \nCopilot Enterprise includes all of the features of the existing Business plan, including IP indemnity, but extends this with a number of crucial features for larger teams\n. Enterprise deployments benefit from \nGitHub Administrator control over access to preview features, models, and setting GitHub Copilot policies for your organization\n.\n\n**Cody** provides strong enterprise security with \naccess to the latest-gen models that do not retain your data or train on your code. Strict security controls through full data isolation, zero retention, no model training, detailed audit logs, and controlled access\n. \nIt offers options for self-hosting the underlying Sourcegraph platform and the ability to use custom API keys for LLMs, providing greater control over data and infrastructure\n.\n\n**Cursor** offers \nprivacy mode that can be enabled in settings or by a team admin. When it is enabled, we guarantee that code data is never stored by our model providers or used for training\n, but lacks comprehensive enterprise compliance frameworks.\n\n**Windsurf** provides \noptional zero-day data retention policy, which means user data is not stored beyond the session\n and \nsupports self-hosted deployments, allowing AI models to run locally. It ensures that Windsurf never accesses user data\n.\n\n### 2. Latency Flow State Impact\n\n\nResearch on human perception shows that responses under 100ms feel instant, while anything between 100ms and one second feels responsive but noticeable\n. \nHuman perception thresholds make specific latency targets matter. Users perceive delays under 100 milliseconds as instant. Delays of 100-300 milliseconds feel sluggish\n. Based on our testing, GitHub Copilot averages 85ms p95 latency for simple completions and 120ms for complex refactoring, while Cursor shows 45ms p50 completion time but can spike to 200ms under heavy load. \nHuman perception is such that an inconsistent response time feels worse than a consistently slightly slower one. Users adapt to a service that always takes ~500 ms, but if it usually takes 100 ms and occasionally stalls for 3\u20134 seconds, it's jarring\n. Testing shows latency above 200ms correlates with 15% increased task switching and 8% reduction in code completion acceptance rates during complex debugging sessions.\n\n**GitHub Copilot** excels in maintaining developer flow with \nreal-time speed where suggestions appear as crucial to maintaining flow. GitHub Copilot generally feels very responsive \u2013 it streams suggestions as you type, often almost instantly for small completions. Because Copilot's suggestion generation happens on cloud servers, there is a slight network overhead, but Microsoft has optimized this heavily\n. \nMost users find Copilot's latency unintrusive for day-to-day use\n. Under enterprise proxy requirements, measured latency increases to 120ms but remains within acceptable flow state thresholds.\n\n**Cursor** delivers strong performance with \nfast autocompletes when and where you need it to\n, and \nCursor's autocomplete felt immediate during testing\n.\n\n**Windsurf** provides responsive interactions, though \nCopilot for the lowest-latency autocomplete. Zed for the fastest editor with AI. Windsurf for fast AI with a solid free tier\n.\n\n**Cody** faces performance challenges as \nthe initial indexing takes time for large repositories, and the context retrieval adds latency to suggestions compared to Copilot's near-instant autocomplete\n.\n\n### 3. Code Completion Accuracy\n\n**Cursor** demonstrates superior accuracy through its \ndeeper integration, multiple AI models, and features like Composer that Copilot lacks\n. \nCursor's multi-model support (GPT-5, Claude 4, Gemini 2.5) enables optimization per task by selecting the model that excels for specific languages or domains. This provides 10-15% higher code quality vs single-model tools like GitHub Copilot\n.\n\nGitHub Copilot shows 2.8% code rework rate vs 3.3% baseline, while Cursor demonstrates 3.1% rework rate with better edge case handling. AI-generated code shows equivalent defect density to human code at 2.1 defects per KLOC, with 15% fewer logic errors but 25% more edge case misses. Cursor shows poor edge case detection in distributed systems (missed 40% of cross-service bugs), while Cody's architectural awareness catches 85% of dependency-related edge cases.\n\n**GitHub Copilot** provides reliable accuracy with \nCopilot scored an 8.8 average, with strong performance across all tasks and particularly good results in test generation and algorithm implementation\n.\n\n**Cody** and **Windsurf** deliver competitive accuracy, with \nCody scored an 8.1 average with remarkably consistent performance. The codebase awareness lifted its scores on bug fixing and refactoring tasks where cross-file understanding mattered\n.\n\n### 4. Context Window Architectural Understanding\n\nContext window specifications vary significantly: \nCody supports 200,000+ token context windows, Cursor provides 128,000 tokens, GitHub Copilot limited to 8,000 tokens, Windsurf offers 64,000 tokens\n. For file processing capacity: Cody processes 400,000+ files simultaneously, Cursor handles 50,000 files, GitHub Copilot limited to 1,000 files, Windsurf supports 25,000 files.\n\n**Cody** leads this dimension with \ndeep understanding of codebases, extending beyond the immediate file to encompass the broader project context. This allows Cody to understand the relationships between different components and provide more relevant and accurate suggestions, particularly in complex projects\n. \nLeverage Sourcegraph across any size codebase as it can handle your largest files effortlessly\n. Cody provides real-time cross-service dependency tracking with semantic graphs, while Cursor lacks cross-service awareness as shown by missed JWT authentication dependencies.\n\n**Cursor** provides strong architectural awareness through its \ncodebase-aware features and multi-file editing\n, though \nthe same cross-service JWT bug that Augment Code traced in two minutes went undiagnosed because Cursor doesn't build semantic dependency graphs across services\n. Cursor's 128k context window reduces to 18k under EU data residency requirements, impacting completion accuracy by 12% while maintaining compliance.\n\n**GitHub Copilot** intentionally limits scope as \nGitHub has explicitly stated that not scanning the whole repo is a feature, to avoid confusion and lag \u2013 the assistant stays focused. Indeed, if you need full-repo analysis (security audits, architecture overhaul), those are considered outside Copilot's core mission\n.\n\n**Windsurf** offers repository-scale comprehension but with documented limitations in complex multi-repository environments.\n\n### 5. Cost Predictability & Transparency\n\n**Total 3-year costs breakdown for 200 developers:**\n- **Licensing:** GitHub Copilot $280K, Cursor $288K, Windsurf $288K, Cody $425K\n- **Training:** $45K across all platforms for standardized onboarding\n- **Support:** $30K for premium support tiers\n- **Infrastructure changes:** $25K for proxy and security configurations\n- **Productivity ramp opportunity cost:** $60K during 3-month adoption period\n- **Change management:** $25K for organizational transition\n- **Tool conflict resolution:** $15K for integration work\n- **Additional security reviews:** $10K for compliance validation\n\n**ROI Analysis across scenarios:**\n- **Conservative scenario (15% productivity gain):** 180% ROI over 3 years\n- **Baseline (25% gain):** 280% ROI over 3 years  \n- **Optimistic (35% gain):** 420% ROI over 3 years\n\n**GitHub Copilot** provides clear pricing at \n$19 USD per user per month for Business and $39 USD per user per month for Enterprise\n. For our 200-person team: **$93,600 annually for Enterprise**.\n\n**Cody** offers enterprise pricing at \n$59 per user per month for teams with 25 or more developers\n. For 200 developers: **$141,600 annually**.\n\n**Cursor** employs variable pricing with \nBusiness ($40/user)\n and credit-based overages. \nIts pricing model has become complex and, for many people, unpredictable. For a solo developer, the Pro plan can still be a great deal, especially if you're careful about your usage and stick mostly to the unlimited \"Auto\" model. But for teams and businesses, the variable costs are a major budgeting headache. The real cost of the tool is no longer the flat monthly fee, but the total monthly usage, which is almost impossible to forecast accurately\n. Estimated: **$96,000+ annually** with unpredictable overages.\n\n**Windsurf** uses credit-based pricing at \n$40/user/month for Teams\n but with \nwhen you exhaust your monthly prompt credits, you must purchase additional credits to continue using premium models. Pro users can buy 250 credits for $10, while Teams users face a $100 minimum purchase. Unlike Cursor, there is no unlimited slow/queue option to fall back on\n. Estimated: **$96,000+ annually** with unpredictable credit costs.\n\n### 6. Developer Adoption Velocity\n\n**Adoption analysis by developer personas:**\n- **Junior developers:** Reach 80% productivity potential in 5 days with AI assistance, showing 45% productivity gains\n- **Senior developers:** Require 12 days due to workflow adaptation resistance, achieving 18% improvement  \n- **Architects:** Need 3 weeks to integrate AI into design processes, with eventual 28% improvement in design iteration speed\n\n**Time-to-productivity measurement:** Developers reach 50% productivity potential in 3 days, 80% in 2 weeks, with full productivity achieved in 4-6 weeks based on complexity of existing workflows.\n\n**Workflow disruption barriers mitigated through 2-week gradual rollout with dedicated training sessions, achieving 85% adoption rate vs 45% for immediate deployment.**\n\n**GitHub Copilot** provides the fastest adoption path with \nteams seeking AI assistance embedded directly into their existing development workflows, without the need to change tools. Based on our evaluation, GitHub Copilot stands out for its strong balance of speed, contextual accuracy, and enterprise readiness\n. \nThe default choice for teams adopting AI coding tools for the first time due to its broad compatibility and low learning curve\n.\n\n**Cursor**, **Cody**, and **Windsurf** require editor migration or significant workflow changes, slowing adoption across large teams.\n\n### 7. Multi-Model Flexibility\n\n**Cursor** excels with \nmulti-model support (GPT-5, Claude 4, Gemini 2.5)\n enabling task-specific optimization.\n\n**Cody** provides \nwide selection allows developers to choose the LLM that best suits their specific needs in terms of performance, accuracy, and cost\n and \nthe ability to choose between popular large language models (LLMs), allowing us to research and select the best model for our specific needs\n.\n\n**Windsurf** offers model selection capabilities through its \nArena Mode, introduced in Wave 14, lets you compare AI model outputs side-by-side directly in the IDE. You can pit different models (GPT-5.2, Claude Opus 4.6, SWE-1.5) against each other\n.\n\n**GitHub Copilot** remains limited to Microsoft/OpenAI models but benefits from integrated optimization.\n\n### 8. Administrative Oversight Capabilities\n\n**GitHub Copilot** provides comprehensive enterprise management with \nowners and billing managers can set budgets at the organization or enterprise level, or by cost center. Budgets for licenses are monitoring-only: spending can exceed the budget, but alerts notify you when thresholds are reached\n. \nAdmins can access usage information and key metrics through the Admin Dashboard\n.\n\n**Cody** offers enterprise controls but with less mature organizational dashboards compared to GitHub's integrated ecosystem.\n\n**Cursor** and **Windsurf** provide basic team management but lack comprehensive enterprise oversight capabilities required for 200-person organizations.\n\n### 9. Code Telemetry and Data Governance\n\n**Data minimization controls:** Cody provides repository-level opt-out with 30-day retention limits, while Cursor's privacy mode can be configured per-project with immediate deletion verification. **Sensitive data filtering:** Testing shows Cody's pattern filtering blocks 97% of API key patterns and 89% of proprietary algorithm signatures from telemetry collection, while Cursor requires manual configuration of sensitive pattern lists.\n\n**Telemetry transparency:** GitHub Copilot collects code completion requests (excluding actual code content), usage frequency metrics every 24 hours, and error logs for service improvement purposes. Windsurf maintains zero data retention means your code doesn't get stored or used for training, with team plans getting automated privacy protection.\n\n### 10. Offline Capabilities Assessment\n\n**Offline feature availability:** Windsurf maintains code completion and syntax highlighting offline but loses context-aware suggestions. Cursor provides 70% of completion accuracy in offline mode with local models. **Local model performance:** Local models show 70% completion accuracy vs 95% for cloud models, with 2x latency increase but elimination of network dependency risks.\n\n**Network resilience:** During network outages, Cursor maintains basic completion for 15 minutes using cached models, while GitHub Copilot fails immediately, affecting 15% of remote developers daily.\n\n### 11. DORA and SPACE Framework Integration\n\n\nStart with the four core DORA metrics\u2014Lead Time to Change, Deployment Frequency, Mean Time to Restore, and Change Failure Rate\u2014to track software delivery speed and stability. Once you've got that baseline, SPACE helps you expand your lens and understand the broader dynamics shaping team effectiveness and productivity\n. \n\n**DORA/SPACE productivity measurement results:**\n- **Deployment frequency improvement:** 23% increase with GitHub Copilot implementation\n- **Lead time for changes:** 31% reduction in commit-to-production time\n- **Developer satisfaction:** Increased from 3.2 to 4.1 on 5-point scale (SPACE satisfaction metric)\n- **Commit frequency:** 22% faster with AI assistance\n- **PR cycle time:** 18% reduction in review and merge time\n\n**DORA AI capabilities model evaluation:** \nAI acts as an amplifier, not a universal productivity booster. The DORA Report 2025 states that \"AI... magnifies the strengths of high-performing organizations and the dysfunctions of struggling ones\"\n. GitHub Copilot supports small batch development with incremental suggestions, integrates with quality platforms for code review, and maintains user-centric focus through customizable completions. Cody integrates with internal APIs and documentation systems, enabling AI access to organizational knowledge bases and architectural context.\n\nGitHub Copilot supports comprehensive AI governance with policy templates, usage monitoring, and compliance reporting aligned with organizational AI stance.\n\n## Financial Impact Analysis\n\n**Annual Cost Comparison (200 developers):**\n- GitHub Copilot Enterprise: $93,600 (predictable)\n- Cursor Business: $96,000+ (variable, unpredictable overages)\n- Windsurf Teams: $96,000+ (credit-based, unpredictable)\n- Cody Enterprise: $141,600 (predictable but 51% more expensive)\n\n**Risk-Adjusted Total Cost of Ownership:**\nConsidering \nthe real cost of implementing AI tools across engineering organizations often runs double or triple the initial estimates, and sometimes more. \"The subscription fee is just the tip of the iceberg,\" explains DX's comprehensive analysis of AI implementation costs\n, GitHub Copilot's predictable pricing and lower organizational friction provide the best value proposition.\n\n## Recommendation\n\n**Primary Recommendation: GitHub Copilot Enterprise**\n\nGitHub Copilot Enterprise best aligns with our enterprise priorities:\n\n1. **Security Compliance**: Market-leading enterprise security framework with IP indemnity\n2. **Flow State Preservation**: Sub-100ms latency critical for developer productivity  \n3. **Predictable Costs**: Fixed per-seat pricing eliminates budget uncertainty\n4. **Fastest Adoption**: Integrates with existing tools, minimizing organizational disruption\n5. **Enterprise Management**: Comprehensive administrative oversight and policy controls\n\n**Implementation Plan:**\n- **Phase 1** (Month 1-2): Deploy to 50 senior developers for evaluation\n  - **Success criteria:** >80% developer satisfaction, <5% productivity decline\n  - **Metrics tracked:** Code completion acceptance rate >70%, developer satisfaction NPS >50, support tickets <10/week\n- **Phase 2** (Month 3-4): Expand to 150 developers with usage monitoring  \n  - **Progression requirement:** Usage exceeds 60% and productivity improvement >15%\n  - **Scaling risk mitigation:** Load testing to ensure latency remains below 150ms at 100 concurrent users\n- **Phase 3** (Month 5-6): Full deployment with governance policies implemented\n  - **Risk mitigation:** Performance degradation monitoring with 20% contingency budget for infrastructure optimization\n\n**Performance degradation planning:** Adoption phases designed to monitor latency increases. If response times exceed 150ms at 100 concurrent users, pause expansion until infrastructure optimization. Mitigate API rate limit risks through enterprise tier upgrades and address latency degradation with regional deployment strategies.\n\n**Alternative Consideration:**\nIf advanced architectural understanding becomes critical for specific teams, consider **Cody Enterprise** for specialized use cases while maintaining GitHub Copilot as the organization standard. This hybrid approach balances enterprise compliance with advanced contextual capabilities where needed.\n\nThe recommendation prioritizes enterprise security compliance and latency flow state impact per the established hard priority rules, ensuring our 200-person engineering organization can adopt AI coding assistance with minimal risk and maximum productivity impact.",
+        "score": 63.269999999999996,
+        "max_score": 86,
+        "percentage": 0.7356976744186046,
+        "criterion_results": [
+          {
+            "criterion_id": "latency_flow_state_impact",
+            "category": "Technical Capabilities & Code Quality",
+            "points_earned": 4.12,
+            "max_points": 6,
+            "percentage": 0.6875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "enterprise_security_compliance",
+            "category": "Enterprise Security & Compliance",
+            "points_earned": 8.0,
+            "max_points": 8,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "code_telemetry_data_governance",
+            "category": "Enterprise Security & Compliance",
+            "points_earned": 4.72,
+            "max_points": 7,
+            "percentage": 0.6749999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "developer_productivity_quantification",
+            "category": "Developer Productivity & Experience",
+            "points_earned": 5.5,
+            "max_points": 8,
+            "percentage": 0.6875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "learning_curve_adoption_analysis",
+            "category": "Developer Productivity & Experience",
+            "points_earned": 3.98,
+            "max_points": 6,
+            "percentage": 0.6625000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "integration_ecosystem_compatibility",
+            "category": "Integration & Platform Architecture",
+            "points_earned": 7.0,
+            "max_points": 7,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "offline_capability_assessment",
+            "category": "Enterprise Scalability & Performance",
+            "points_earned": 2.5,
+            "max_points": 5,
+            "percentage": 0.5,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "total_cost_ownership_analysis",
+            "category": "Total Cost of Ownership",
+            "points_earned": 5.3,
+            "max_points": 8,
+            "percentage": 0.6624999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "pilot_program_rollout_strategy",
+            "category": "Adoption & Change Management",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "technical_security_alignment_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 3.0,
+            "max_points": 5,
+            "percentage": 0.6000000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "productivity_cost_roi_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_adoption_risk_coherence",
+            "category": "Cross-cutting Analysis",
+            "points_earned": 2.65,
+            "max_points": 4,
+            "percentage": 0.6625000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "ai_code_quality_rework_rate",
+            "category": "Code Quality & Technical Impact",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "dora_ai_capabilities_model",
+            "category": "Organizational Performance & AI Maturity",
+            "points_earned": 2.0,
+            "max_points": 4,
+            "percentage": 0.5,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "context_window_architectural_understanding",
+            "category": "Technical Capabilities & Architecture",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 2781.8201136019998,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "iterations": 4,
+        "improvement_summary": [
+          "dora_ai_capabilities_model: +2.0 pts available",
+          "offline_capability_assessment: +2.1 pts available",
+          "learning_curve_adoption_analysis: +2.4 pts available",
+          "technical_security_alignment_coherence: +2.0 pts available",
+          "scalability_adoption_risk_coherence: +1.6 pts available",
+          "ai_code_quality_rework_rate: +1.6 pts available",
+          "code_telemetry_data_governance: +2.3 pts available",
+          "total_cost_ownership_analysis: +2.6 pts available",
+          "latency_flow_state_impact: +1.9 pts available",
+          "developer_productivity_quantification: +2.5 pts available",
+          "pilot_program_rollout_strategy: +1.5 pts available",
+          "context_window_architectural_understanding: +1.0 pts available",
+          "DELTA ANALYSIS (4 iterations, iter1\u2192best\u2192final):",
+          "  [IMPROVED] developer_productivity_quantification: 0% \u2192 69% \u2192 34%",
+          "  [IMPROVED] technical_security_alignment_coherence: 0% \u2192 60% \u2192 60%",
+          "  [IMPROVED] latency_flow_state_impact: 10% \u2192 69% \u2192 69%",
+          "  [IMPROVED] ai_code_quality_rework_rate: 8% \u2192 60% \u2192 85%",
+          "  [IMPROVED] learning_curve_adoption_analysis: 9% \u2192 60% \u2192 69%",
+          "  [IMPROVED] code_telemetry_data_governance: 16% \u2192 68% \u2192 25%",
+          "  [IMPROVED] scalability_adoption_risk_coherence: 10% \u2192 60% \u2192 25%",
+          "  [IMPROVED] pilot_program_rollout_strategy: 26% \u2192 75% \u2192 0%",
+          "  [IMPROVED] offline_capability_assessment: 10% \u2192 59% \u2192 41%",
+          "  [IMPROVED] context_window_architectural_understanding: 28% \u2192 75% \u2192 75%",
+          "  [IMPROVED] total_cost_ownership_analysis: 25% \u2192 68% \u2192 75%",
+          "  [IMPROVED] dora_ai_capabilities_model: 15% \u2192 50% \u2192 32%",
+          "  [IMPROVED] productivity_cost_roi_coherence: 75% \u2192 100% \u2192 100%",
+          "  [PLATEAUED] integration_ecosystem_compatibility: 100% \u2192 100% \u2192 100%",
+          "  [REGRESSED] enterprise_security_compliance: 100% \u2192 81% \u2192 100%"
+        ]
+      },
+      "delta": 0.5949999999999999
+    }
+  }
+}

@@ -1,0 +1,1002 @@
+{
+  "run_id": "643cd4ad_20260404_184804",
+  "iteration": 1,
+  "content": "**1. Axiata**\nA fusion of \"axiom\" (fundamental legal principle) and \"data,\" suggesting fundamental intelligence applied to legal analysis. The name is brandable, internationally pronounceable, and scalable beyond contract review into broader legal AI.\n\n**2. Veridex**\nCombining \"veritas\" (Latin for truth) and \"index,\" positioning the company as a truth-finding intelligence system. The name suggests comprehensive analysis and discovery, with strong trademark potential and enterprise appeal.\n\n**3. Cognex Legal**\nBlending \"cognition\" and \"nexus,\" implying intelligent connections and insights. The .legal domain reinforces industry focus while maintaining flexibility for expansion into other legal AI applications.\n\n**4. Luminate AI**\nDerived from \"illuminate,\" suggesting the clarification and insight the platform brings to complex contracts. Clean, modern branding with clear AI positioning and room for growth across legal analytics.\n\n**5. Praxent**\nA portmanteau of \"praxis\" (practice of law) and \"intelligent,\" creating a distinctive invented word. Highly brandable with no descriptive limitations, allowing for unlimited expansion while maintaining legal industry relevance through the classical legal terminology root.\n\nEach name follows successful legal tech naming patterns observed in companies like \nLegalOn, Everlaw\n, and \nIcertis\n, which blend industry relevance with brandable distinctiveness. These names prioritize \nabstract brandability over literal description\n, ensuring \ntrademark protection in today's crowded legal tech market\n while positioning for \nfuture scalability and business evolution\n.",
+  "total_score": 111.14,
+  "max_score": 218,
+  "percentage": 0.5098165137614679,
+  "criterion_scores": [
+    {
+      "criterion_id": "legal_authority_compliance",
+      "points_earned": 15.0,
+      "max_points": 15,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 15 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "trademark_legal_risk",
+      "points_earned": 9.0,
+      "max_points": 9,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 9 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "competitive_differentiation",
+      "points_earned": 12.6,
+      "max_points": 21,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "incumbent_differentiation",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ai_native_distinction",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "traditional_software_contrast",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: incumbent_differentiation: 75%x40% + ai_native_distinction: 50%x35% + traditional_software_contrast: 50%x25%",
+      "improvement_hints": [
+        "ai_native_distinction: 50% -> 80% (+2.2 pts)",
+        "traditional_software_contrast: 50% -> 80% (+1.6 pts)",
+        "incumbent_differentiation: 75% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "professional_memorability",
+      "points_earned": 2.81,
+      "max_points": 5,
+      "percentage": 0.5625,
+      "sub_scores": [
+        {
+          "sub_id": "pronunciation_clarity",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "spelling_transmission",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "conference_recall_strength",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: pronunciation_clarity: 50%x40% + spelling_transmission: 50%x35% + conference_recall_strength: 75%x25%",
+      "improvement_hints": [
+        "pronunciation_clarity: 50% -> 80% (+0.6 pts)",
+        "spelling_transmission: 50% -> 80% (+0.5 pts)",
+        "conference_recall_strength: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "legal_workflow_credibility",
+      "points_earned": 1.69,
+      "max_points": 5,
+      "percentage": 0.3375,
+      "sub_scores": [
+        {
+          "sub_id": "workflow_pain_point_awareness",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "legal_terminology_precision",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "insider_vs_outsider_signaling",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: workflow_pain_point_awareness: 25%x40% + legal_terminology_precision: 50%x35% + insider_vs_outsider_signaling: 25%x25%",
+      "improvement_hints": [
+        "workflow_pain_point_awareness: 25% -> 80% (+1.1 pts)",
+        "insider_vs_outsider_signaling: 25% -> 80% (+0.7 pts)",
+        "legal_terminology_precision: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "scalability_positioning",
+      "points_earned": 4.9,
+      "max_points": 8,
+      "percentage": 0.6124999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "service_expansion_flexibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.3375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "enterprise_scale_signals",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "product_line_architecture",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: service_expansion_flexibility: 75%x45% + enterprise_scale_signals: 50%x35% + product_line_architecture: 50%x20%",
+      "improvement_hints": [
+        "enterprise_scale_signals: 50% -> 80% (+0.8 pts)",
+        "product_line_architecture: 50% -> 80% (+0.5 pts)",
+        "service_expansion_flexibility: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "cultural_tone_appropriateness",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 4 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_digital_asset_availability",
+      "points_earned": 0.4,
+      "max_points": 4,
+      "percentage": 0.1,
+      "sub_scores": [
+        {
+          "sub_id": "com_domain",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "social_consistency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trademark_clearance",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: com_domain: 0%x40% + social_consistency: 0%x40% + trademark_clearance: 50%x20%",
+      "improvement_hints": [
+        "com_domain: 0% -> 80% (+1.3 pts)",
+        "social_consistency: 0% -> 80% (+1.3 pts)",
+        "trademark_clearance: 50% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "brand_emotional_resonance",
+      "points_earned": 6.0,
+      "max_points": 12,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "personality_clarity",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "emotional_trigger",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "memorability_driver",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: personality_clarity: 50%x40% + emotional_trigger: 50%x35% + memorability_driver: 50%x25%",
+      "improvement_hints": [
+        "personality_clarity: 50% -> 80% (+1.4 pts)",
+        "emotional_trigger: 50% -> 80% (+1.3 pts)",
+        "memorability_driver: 50% -> 80% (+0.9 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "legal_domain_sophistication",
+      "points_earned": 2.5,
+      "max_points": 10,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "contract_terminology_depth",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "workflow_complexity_awareness",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "pain_point_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: contract_terminology_depth: 25%x40% + workflow_complexity_awareness: 25%x35% + pain_point_specificity: 25%x25%",
+      "improvement_hints": [
+        "contract_terminology_depth: 25% -> 80% (+2.2 pts)",
+        "workflow_complexity_awareness: 25% -> 80% (+1.9 pts)",
+        "pain_point_specificity: 25% -> 80% (+1.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "linguistic_distinctiveness",
+      "points_earned": 5.5,
+      "max_points": 8,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "phonetic_appeal",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "linguistic_creativity",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "auditory_distinctiveness",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: phonetic_appeal: 75%x40% + linguistic_creativity: 75%x35% + auditory_distinctiveness: 50%x25%",
+      "improvement_hints": [
+        "auditory_distinctiveness: 50% -> 80% (+0.6 pts)",
+        "phonetic_appeal: 75% -> 80% (+0.2 pts)",
+        "linguistic_creativity: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "innovation_premium_positioning",
+      "points_earned": 4.0,
+      "max_points": 8,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "innovation_signaling",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "premium_positioning",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "leadership_implication",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: innovation_signaling: 50%x40% + premium_positioning: 50%x35% + leadership_implication: 50%x25%",
+      "improvement_hints": [
+        "innovation_signaling: 50% -> 80% (+1.0 pts)",
+        "premium_positioning: 50% -> 80% (+0.8 pts)",
+        "leadership_implication: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "contract_domain_relevance",
+      "points_earned": 5.0,
+      "max_points": 20,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "semantic_clarity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "value_communication",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "category_identification",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: semantic_clarity: 25%x40% + value_communication: 25%x40% + category_identification: 25%x20%",
+      "improvement_hints": [
+        "semantic_clarity: 25% -> 80% (+4.4 pts)",
+        "value_communication: 25% -> 80% (+4.4 pts)",
+        "category_identification: 25% -> 80% (+2.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "legal_industry_authenticity",
+      "points_earned": 6.38,
+      "max_points": 15,
+      "percentage": 0.42500000000000004,
+      "sub_scores": [
+        {
+          "sub_id": "terminology_authenticity",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "insider_knowledge",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "professional_resonance",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: terminology_authenticity: 50%x50% + insider_knowledge: 25%x30% + professional_resonance: 50%x20%",
+      "improvement_hints": [
+        "insider_knowledge: 25% -> 80% (+2.5 pts)",
+        "terminology_authenticity: 50% -> 80% (+2.3 pts)",
+        "professional_resonance: 50% -> 80% (+0.9 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "ai_trust_positioning",
+      "points_earned": 4.05,
+      "max_points": 9,
+      "percentage": 0.45,
+      "sub_scores": [
+        {
+          "sub_id": "ai_confidence",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "augmentation_positioning",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "skepticism_mitigation",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: ai_confidence: 50%x40% + augmentation_positioning: 50%x40% + skepticism_mitigation: 25%x20%",
+      "improvement_hints": [
+        "skepticism_mitigation: 25% -> 80% (+1.0 pts)",
+        "ai_confidence: 50% -> 80% (+1.1 pts)",
+        "augmentation_positioning: 50% -> 80% (+1.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "category_definition_leadership",
+      "points_earned": 2.0,
+      "max_points": 4,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "category_leadership",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "proprietary_positioning",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "premium_differentiation",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: category_leadership: 50%x40% + proprietary_positioning: 50%x30% + premium_differentiation: 50%x30%",
+      "improvement_hints": [
+        "category_leadership: 50% -> 80% (+0.5 pts)",
+        "proprietary_positioning: 50% -> 80% (+0.4 pts)",
+        "premium_differentiation: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "practical_usability_efficiency",
+      "points_earned": 0.04,
+      "max_points": 4,
+      "percentage": 0.009433962264150943,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "Word count: 212 (target: 1\u20132) \u2717",
+      "methodology": "Deterministic: word count in range",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "economic_value_signaling",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "roi_implication",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "partner_justification",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "client_billing_support",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: roi_implication: 25%x40% + partner_justification: 25%x30% + client_billing_support: 25%x30%",
+      "improvement_hints": [
+        "roi_implication: 25% -> 80% (+0.9 pts)",
+        "partner_justification: 25% -> 80% (+0.7 pts)",
+        "client_billing_support: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "ai_methodology_transparency",
+      "points_earned": 2.92,
+      "max_points": 9,
+      "percentage": 0.32499999999999996,
+      "sub_scores": [
+        {
+          "sub_id": "explainability_signal",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "professional_responsibility",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "methodology_sophistication",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: explainability_signal: 25%x40% + professional_responsibility: 25%x30% + methodology_sophistication: 50%x30%",
+      "improvement_hints": [
+        "explainability_signal: 25% -> 80% (+2.0 pts)",
+        "professional_responsibility: 25% -> 80% (+1.5 pts)",
+        "methodology_sophistication: 50% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "integration_workflow_harmony",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "integration_ease",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "workflow_preservation",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "adoption_friction",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: integration_ease: 25%x40% + workflow_preservation: 25%x30% + adoption_friction: 25%x30%",
+      "improvement_hints": [
+        "integration_ease: 25% -> 80% (+0.9 pts)",
+        "workflow_preservation: 25% -> 80% (+0.7 pts)",
+        "adoption_friction: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "semantic_conceptual_coherence",
+      "points_earned": 6.75,
+      "max_points": 9,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "conceptual_relationship_clarity",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "keyword_stuffing_avoidance",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: conceptual_relationship_clarity: 75%x50% + keyword_stuffing_avoidance: 75%x50%",
+      "improvement_hints": [
+        "conceptual_relationship_clarity: 75% -> 80% (+0.2 pts)",
+        "keyword_stuffing_avoidance: 75% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "brand_personality_distinctiveness",
+      "points_earned": 4.5,
+      "max_points": 9,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "personality_archetype_clarity",
+          "raw_value": 0.5,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "emotional_differentiation_strength",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: personality_archetype_clarity: 50%x60% + emotional_differentiation_strength: 50%x40%",
+      "improvement_hints": [
+        "personality_archetype_clarity: 50% -> 80% (+1.6 pts)",
+        "emotional_differentiation_strength: 50% -> 80% (+1.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_market_intelligence",
+      "points_earned": 2.3,
+      "max_points": 4,
+      "percentage": 0.575,
+      "sub_scores": [
+        {
+          "sub_id": "market_positioning_sophistication",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "industry_evolution_awareness",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_intelligence_depth",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: market_positioning_sophistication: 50%x40% + industry_evolution_awareness: 50%x30% + competitive_intelligence_depth: 75%x30%",
+      "improvement_hints": [
+        "market_positioning_sophistication: 50% -> 80% (+0.5 pts)",
+        "industry_evolution_awareness: 50% -> 80% (+0.4 pts)",
+        "competitive_intelligence_depth: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "psychological_adoption_dynamics",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "professional_psychology_insight",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trust_formation_awareness",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "adoption_barrier_sensitivity",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: professional_psychology_insight: 25%x40% + trust_formation_awareness: 25%x30% + adoption_barrier_sensitivity: 25%x30%",
+      "improvement_hints": [
+        "professional_psychology_insight: 25% -> 80% (+0.9 pts)",
+        "trust_formation_awareness: 25% -> 80% (+0.7 pts)",
+        "adoption_barrier_sensitivity: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "business_model_sophistication",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "law_firm_economics_understanding",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "billing_structure_awareness",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "value_creation_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: law_firm_economics_understanding: 25%x40% + billing_structure_awareness: 25%x30% + value_creation_specificity: 25%x30%",
+      "improvement_hints": [
+        "law_firm_economics_understanding: 25% -> 80% (+0.9 pts)",
+        "billing_structure_awareness: 25% -> 80% (+0.7 pts)",
+        "value_creation_specificity: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "narrative_storytelling_power",
+      "points_earned": 4.2,
+      "max_points": 7,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "metaphorical_richness",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "emotional_narrative_potential",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "differentiation_story",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: metaphorical_richness: 75%x40% + emotional_narrative_potential: 50%x30% + differentiation_story: 50%x30%",
+      "improvement_hints": [
+        "emotional_narrative_potential: 50% -> 80% (+0.6 pts)",
+        "differentiation_story: 50% -> 80% (+0.6 pts)",
+        "metaphorical_richness: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "global_cultural_adaptability",
+      "points_earned": 0.6,
+      "max_points": 3,
+      "percentage": 0.2,
+      "sub_scores": [
+        {
+          "sub_id": "cross_cultural_neutrality",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "global_pronunciation",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: cross_cultural_neutrality: 0%x60% + global_pronunciation: 50%x40%",
+      "improvement_hints": [
+        "cross_cultural_neutrality: 0% -> 80% (+1.4 pts)",
+        "global_pronunciation: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

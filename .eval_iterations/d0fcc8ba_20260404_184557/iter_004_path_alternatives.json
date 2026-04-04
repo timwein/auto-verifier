@@ -1,0 +1,29 @@
+[
+  {
+    "current_approach_summary": "The generator is building a performance-focused CSV parser that tries to detect delimiters through statistical analysis and uses the standard csv module with various fallback mechanisms.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build a character-by-character finite state machine parser that tracks quote state, escape sequences, and delimiter context without relying on delimiter detection. The parser would process each character once while maintaining states for unquoted fields, quoted fields, escaped characters, and post-quote validation.",
+        "why_it_might_work": "State machines are specifically designed to handle complex delimiter scenarios with mixed delimiters and escaped quotes by tracking context at each character position.",
+        "example_signal": "A parser that correctly handles 'field1,\"text with, comma and \"\"escaped\"\" quotes\",field3' by maintaining quote state and escape tracking."
+      },
+      {
+        "rank": 2,
+        "strategy": "Implement a multi-pass parsing approach that first identifies all quote boundaries and escape sequences, then uses this quote map to intelligently split fields only at delimiters outside quoted regions. This separates quote handling from delimiter detection entirely.",
+        "why_it_might_work": "By pre-processing quote boundaries, the parser can handle any delimiter combination within quoted fields since it knows exactly which characters are protected by quotes.",
+        "example_signal": "A parser that builds a quote mask like [F,F,T,T,T,T,T,F,F] for the input and only splits at delimiters where the mask is False."
+      },
+      {
+        "rank": 3,
+        "strategy": "Create a recursive descent parser that treats CSV as a formal grammar with productions for quoted-field, unquoted-field, and escaped-quote, using lookahead to distinguish between delimiter characters and content characters based on quote context.",
+        "why_it_might_work": "Grammar-based parsing naturally handles nested structures and complex escape sequences that break simple regex or split-based approaches.",
+        "example_signal": "A parser with grammar rules like field := quoted_field | unquoted_field and quoted_field := '\"' content* '\"' where content handles escape sequences."
+      }
+    ],
+    "recommendation": "Alternative 1 (finite state machine) because it directly addresses the core issue of tracking quote and escape context that causes mixed delimiter scenarios to fail.",
+    "criterion_id": "mixed_delimiter_quoted_fields",
+    "current_score": 0.1875,
+    "score_history": "38% \u2192 19% \u2192 19%"
+  }
+]

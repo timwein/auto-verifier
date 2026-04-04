@@ -1,0 +1,582 @@
+{
+  "task": "Generate a Python function that parses messy CSV data with inconsistent delimiters and missing headers",
+  "domain": "csv_data_parsing",
+  "total_points": 76,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "rfc4180_dialect_detection",
+      "category": "RFC 4180 Compliance & Standards",
+      "description": "Evaluates CSV dialect detection algorithm including delimiter inference, quote escaping validation, and encoding detection capabilities.; also: Advanced CSV dialect detection using statistical analysis to identify file structure patterns, including delimiter frequency analysis and confidence scoring.; also: Ensures that dialect detection confidence scores align with data quality validation results through feedback mechanisms.",
+      "pass_condition": "Implementation must detect at least 3 different delimiters (comma, semicolon, tab), handle at least 2 encoding types (UTF-8, Latin-1), implement proper quote escaping validation per RFC 4180, and use sampling strategy that analyzes at least 1000 characters or 10% of file for dialect inference.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 16,
+        "sub_attributes": [
+          {
+            "sub_id": "delimiter_detection_algorithm",
+            "description": "Statistical robustness of delimiter detection using proper sampling methods",
+            "weight": 0.3,
+            "measurement": "1.0 if uses statistical sampling with confidence thresholds and handles \u22653 delimiter types, 0.7 if uses basic frequency analysis with multiple delimiters, 0.4 if hardcoded delimiter fallback only, 0.0 if naive string splitting",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quote_escaping_validation",
+            "description": "Proper handling of RFC 4180 quote escaping rules including double-quote sequences",
+            "weight": 0.25,
+            "measurement": "1.0 if validates escaped quotes within quoted fields and handles malformed sequences gracefully, 0.7 if basic quote handling without escape validation, 0.4 if inconsistent quote processing, 0.0 if no quote handling",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "encoding_bom_detection",
+            "description": "Automatic detection and handling of file encoding and BOM markers",
+            "weight": 0.25,
+            "measurement": "1.0 if detects UTF-8/Latin-1/UTF-16 with BOM handling, 0.7 if detects UTF-8 with basic BOM stripping, 0.4 if assumes UTF-8 without detection, 0.0 if no encoding consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sampling_strategy",
+            "description": "Intelligent sampling approach for large file dialect inference",
+            "weight": 0.2,
+            "measurement": "1.0 if uses adaptive sampling (min 1000 chars or 10% of file) with multiple sample points, 0.7 if fixed sampling with reasonable size, 0.4 if minimal sampling approach, 0.0 if processes entire file for detection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses csv.Sniffer with custom validation plus chardet for encoding detection and statistical confidence scoring for delimiter selection"
+      ],
+      "fail_examples": [
+        "Basic csv.Sniffer usage without encoding detection or confidence thresholds"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "RFC 4180 is the de facto specification that most CSV parsers and validators use as their reference, representing best practices that most modern CSV implementations support. Experts expect: Comma as field delimiter, with fields containing commas, line breaks, or double-quote characters enclosed in double quotes"
+    },
+    {
+      "id": "rfc4180_field_consistency",
+      "category": "RFC 4180 Compliance & Standards",
+      "description": "Validates field consistency enforcement and schema inference, measuring the implementation's ability to detect and handle variable field counts and provide appropriate error handling.",
+      "pass_condition": "Must implement field count validation with configurable tolerance, provide at least 3 error handling strategies (skip, pad, strict), and include schema inference capability with sampling-based validation.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "no_field_count_validation": -1.5,
+          "missing_configurable_error_handling": -1.0,
+          "inadequate_schema_inference_sampling": -1.0,
+          "no_malformed_record_detection": -0.8,
+          "missing_line_termination_handling": -0.7
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements pandas.read_csv with error_bad_lines parameter plus custom field count validation and configurable padding/truncation strategies"
+      ],
+      "fail_examples": [
+        "Basic CSV reading without field count consistency checks or error handling strategies"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Consistent field count across all records, with rows having more or fewer fields than the header being a compliance violation"
+    },
+    {
+      "id": "mixed_delimiter_quoted_fields",
+      "category": "Edge Case & Malformed Data Handling",
+      "description": "Handles complex delimiter scenarios including mixed delimiters within quoted fields, escaped quotes, and multi-character delimiter sequences that commonly break naive CSV parsing implementations.",
+      "pass_condition": "Must correctly parse quoted fields containing the detected delimiter character, handle at least 2 quote escaping methods (double-quote and backslash), and process multi-character delimiters without field corruption.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "quoted_delimiter_handling",
+            "description": "Correct parsing when delimiter appears within quoted fields",
+            "weight": 0.4,
+            "measurement": "1.0 if handles all delimiter types within quotes without field splitting, 0.7 if handles comma/semicolon in quotes, 0.4 if partial handling with some corruption, 0.0 if quoted delimiters break parsing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "escape_sequence_support",
+            "description": "Support for multiple quote escaping methods",
+            "weight": 0.35,
+            "measurement": "1.0 if supports both double-quote and backslash escaping with detection, 0.7 if supports RFC 4180 double-quote escaping only, 0.4 if basic escape handling with edge case failures, 0.0 if no escape sequence support",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "multi_character_delimiters",
+            "description": "Ability to detect and parse multi-character delimiter sequences",
+            "weight": 0.25,
+            "measurement": "1.0 if detects and handles multi-char delimiters (|| or ::) automatically, 0.7 if supports multi-char with manual specification, 0.4 if limited multi-char support, 0.0 if only single character delimiters",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Correctly parses 'Name,\"Address, City\",Phone' and handles '\"Company \"\"Best\"\" LLC\"' with proper quote escaping"
+      ],
+      "fail_examples": [
+        "Splits quoted fields at internal delimiters, corrupts data when quotes are escaped within fields"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Column separators appearing unescaped in text fields when files don't use double quotes to enclose text and number fields"
+    },
+    {
+      "id": "malformed_data_recovery",
+      "category": "Edge Case & Malformed Data Handling",
+      "description": "Robust recovery mechanisms for corrupted CSV data including incomplete quotes, truncated lines, binary data contamination, and mixed encoding within files that would crash basic parsers.",
+      "pass_condition": "Must implement at least 3 recovery strategies (skip, repair, quarantine), handle incomplete quoted fields gracefully, detect and isolate binary contamination, and maintain parsing for recoverable portions of malformed files.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 7,
+        "sub_attributes": [],
+        "penalties": {
+          "no_incomplete_quote_handling": -2.0,
+          "crashes_on_binary_contamination": -1.5,
+          "no_recovery_strategy_options": -1.5,
+          "missing_data_quarantine": -1.0,
+          "no_mixed_encoding_detection": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Detects incomplete quotes and auto-closes them, isolates binary chunks to quarantine, continues parsing recoverable records while logging corruption details"
+      ],
+      "fail_examples": [
+        "Crashes on unterminated quotes, fails when binary data appears in text fields, stops processing entire file on first malformed record"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Instead of rejecting entire files, use a quarantine system to isolate problematic records, capturing full context of errors (filename, timestamp, row number, and cause)"
+    },
+    {
+      "id": "streaming_performance_optimization",
+      "category": "Performance & Scalability",
+      "description": "Implementation of scalable processing architecture that balances memory-efficient streaming with parallel processing capabilities, using optimized parsing libraries and intelligent load distribution.",
+      "pass_condition": "Must support streaming/chunked processing architecture with parallel processing using multiprocessing or concurrent.futures, use optimized parsing libraries (pandas, pyarrow, or csv module), demonstrate thread-safe operations through proper synchronization, include memory management strategies with load distribution across processing units, and provide progress tracking capability.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "streaming_capability",
+            "description": "Ability to process large CSV files without loading entire file into memory",
+            "weight": 0.4,
+            "measurement": "1.0 if implements chunk-based processing with configurable chunk sizes and memory monitoring, 0.7 if uses pandas chunksize parameter or similar, 0.4 if basic file iteration without memory optimization, 0.0 if loads entire file into memory",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "library_optimization",
+            "description": "Use of performance-optimized CSV parsing libraries while maintaining standards compliance",
+            "weight": 0.35,
+            "measurement": "1.0 if uses pandas C parser or pyarrow with RFC compliance validation, 0.7 if uses standard csv module with optimizations, 0.4 if uses csv module without optimizations, 0.0 if uses naive string operations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memory_efficiency_monitoring",
+            "description": "Implementation of memory usage tracking and optimization for production use",
+            "weight": 0.25,
+            "measurement": "1.0 if includes memory profiling and adaptive chunk sizing based on available memory, 0.7 if implements basic memory monitoring, 0.4 if uses fixed memory optimization strategies, 0.0 if no memory considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses pandas.read_csv with chunksize parameter plus memory monitoring and progress bars for large files while maintaining RFC 4180 compliance validation"
+      ],
+      "fail_examples": [
+        "Basic file.read() with string splitting operations that would fail on large files or consume excessive memory"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Memory usage scaling and streaming capability for files >1GB. Great: Constant memory usage through streaming, handles multi-GB files"
+    },
+    {
+      "id": "header_schema_inference",
+      "category": "Header & Schema Inference",
+      "description": "Automatic header detection for missing headers, intelligent column naming, data type inference with statistical validation, and schema consistency verification.",
+      "pass_condition": "Must automatically detect header presence using statistical methods, generate meaningful column names for missing headers, infer data types using statistical sampling approach, and validate schema consistency across file sections.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "header_detection_accuracy",
+            "description": "Accuracy of automatic header presence detection using statistical methods",
+            "weight": 0.3,
+            "measurement": "1.0 if achieves >90% header detection accuracy using data type analysis, 0.7 if >80% accuracy with pattern recognition, 0.4 if basic heuristics with moderate accuracy, 0.0 if no automatic header detection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "intelligent_column_naming",
+            "description": "Generation of meaningful column names when headers are missing",
+            "weight": 0.25,
+            "measurement": "1.0 if generates descriptive names based on data content analysis, 0.7 if uses data type-based naming, 0.4 if simple sequential naming (col1, col2), 0.0 if no naming strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_type_inference",
+            "description": "Statistical approach to inferring column data types with validation",
+            "weight": 0.25,
+            "measurement": "1.0 if uses statistical sampling with confidence intervals for type inference, 0.7 if analyzes sample of records for type detection, 0.4 if basic pattern matching for types, 0.0 if treats all data as strings",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "schema_consistency_validation",
+            "description": "Validation of schema consistency across different sections of the file",
+            "weight": 0.2,
+            "measurement": "1.0 if validates schema consistency across file sections with variance reporting, 0.7 if checks basic consistency, 0.4 if limited consistency validation, 0.0 if no consistency checking",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analyzes first 5 rows for string patterns vs. numeric patterns to detect headers, generates column names like 'numeric_col_1' based on inferred types"
+      ],
+      "fail_examples": [
+        "Assumes first row is always header, names missing columns as 'column_0', 'column_1' without any content analysis"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Schema Inference and Validation: Accuracy of automatic data type detection and schema consistency validation. Great: >95% accuracy in type inference with schema drift detection"
+    },
+    {
+      "id": "production_error_handling",
+      "category": "Error Handling & Data Lineage",
+      "description": "Production-grade error handling with quarantine systems for problematic records, comprehensive logging for data lineage tracking, and detailed error context capture ensuring pipeline resilience and audit trail compliance.",
+      "pass_condition": "Must implement quarantine system for unparseable records, provide structured logging with record-level error tracking, maintain data lineage metadata, and ensure parsing continues despite individual record failures with detailed error reporting.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 7,
+        "sub_attributes": [],
+        "penalties": {
+          "no_record_quarantine_system": -2.0,
+          "missing_structured_logging": -1.5,
+          "no_data_lineage_tracking": -1.5,
+          "stops_on_individual_errors": -1.0,
+          "inadequate_error_context": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements quarantine CSV for failed records, logs parsing errors with line numbers and context, maintains metadata about source file and parsing parameters"
+      ],
+      "fail_examples": [
+        "Stops processing on first error, basic print statements for errors, no tracking of which records failed or why"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Production Error Recovery: Continues processing with detailed logging of skipped/corrected records. Instead of rejecting entire files, use a quarantine system to isolate problematic records"
+    },
+    {
+      "id": "data_lineage_audit_trail",
+      "category": "Error Handling & Data Lineage",
+      "description": "Comprehensive data lineage tracking including source file metadata, transformation steps, error records, and audit trail generation for compliance and debugging purposes in production environments.",
+      "pass_condition": "Must capture source file metadata (size, modification time, encoding), log all transformation decisions, track success/failure rates per file section, and generate audit reports suitable for compliance review.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "metadata_capture",
+            "description": "Comprehensive capture of source file and processing metadata",
+            "weight": 0.3,
+            "measurement": "1.0 if captures file metadata, processing timestamp, encoding detection results, and dialect parameters, 0.7 if captures basic file info and processing parameters, 0.4 if minimal metadata tracking, 0.0 if no metadata capture",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transformation_logging",
+            "description": "Detailed logging of all parsing decisions and transformations applied",
+            "weight": 0.35,
+            "measurement": "1.0 if logs all dialect detection decisions, error handling choices, and data transformations with reasoning, 0.7 if logs major processing decisions, 0.4 if basic transformation tracking, 0.0 if no transformation logging",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "audit_report_generation",
+            "description": "Generation of structured audit reports for compliance and review",
+            "weight": 0.35,
+            "measurement": "1.0 if generates structured reports with success rates, error summaries, and processing statistics, 0.7 if basic reporting capabilities, 0.4 if minimal summary information, 0.0 if no audit reporting",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Generates JSON audit log with file metadata, parsing statistics, error counts, and processing decisions for compliance review"
+      ],
+      "fail_examples": [
+        "No audit trail generation, missing metadata capture, inability to reconstruct processing decisions"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Data lineage tracking through the parsing process. Value-level based metrics that show what individual data points look like and how they changed when new code changes are pushed"
+    },
+    {
+      "id": "defensive_programming_patterns",
+      "category": "Code Architecture & Design Patterns",
+      "description": "Implementation of defensive programming patterns including input validation, proper exception handling hierarchies, resource management, and fail-safe defaults that prevent silent failures in production.",
+      "pass_condition": "Must implement comprehensive input validation, use proper exception handling with specific exception types, ensure resource cleanup with context managers, and provide safe defaults for all configuration parameters.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_input_validation": -1.5,
+          "poor_exception_hierarchy": -1.0,
+          "no_resource_management": -1.0,
+          "unsafe_defaults": -0.8,
+          "silent_failure_modes": -0.7
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Validates file existence and readability before processing, uses specific exception types, implements with statements for file handling"
+      ],
+      "fail_examples": [
+        "No input validation, generic Exception catching, file handles not properly closed, default parameters that can cause failures"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Using bounded candidate lists and deterministic validation instead of blind retry loops, with controlled permissive decoding only with monitoring. Validating before loading rather than after, where clear validation errors are faster to act on than cryptic parser exceptions"
+    },
+    {
+      "id": "data_quality_statistical_validation",
+      "category": "Data Integrity & Validation",
+      "description": "Statistical data quality checks including outlier detection, consistency validation, data profiling capabilities, and anomaly detection.",
+      "pass_condition": "Must implement statistical outlier detection using IQR or z-score methods, include data consistency validation mechanisms, provide data profiling summary capabilities, and detect anomalies with configurable thresholds.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "outlier_detection",
+            "description": "Statistical methods for detecting data outliers and anomalies",
+            "weight": 0.3,
+            "measurement": "1.0 if implements IQR/z-score outlier detection with configurable thresholds, 0.7 if basic statistical outlier detection, 0.4 if simple range validation, 0.0 if no outlier detection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "consistency_validation",
+            "description": "Cross-record consistency validation and pattern verification",
+            "weight": 0.3,
+            "measurement": "1.0 if validates patterns across records with >95% consistency threshold, 0.7 if basic consistency checking, 0.4 if limited pattern validation, 0.0 if no consistency validation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_profiling",
+            "description": "Generation of comprehensive data profiling statistics and summaries",
+            "weight": 0.25,
+            "measurement": "1.0 if generates comprehensive profiling with distributions, nulls, and quality metrics, 0.7 if basic profiling statistics, 0.4 if minimal summary information, 0.0 if no data profiling",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "anomaly_detection",
+            "description": "Detection of data anomalies and quality issues with configurable sensitivity",
+            "weight": 0.15,
+            "measurement": "1.0 if implements configurable anomaly detection with multiple algorithms, 0.7 if basic anomaly detection, 0.4 if simple anomaly flagging, 0.0 if no anomaly detection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements statistical profiling with outlier detection using z-scores, validates email format consistency across records, generates summary statistics"
+      ],
+      "fail_examples": [
+        "No data quality validation, accepts any parsed data without quality checks or profiling"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "Statistical Sampling for Validation: Best-of-breed vendors integrate data quality rules within products for auditing and monitoring, tracking discovered flaws as percentage of entire dataset to provide conformance levels. Checking that >99.99% of records meet reasonability criteria"
+    },
+    {
+      "id": "bom_encoding_handling",
+      "category": "Cross-platform Compatibility",
+      "description": "Proper handling of Byte Order Mark (BOM) characters and encoding detection to prevent parsing failures across different operating systems.",
+      "pass_condition": "Must detect and handle UTF-8 BOM, UTF-16, Latin-1, and Windows-1252 encodings with appropriate fallback strategies and cross-platform consistency.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "bom_detection",
+            "description": "Automatically detects and strips UTF-8 BOM (EF BB BF) without corrupting data",
+            "weight": 0.4,
+            "measurement": "binary_success_rate",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "encoding_accuracy",
+            "description": "Success rate in automatically detecting file encodings with fallback strategies",
+            "weight": 0.4,
+            "measurement": "percentage_0_to_100",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_platform_consistency",
+            "description": "Produces identical output on Windows and Unix-based systems",
+            "weight": 0.2,
+            "measurement": "binary_success_rate",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Function strips UTF-8 BOM and correctly parses CSV without garbage characters in first header",
+        "Automatically detects Windows-1252 encoding and converts to UTF-8 without replacement characters"
+      ],
+      "fail_examples": [
+        "BOM appears as garbage characters in first column header",
+        "UnicodeDecodeError when processing files from different operating systems",
+        "Replacement characters (\ufffd) appear in parsed data"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "BOM characters (EF BB BF) from Windows applications causing parsing failures in Unix-based systems, breaking JSON parsers and corrupting CSV imports. Encoding failures cause replacement characters (\ufffd), missing rows, or BOM appearing as garbage in first header"
+    },
+    {
+      "id": "performance_vs_pandas",
+      "category": "Performance Optimization",
+      "description": "Implementation optimized for parsing performance with efficient algorithms and memory management compared to standard library approaches.",
+      "pass_condition": "Must demonstrate at least 2x parsing speed improvement over pandas.read_csv baseline through benchmarking on files >100MB, implement memory usage under 50% of file size during processing, and use compiled parsing libraries or optimized algorithms with measurable performance gains.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "uncompressed_speed",
+            "description": "Speed multiplier vs pandas for uncompressed CSV files >100MB",
+            "weight": 0.4,
+            "measurement": "ratio_1_to_10",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compressed_speed",
+            "description": "Speed multiplier vs pandas for compressed CSV files",
+            "weight": 0.3,
+            "measurement": "ratio_1_to_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memory_efficiency",
+            "description": "Memory usage scaling for large files through streaming/chunking",
+            "weight": 0.3,
+            "measurement": "constant_vs_linear_scaling",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Uses PyArrow backend achieving 7x speed improvement on uncompressed files",
+        "Implements streaming processing to handle multi-GB files with constant memory usage",
+        "Parallel processing utilizes multiple CPU cores unlike default pandas backend"
+      ],
+      "fail_examples": [
+        "Same speed or slower than pandas.read_csv()",
+        "Loads entire file into memory causing failures on large datasets",
+        "Single-threaded processing ignoring available CPU cores"
+      ],
+      "domain": "csv_data_parsing",
+      "research_basis": "For large datasets, PyArrow achieves around 7X speed increase for uncompressed files and around 2-3X for compressed files compared to pandas. Professional standards include using PyArrow CSV parser backend for performance gains, utilizing parallelism unlike default backends that take advantage of multiple cores"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "rfc4180_compliance",
+      "name": "RFC 4180 Compliance & Standards",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "edge_case_handling",
+      "name": "Edge Case & Malformed Data Handling",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "performance_scalability",
+      "name": "Performance & Scalability",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "delimiter_detection",
+      "name": "Dialect & Delimiter Detection",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "header_schema_inference",
+      "name": "Header & Schema Inference",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling_logging",
+      "name": "Error Handling & Data Lineage",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "code_architecture",
+      "name": "Code Architecture & Design Patterns",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "data_integrity_validation",
+      "name": "Data Integrity & Validation",
+      "description": "",
+      "weight": 0.06,
+      "criteria_ids": []
+    }
+  ]
+}

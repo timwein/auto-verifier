@@ -1,0 +1,377 @@
+[
+  {
+    "current_approach_summary": "The generator is writing generic board deck speaker notes that briefly mention CAC payback without any sophisticated analysis, segment-specific calculations, or realistic benchmarking.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build the entire financial slide around a detailed CAC payback cohort analysis that breaks down payback periods by customer segment (SMB vs Enterprise), shows how billing terms (monthly vs annual) impact cash vs revenue payback, and benchmarks against the realistic 15-month median rather than the generic 12-month rule. Include specific calculations showing how a blended 14-month payback might hide a 6-month SMB cohort and 26-month enterprise cohort.",
+        "why_it_might_work": "This directly addresses all three components of the measurement spec by providing segment-specific analysis, billing terms impact, and realistic benchmarking against the 15-month median.",
+        "example_signal": "The speaker notes would include detailed calculations like 'Our SMB segment achieves 8-month payback with monthly billing vs 6-month with annual prepay, while Enterprise averages 18 months, giving us a blended 14-month payback that outperforms the 15-month SaaS median.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the competitive landscape slide around CAC payback sophistication as a key differentiator, showing how the company's advanced cohort-based payback tracking (incorporating churn and expansion within each cohort) provides more honest numbers than competitors who use simple per-customer averages. Demonstrate how different ACV segments require different payback benchmarks and how billing terms create cash flow advantages.",
+        "why_it_might_work": "This positions CAC payback sophistication as a competitive advantage while naturally incorporating segment analysis and billing terms impact into the narrative.",
+        "example_signal": "The slide would state 'While competitors report misleading 12-month paybacks using simple averages, our cohort-based analysis shows true payback of 13 months for our $50K ACV segment, still beating the 15-month industry median for this tier.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the measurement spec by making CAC payback sophistication the centerpiece of the financial analysis rather than a peripheral mention.",
+    "criterion_id": "cac_payback_sophistication",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is providing generic vertical SaaS statistics and high-level market positioning statements without demonstrating deep market strategy sophistication through specific vertical penetration analysis, customer decision-making journey mapping, or evidence-based competitive positioning.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around a specific vertical market penetration framework that demonstrates deep industry expertise by analyzing market segments within the vertical, mapping the complete customer decision-making journey with multiple stakeholders and their specific pain points, and positioning against both horizontal and vertical competitors with data-driven evidence. Present a sophisticated market timing rationale based on industry-specific trends, regulatory changes, or technology adoption cycles that create windows of opportunity.",
+        "why_it_might_work": "This approach directly addresses all four components of the measurement spec by showcasing vertical market penetration analysis, customer decision-making journey mapping, competitive positioning strategy, and market timing rationale with supporting evidence in an integrated framework.",
+        "example_signal": "The deck would include slides showing detailed analysis of sub-segments within the target vertical, multi-stakeholder decision journey maps with specific touchpoints and conversion metrics, competitive battle cards with win/loss data, and market timing analysis with industry-specific catalysts."
+      },
+      {
+        "rank": 2,
+        "strategy": "Transform the narrative into a case study-driven approach that demonstrates market strategy sophistication through detailed customer success stories that reveal the decision-making journey, competitive displacement scenarios with specific positioning strategies, and vertical market penetration metrics that show systematic expansion within industry segments. Use real customer data to illustrate how the company navigates complex B2B buying processes and wins against established competitors.",
+        "why_it_might_work": "This evidence-based approach uses actual customer examples to demonstrate sophisticated understanding of customer decision-making journeys and competitive positioning while providing concrete proof of vertical market penetration success.",
+        "example_signal": "Speaker notes would include specific customer case studies showing the 6-10 stakeholder buying process, detailed competitive displacement stories with positioning strategies that won deals, and metrics showing systematic penetration of vertical sub-markets."
+      }
+    ],
+    "recommendation": "Alternative 1 because it directly addresses all measurement spec components in an integrated framework that demonstrates the sophisticated market strategy depth the criterion is evaluating.",
+    "criterion_id": "market_strategy_depth",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating traditional board deck speaker notes with standard metrics presentation, basic narrative flow, and conventional executive summary format.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Transform the deck into a strategic decision memo format where each slide functions as a chapter in an executive brief, starting with the recommendation and working backwards through evidence, using the 'answer-first' pyramid structure that mirrors how sophisticated executives process information. Replace traditional slide-by-slide speaker notes with integrated strategic commentary that anticipates board member questions and preemptively addresses objections.",
+        "why_it_might_work": "This approach demonstrates strategic thinking maturity by showing the CEO can structure complex information the way board members actually make decisions, while the anticipatory objection handling showcases sophisticated investor psychology understanding.",
+        "example_signal": "Speaker notes would begin with 'The board should approve our $50M Series B request because...' followed by three key evidence pillars, then detailed risk mitigation for each anticipated concern."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the entire presentation as a 'leadership decision journey' narrative where the CEO walks the board through the exact decision-making process used to reach each strategic conclusion, revealing the frameworks, trade-offs, and stakeholder considerations that informed key choices. This showcases executive maturity by demonstrating systematic thinking rather than just presenting outcomes.",
+        "why_it_might_work": "This approach elevates communication sophistication by showing how the management team thinks through complex problems, while the transparent decision-making process builds board confidence in leadership judgment and strategic thinking capability.",
+        "example_signal": "Speaker notes would include phrases like 'When evaluating our three expansion options, we applied our capital allocation framework and weighted customer lifetime value against market penetration speed, ultimately choosing...'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Reframe the deck as a 'board partnership proposal' where each section explicitly defines what specific expertise, connections, or guidance the CEO needs from board members, transforming the presentation from a status update into a strategic collaboration framework that positions the board as active partners in execution.",
+        "why_it_might_work": "This demonstrates executive communication maturity by shifting from defensive reporting to strategic partnership, while showing sophisticated understanding of board psychology by making directors feel valued and engaged rather than just informed.",
+        "example_signal": "Speaker notes would include specific asks like 'Given Sarah's experience scaling enterprise sales at Oracle, we'd like her perspective on our Q3 hiring timeline' or 'We need John's network for three specific customer introductions.'"
+      }
+    ],
+    "recommendation": "Alternative 1 (strategic decision memo format) because it most directly addresses the 'strategic thinking maturity' component of the measurement spec while naturally incorporating sophisticated narrative structure and investor objection anticipation.",
+    "criterion_id": "executive_communication_quality",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is providing basic company metrics and general market statistics without sophisticated investment analysis, comparable company analysis, or valuation methodology justification.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the deck around a detailed comparable company analysis framework, presenting 3-5 vertical SaaS peers with specific revenue multiples, growth rates, and unit economics, then justify the company's valuation using these benchmarks. Include specific exit strategy scenarios with IRR calculations for different investor return expectations.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on comparable company analysis and valuation methodology justification by providing concrete benchmarks and mathematical frameworks that Series B investors expect.",
+        "example_signal": "Slide 3 would present a detailed comp table showing companies like ServiceTitan (12x ARR), Veeva (15x ARR), and others, with specific justification for why this company deserves a 10-12x multiple based on superior unit economics."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the entire presentation around Series B investor expectations and fund math, explicitly showing how the investment fits into typical Series B portfolio construction, target ownership percentages (10-20%), and required exit multiples for fund returns. Include detailed scenarios for IPO vs M&A exits with specific timing and valuation projections.",
+        "why_it_might_work": "This approach demonstrates sophisticated understanding of Series B investor expectations and exit strategy implications by showing concrete fund math and return scenarios rather than generic growth metrics.",
+        "example_signal": "The deck would include slides showing 'Path to 10x Return' with specific scenarios like '$200M Series C in 18 months at 8x ARR multiple' and 'IPO in 36 months at $2B valuation based on public vertical SaaS comps.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the narrative around a sophisticated valuation methodology that combines multiple approaches (DCF, market multiples, VC method), showing how vertical SaaS commands premium multiples (25-30% above horizontal SaaS) and demonstrating deep understanding of Series B risk-adjusted returns and portfolio theory.",
+        "why_it_might_work": "This showcases investment sophistication by using multiple valuation methodologies and demonstrating understanding of vertical SaaS premium valuations and Series B-specific risk profiles.",
+        "example_signal": "The presentation would include a slide showing 'Triangulated Valuation: DCF ($180M), Market Comps ($220M), VC Method ($200M)' with detailed justification for the vertical SaaS premium and Series B risk adjustments."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the specific measurement criteria with concrete comparable analysis and valuation methodology that Series B investors can immediately evaluate and validate.",
+    "criterion_id": "investment_sophistication",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating generic board deck content with high-level competitive mentions but lacks specific competitor analysis, quantified win/loss data, or detailed competitive intelligence.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around a competitive intelligence framework where each slide includes specific competitor data, win/loss metrics, and customer impact assessments. Transform slides into competitive battlecards that show exactly how the company performs against named competitors with quantified reasons for wins/losses.",
+        "why_it_might_work": "This directly addresses the measurement spec's requirement for specific competitor identification, quantified win/loss analysis, and competitive feature gap analysis by making competitive intelligence the organizing principle rather than an afterthought.",
+        "example_signal": "Slide 3 would show 'Q4 Win Rate: 67% vs. Competitor A (pricing), 45% vs. Competitor B (feature gaps in compliance module), with $2.3M in deals lost due to missing SAP integration.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Build the deck as a series of competitive case studies where each major section (financials, product, hiring) is presented through the lens of specific competitive scenarios and customer decision factors. Include detailed win/loss interview insights and buyer feedback that shaped strategic decisions.",
+        "why_it_might_work": "This approach embeds sophisticated competitive analysis throughout by using real customer voices and competitive scenarios to justify every strategic decision, meeting the spec's demand for customer impact assessment and strategic positioning.",
+        "example_signal": "The product roadmap section would include: 'Based on 23 win/loss interviews, customers chose Competitor C over us in 8 deals specifically due to missing workflow automation\u2014driving our Q2 2025 development priority.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Create a competitive intelligence dashboard format where each slide presents data-driven competitive positioning maps, market share analysis, and feature gap matrices with specific customer impact metrics and strategic responses to competitive threats.",
+        "why_it_might_work": "This format naturally incorporates the measurement spec's requirements for competitive feature gap analysis and strategic positioning by presenting everything as comparative data visualization with customer impact quantification.",
+        "example_signal": "A slide showing a competitive positioning matrix with specific win rates by competitor, feature comparison scores, and customer satisfaction deltas: 'We lead in enterprise features (8.2/10 vs. 6.1/10) but trail in implementation speed (6 weeks vs. 2 weeks).'"
+      }
+    ],
+    "recommendation": "Alternative 1 (competitive intelligence framework) because it most directly transforms the fundamental structure to address all measurement criteria while maintaining board deck requirements.",
+    "criterion_id": "competitive_intelligence_depth",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing traditional board deck content focused on high-level business metrics and market positioning without addressing organizational scaling strategy details.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Transform the deck into a talent-centric narrative where each slide builds the case for specific organizational investments, with detailed org charts showing current vs. target state, compensation bands by role level, and hiring timelines with success metrics. Make organizational scaling the primary story thread that connects financials, product, and competitive positioning.",
+        "why_it_might_work": "This directly addresses the measurement spec by making organizational scaling strategy the central framework rather than a side consideration.",
+        "example_signal": "Slide 3 would show a detailed org chart evolution from current 45 employees to target 120 employees with specific role additions, compensation budget modeling showing $8.2M total comp increase, and hiring success metrics like time-to-fill and retention rates."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the entire deck around leadership team development and talent acquisition challenges, presenting each business area (financials, product, competitive) as requiring specific organizational capabilities and then detailing the exact hiring plan, compensation strategy, and leadership development needed to execute. Include detailed succession planning and skill gap analysis.",
+        "why_it_might_work": "This approach treats organizational scaling as the strategic enabler for all other business objectives, providing the depth of planning the measurement spec requires.",
+        "example_signal": "The speaker notes would include specific details like 'We need to hire 3 senior engineers at $180K-220K base salary by Q2 to execute our AI roadmap, with our VP Engineering leading a mentorship program for 2 junior hires to build internal capability.'"
+      }
+    ],
+    "recommendation": "I recommend alternative 1 because it maintains the board deck format while fundamentally reorienting the content to showcase organizational scaling as the strategic foundation, which directly matches what the measurement spec is evaluating.",
+    "criterion_id": "organizational_scaling_execution",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is providing high-level SaaS metrics and industry context without demonstrating sophisticated unit economics modeling or detailed financial analysis.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build the entire presentation around detailed cohort-based financial modeling, with each slide containing specific LTV:CAC calculations by customer segment, acquisition channel, and product line, including decay curves and multi-scenario sensitivity analysis. Present actual financial models with formulas, assumptions, and variance analysis rather than just stating metrics.",
+        "why_it_might_work": "This directly addresses the measurement spec's requirement for sophisticated financial modeling maturity by demonstrating actual cohort decay modeling, cash conversion cycle analysis, and metric interdependencies through detailed calculations.",
+        "example_signal": "Slide 3 would show a detailed cohort retention table with monthly churn rates by segment, LTV calculations using different discount rates, and CAC payback period analysis with confidence intervals."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the speaker notes as a deep-dive financial analysis session where each business area (product roadmap, competitive landscape, hiring) is evaluated through the lens of unit economics impact, with specific contribution margin analysis by product line, variable cost breakdowns, and cash flow timing models that show how each strategic decision affects LTV:CAC ratios.",
+        "why_it_might_work": "This approach demonstrates understanding of metric interdependencies by showing how operational decisions directly impact unit economics, addressing the spec's requirement for sophisticated cash flow timing analysis and variable cost breakdown.",
+        "example_signal": "The hiring plan slide would include detailed cost-per-hire analysis, time-to-productivity models, and calculations showing how each new hire affects customer acquisition costs and lifetime value across different customer segments."
+      }
+    ],
+    "recommendation": "Alternative 1, because it most directly demonstrates the sophisticated financial modeling maturity that the measurement spec requires, moving from high-level metrics to detailed cohort-based calculations that show true understanding of SaaS unit economics.",
+    "criterion_id": "saas_unit_economics_sophistication",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is providing generic competitive positioning statements with basic industry statistics but lacks sophisticated strategic analysis of competitive response modeling, market share dynamics, and business model advantages.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the competitive analysis around war-gaming scenarios where the company models specific competitor responses to their strategic moves (pricing changes, product launches, market expansion) and demonstrates how their business model creates defensive moats. Include detailed analysis of how competitors' resource constraints, strategic priorities, and market positions would limit their ability to respond effectively to the company's initiatives.",
+        "why_it_might_work": "This directly addresses competitive response modeling by showing sophisticated understanding of competitor decision-making processes and demonstrates strategic depth beyond feature comparisons.",
+        "example_signal": "A slide showing 'If we launch embedded payments, Competitor A lacks fintech partnerships and would need 18 months to build similar capabilities, while Competitor B would cannibalize their existing revenue streams, creating a 2-year competitive window.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Focus the competitive section on demonstrating pricing power through market share elasticity analysis, showing how the company's vertical specialization allows them to command premium pricing while competitors in horizontal markets face commoditization pressures. Include specific data on how market share shifts correlate with pricing decisions and customer switching costs within their vertical versus adjacent markets.",
+        "why_it_might_work": "This addresses both pricing power demonstration and market share dynamics by quantifying the company's ability to maintain margins and grow share simultaneously through vertical positioning.",
+        "example_signal": "A chart showing 'Our 15% price increases over 2 years coincided with 8% market share growth, while horizontal competitors saw 12% share erosion despite maintaining flat pricing, proving our vertical moat strength.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Reframe the competitive analysis around network effects and switching cost dynamics specific to their vertical, demonstrating how their business model creates compounding advantages that become stronger as they gain market share. Show how competitors entering their space would face increasing disadvantages as the company's network grows, and model the economic barriers this creates for competitive responses.",
+        "why_it_might_work": "This showcases strategic positioning that goes beyond features to business model advantages by demonstrating how competitive dynamics become more favorable over time rather than static comparisons.",
+        "example_signal": "A framework showing 'Each new customer increases our data advantage by 3x while raising competitor acquisition costs by 25%, creating a flywheel where our 40% market share makes the remaining 60% exponentially harder for competitors to capture.'"
+      }
+    ],
+    "recommendation": "Alternative 1 (war-gaming scenarios) because it most directly addresses the measurement spec's emphasis on competitive response modeling while also demonstrating sophisticated strategic thinking that goes well beyond feature comparisons.",
+    "criterion_id": "competitive_strategy_depth",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a traditional board deck narrative that presents metrics and market positioning but lacks sophisticated strategic analysis, trade-off discussions, and scenario planning that demonstrates executive-level business judgment.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around 3-4 critical strategic decisions the company must make in the next 18 months, with each slide presenting the decision, analyzing trade-offs, modeling different scenarios, and explaining the chosen path with clear reasoning. Transform from a status update format to a strategic decision-making framework.",
+        "why_it_might_work": "This approach directly demonstrates trade-off analysis and scenario planning sophistication by making strategic thinking the core organizing principle rather than a side element.",
+        "example_signal": "A slide titled 'Decision 1: Geographic Expansion vs. Product Depth' that models three scenarios with different resource allocations, analyzes competitive implications, and explains why the chosen path maximizes long-term market position despite short-term growth trade-offs."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the narrative as a risk-adjusted strategic roadmap where each major initiative is presented with multiple contingency plans, explicit assumptions that could break, and pre-planned pivot strategies. Include detailed 'what-if' analysis for key variables like market adoption rates, competitive responses, and economic conditions.",
+        "why_it_might_work": "This demonstrates sophisticated scenario planning and business judgment by showing the management team has thought through multiple futures and prepared adaptive strategies rather than presenting a single linear plan.",
+        "example_signal": "A product roadmap slide that presents the base case timeline alongside two alternative scenarios ('if AI adoption accelerates' and 'if regulatory changes occur') with specific trigger points and resource reallocation plans for each scenario."
+      },
+      {
+        "rank": 3,
+        "strategy": "Organize the deck around a strategic thesis about industry transformation, positioning each section as evidence for why the company's specific strategic choices (market focus, product architecture, go-to-market approach) create sustainable competitive advantages in the evolving landscape. Include explicit discussion of strategic alternatives considered and rejected.",
+        "why_it_might_work": "This approach showcases executive-level strategic thinking by demonstrating deep industry analysis, strategic option evaluation, and sophisticated reasoning about competitive positioning and market dynamics.",
+        "example_signal": "A competitive landscape slide that doesn't just show current players but analyzes three potential industry evolution paths, explains why the company's platform strategy wins in each scenario, and discusses why alternative approaches (like point solutions or horizontal expansion) were strategically inferior."
+      }
+    ],
+    "recommendation": "Alternative 1 (decision-focused structure) because it most directly addresses the measurement spec by making strategic trade-off analysis and scenario planning the primary organizing framework rather than trying to retrofit strategic thinking into a traditional deck format.",
+    "criterion_id": "executive_strategic_maturity",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing conventional board deck speaker notes that present standard metrics and market statistics without demonstrating deep strategic thinking or connecting tactical data to broader strategic insights.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire narrative as a strategic thesis about market evolution, positioning each slide as evidence for why this specific moment represents a fundamental shift in how the vertical operates. Frame metrics not as achievements but as proof points of a larger strategic hypothesis about customer behavior transformation.",
+        "why_it_might_work": "This approach directly addresses strategic sophistication by making market timing insights and business model evolution understanding the core organizing principle rather than background context.",
+        "example_signal": "Opening with 'We believe we're witnessing the death of the legacy procurement model in construction, and our 118% NRR isn't just growth\u2014it's evidence that customers are fundamentally rewiring their operations around our platform.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Build the narrative around three strategic inflection points the company has navigated, using each slide to demonstrate how tactical decisions and metrics revealed deeper customer behavior patterns that informed major strategic pivots or market positioning changes.",
+        "why_it_might_work": "This showcases the ability to connect tactical metrics to strategic outcomes while demonstrating sophisticated customer behavior analysis through real examples of strategic decision-making.",
+        "example_signal": "Explaining how a drop in feature adoption rates led to discovering that customers weren't seeking efficiency but compliance automation, which drove a complete product repositioning that tripled deal sizes."
+      },
+      {
+        "rank": 3,
+        "strategy": "Frame the presentation as a competitive intelligence briefing that analyzes why three major competitors failed or succeeded based on their strategic choices, then positions the company's roadmap as learning from these market lessons to capture emerging opportunities.",
+        "why_it_might_work": "This demonstrates market timing insights and business model evolution understanding by showing sophisticated analysis of competitive dynamics and strategic pattern recognition.",
+        "example_signal": "Analyzing how Competitor X's horizontal approach failed because they misread customer willingness to integrate vs. replace, which informs our acquisition strategy for the next 18 months."
+      }
+    ],
+    "recommendation": "Alternative 1, because it most directly addresses the core issue by making strategic sophistication the organizing principle of the entire narrative rather than trying to retrofit strategic insights into a conventional format.",
+    "criterion_id": "strategic_narrative_depth",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a traditional board deck narrative with standard metrics and vertical SaaS positioning but lacks the sophisticated investor-specific framing and anticipation of hard questions that Series B investors expect.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck as pre-emptive answers to the hardest Series B investor questions, explicitly addressing concerns like 'Why can't an AI-native competitor build this in 18 months?' and 'What prevents competitors from doing the same?' Lead each slide with the brutal question, then provide data-driven responses that demonstrate deep market understanding and competitive moats.",
+        "why_it_might_work": "This directly anticipates sophisticated due diligence questions that Series B investors will ask anyway, showing the team understands the investment landscape and has thought through potential objections.",
+        "example_signal": "Slide 3 opens with 'The question every investor asks: Why can't a well-funded competitor replicate our success?' followed by proprietary data network effects and switching cost analysis."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the narrative around scalability proof points that Series B investors specifically look for - demonstrating unit economics improvement over time, cohort retention strengthening, and operational leverage increasing as the company grows. Use cohort waterfalls, efficiency metrics progression, and evidence that the business runs without founder involvement in daily decisions.",
+        "why_it_might_work": "Series B investors are specifically evaluating whether the business operates at scale and can generate returns, not just whether it works - this addresses their core concern about scalability proof.",
+        "example_signal": "Each financial slide shows progression metrics like 'CAC payback improved from 18 to 12 months across cohorts' and 'Gross margin expanded 15% as we achieved economies of scale.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Position the company as the inevitable market consolidator by showing how the vertical is fragmenting, why horizontal solutions are failing in this space, and how the company is uniquely positioned to roll up the market through both organic growth and strategic acquisitions. Include a detailed market consolidation thesis with acquisition targets and integration playbook.",
+        "why_it_might_work": "This demonstrates market expansion credibility and team capability to execute complex growth strategies that Series B investors need to see for their return expectations.",
+        "example_signal": "Present a market consolidation map showing 47 point solutions the company can replace, with 3 identified acquisition targets and proven integration capabilities from previous smaller acquisitions."
+      }
+    ],
+    "recommendation": "Alternative 1 (pre-emptive hard questions) because it most directly addresses the sophisticated due diligence expectations that Series B investors have, showing the team understands the investment process and has prepared for the toughest scrutiny.",
+    "criterion_id": "investor_sophistication_alignment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating high-level strategic content with general metrics and market positioning but lacks the detailed operational planning, specific hiring sequences, system scaling requirements, and concrete constraint mitigation strategies that the criterion demands.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around a detailed 18-month operational execution timeline, with each slide presenting specific quarterly milestones, exact hiring sequences (e.g., 'Q1: hire VP Engineering before 2 senior engineers, Q2: add DevOps lead to handle 3x traffic'), concrete system scaling thresholds, and pre-identified bottlenecks with mitigation plans. Transform from strategic overview to operational playbook format.",
+        "why_it_might_work": "This directly addresses the measurement spec by making operational planning sophistication the primary organizing principle rather than a secondary consideration.",
+        "example_signal": "Slide 6 would detail 'Month 13-15: Customer Success team scales from 8 to 12 before churn risk at 400 accounts, requiring Salesforce Enterprise upgrade and new onboarding automation to handle 15% monthly growth without quality degradation.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Adopt a constraint-first narrative where each slide identifies specific operational bottlenecks the company will hit at different ARR milestones ($40M, $60M, $100M), presents detailed analysis of why these constraints emerge, and provides specific mitigation strategies with timelines, resource requirements, and success metrics. Frame growth story through operational challenge management.",
+        "why_it_might_work": "This approach prioritizes realistic constraint identification and sophisticated mitigation planning, which are core elements of the measurement spec.",
+        "example_signal": "Slide 4 would state 'At $45M ARR, our current 3-person DevOps team hits critical capacity managing 50+ microservices, requiring 2 additional senior engineers by month 8 and infrastructure automation investment of $200K to prevent 99.9% uptime degradation.'"
+      }
+    ],
+    "recommendation": "I recommend Alternative 1 because it fundamentally restructures the content delivery method to prioritize operational execution details throughout every slide, ensuring the sophisticated planning elements are central rather than peripheral to the narrative.",
+    "criterion_id": "operational_execution_realism",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is providing generic market statistics and vague TAM references without specific quantitative analysis, bottoms-up calculations, or realistic penetration assumptions for the vertical SaaS company.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build a comprehensive bottoms-up TAM/SAM/SOM model using specific customer counts, pricing tiers, and competitive market share data for the vertical industry. Include detailed penetration rate assumptions based on industry benchmarks, geographic expansion timelines, and realistic capture rates (0.5-2% SOM in years 1-3).",
+        "why_it_might_work": "This approach directly addresses the measurement spec's requirement for quantitative rigor with realistic penetration assumptions and competitive market share dynamics through concrete, defensible calculations.",
+        "example_signal": "A slide showing '47,000 target companies in our vertical (Census Bureau 2024) \u00d7 $15K average ACV = $705M SAM, with 1.2% realistic capture rate = $8.5M SOM Year 3' with competitive benchmarking."
+      },
+      {
+        "rank": 2,
+        "strategy": "Create a multi-scenario market analysis framework that models different penetration strategies (geographic expansion, product-led growth, enterprise sales) with specific timelines, resource requirements, and competitive response assumptions. Include sensitivity analysis showing how market share capture varies under different competitive dynamics.",
+        "why_it_might_work": "This satisfies the measurement spec's emphasis on sophisticated market analysis with entry strategy, realistic timeline and resource requirements, and competitive market share capture strategies.",
+        "example_signal": "A framework showing 'Scenario A: West Coast expansion captures 2.1% market share by Q4 2026 requiring $3M sales investment vs. Scenario B: Product-led growth achieves 1.8% share with $1.5M product investment' with competitive response modeling."
+      },
+      {
+        "rank": 3,
+        "strategy": "Develop a data-driven competitive landscape analysis that maps current market share distribution among key players, identifies white space opportunities, and models realistic market share capture based on competitive positioning, switching costs, and customer acquisition patterns specific to the vertical.",
+        "why_it_might_work": "This approach directly addresses the competitive market share dynamics component of the measurement spec by providing sophisticated analysis of how market share can realistically be captured from competitors.",
+        "example_signal": "A competitive map showing 'Incumbent A holds 35% share with high switching costs, Incumbent B has 22% with weak SMB coverage (our opportunity), leaving 43% fragmented market we can capture at 15% annual rate.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it provides the most direct path to satisfying the quantitative rigor requirements with specific, verifiable calculations that investors can validate and defend.",
+    "criterion_id": "market_sizing_penetration_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a traditional board deck narrative focused on business metrics and market positioning without addressing technical infrastructure scaling requirements.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around a technical scaling narrative, with each slide explicitly connecting business milestones to infrastructure requirements. Frame financials in terms of infrastructure investment ROI, product roadmap as system architecture evolution, competitive landscape as technical differentiation, and hiring plan as engineering capacity building.",
+        "why_it_might_work": "This approach directly addresses system architecture, engineering resources, and technical scaling by making infrastructure the central thread that connects all business elements.",
+        "example_signal": "Slide 3 would detail how the $8M engineering budget maps to specific microservices architecture upgrades needed to handle 10x customer growth while maintaining sub-100ms API response times."
+      },
+      {
+        "rank": 2,
+        "strategy": "Create a dual-track presentation where each business slide is immediately followed by its corresponding technical implementation slide, covering security compliance frameworks, integration architecture diagrams, and engineering team scaling models needed to support each business objective.",
+        "why_it_might_work": "This approach ensures every business goal is paired with specific technical infrastructure plans, directly addressing data security compliance, integration complexity, and engineering resource requirements.",
+        "example_signal": "After presenting Q4 revenue targets, the next slide would show the SOC 2 Type II compliance timeline, API rate limiting architecture, and the 15 additional DevOps engineers needed to support that growth."
+      },
+      {
+        "rank": 3,
+        "strategy": "Reframe the deck as a technical risk mitigation story, where each slide identifies infrastructure scaling challenges and presents specific solutions, including cloud architecture decisions, security compliance roadmaps, third-party integration strategies, and engineering hiring timelines.",
+        "why_it_might_work": "This approach directly tackles the measurement spec by making technical infrastructure scaling the primary focus rather than a secondary consideration.",
+        "example_signal": "The competitive landscape slide would compare technical architectures and explain how our Kubernetes-based microservices approach enables faster customer onboarding than competitors' monolithic systems."
+      }
+    ],
+    "recommendation": "Alternative 1, because it maintains the board deck format while making technical infrastructure scaling the organizing principle that connects all business elements, ensuring comprehensive coverage of the measurement criteria.",
+    "criterion_id": "technical_infrastructure_scaling",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing generic board deck content that mentions high-level retention metrics but lacks specific customer success strategy details, expansion mechanisms, and customer health management approaches.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire deck around customer success operations as the core growth engine, with dedicated slides showing customer health scoring methodology, expansion playbooks by customer segment, and specific retention interventions with measurable outcomes. Present customer success as a revenue driver rather than a cost center.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating comprehensive customer success strategy including retention drivers, expansion mechanisms, and customer health management approaches that support growth projections.",
+        "example_signal": "A slide titled 'Customer Health Score Framework: 85% Churn Prediction Accuracy Drives $2.3M Expansion Pipeline' with specific scoring methodology, intervention playbooks, and revenue impact metrics."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the narrative around customer lifecycle value optimization, showing how predictive health scoring identifies expansion opportunities 60-90 days before renewal conversations, with specific examples of how different health score ranges trigger different revenue expansion strategies (upsell, cross-sell, seat expansion). Include board-level metrics on expansion revenue attribution to customer success interventions.",
+        "why_it_might_work": "This approach demonstrates sophisticated expansion mechanisms and customer health management that directly support growth projections through data-driven customer success operations.",
+        "example_signal": "Speaker notes explaining 'Our health score model identifies customers at 80+ score as expansion-ready, generating 40% of our net revenue retention through targeted upsell campaigns triggered by usage pattern analysis.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Position customer success as the primary competitive moat by showcasing how advanced customer health management creates switching costs and drives organic growth through advocacy, with specific retention driver analysis showing which product features and success interventions correlate with renewal rates and expansion revenue by customer segment.",
+        "why_it_might_work": "This demonstrates retention drivers and customer health management approaches while connecting them to sustainable growth projections and competitive positioning.",
+        "example_signal": "A competitive landscape slide showing 'Our 94% gross retention vs. industry 85% driven by predictive customer health interventions and segment-specific success playbooks that competitors cannot replicate.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most comprehensively addresses all aspects of the measurement spec by making customer success strategy the central theme rather than a side topic.",
+    "criterion_id": "customer_success_retention_operations",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  }
+]

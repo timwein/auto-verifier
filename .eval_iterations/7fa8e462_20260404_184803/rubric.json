@@ -1,0 +1,975 @@
+{
+  "task": "Explain transformer attention mechanisms to a smart 16-year-old",
+  "domain": "transformer_attention_pedagogy",
+  "total_points": 101,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "attention_type_distinctions",
+      "category": "Mathematical Accuracy & Precision",
+      "description": "Evaluates clear conceptual distinction between self-attention, cross-attention, and multi-head attention with age-appropriate explanations and examples",
+      "pass_condition": "Must explain self-attention concept clearly, distinguish cross-attention (queries from one sequence attending to another), explain multi-head attention's parallel processing, and provide at least 1 concrete example showing how these mechanisms work differently",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "self_attention_accuracy",
+            "description": "Accuracy of self-attention mathematical formulation and conceptual explanation",
+            "weight": 0.4,
+            "measurement": "1.0 if correctly explains Q=K=V from same sequence with accurate dot-product formulation; 0.7 if correct math but incomplete clarity; 0.4 if basic concept correct but mathematical imprecision; 0.0 if wrong or missing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_attention_distinction",
+            "description": "Clear distinction of cross-attention mechanism and its mathematical differences from self-attention",
+            "weight": 0.35,
+            "measurement": "1.0 if correctly explains Q from decoder, K,V from encoder with specific use cases; 0.7 if correct mechanism but unclear applications; 0.4 if basic understanding but confusion about Q,K,V sources; 0.0 if wrong or conflated",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "multihead_parallel_processing",
+            "description": "Accurate explanation of multi-head attention's parallel computation and concatenation process",
+            "weight": 0.25,
+            "measurement": "1.0 if correctly explains parallel heads with different learned projections and concatenation; 0.7 if correct parallel concept but incomplete detail; 0.4 if understands multiple heads but unclear on computation; 0.0 if sequential interpretation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explains that in self-attention, queries, keys, and values all come from the same sequence, while cross-attention has queries from one sequence and keys/values from another, and multi-head runs parallel attention computations with different learned weight matrices"
+      ],
+      "fail_examples": [
+        "Describes all attention types as 'focusing on important parts' without mathematical distinctions, or explains multi-head attention as sequential processing"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Correct distinction between different attention types (self-attention vs cross-attention vs multi-head attention) and their mathematical relationships"
+    },
+    {
+      "id": "computation_chain_accuracy",
+      "category": "Mathematical Accuracy & Precision",
+      "description": "Evaluates accurate explanation of the basic attention computation flow using age-appropriate mathematical concepts",
+      "pass_condition": "Must correctly explain the basic sequence: computing similarities between words, normalizing those similarities, and using them to weight the final output, with at least one simple numerical example",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "incorrect_qk_computation": -1.4,
+          "missing_scaling_factor": -0.9,
+          "wrong_softmax_application": -1.4,
+          "incorrect_final_weighting": -0.9,
+          "reversed_computation_order": -1.9
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Walks through: 1) compute attention scores as Q\u00b7K^T, 2) scale by 1/sqrt(64) for d_k=64, 3) apply softmax to get probabilities that sum to 1, 4) use these weights to combine V vectors"
+      ],
+      "fail_examples": [
+        "Explains the steps in wrong order (softmax before scaling), omits the scaling factor entirely, or provides example where attention weights don't sum to 1.0"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Clear mathematical progression from weighted averages \u2192 attention scores \u2192 attention weights \u2192 parallel processing"
+    },
+    {
+      "id": "conceptual_bridge_construction",
+      "category": "Conceptual Progression & Scaffolding",
+      "description": "Evaluates how effectively the explanation constructs explicit cognitive bridges from familiar mathematical concepts to transformer attention mechanisms",
+      "pass_condition": "Must establish at least 3 explicit mathematical connections (e.g., weighted average \u2192 attention computation, matrix multiplication \u2192 query-key interactions) with clear progression",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "mathematical_foundation_linking",
+            "description": "Explicitly connects attention computation to weighted averages, dot products, or matrix operations the student already knows",
+            "weight": 0.45,
+            "measurement": "1.0 if shows mathematical equivalence with specific operations; 0.7 if makes mathematical connection but lacks specificity; 0.4 if uses mathematical language without clear connection; 0.0 if purely metaphorical",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "incremental_complexity_building",
+            "description": "Demonstrates clear progression from single attention head to multi-head attention with explicit reasoning",
+            "weight": 0.35,
+            "measurement": "1.0 if shows why multi-head emerges from single-head limitations; 0.7 if explains multi-head but without clear motivation; 0.4 if mentions multi-head without scaffolding; 0.0 if skips progression",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transfer_enabling_structure",
+            "description": "Provides conceptual framework that enables application to novel transformer contexts",
+            "weight": 0.2,
+            "measurement": "1.0 if gives generalizable principles; 0.7 if partially transferable; 0.4 if context-specific; 0.0 if no transfer potential",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Shows attention is a weighted average where weights come from query-key similarity, then builds to multi-head by explaining one pattern can't capture both syntax and semantics"
+      ],
+      "fail_examples": [
+        "Uses only surface analogies without mathematical connections, or jumps to multi-head attention without explaining why single-head is insufficient"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Based on cognitive load theory and transfer research showing explicit bridging between familiar and novel concepts improves learning outcomes"
+    },
+    {
+      "id": "misconception_prevention",
+      "category": "Misconception Prevention & Correction",
+      "description": "Evaluates proactive addressing of critical misconceptions about transformer attention computation and processing",
+      "pass_condition": "Must explicitly clarify at least 3 key misconceptions: that attention is computed in parallel (not sequentially), that transformers recompute fresh each time rather than storing memories, and that attention patterns emerge from computation rather than being pre-programmed rules",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "parallel_computation_clarity",
+            "description": "Clear explanation that attention is computed in parallel across all positions simultaneously",
+            "weight": 0.4,
+            "measurement": "1.0 if explicitly states parallel computation with contrast to RNN sequential processing; 0.7 if mentions parallel nature but without clear contrast; 0.4 if implies parallelism; 0.0 if suggests sequential",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memory_misconception_avoidance",
+            "description": "Avoids suggesting transformers 'remember' previous states and clarifies fresh computation each pass",
+            "weight": 0.35,
+            "measurement": "1.0 if explicitly clarifies no memory persistence, fresh computation each pass; 0.7 if avoids memory language but doesn't clarify; 0.4 if mostly avoids misleading phrasing; 0.0 if uses memory metaphors incorrectly",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "attention_pattern_emergence",
+            "description": "Explains that attention patterns emerge from current computation rather than stored relationships",
+            "weight": 0.25,
+            "measurement": "1.0 if clearly explains attention patterns computed fresh from current Q,K,V matrices; 0.7 if implies dynamic computation; 0.4 if partially correct; 0.0 if suggests pre-stored patterns",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explicitly states 'Unlike RNNs that process words sequentially, transformers compute attention for all word pairs simultaneously' and clarifies no memory between forward passes"
+      ],
+      "fail_examples": [
+        "Uses phrases like 'the transformer remembers important words' or suggests attention weights are looked up rather than computed"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Explicitly addresses that transformers don't 'remember' but compute fresh patterns each forward pass... Common misconceptions can persist despite reading multiple tutorials if the mathematical intuition isn't properly established"
+    },
+    {
+      "id": "parallel_processing_understanding",
+      "category": "Parallel Processing Understanding",
+      "description": "Evaluates clear explanation of attention's parallel computation advantage over sequential models with emphasis on computational efficiency",
+      "pass_condition": "Must explain parallel computation across all positions simultaneously, contrast with sequential alternatives, and identify at least 2 specific advantages",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "simultaneous_computation_explanation",
+            "description": "Clear explanation of how attention computes all position relationships simultaneously",
+            "weight": 0.5,
+            "measurement": "1.0 if clearly explains all-pairs computation happening in parallel; 0.7 if explains parallel nature but lacks detail; 0.4 if mentions simultaneity but unclear; 0.0 if suggests sequential processing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sequential_contrast",
+            "description": "Effective contrast with sequential processing models like RNNs",
+            "weight": 0.3,
+            "measurement": "1.0 if explicitly contrasts with RNN step-by-step processing; 0.7 if mentions sequential alternatives; 0.4 if implies contrast; 0.0 if no comparison provided",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "advantage_identification",
+            "description": "Identifies specific computational and capability advantages of parallel processing",
+            "weight": 0.2,
+            "measurement": "1.0 if identifies both speed and long-range dependency advantages; 0.7 if identifies one clear advantage; 0.4 if vague benefits mentioned; 0.0 if no advantages explained",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explains that transformers compute attention between all word pairs simultaneously, unlike RNNs that process one word at a time, enabling both faster training and better capture of long-distance relationships"
+      ],
+      "fail_examples": [
+        "Suggests attention processes tokens sequentially or fails to explain why parallel processing matters for model performance"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Recognition that parallelizability is key to attention mechanism's success and scalability advantages... Explicitly contrasts with sequential RNN processing and explains GPU advantages"
+    },
+    {
+      "id": "visualization_analogies",
+      "category": "Visualization & Analogy Quality",
+      "description": "Evaluates effective use of visual metaphors, analogies, and examples that illuminate underlying mechanisms while maintaining mathematical integrity",
+      "pass_condition": "Must provide at least 2 effective analogies or visual metaphors that enhance understanding without misleading, with clear mapping between analogy and mathematical reality",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "analogy_mathematical_integrity",
+            "description": "Analogies maintain mathematical accuracy and don't mislead about actual computation",
+            "weight": 0.45,
+            "measurement": "1.0 if analogies map accurately to mathematical relationships; 0.7 if mostly accurate with minor imprecision; 0.4 if partially accurate but some misleading aspects; 0.0 if analogies contradict mathematical reality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "intuitive_understanding_enhancement",
+            "description": "Analogies genuinely enhance intuitive understanding rather than adding confusion",
+            "weight": 0.35,
+            "measurement": "1.0 if analogies clearly illuminate concepts and aid comprehension; 0.7 if mostly helpful with minor confusing elements; 0.4 if somewhat helpful but partially confusing; 0.0 if analogies obscure rather than clarify",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memorable_mental_model_creation",
+            "description": "Creates lasting mental models that students can apply to new situations",
+            "weight": 0.2,
+            "measurement": "1.0 if provides memorable framework for future application; 0.7 if somewhat memorable and applicable; 0.4 if limited memorability or application; 0.0 if forgettable or non-transferable",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses spotlight metaphor where attention weights determine brightness, with mathematical connection to probability distributions, or restaurant recommendation analogy mapping to query-key similarity"
+      ],
+      "fail_examples": [
+        "Uses analogies that suggest attention is binary on/off rather than weighted, or metaphors that imply sequential processing when computation is parallel"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Uses progressive analogies (cocktail party attention \u2192 library research) that don't oversimplify mathematical relationships... Uses concrete examples (adjectives updating nouns) with clear query/key/value mapping"
+    },
+    {
+      "id": "practical_application_connection",
+      "category": "Practical Application Connection",
+      "description": "Links attention mechanisms to real-world applications the student can observe and understand, demonstrating relevance and motivation",
+      "pass_condition": "Must connect to at least 3 specific real-world applications with detailed explanation of how attention mechanisms enable each capability, including at least one counterexample showing why simpler approaches would fail for that application",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "concrete_application_examples",
+            "description": "Provides specific, observable examples from systems like ChatGPT, Google Translate, or other familiar AI tools",
+            "weight": 0.5,
+            "measurement": "1.0 if gives 3+ specific, familiar applications; 0.7 if gives 2 clear applications; 0.4 if gives 1 clear application; 0.0 if vague or no applications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "mechanism_capability_linking",
+            "description": "Clearly explains how attention mechanism enables specific capabilities in each application",
+            "weight": 0.5,
+            "measurement": "1.0 if clearly links attention to specific capabilities in each example; 0.7 if links attention to capabilities in most examples; 0.4 if some connection but lacks clarity; 0.0 if no clear mechanism-capability connection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explains how attention enables ChatGPT to maintain context across long conversations, helps Google Translate align words between languages, and allows document summarization to focus on key sentences"
+      ],
+      "fail_examples": [
+        "Mentions applications without explaining how attention specifically contributes, or gives only vague references to 'AI systems' without concrete examples"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Based on motivation theory in education showing that clear relevance connections improve engagement and learning outcomes"
+    },
+    {
+      "id": "foundation_building",
+      "category": "Foundation for Advanced Learning",
+      "description": "Establishes accurate conceptual groundwork using standard terminology and concepts consistent with introductory machine learning",
+      "pass_condition": "Must use standard ML terminology correctly with explicit definitions, avoid all oversimplifications that would be contradicted at higher levels, make at least 3 explicit connections to broader concepts, and demonstrate how attention fits into the larger machine learning framework",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "conceptual_accuracy_for_extension",
+            "description": "Foundational concepts are accurate enough to build upon in advanced coursework",
+            "weight": 0.6,
+            "measurement": "1.0 if all foundational concepts are extensible to advanced study; 0.7 if mostly accurate with minor simplifications; 0.4 if some concepts would need correction later; 0.0 if major concepts would require unlearning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "broader_ml_connections",
+            "description": "Makes explicit connections to broader machine learning concepts and principles",
+            "weight": 0.4,
+            "measurement": "1.0 if connects to 2+ broader ML concepts clearly; 0.7 if connects to 1 broader concept well; 0.4 if makes vague connections; 0.0 if no broader connections",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explains attention as learned representation similarity, connecting to broader concepts of feature learning and differentiable programming that extend to other neural architectures"
+      ],
+      "fail_examples": [
+        "Oversimplifies attention as 'just focusing' without mathematical foundation, or provides explanations that would conflict with university-level treatment"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Students need flexible knowledge they can apply throughout their lives and advanced coursework... Whether students can see the 'big picture' of how concepts connect with advanced coursework"
+    },
+    {
+      "id": "explanation_mathematical_coherence",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates whether the mathematical accuracy maintains consistency with age-appropriate communication and practical applications throughout the explanation",
+      "pass_condition": "Mathematical formulations must align with chosen analogies and real-world examples without contradiction, maintaining consistent level of mathematical rigor across all sections",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "analogy_math_contradiction": -1.7,
+          "inconsistent_mathematical_rigor": -1.3,
+          "practical_example_math_mismatch": -1.3,
+          "age_level_math_disconnect": -0.9
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses consistent mathematical vocabulary throughout, with analogies that align with mathematical descriptions and practical examples that reflect the actual computational process"
+      ],
+      "fail_examples": [
+        "Describes attention mathematically as weighted averages but uses analogies suggesting binary selection, or explains parallel computation technically while using sequential analogies"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Based on educational coherence research showing that internal consistency across explanation modes improves comprehension and reduces cognitive load"
+    },
+    {
+      "id": "progressive_complexity_alignment",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates whether the conceptual scaffolding progression aligns with misconception prevention and foundation building throughout the explanation",
+      "pass_condition": "Each increase in complexity must address relevant misconceptions and build proper foundation without creating new misunderstandings",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "scaffolding_misconception_alignment",
+            "description": "Progressive steps address misconceptions at appropriate points rather than creating them",
+            "weight": 0.6,
+            "measurement": "1.0 if each complexity increase prevents/corrects misconceptions; 0.7 if mostly aligned with minor gaps; 0.4 if some misalignment between progression and misconception handling; 0.0 if progression creates misconceptions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "foundation_progression_consistency",
+            "description": "Each step builds proper foundation for next level without requiring later unlearning",
+            "weight": 0.4,
+            "measurement": "1.0 if smooth progression with solid foundation at each step; 0.7 if mostly solid with minor gaps; 0.4 if some foundation issues in progression; 0.0 if progression undermines foundation building",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Introduces single attention first with proper mathematical foundation, then builds to multi-head while addressing why single-head is insufficient, maintaining accurate concepts throughout"
+      ],
+      "fail_examples": [
+        "Introduces oversimplified attention concept early that conflicts with later mathematical accuracy, or builds complexity without addressing misconceptions created by earlier simplifications"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Whether explanation captures 'the essence of what attention really is' before adding complexity... Builds from single attention head to multi-head attention to transformer blocks systematically"
+    },
+    {
+      "id": "query_key_asymmetry_understanding",
+      "category": "Conceptual Misconception Prevention",
+      "description": "Evaluates whether the explanation clearly demonstrates that attention relationships are directional and asymmetric - that query-key similarity does not imply bidirectional attention",
+      "pass_condition": "Explicitly addresses attention directionality with concrete examples showing asymmetric relationships",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "directional_clarity",
+            "description": "Clearly states that attention flows from query to key-value pairs, not bidirectionally",
+            "weight": 0.4,
+            "measurement": "binary_present_absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "asymmetry_examples",
+            "description": "Provides concrete examples showing how word A attending to word B doesn't mean B attends equally to A",
+            "weight": 0.4,
+            "measurement": "quality_scale_1_to_4",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "mathematical_grounding",
+            "description": "Connects asymmetry to the mathematical computation where queries determine attention weights",
+            "weight": 0.2,
+            "measurement": "accuracy_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Shows that 'cat' as a query might attend strongly to 'fluffy' but 'fluffy' as a query might attend weakly to 'cat'",
+        "Explains that attention weights are computed from Q\u00d7K^T, making the relationship inherently directional"
+      ],
+      "fail_examples": [
+        "Describes attention as 'words looking at each other' without clarifying directionality",
+        "Uses symmetric analogies like 'mutual understanding' between words"
+      ],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": "Recognition that attention behavior is much harder to parse as it's based on tweaking huge numbers of parameters to minimize cost functions, and that common misconceptions can persist despite reading multiple tutorials if the mathematical intuition isn't properly established"
+    },
+    {
+      "id": "mathematical_intuition_depth",
+      "category": "conceptual_understanding",
+      "description": "Evaluates whether mathematical formulations are accompanied by intuitive explanations that help students understand why these specific operations achieve the desired attention behavior",
+      "pass_condition": "Must provide intuitive explanations for at least 3 key mathematical operations (Q\u00b7K^T similarity, softmax normalization purpose, scaling factor necessity) with concrete examples showing what happens when parameters change",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "operation_purpose",
+            "description": "Explains why each mathematical operation is necessary",
+            "weight": 0.4,
+            "measurement": "0-3 operations explained",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "parameter_effects",
+            "description": "Shows what happens when key parameters change",
+            "weight": 0.3,
+            "measurement": "0-2 parameter variations demonstrated",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "intuitive_examples",
+            "description": "Provides concrete numerical examples",
+            "weight": 0.3,
+            "measurement": "0-2 worked examples",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "active_learning_engagement",
+      "category": "pedagogical_effectiveness",
+      "description": "Evaluates whether the explanation includes opportunities for students to actively engage with the material through guided practice, worked examples, or thought exercises; also: Evaluates whether the explanation includes interactive elements, anticipates student questions, and provides opportunities for active learning",
+      "pass_condition": "Must include at least 2 guided practice opportunities: one simple numerical attention calculation and one conceptual reasoning exercise about attention behavior",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "guided_calculation",
+            "description": "Provides step-by-step numerical example students can follow",
+            "weight": 0.5,
+            "measurement": "0-1 complete worked examples",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "reasoning_exercises",
+            "description": "Includes questions that require conceptual reasoning",
+            "weight": 0.3,
+            "measurement": "0-2 reasoning prompts",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "self_check_opportunities",
+            "description": "Provides ways for students to verify understanding",
+            "weight": 0.2,
+            "measurement": "0-2 self-assessment tools",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "limitation_awareness",
+      "category": "critical_thinking",
+      "description": "Evaluates whether the explanation addresses limitations, failure modes, and boundary conditions of attention mechanisms to develop realistic understanding",
+      "pass_condition": "Must identify at least 2 significant limitations (e.g., quadratic complexity, attention collapse, spurious correlations) with concrete examples of when attention fails or performs poorly",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "computational_limits",
+            "description": "Discusses computational complexity and scalability issues",
+            "weight": 0.4,
+            "measurement": "0-1 complexity limitations explained",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "failure_modes",
+            "description": "Identifies specific scenarios where attention performs poorly",
+            "weight": 0.4,
+            "measurement": "0-2 failure modes described",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "mitigation_strategies",
+            "description": "Mentions approaches to address limitations",
+            "weight": 0.2,
+            "measurement": "0-1 mitigation approaches",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "learning_dynamics_understanding",
+      "category": "mechanistic_insight",
+      "description": "Evaluates whether the explanation helps students understand that attention patterns are learned rather than predetermined",
+      "pass_condition": "Must explain that attention patterns emerge through training examples rather than being programmed, and provide at least 1 simple example of how attention might focus differently for different types of tasks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "training_evolution",
+            "description": "Explains how attention patterns change during training",
+            "weight": 0.4,
+            "measurement": "0-1 training progression described",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "task_adaptation",
+            "description": "Shows how attention adapts to different tasks",
+            "weight": 0.4,
+            "measurement": "0-2 task-specific examples",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "gradient_role",
+            "description": "Clarifies how gradients shape attention learning",
+            "weight": 0.2,
+            "measurement": "0-1 gradient explanation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "age_appropriate_comprehension_depth",
+      "category": "pedagogical_effectiveness",
+      "description": "Evaluates whether explanations genuinely match cognitive development and mathematical background of target age group, avoiding superficial analogies that mask complexity; also: Evaluates whether language complexity, vocabulary choices, and conceptual presentation are genuinely accessible to a 16-year-old without sacrificing accuracy",
+      "pass_condition": "Must define all mathematical terms used, provide step-by-step derivations for key concepts, include comprehension check questions, and avoid notation beyond high school level without explicit teaching",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "terminology_scaffolding",
+            "description": "Defines technical terms before use with age-appropriate language",
+            "weight": 0.3,
+            "measurement": "binary_checklist",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "notation_accessibility",
+            "description": "Uses only familiar mathematical notation or teaches new notation explicitly",
+            "weight": 0.4,
+            "measurement": "expert_review",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "comprehension_verification",
+            "description": "Includes questions or exercises to verify understanding",
+            "weight": 0.3,
+            "measurement": "count_and_quality",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "explanation_completeness_integrity",
+      "category": "content_coverage",
+      "description": "Evaluates whether the explanation provides complete coverage of stated topics without abrupt endings, missing sections, or unfinished thoughts",
+      "pass_condition": "Must complete all introduced topics, provide closure for each major section, address all components mentioned in introduction, and maintain consistent depth throughout",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "topic_completion",
+            "description": "All introduced topics are fully explained",
+            "weight": 0.4,
+            "measurement": "binary_checklist",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "structural_integrity",
+            "description": "No abrupt endings or incomplete sections",
+            "weight": 0.3,
+            "measurement": "expert_review",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "depth_consistency",
+            "description": "Maintains consistent level of detail across all sections",
+            "weight": 0.3,
+            "measurement": "comparative_analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "prerequisite_knowledge_scaffolding",
+      "category": "foundation_building",
+      "description": "Evaluates whether explanation identifies, assesses, and builds necessary prerequisite knowledge before introducing complex concepts",
+      "pass_condition": "Must explicitly identify required background knowledge, provide brief review of key prerequisites, and build concepts incrementally from established foundations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "prerequisite_identification",
+            "description": "Clearly states what prior knowledge is needed",
+            "weight": 0.3,
+            "measurement": "explicit_listing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "knowledge_gap_bridging",
+            "description": "Provides review or introduction of missing concepts",
+            "weight": 0.4,
+            "measurement": "expert_assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "incremental_building",
+            "description": "Builds complexity gradually from established foundations",
+            "weight": 0.3,
+            "measurement": "structural_analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "intuitive_scaffolding_progression",
+      "category": "pedagogical_effectiveness",
+      "description": "Evaluates whether the explanation builds intuitive understanding before introducing mathematical formalism, using concrete examples and gradual abstraction",
+      "pass_condition": "Must start with intuitive concepts, provide concrete examples before abstractions, and demonstrate understanding checks at each level",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "intuition_first",
+            "description": "Introduces concepts intuitively before mathematical formulation",
+            "weight": 0.4,
+            "measurement": "binary_with_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "concrete_examples",
+            "description": "Uses specific, relatable examples before generalizing",
+            "weight": 0.3,
+            "measurement": "count_and_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "understanding_checks",
+            "description": "Includes verification points for student comprehension",
+            "weight": 0.3,
+            "measurement": "presence_and_effectiveness",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "analogy_completeness_coherence",
+      "category": "conceptual_clarity",
+      "description": "Evaluates whether analogies are fully developed, internally consistent, and explicitly connected back to the technical concepts",
+      "pass_condition": "Must complete all introduced analogies, maintain internal consistency, and provide explicit mappings between analogy elements and technical concepts",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "analogy_completion",
+            "description": "All introduced analogies are fully developed",
+            "weight": 0.4,
+            "measurement": "completion_ratio",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "internal_consistency",
+            "description": "Analogies maintain logical coherence throughout",
+            "weight": 0.3,
+            "measurement": "consistency_check",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "explicit_mapping",
+            "description": "Clear connections between analogy elements and technical concepts",
+            "weight": 0.3,
+            "measurement": "mapping_clarity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "computational_walkthrough_completeness",
+      "category": "practical_understanding",
+      "description": "Evaluates provision of complete, traceable numerical examples that demonstrate attention computation with actual values; also: Evaluates inclusion of detailed, step-by-step worked examples with actual numbers or realistic scenarios that demonstrate attention mechanisms in action",
+      "pass_condition": "Must include at least one complete numerical example with small matrices (2x2 or 3x3) showing actual numbers through each computation step, allowing student to verify calculations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "numerical_example_presence",
+            "description": "Includes concrete numerical walkthrough",
+            "weight": 0.4,
+            "measurement": "example_completeness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "step_verification",
+            "description": "Each computational step shows intermediate numerical results",
+            "weight": 0.3,
+            "measurement": "calculation_traceability",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "intuitive_interpretation",
+            "description": "Explains what numerical results mean conceptually",
+            "weight": 0.3,
+            "measurement": "meaning_connection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    },
+    {
+      "id": "attention_impact_demonstration",
+      "category": "mechanistic_understanding",
+      "description": "Evaluates clear demonstration of how different attention patterns produce different outputs, showing the causal relationship between attention weights and results",
+      "pass_condition": "Must show at least 2 contrasting examples where different attention patterns lead to observably different outputs, with clear explanation of why the differences matter",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "contrasting_patterns",
+            "description": "Shows different attention patterns with different outcomes",
+            "weight": 0.5,
+            "measurement": "example_diversity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "causal_explanation",
+            "description": "Explains why attention differences cause output differences",
+            "weight": 0.5,
+            "measurement": "causality_clarity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "transformer_attention_pedagogy",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "mathematical_accuracy",
+      "name": "Mathematical Accuracy & Precision",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "conceptual_progression",
+      "name": "Conceptual Progression & Scaffolding",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "misconception_prevention",
+      "name": "Misconception Prevention & Correction",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "parallel_processing_clarity",
+      "name": "Parallel Processing Understanding",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "age_appropriate_communication",
+      "name": "Age-Appropriate Communication",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "visualization_analogies",
+      "name": "Visualization & Analogy Quality",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "practical_connection",
+      "name": "Practical Application Connection",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "foundation_building",
+      "name": "Foundation for Advanced Learning",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    }
+  ]
+}

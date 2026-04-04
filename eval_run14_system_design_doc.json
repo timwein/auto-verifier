@@ -1,0 +1,341 @@
+{
+  "task_results": {
+    "system_design_doc": {
+      "task_key": "system_design_doc",
+      "task_prompt": "Write a system design document for a real-time collaborative document editor supporting 100K concurrent users, covering CRDT vs OT tradeoffs, conflict resolution, persistence layer, and operational concerns",
+      "rubric_domain": "system_design",
+      "rubric_criteria_count": 5,
+      "rubric_max_points": 56,
+      "baseline": {
+        "output": "# Real-Time Collaborative Document Editor System Design\n\n## 1. Executive Summary\n\nThis document outlines the system design for a real-time collaborative document editor capable of supporting 100,000 concurrent users. The system prioritizes consistency, availability, and low-latency collaboration while maintaining data integrity across distributed operations.\n\n## 2. Requirements\n\n### 2.1 Functional Requirements\n- Real-time collaborative text editing with sub-100ms latency\n- Support for 100K concurrent users across multiple documents\n- Conflict-free operation merging and resolution\n- Document persistence and version history\n- User presence indicators and cursor tracking\n- Rich text formatting support\n- Document sharing and permissions management\n\n### 2.2 Non-Functional Requirements\n- **Availability**: 99.9% uptime\n- **Latency**: <100ms for operation propagation\n- **Consistency**: Eventually consistent with conflict-free convergence\n- **Scalability**: Horizontal scaling to support user growth\n- **Durability**: Zero data loss with RPO < 1 minute\n\n## 3. High-Level Architecture\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Load Balancer \u2502    \u2502   CDN/Edge      \u2502    \u2502   Monitoring    \u2502\n\u2502   (HAProxy)     \u2502    \u2502   (CloudFlare)  \u2502    \u2502   (DataDog)     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n         \u2502                       \u2502                       \u2502\n         \u25bc                       \u25bc                       \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                    API Gateway Layer                            \u2502\n\u2502                   (Kong/AWS API Gateway)                        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n         \u2502\n         \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                 WebSocket Gateway Cluster                       \u2502\n\u2502              (Node.js + Socket.io + Redis)                     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n         \u2502\n         \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                 Collaboration Service                           \u2502\n\u2502              (Go/Rust + CRDT Engine)                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n         \u2502\n         \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Document      \u2502    \u2502   Operation     \u2502    \u2502   User/Auth     \u2502\n\u2502   Service       \u2502    \u2502   Log Service   \u2502    \u2502   Service       \u2502\n\u2502   (PostgreSQL)  \u2502    \u2502   (Apache Kafka)\u2502    \u2502   (Redis)       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n## 4. CRDT vs Operational Transform Analysis\n\n### 4.1 Operational Transform (OT)\n\n**Advantages:**\n- Mature technology with proven implementations\n- Smaller operation size (typically 10-50 bytes)\n- Intuitive conflict resolution for text operations\n- Lower memory overhead per document\n\n**Disadvantages:**\n- Requires central server for operation ordering\n- Complex transformation functions prone to bugs\n- Difficult to implement correctly for rich text\n- Poor offline support and P2P scenarios\n\n### 4.2 Conflict-Free Replicated Data Types (CRDT)\n\n**Advantages:**\n- Mathematically proven convergence properties\n- No central coordination required\n- Excellent offline support\n- Simpler to implement correctly\n- Natural support for P2P collaboration\n\n**Disadvantages:**\n- Larger memory footprint (2-10x vs OT)\n- More complex garbage collection\n- Larger operation sizes (50-200 bytes)\n- Potential for unbounded growth without GC\n\n### 4.3 Recommendation: Hybrid CRDT Approach\n\nGiven the scale requirements and complexity of maintaining OT correctness, we recommend a **CRDT-based solution** with the following optimizations:\n\n```go\ntype CRDTDocument struct {\n    ID          string\n    Sequence    *RGASequence  // Replicated Growable Array\n    Tombstones  *TombstoneGC  // Garbage collection for deletes\n    Metadata    map[string]interface{}\n    Version     uint64\n    LastGC      time.Time\n}\n\ntype Operation struct {\n    Type        OpType        // Insert, Delete, Format\n    Position    Position      // CRDT position identifier\n    Content     string        // Text content\n    Attributes  Attributes    // Formatting attributes\n    ActorID     string        // User identifier\n    Timestamp   time.Time     // Logical timestamp\n    Signature   string        // Operation signature for integrity\n}\n```\n\n## 5. Conflict Resolution Strategy\n\n### 5.1 Text Operations\n\n**Insert Conflicts:**\n```\nUser A: Insert \"Hello\" at position [1,2,3]\nUser B: Insert \"World\" at position [1,2,3]\n\nResolution: Use actor ID as tiebreaker\nResult: \"HelloWorld\" (if A < B lexicographically)\n```\n\n**Delete Conflicts:**\n```\nUser A: Delete character at position [1,2,3]\nUser B: Insert \"X\" at position [1,2,3]\n\nResolution: Insert wins over delete (preserve user intent)\nResult: Character remains with \"X\" inserted\n```\n\n### 5.2 Formatting Conflicts\n\n```go\ntype AttributeConflictResolver struct {\n    rules map[string]ConflictRule\n}\n\nfunc (r *AttributeConflictResolver) Resolve(attr1, attr2 Attribute) Attribute {\n    switch {\n    case attr1.Type == \"bold\" && attr2.Type == \"italic\":\n        return MergeAttributes(attr1, attr2) // Combine formatting\n    case attr1.Timestamp.After(attr2.Timestamp):\n        return attr1 // Last-write-wins for same attribute type\n    default:\n        return attr2\n    }\n}\n```\n\n### 5.3 Structural Conflicts\n\nFor complex operations like list reordering or table modifications:\n\n```go\ntype StructuralResolver struct {\n    priority map[OpType]int\n}\n\nfunc (s *StructuralResolver) ResolveConflict(ops []Operation) []Operation {\n    // Sort by priority, then timestamp, then actor ID\n    sort.Slice(ops, func(i, j int) bool {\n        if s.priority[ops[i].Type] != s.priority[ops[j].Type] {\n            return s.priority[ops[i].Type] > s.priority[ops[j].Type]\n        }\n        if !ops[i].Timestamp.Equal(ops[j].Timestamp) {\n            return ops[i].Timestamp.Before(ops[j].Timestamp)\n        }\n        return ops[i].ActorID < ops[j].ActorID\n    })\n    return ops\n}\n```\n\n## 6. Persistence Layer Design\n\n### 6.1 Multi-Tier Storage Architecture\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Hot Storage   \u2502    \u2502  Warm Storage   \u2502    \u2502  Cold Storage   \u2502\n\u2502   (Redis)       \u2502    \u2502  (PostgreSQL)   \u2502    \u2502  (S3/GCS)       \u2502\n\u2502   Active docs   \u2502    \u2502  Recent docs    \u2502    \u2502  Archive docs   \u2502\n\u2502   < 1 hour      \u2502    \u2502  < 30 days      \u2502    \u2502  > 30 days      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### 6.2 Database Schema\n\n```sql\n-- Document metadata and current state\nCREATE TABLE documents (\n    id UUID PRIMARY KEY,\n    title VARCHAR(255) NOT NULL,\n    owner_id UUID NOT NULL,\n    created_at TIMESTAMP NOT NULL,\n    updated_at TIMESTAMP NOT NULL,\n    current_state JSONB NOT NULL,  -- Serialized CRDT state\n    version_vector JSONB NOT NULL, -- Vector clock for causality\n    size_bytes INTEGER NOT NULL,\n    is_archived BOOLEAN DEFAULT FALSE,\n    INDEX idx_owner_updated (owner_id, updated_at),\n    INDEX idx_updated_archived (updated_at, is_archived)\n);\n\n-- Operation log for replay and conflict resolution\nCREATE TABLE operations (\n    id UUID PRIMARY KEY,\n    document_id UUID NOT NULL REFERENCES documents(id),\n    actor_id UUID NOT NULL,\n    operation_type VARCHAR(50) NOT NULL,\n    operation_data JSONB NOT NULL,\n    logical_timestamp BIGINT NOT NULL,\n    wall_clock_time TIMESTAMP NOT NULL,\n    sequence_number BIGINT NOT NULL,\n    INDEX idx_doc_sequence (document_id, sequence_number),\n    INDEX idx_doc_timestamp (document_id, logical_timestamp)\n);\n\n-- Snapshots for fast document loading\nCREATE TABLE document_snapshots (\n    id UUID PRIMARY KEY,\n    document_id UUID NOT NULL REFERENCES documents(id),\n    snapshot_data BYTEA NOT NULL,  -- Compressed CRDT state\n    operation_count BIGINT NOT NULL,\n    created_at TIMESTAMP NOT NULL,\n    INDEX idx_doc_created (document_id, created_at DESC)\n);\n```\n\n### 6.3 Caching Strategy\n\n```go\ntype CacheManager struct {\n    l1Cache *sync.Map           // In-memory document cache\n    l2Cache *redis.Client       // Redis distributed cache\n    l3Store *postgres.DB        // Persistent storage\n}\n\nfunc (c *CacheManager) GetDocument(docID string) (*Document, error) {\n    // L1: Check in-memory cache\n    if doc, ok := c.l1Cache.Load(docID); ok {\n        return doc.(*Document), nil\n    }\n    \n    // L2: Check Redis cache\n    if data, err := c.l2Cache.Get(docID).Bytes(); err == nil {\n        doc := &Document{}\n        if err := msgpack.Unmarshal(data, doc); err == nil {\n            c.l1Cache.Store(docID, doc)\n            return doc, nil\n        }\n    }\n    \n    // L3: Load from database\n    doc, err := c.loadFromDatabase(docID)\n    if err != nil {\n        return nil, err\n    }\n    \n    // Cache in L1 and L2\n    c.l1Cache.Store(docID, doc)\n    if data, err := msgpack.Marshal(doc); err == nil {\n        c.l2Cache.Set(docID, data, time.Hour)\n    }\n    \n    return doc, nil\n}\n```\n\n## 7. Real-Time Communication\n\n### 7.1 WebSocket Gateway\n\n```javascript\nclass CollaborationGateway {\n    constructor() {\n        this.io = require('socket.io')(server, {\n            transports: ['websocket'],\n            pingTimeout: 60000,\n            pingInterval: 25000\n        });\n        \n        this.documentRooms = new Map();\n        this.userSessions = new Map();\n    }\n    \n    handleConnection(socket) {\n        socket.on('join-document', async (data) => {\n            const { documentId, userId, authToken } = data;\n            \n            // Authenticate user\n            const user = await this.authenticateUser(authToken);\n            if (!user) {\n                socket.emit('error', { message: 'Authentication failed' });\n                return;\n            }\n            \n            // Join document room\n            socket.join(`doc:${documentId}`);\n            this.trackUserPresence(documentId, userId, socket.id);\n            \n            // Send current document state\n            const document = await this.getDocument(documentId);\n            socket.emit('document-state', document);\n            \n            // Notify other users\n            socket.to(`doc:${documentId}`).emit('user-joined', {\n                userId: user.id,\n                name: user.name,\n                cursor: null\n            });\n        });\n        \n        socket.on('operation', async (data) => {\n            const { documentId, operation } = data;\n            \n            // Validate and apply operation\n            const result = await this.applyOperation(documentId, operation);\n            \n            if (result.success) {\n                // Broadcast to other users in the document\n                socket.to(`doc:${documentId}`).emit('operation', {\n                    operation: result.transformedOperation,\n                    userId: operation.actorId\n                });\n            } else {\n                socket.emit('operation-error', {\n                    error: result.error,\n                    operation: operation\n                });\n            }\n        });\n    }\n}\n```\n\n### 7.2 Operation Broadcasting\n\n```go\ntype OperationBroadcaster struct {\n    kafka    *kafka.Producer\n    redis    *redis.Client\n    channels map[string]chan Operation\n    mu       sync.RWMutex\n}\n\nfunc (b *OperationBroadcaster) BroadcastOperation(docID string, op Operation) error {\n    // Immediate broadcast to connected users\n    b.mu.RLock()\n    if ch, exists := b.channels[docID]; exists {\n        select {\n        case ch <- op:\n        default:\n            // Channel full, log warning\n            log.Warn(\"Operation channel full for document\", docID)\n        }\n    }\n    b.mu.RUnlock()\n    \n    // Persist to Kafka for durability and cross-region replication\n    message := &kafka.Message{\n        Topic: \"document-operations\",\n        Key:   []byte(docID),\n        Value: mustMarshal(op),\n        Headers: []kafka.Header{\n            {Key: \"document_id\", Value: []byte(docID)},\n            {Key: \"actor_id\", Value: []byte(op.ActorID)},\n        },\n    }\n    \n    return b.kafka.Produce(message, nil)\n}\n```\n\n## 8. Scalability Considerations\n\n### 8.1 Horizontal Scaling\n\n**WebSocket Gateway Scaling:**\n```yaml\n# Kubernetes deployment\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: websocket-gateway\nspec:\n  replicas: 20  # Scale based on connection count\n  selector:\n    matchLabels:\n      app: websocket-gateway\n  template:\n    spec:\n      containers:\n      - name: gateway\n        image: collab-editor/gateway:latest\n        resources:\n          requests:\n            memory: \"512Mi\"\n            cpu: \"500m\"\n          limits:\n            memory: \"1Gi\"\n            cpu: \"1000m\"\n        env:\n        - name: REDIS_URL\n          value: \"redis://redis-cluster:6379\"\n        - name: MAX_CONNECTIONS_PER_POD\n          value: \"5000\"\n```\n\n**Document Sharding Strategy:**\n```go\ntype DocumentShard struct {\n    ShardID    int\n    NodeID     string\n    Documents  map[string]*Document\n    LoadFactor float64\n}\n\nfunc (s *ShardManager) GetShardForDocument(docID string) int {\n    // Consistent hashing for even distribution\n    hash := crc32.ChecksumIEEE([]byte(docID))\n    return int(hash % uint32(s.shardCount))\n}\n\nfunc (s *ShardManager) RebalanceShards() {\n    // Monitor load and migrate documents between shards\n    for _, shard := range s.shards {\n        if shard.LoadFactor > 0.8 {\n            s.migrateDocuments(shard)\n        }\n    }\n}\n```\n\n### 8.2 Performance Optimizations\n\n**Operation Batching:**\n```go\ntype OperationBatcher struct {\n    operations []Operation\n    timer      *time.Timer\n    mu         sync.Mutex\n}\n\nfunc (b *OperationBatcher) AddOperation(op Operation) {\n    b.mu.Lock()\n    defer b.mu.Unlock()\n    \n    b.operations = append(b.operations, op)\n    \n    // Batch operations for 10ms or until 100 operations\n    if len(b.operations) >= 100 {\n        b.flush()\n    } else if b.timer == nil {\n        b.timer = time.AfterFunc(10*time.Millisecond, b.flush)\n    }\n}\n\nfunc (b *OperationBatcher)",
+        "score": 33.41,
+        "max_score": 87,
+        "percentage": 0.38402298850574706,
+        "criterion_results": [
+          {
+            "criterion_id": "crdt_mathematical_correctness",
+            "category": "Algorithm Correctness & Mathematical Rigor",
+            "points_earned": 0.52,
+            "max_points": 6,
+            "percentage": 0.0875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_transform_vs_crdt_justification",
+            "category": "Algorithm Correctness & Mathematical Rigor",
+            "points_earned": 2.0,
+            "max_points": 5,
+            "percentage": 0.4,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operation_propagation_latency_design",
+            "category": "Scalability Architecture & Performance",
+            "points_earned": 1.35,
+            "max_points": 6,
+            "percentage": 0.225,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "horizontal_scaling_architecture",
+            "category": "Scalability Architecture & Performance",
+            "points_earned": 2.62,
+            "max_points": 6,
+            "percentage": 0.4375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "consistency_model_implementation",
+            "category": "Consistency Models & CAP Theorem Implications",
+            "points_earned": 3.0,
+            "max_points": 6,
+            "percentage": 0.5,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "partition_tolerance_design",
+            "category": "Consistency Models & CAP Theorem Implications",
+            "points_earned": 0.38,
+            "max_points": 5,
+            "percentage": 0.075,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "database_design_high_write_throughput",
+            "category": "Persistence Layer & Data Management",
+            "points_earned": 2.25,
+            "max_points": 6,
+            "percentage": 0.375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operation_log_storage_compaction",
+            "category": "Persistence Layer & Data Management",
+            "points_earned": 1.31,
+            "max_points": 5,
+            "percentage": 0.2625,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_resilience_failure_handling",
+            "category": "Operational Resilience & Production Engineering",
+            "points_earned": 4.0,
+            "max_points": 6,
+            "percentage": 0.6666666666666666,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "monitoring_alerting_capacity_planning",
+            "category": "Operational Resilience & Production Engineering",
+            "points_earned": 0.38,
+            "max_points": 5,
+            "percentage": 0.075,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "conflict_resolution_edge_cases",
+            "category": "Conflict Resolution & Edge Case Handling",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "websocket_connection_management",
+            "category": "Real-time Networking & Protocol Design",
+            "points_earned": 1.19,
+            "max_points": 5,
+            "percentage": 0.2375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "protocol_efficiency_optimization",
+            "category": "Real-time Networking & Protocol Design",
+            "points_earned": 0.4,
+            "max_points": 4,
+            "percentage": 0.1,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "memory_optimization_strategies",
+            "category": "Memory & Resource Management",
+            "points_earned": 0.31,
+            "max_points": 5,
+            "percentage": 0.0625,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "algorithm_architecture_coherence",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_consistency_alignment",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_architecture_integration",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 1.2,
+            "max_points": 3,
+            "percentage": 0.39999999999999997,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 231.95453560299995,
+        "input_tokens": 47,
+        "output_tokens": 4096,
+        "iterations": 0,
+        "improvement_summary": []
+      },
+      "harness": {
+        "output": "# System Design Document: Real-Time Collaborative Document Editor\n\n## Executive Summary\n\nThis document outlines the architectural design for a real-time collaborative document editor capable of supporting 100,000 concurrent users. The system targets low latency for collaboration (<100ms typical) while maintaining conflict-free merging and eventual consistency. The design prioritizes operation propagation latency over protocol efficiency optimizations to ensure optimal user experience at scale.\n\n## 1. Architecture Overview\n\n### 1.1 High-Level System Components\n\nThe system employs a distributed microservices architecture with the following core components:\n\n- **Client Applications**: Browser-based editors with real-time synchronization\n- **WebSocket Gateway Layer**: Handles persistent connections and message routing\n- **Operational Transformation Engine**: Manages conflict resolution and document state\n- **Document Service**: Handles document CRUD operations and persistence\n- **Presence Service**: Tracks user cursors and online status\n- **Persistence Layer**: Multi-tier storage for documents, operations, and metadata\n\n### 1.2 Communication Protocols\n\n\nThe clients maintain persistent connections to the server via WebSockets\n to achieve low latency with changes propagating to others in milliseconds. The system supports graceful fallback to HTTP long polling when WebSocket connections are unavailable.\n\n**Network Topology Optimization**: Regional hubs serve max 5K users each, with 3-tier architecture: edge nodes (1K users) \u2192 regional hubs (5K users) \u2192 central coordination. This hierarchical topology ensures optimal latency distribution across geographic regions.\n\n**Message Ordering Guarantees**: Implement FIFO ordering with sequence numbers per document, duplicate detection using operation IDs, and gap detection for missing messages.\n\n**Reconnection Logic**: Exponential backoff starting at 1s, doubling to max 60s, with 10 retry limit before falling back to long polling.\n\n## 2. CRDT vs Operational Transformation Trade-offs\n\n### 2.1 Analysis Framework\n\nCRDT is like OT in following a general transformation approach, but achieves the same transformation indirectly, in contrast to OT direct transformation approach. Both approaches ensure eventual consistency but differ significantly in implementation complexity and operational characteristics.\n\n### 2.2 Formal Properties Understanding\n\n**Operational Transformation Properties**: \nOT requires TP1 (transformation preserves operation effects) and TP2 (transformation is symmetric)\n. \nProperty TP1 defines a state identity and ensures that if o1 and o2 are concurrent, the effect of executing o1 before o2 is the same as executing o2 before o1\n. \nProperty TP2 ensures that transforming o3 along equivalent and different operation sequences will give the same operation\n.\n\n**CRDT Properties**: \nCRDTs guarantee Strong Eventual Consistency where all replicas that receive the same set of operations converge to identical state without coordination\n. \nStrong Eventual Consistency requires that correct replicas that have delivered the same updates have equivalent state\n.\n\n### 2.3 Operational Transformation (OT) Selection\n\n**Rationale for OT:**\n- Google Docs handles 2+ billion documents with real-time collaboration. They chose OT because the server must see every operation anyway for access control, rendering, and storage. Having a central server transform operations adds minimal latency overhead (< 5ms) but dramatically simplifies the data model\n\n- OT is efficient with operations usually small, and the server controls ordering\n\n- Documents stay compact\u2014no heavy metadata per character\n\n**OT Advantages:**\n- **Latency Optimization**: Central authority enables sub-100ms operation propagation\n- **Storage Efficiency**: No tombstone data or exponential metadata growth\n- **Mature Implementation**: OT was invented for supporting real-time co-editors in the late 1980s and has evolved to become a collection of core techniques widely used in today's working co-editors\n\n**Quantitative Tradeoff Analysis**: OT operations average 50 bytes vs CRDT operations at 200 bytes due to metadata overhead. For 100K concurrent users, OT's central coordination allows single server to handle 10K operations/second vs CRDT requiring peer-to-peer coordination overhead.\n\n### 2.4 CRDT Mathematical Analysis\n\n**Convergence Proof**: \nCRDTs follow Shapiro et al.'s convergence theorem where an abstract convergence property of order relations provides the formal basis for why Strong Eventual Consistency algorithms converge\n. \nThe CvRDT convergence theorem assumes eventual delivery and termination for any state-based object that satisfies monotonicity properties\n.\n\n**Algorithm Complexity Analysis**: \nRGA CRDT insert operations are O(log n) where n is the number of visible elements when using tree structures\n, though \nbasic RGA implementations have O(n) complexity for insert operations where n is document length, with merge operations being O(m) where m is number of concurrent operations\n.\n\n**Commutativity Analysis**: For key CRDT operations: insert(pos, char) and delete(pos) commute when applied to different positions; concurrent inserts at same position are resolved through deterministic ordering (timestamp + replica ID); format(range, style) operations commute with inserts/deletes outside the range through position adjustment.\n\n### 2.5 CRDT Limitations at Scale\n\nWhen it comes to more advanced structures such as rich text editing, the crux of the problem with CRDTs is user intent. Additional concerns include:\n\n- **Memory Overhead**: CRDTs do not remove characters... They grow forever... This is one of CRDT's real costs\n\n- **Rich Text Complexity**: With a CRDT implementation, when the collaborating user's cursor is in the \"after\" section, the application of bold recreates the text node and the user has a poor experience\n\n## 3. Conflict Resolution Strategy\n\n### 3.3 Multi-Layered Conflict Resolution\n\nThe system implements a sophisticated conflict resolution strategy combining:\n\n1. **Operation Transformation**: Operational Transformation is a widely used technique in real-time collaborative systems. It allows operations (insertions, deletions, etc.) to be transformed based on the context of other concurrent operations\n\n2. **Intent Preservation**: The CCR approach is able to create new results from conflicts, generate alternative solutions based on collective effects of conflict operations, and support users to choose suitable conflict solutions\n\n3. **Hierarchical Resolution**: \n   - Character-level: Insert/delete operations\n   - Word-level: Formatting conflicts  \n   - Paragraph-level: Structural changes\n   - Document-level: Metadata conflicts\n\n### 3.4 Conflict Detection Mechanisms\n\n- **Causality Tracking**: Version vectors maintain operation ordering\n- **Position-Based Detection**: Monitor concurrent edits at same document positions\n- **Semantic Conflict Analysis**: Detect formatting and structural conflicts beyond text operations\n\n## 4. Persistence Layer Design\n\n### 4.1 Multi-Database Strategy\n\n**Primary Document Storage (PostgreSQL):**\n\nBased on the above requirements, we should use a relational database to store the document metadata because: It has strong consistency and ACID-compliant transactions\n\n- Document metadata and access control\n- User accounts and permissions\n- Version pointers and references\n\n**Operation Log Storage (Event Store/Cassandra):**\n\nThe algorithms require dedicated stateful management of the resource that is edited making the server side, not only a communication layer but also a coupling part of the overall architecture. For the proposed architecture, to achieve scalability, the microservices should ideally be only an agnostic communication layer and a way to interact with the database persistence layer\n\n- Immutable operation history\n- High write throughput capability\n- Temporal querying support\n\n**Storage Engine Selection**: Cassandra's LSM-tree storage engine provides O(1) write performance vs B-tree's O(log n) for high-throughput operation logging. LSM-trees optimize for write-heavy workloads by buffering writes in memory and periodically flushing to disk.\n\n**Write Throughput Targets**: Target 50K operations/second peak load across all shards, with each Cassandra node handling 10K ops/second sustained throughput. Write optimization includes 50ms write batching with async persistence, group commit for WAL writes, and asynchronous replication with 100ms lag tolerance.\n\n**Indexing Optimization**: CREATE INDEX ON operations (document_id, timestamp) for operation replay, INDEX ON operations (user_id, timestamp) for user activity queries. Partition operations by document_id for optimal query patterns.\n\n**Active Session Cache (Redis):**\nKeeping a document's state in memory on one server for the duration of the session improves performance (no need to constantly fetch from DB)\n\n- Real-time presence information\n- Session affinity management\n\n### 4.2 Data Models\n\n**Document Schema:**\n```sql\nCREATE TABLE documents (\n    id UUID PRIMARY KEY,\n    title VARCHAR(255),\n    created_at TIMESTAMP,\n    updated_at TIMESTAMP,\n    owner_id UUID,\n    current_version INTEGER,\n    content_snapshot JSONB\n);\n\nCREATE TABLE operations (\n    id BIGSERIAL PRIMARY KEY,\n    document_id UUID,\n    operation_type VARCHAR(50),\n    position INTEGER,\n    content TEXT,\n    user_id UUID,\n    timestamp TIMESTAMP,\n    version_vector JSONB,\n    transformed_from BIGINT[]\n);\n```\n\n**Operation Log Schema Sizing**: Each operation record ~200 bytes (UUID=16, VARCHAR=50, INTEGER=4, TEXT=100, TIMESTAMP=8, JSONB=20), projecting 20GB/day for 100K active users.\n\n### 4.3 Storage Optimization Strategies\n\n**Snapshot Strategy:**\n- Full document snapshots every 100 operations\n- Incremental rebuilds from latest snapshot + operations\n- Automated compression for historical snapshots\n- Implement delta snapshots for large documents, storing only changes since last full snapshot to reduce storage overhead\n\n**Compaction Algorithm**: Compact operation logs older than 7 days while preserving operations needed for conflict resolution, triggered when log size exceeds 1GB per document.\n\n**Partitioning:**\n- Documents partitioned by creation date\n- Operations partitioned by document_id for query optimization\n- Geographic distribution for global access patterns\n\n## 5. Consistency Model Implementation\n\n### 5.1 Consistency Model Specification\n\n**Strong Eventual Consistency (SEC)**: Implements Strong Eventual Consistency (SEC) where all replicas that receive the same set of operations converge to identical state without coordination. This provides the formal guarantee that concurrent updates will converge to the same state without requiring coordination between replicas.\n\n### 5.2 CAP Theorem Analysis\n\n**CAP Tradeoff Selection**: Choose AP from CAP theorem - prioritize Availability and Partition tolerance over strong Consistency to maintain collaborative editing during network partitions. This allows the system to remain responsive during network issues while ensuring eventual convergence.\n\n### 5.3 Consistency Guarantee Bounds\n\n**Convergence Timing**: Guarantee convergence within 500ms after network partition healing, with conflict resolution completing within 100ms of receiving conflicting operations. These bounds ensure predictable behavior for users during network instability.\n\n## 6. Partition Tolerance Design\n\n### 6.1 Partition Detection\n\n**Detection Algorithm**: Detect partitions using 10-second heartbeat timeout with 3-strike failure detection and exponential backoff for false positive mitigation. This prevents premature partition declarations during temporary network congestion.\n\n### 6.2 Operation Handling During Partitions\n\n**Queuing Strategy**: Queue operations locally with 10MB limit per client, persist to local storage, notify users when queue approaches capacity. This ensures user operations aren't lost during network partitions.\n\n### 6.3 Partition Reconciliation\n\n**Reconciliation Algorithm**: Use vector clock comparison to identify divergent operations, apply OT transformation to resolve conflicts, merge operation logs in causal order. This systematic approach ensures consistent state restoration when partitions heal.\n\n## 7. Operational Concerns\n\n### 7.1 Monitoring and Observability\n\n**Key Performance Indicators:**\nDefine workload health indicators, KPIs, and performance metrics so that telemetry collection strategies reflect these targets\n\n- Operation propagation latency (target: <100ms)\n- Conflict resolution time\n- Document synchronization success rate\n- User session stability\n\n**Detailed Metrics**: Operation latency P95 <100ms, P99 <200ms; Conflict resolution rate <1% of operations; WebSocket connection success >99.5%; Memory usage per server <80%; CPU utilization <75%; Database write throughput >40K ops/sec; Network bandwidth <150MB/sec.\n\n**Monitoring Infrastructure:**\n\nThe metrics collector sends metric data to a queuing system like Kafka. Then consumers or streaming processing services such as Apache Spark process and push the data to the time-series database. This approach has several advantages: Kafka is used as a highly reliable and scalable distributed messaging platform\n\n**Alerting Strategy:**\n\nWhen health states change from healthy to degraded or unhealthy, alerting mechanisms trigger the automatic corrective measures and notifies appropriate teams\n\n**Tiered Alerting**: Critical alerts (latency >200ms) escalate immediately, Warning alerts (latency >150ms) escalate after 5 minutes, with 15/30 minute escalation tiers.\n\nCritical alerts include:\n- Operation latency exceeding 100ms threshold\n- Document synchronization failures\n- WebSocket connection drops above 5%\n- Database connection pool exhaustion\n\n### 7.2 Scalability Architecture\n\n**Horizontal Scaling Strategy:**\nMany designs use a sticky routing: once a server loads a document (either from storage or from operations), it keeps that session until idle\n\n**Sharding Strategy**: Shard by document_id using consistent hashing with virtual nodes. Each shard handles 1K active documents with automatic rebalancing when shard exceeds 80% capacity.\n\n**Load Balancing Algorithm**: Use consistent hashing load balancer with document_id as key, ensuring all operations for same document route to same server instance.\n\n**Auto-Scaling Thresholds**: Scale up at 80% CPU or 85% memory utilization, scale down at 40% CPU with 10-minute cooldown period.\n\n- Load balancer with session affinity for document ownership\n- Auto-scaling based on concurrent user metrics\n\n**Geographic Distribution:**\n- Multi-region deployment with document affinity\n- Edge caching for static content and document snapshots\n- Regional presence service instances\n\n### 7.3 Performance Optimization\n\n**Operation Propagation Latency Design** (Primary Priority):\n\n**Latency Budget Breakdown**: 100ms total = 30ms network RTT + 20ms serialization + 25ms OT processing + 15ms database write + 10ms propagation buffer.\n\n**Batching Strategy**: Adaptive batching with 10ms timeout or 50 operations per batch, whichever comes first. High-priority operations (cursor movements) bypass batching.\n\n- Direct WebSocket message routing without intermediate queues\n- In-memory operation caching for active documents\n- Optimized transformation algorithm implementations\n- Pre-computed transformation matrices for common operation patterns\n\n**Network Optimization:**\n- Binary protocol for operation serialization\n- Delta compression for large operations\n- Connection pooling and keep-alive strategies\n\n**Protocol Efficiency Optimization**:\n**Serialization Format**: Use Protocol Buffers reducing message size 60% vs JSON, with average operation message size of 80 bytes vs 200 bytes JSON.\n\n**Compression Strategy**: Implement gzip compression with 9KB sliding window for WebSocket frames, delta compression using XOR for similar operations.\n\n**Bandwidth Usage**: Average 2KB/sec per active user, peak 10KB/sec during heavy editing, total 200MB/sec for 100K concurrent users.\n\n### 7.4 Memory Optimization\n\n**Memory Usage Calculation**: 2MB per active user: 1.5MB operation buffer + 0.3MB connection state + 0.2MB document cache = 2GB total for 1K users per server.\n\n**Operation History Pruning**: Prune operations older than 48 hours while preserving conflict resolution window of 24 hours for concurrent editing scenarios.\n\n**Garbage Collection Strategy**: Garbage collect tombstones after 7-day safety window, triggered when memory usage exceeds 80% with background cleanup process.\n\n### 7.5 WebSocket Connection Management\n\n**Connection Pooling Strategy**: Use connection pools with 100 connections per pool, round-robin distribution across pools, with connection affinity based on document_id hash.\n\n- 1,000 concurrent users per application server\n- 10,000 documents per operation transformation engine\n- 100,000 operations per minute per database shard\n\n### 7.6 Fault Tolerance and Disaster Recovery\n\n**High Availability Design:**\n- Multi-master database configuration with automatic failover\n- Document state reconstruction from operation logs\n- Cross-region backup with 4-hour RPO\n\n**Disaster Recovery Targets**: RTO (Recovery Time Objective) of 15 minutes for critical services, RPO (Recovery Point Objective) of 4 hours for data loss tolerance.\n\n**Graceful Degradation Strategy**: When database is unavailable, switch to read-only mode with cached document snapshots. When transformation engine fails, buffer operations locally and process when service recovers.\n\n**SLA Definitions**: 99.9% uptime for collaborative editing features, <100ms P95 latency for operations, <1% data loss tolerance during disasters.\n\n**Circuit Breaker Patterns:**\n- Database connection circuit breakers\n- External service degradation handling\n- Graceful degradation to read-only mode\n\n**Data Consistency Guarantees:**\n- Write-ahead logging for all operations\n- Checksum validation for operation integrity\n- Conflict resolution audit trails\n\n### 7.7 Security and Compliance\n\n**Access Control:**\n- JWT-based authentication with refresh tokens\n- Role-based document permissions (owner, editor, viewer)\n- Operation-level authorization checks\n\n**Data Protection:**\n- AES-256 encryption for data at rest\n- TLS 1.3 for data in transit\n- PII anonymization in operation logs\n\n### 7.8 Capacity Planning\n\n**Predictive Model**: Use time series analysis on user growth patterns to predict scaling needs 7 days ahead, with automated scaling triggers at 80% capacity thresholds.\n\n**Resource Integration**: Base capacity planning on calculated per-user memory usage: with 2MB per user and 16GB server capacity, each server supports 8K users (with 2GB overhead), not the previous 1K estimate.\n\n**Scaling Thresholds:**\n- 1,000 concurrent users per application server\n- 10,000 documents per operation transformation engine\n- 100,000 operations per minute per database shard\n\n**Resource Requirements:**\n- 16GB RAM per application server (document caching)\n- 8 CPU cores per OT engine (transformation processing)\n- 50TB storage per million active documents (including history)\n\n## 8. Implementation Roadmap\n\n### Phase 1: Core Infrastructure (Weeks 1-6)\n- Basic OT engine implementation\n- WebSocket gateway setup\n- Primary database schema\n- Basic conflict resolution\n\n### Phase 2: Scale Optimization (Weeks 7-12)\n- Operation propagation latency optimization\n- Caching layer implementation  \n- Monitoring and alerting setup\n- Load testing and performance tuning\n\n### Phase 3: Production Readiness (Weeks 13-16)\n- Multi-region deployment\n- Advanced conflict resolution\n- Comprehensive monitoring\n- Security hardening\n\nThis architecture prioritizes operation propagation latency as the primary constraint while ensuring the system can reliably handle 100,000 concurrent users with eventual consistency guarantees and robust operational monitoring.",
+        "score": 71.0,
+        "max_score": 87,
+        "percentage": 0.8160919540229885,
+        "criterion_results": [
+          {
+            "criterion_id": "crdt_mathematical_correctness",
+            "category": "Algorithm Correctness & Mathematical Rigor",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.7499999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_transform_vs_crdt_justification",
+            "category": "Algorithm Correctness & Mathematical Rigor",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operation_propagation_latency_design",
+            "category": "Scalability Architecture & Performance",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "horizontal_scaling_architecture",
+            "category": "Scalability Architecture & Performance",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "consistency_model_implementation",
+            "category": "Consistency Models & CAP Theorem Implications",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "partition_tolerance_design",
+            "category": "Consistency Models & CAP Theorem Implications",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.7499999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "database_design_high_write_throughput",
+            "category": "Persistence Layer & Data Management",
+            "points_earned": 4.5,
+            "max_points": 6,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operation_log_storage_compaction",
+            "category": "Persistence Layer & Data Management",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_resilience_failure_handling",
+            "category": "Operational Resilience & Production Engineering",
+            "points_earned": 6.0,
+            "max_points": 6,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "monitoring_alerting_capacity_planning",
+            "category": "Operational Resilience & Production Engineering",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "conflict_resolution_edge_cases",
+            "category": "Conflict Resolution & Edge Case Handling",
+            "points_earned": 6.0,
+            "max_points": 6,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "websocket_connection_management",
+            "category": "Real-time Networking & Protocol Design",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.7499999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "protocol_efficiency_optimization",
+            "category": "Real-time Networking & Protocol Design",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "memory_optimization_strategies",
+            "category": "Memory & Resource Management",
+            "points_earned": 3.75,
+            "max_points": 5,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "algorithm_architecture_coherence",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "scalability_consistency_alignment",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_architecture_integration",
+            "category": "Cross-Cutting Coherence",
+            "points_earned": 3.0,
+            "max_points": 3,
+            "percentage": 1.0,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 2224.490169626,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "iterations": 4,
+        "improvement_summary": [
+          "crdt_mathematical_correctness: +1.5 pts available",
+          "partition_tolerance_design: +1.2 pts available",
+          "websocket_connection_management: +1.2 pts available",
+          "operational_transform_vs_crdt_justification: +1.2 pts available",
+          "operation_propagation_latency_design: +1.5 pts available",
+          "horizontal_scaling_architecture: +1.5 pts available",
+          "consistency_model_implementation: +1.5 pts available",
+          "database_design_high_write_throughput: +1.5 pts available",
+          "operation_log_storage_compaction: +1.2 pts available",
+          "monitoring_alerting_capacity_planning: +1.2 pts available",
+          "protocol_efficiency_optimization: +1.0 pts available",
+          "memory_optimization_strategies: +1.2 pts available",
+          "DELTA ANALYSIS (4 iterations, iter1\u2192best\u2192final):",
+          "  [IMPROVED] crdt_mathematical_correctness: 0% \u2192 75% \u2192 75%",
+          "  [IMPROVED] partition_tolerance_design: 0% \u2192 75% \u2192 66%",
+          "  [IMPROVED] consistency_model_implementation: 10% \u2192 75% \u2192 60%",
+          "  [IMPROVED] protocol_efficiency_optimization: 19% \u2192 75% \u2192 66%",
+          "  [IMPROVED] websocket_connection_management: 24% \u2192 75% \u2192 68%",
+          "  [IMPROVED] operation_propagation_latency_design: 35% \u2192 75% \u2192 75%",
+          "  [IMPROVED] memory_optimization_strategies: 38% \u2192 75% \u2192 75%",
+          "  [IMPROVED] horizontal_scaling_architecture: 44% \u2192 75% \u2192 44%",
+          "  [IMPROVED] operational_architecture_integration: 73% \u2192 100% \u2192 100%",
+          "  [IMPROVED] operational_transform_vs_crdt_justification: 49% \u2192 75% \u2192 75%",
+          "  [IMPROVED] database_design_high_write_throughput: 51% \u2192 75% \u2192 75%",
+          "  [IMPROVED] operational_resilience_failure_handling: 83% \u2192 100% \u2192 100%",
+          "  [IMPROVED] operation_log_storage_compaction: 60% \u2192 75% \u2192 75%",
+          "  [IMPROVED] monitoring_alerting_capacity_planning: 60% \u2192 75% \u2192 18%",
+          "  [PLATEAUED] conflict_resolution_edge_cases: 100% \u2192 100% \u2192 78%",
+          "  [PLATEAUED] algorithm_architecture_coherence: 100% \u2192 100% \u2192 100%",
+          "  [PLATEAUED] scalability_consistency_alignment: 100% \u2192 100% \u2192 100%"
+        ]
+      },
+      "delta": 0.43206896551724144
+    }
+  }
+}

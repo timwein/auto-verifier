@@ -1,0 +1,252 @@
+{
+  "run_id": "62a29398_20260404_185442",
+  "iteration": 1,
+  "total_score": 10.59,
+  "max_score": 209,
+  "percentage": 0.05066985645933014,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/62a29398_20260404_185442/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "itar_compliance_cost_modeling",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "security_clearance_scaling_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "procurement_cycle_pathway_analysis",
+      "points_earned": 0.7,
+      "max_points": 7,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "defense_market_program_validation",
+      "points_earned": 1.14,
+      "max_points": 7,
+      "percentage": 0.1625
+    },
+    {
+      "criterion_id": "technical_differentiation_incumbents",
+      "points_earned": 3.5,
+      "max_points": 6,
+      "percentage": 0.5833333333333334
+    },
+    {
+      "criterion_id": "defense_financial_modeling_realism",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "dual_use_revenue_strategy",
+      "points_earned": 0.5,
+      "max_points": 5,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "defense_team_credentials_assessment",
+      "points_earned": 4.0,
+      "max_points": 5,
+      "percentage": 0.8
+    },
+    {
+      "criterion_id": "policy_geopolitical_risk_analysis",
+      "points_earned": 0.75,
+      "max_points": 5,
+      "percentage": 0.15
+    },
+    {
+      "criterion_id": "defense_partnership_ecosystem_strategy",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "corporate_venture_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "investor_credibility_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "manufacturing_excellence_capability",
+      "points_earned": 0.0,
+      "max_points": 8,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_feasibility_risk_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "defense_unit_economics_modeling",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "regulatory_certification_pathway_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "defense_capital_requirements_analysis",
+      "points_earned": 0.0,
+      "max_points": 9,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technology_readiness_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "operational_deployment_feasibility",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "cybersecurity_compliance_framework",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "customer_validation_evidence",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "risk_adjusted_financial_realism",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_execution_risk_assessment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "competitive_response_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "regulatory_operational_complexity_assessment",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technical_performance_credibility_assessment",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_coherence_assessment",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "domain_expertise_authenticity_assessment",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "binding_customer_commitment_evidence",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "market_penetration_barrier_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "technology_obsolescence_defense_strategy",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "defense_revenue_scalability_model",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_dependency_risk_analysis",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "implementation_complexity_depth_analysis",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "dynamic_market_evolution_strategy",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "intellectual_property_landscape_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "strategic_ecosystem_positioning_analysis",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "defense_organizational_scaling_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "defense_exit_strategy_constraints_analysis",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "execution_timeline_realism",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

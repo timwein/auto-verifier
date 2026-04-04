@@ -1,0 +1,563 @@
+{
+  "run_id": "1352353b_20260404_184508",
+  "iteration": 1,
+  "content": "# Federated GraphQL E-Commerce Schema Design\n\n## Overview\nThis design presents a comprehensive federated GraphQL schema for an e-commerce platform, organized across 4 autonomous subgraphs with proper entity resolution, authentication/authorization directives, and robust N+1 prevention strategies.\n\n## Architecture Principles\n\n\nGraphQL federation aligns naturally with Domain Driven Design (DDD) principles by allowing teams to maintain clear boundaries around their domains\n, and \nin a supergraph, the constituent APIs are called subgraphs. Different subgraphs in the same supergraph can use different server implementations and even different programming languages\n.\n\nThe schema follows these core principles:\n- \nDesign Subgraphs Around Domains: Use domain-driven design to define clear ownership boundaries and avoid overlapping responsibilities\n\n- \nThe federated schema design process often begins by thinking about what the initial entity types will be and how they will be referenced and extended throughout the graph\n\n- \nPlatform thinking means designing a graph for multiple clients\n\n\n## Subgraph 1: Users Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@tag\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\ntype Query {\n  me: User @authenticated\n  users(limit: Int = 10, offset: Int = 0): [User!]! @auth(requires: ADMIN)\n  user(id: ID!): User @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  login(email: String!, password: String!): AuthPayload!\n  register(input: UserInput!): AuthPayload!\n  updateProfile(input: ProfileUpdateInput!): User! @authenticated\n  deleteAccount(id: ID!): Boolean! @auth(requires: ADMIN)\n}\n\ntype User @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  email: String!\n  username: String!\n  firstName: String\n  lastName: String\n  phone: String\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  role: Role!\n  isActive: Boolean!\n  profile: UserProfile\n  # Personal data requiring higher permissions\n  personalData: PersonalData @auth(requires: ADMIN)\n}\n\ntype UserProfile @shareable {\n  avatar: String\n  bio: String\n  preferences: JSON\n  notifications: NotificationSettings\n}\n\ntype PersonalData {\n  fullAddress: Address\n  dateOfBirth: Date\n  lastLoginAt: DateTime\n  ipAddress: String\n}\n\ntype NotificationSettings {\n  email: Boolean!\n  push: Boolean!\n  sms: Boolean!\n}\n\ntype Address {\n  street: String\n  city: String\n  state: String\n  postalCode: String\n  country: String!\n}\n\ntype AuthPayload {\n  token: String!\n  user: User!\n  expiresAt: DateTime!\n}\n\ninput UserInput {\n  email: String!\n  username: String!\n  password: String!\n  firstName: String\n  lastName: String\n  phone: String\n}\n\ninput ProfileUpdateInput {\n  firstName: String\n  lastName: String\n  phone: String\n  profile: UserProfileInput\n}\n\ninput UserProfileInput {\n  avatar: String\n  bio: String\n  preferences: JSON\n  notifications: NotificationSettingsInput\n}\n\ninput NotificationSettingsInput {\n  email: Boolean\n  push: Boolean\n  sms: Boolean\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation\n```javascript\n// users/src/dataloaders/userLoader.js\nimport DataLoader from 'dataloader';\n\nexport const createUserLoader = () => new DataLoader(async (userIds) => {\n  const users = await UserService.findByIds(userIds);\n  return userIds.map(id => users.find(user => user.id === id));\n}, {\n  cacheKeyFn: (key) => key.toString(),\n  batchScheduleFn: (callback) => setTimeout(callback, 1)\n});\n\nexport const createUsersByEmailLoader = () => new DataLoader(async (emails) => {\n  const users = await UserService.findByEmails(emails);\n  return emails.map(email => users.find(user => user.email === email));\n});\n```\n\n## Subgraph 2: Products Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\ntype Query {\n  products(\n    filter: ProductFilter\n    sort: ProductSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20\n    offset: Int = 0\n  ): ProductConnection!\n  product(id: ID, sku: String): Product\n  categories: [Category!]!\n  category(id: ID!): Category\n  searchProducts(query: String!, limit: Int = 20): [Product!]!\n}\n\ntype Mutation {\n  createProduct(input: CreateProductInput!): Product! @auth(requires: ADMIN)\n  updateProduct(id: ID!, input: UpdateProductInput!): Product! @auth(requires: ADMIN)\n  deleteProduct(id: ID!): Boolean! @auth(requires: ADMIN)\n  updateInventory(id: ID!, quantity: Int!): Product! @auth(requires: ADMIN)\n}\n\ntype Product @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n  name: String!\n  description: String\n  shortDescription: String\n  price: Money!\n  compareAtPrice: Money\n  costPerItem: Money @auth(requires: ADMIN)\n  images: [ProductImage!]!\n  category: Category\n  brand: Brand\n  tags: [String!]!\n  attributes: [ProductAttribute!]!\n  variants: [ProductVariant!]!\n  inventory: Inventory!\n  seo: SEOData\n  isActive: Boolean!\n  isFeatured: Boolean!\n  weight: Float\n  dimensions: Dimensions\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  # Metrics requiring admin access\n  analytics: ProductAnalytics @auth(requires: ADMIN)\n}\n\ntype ProductVariant @key(fields: \"id\") {\n  id: ID!\n  sku: String!\n  title: String!\n  price: Money!\n  compareAtPrice: Money\n  inventory: Inventory!\n  image: ProductImage\n  attributes: [ProductAttribute!]!\n  isDefault: Boolean!\n}\n\ntype ProductImage {\n  id: ID!\n  url: String!\n  altText: String\n  width: Int\n  height: Int\n  position: Int!\n}\n\ntype Category @key(fields: \"id\") @shareable {\n  id: ID!\n  name: String!\n  slug: String!\n  description: String\n  image: String\n  parent: Category\n  children: [Category!]!\n  products(limit: Int = 20, offset: Int = 0): ProductConnection!\n}\n\ntype Brand @shareable {\n  id: ID!\n  name: String!\n  logo: String\n  description: String\n}\n\ntype ProductAttribute {\n  key: String!\n  value: String!\n  type: AttributeType!\n}\n\ntype Inventory {\n  quantity: Int!\n  reserved: Int!\n  available: Int!\n  tracked: Boolean!\n  allowBackorder: Boolean!\n  lowStockThreshold: Int\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype Dimensions {\n  length: Float!\n  width: Float!\n  height: Float!\n  unit: String!\n}\n\ntype SEOData {\n  title: String\n  description: String\n  keywords: [String!]!\n}\n\ntype ProductAnalytics {\n  views: Int!\n  purchases: Int!\n  conversionRate: Float!\n  revenue: Money!\n  topVariant: ProductVariant\n}\n\ntype ProductConnection {\n  edges: [ProductEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: ProductAggregations\n}\n\ntype ProductEdge {\n  node: Product!\n  cursor: String!\n}\n\ntype ProductAggregations {\n  priceRange: PriceRange!\n  categories: [CategoryCount!]!\n  brands: [BrandCount!]!\n  attributes: [AttributeCount!]!\n}\n\ntype PriceRange {\n  min: Money!\n  max: Money!\n}\n\ntype CategoryCount {\n  category: Category!\n  count: Int!\n}\n\ntype BrandCount {\n  brand: Brand!\n  count: Int!\n}\n\ntype AttributeCount {\n  key: String!\n  value: String!\n  count: Int!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum AttributeType {\n  STRING\n  NUMBER\n  BOOLEAN\n  COLOR\n}\n\nenum ProductSortField {\n  NAME\n  PRICE\n  CREATED_AT\n  UPDATED_AT\n  POPULARITY\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\ninput ProductFilter {\n  categoryIds: [ID!]\n  brandIds: [ID!]\n  priceRange: PriceRangeInput\n  attributes: [AttributeFilterInput!]\n  tags: [String!]\n  isActive: Boolean\n  isFeatured: Boolean\n}\n\ninput PriceRangeInput {\n  min: Float\n  max: Float\n}\n\ninput AttributeFilterInput {\n  key: String!\n  values: [String!]!\n}\n\ninput ProductSort {\n  field: ProductSortField!\n  direction: SortDirection!\n}\n\ninput CreateProductInput {\n  name: String!\n  description: String\n  shortDescription: String\n  sku: String!\n  price: MoneyInput!\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!]\n  attributes: [ProductAttributeInput!]\n  inventory: InventoryInput!\n  images: [ProductImageInput!]\n  seo: SEODataInput\n  isActive: Boolean = false\n  isFeatured: Boolean = false\n  weight: Float\n  dimensions: DimensionsInput\n}\n\ninput UpdateProductInput {\n  name: String\n  description: String\n  shortDescription: String\n  price: MoneyInput\n  compareAtPrice: MoneyInput\n  costPerItem: MoneyInput\n  categoryId: ID\n  brandId: ID\n  tags: [String!]\n  attributes: [ProductAttributeInput!]\n  isActive: Boolean\n  isFeatured: Boolean\n  weight: Float\n  dimensions: DimensionsInput\n  seo: SEODataInput\n}\n\ninput MoneyInput {\n  amount: Float!\n  currency: String!\n}\n\ninput ProductAttributeInput {\n  key: String!\n  value: String!\n  type: AttributeType!\n}\n\ninput InventoryInput {\n  quantity: Int!\n  tracked: Boolean = true\n  allowBackorder: Boolean = false\n  lowStockThreshold: Int\n}\n\ninput ProductImageInput {\n  url: String!\n  altText: String\n  position: Int!\n}\n\ninput DimensionsInput {\n  length: Float!\n  width: Float!\n  height: Float!\n  unit: String!\n}\n\ninput SEODataInput {\n  title: String\n  description: String\n  keywords: [String!]\n}\n\nscalar DateTime\n```\n\n### DataLoader Implementation\n```javascript\n// products/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\n\nexport const createProductLoaders = () => ({\n  productById: new DataLoader(async (ids) => {\n    const products = await ProductService.findByIds(ids);\n    return ids.map(id => products.find(p => p.id === id));\n  }),\n  \n  productBySku: new DataLoader(async (skus) => {\n    const products = await ProductService.findBySkus(skus);\n    return skus.map(sku => products.find(p => p.sku === sku));\n  }),\n  \n  categoryById: new DataLoader(async (ids) => {\n    const categories = await CategoryService.findByIds(ids);\n    return ids.map(id => categories.find(c => c.id === id));\n  }),\n  \n  productsByCategory: new DataLoader(async (categoryIds) => {\n    const productGroups = await ProductService.findByCategoryIds(categoryIds);\n    return categoryIds.map(id => productGroups[id] || []);\n  }, { cache: false }),\n  \n  inventoryByProduct: new DataLoader(async (productIds) => {\n    const inventories = await InventoryService.findByProductIds(productIds);\n    return productIds.map(id => inventories.find(inv => inv.productId === id));\n  }),\n  \n  variantsByProduct: new DataLoader(async (productIds) => {\n    const variantGroups = await ProductVariantService.findByProductIds(productIds);\n    return productIds.map(id => variantGroups[id] || []);\n  }, { cache: false })\n});\n```\n\n## Subgraph 3: Orders Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@external\", \"@requires\", \"@provides\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# User entity stub for reference\ntype User @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\n# Product entity stub for reference  \ntype Product @key(fields: \"id\") @external {\n  id: ID! @external\n  sku: String! @external\n  name: String! @external\n  price: Money! @external\n}\n\ntype Query {\n  orders(\n    filter: OrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20\n    offset: Int = 0\n  ): OrderConnection! @authenticated\n  order(id: ID!): Order @authenticated\n  # Admin queries\n  allOrders(\n    filter: AdminOrderFilter\n    sort: OrderSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 50\n    offset: Int = 0\n  ): OrderConnection! @auth(requires: ADMIN)\n  orderAnalytics(timeframe: AnalyticsTimeframe!): OrderAnalytics! @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  createOrder(input: CreateOrderInput!): Order! @authenticated\n  updateOrderStatus(id: ID!, status: OrderStatus!): Order! @auth(requires: ADMIN)\n  cancelOrder(id: ID!, reason: String): Order! @authenticated\n  addOrderNote(id: ID!, note: String!): Order! @auth(requires: ADMIN)\n  processRefund(id: ID!, amount: Float, reason: String): Refund! @auth(requires: ADMIN)\n  updateShipping(id: ID!, input: ShippingUpdateInput!): Order! @auth(requires: ADMIN)\n}\n\ntype Order @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  orderNumber: String!\n  customer: User! @provides(fields: \"id\")\n  items: [OrderItem!]!\n  status: OrderStatus!\n  fulfillmentStatus: FulfillmentStatus!\n  paymentStatus: PaymentStatus!\n  \n  # Pricing\n  subtotal: Money!\n  taxAmount: Money!\n  shippingAmount: Money!\n  discountAmount: Money!\n  totalAmount: Money!\n  \n  # Addresses\n  shippingAddress: Address!\n  billingAddress: Address!\n  \n  # Shipping\n  shippingMethod: ShippingMethod\n  trackingNumbers: [TrackingInfo!]!\n  estimatedDelivery: DateTime\n  \n  # Metadata\n  notes: [OrderNote!]! @auth(requires: ADMIN)\n  tags: [String!]!\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  completedAt: DateTime\n  \n  # Related data\n  refunds: [Refund!]!\n  events: [OrderEvent!]! @auth(requires: ADMIN)\n}\n\ntype OrderItem {\n  id: ID!\n  product: Product! @requires(fields: \"id sku name price\")\n  variant: ProductVariant\n  quantity: Int!\n  unitPrice: Money!\n  totalPrice: Money!\n  discountAmount: Money!\n  taxAmount: Money!\n}\n\ntype ProductVariant @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\ntype ShippingMethod {\n  id: ID!\n  name: String!\n  description: String\n  rate: Money!\n  estimatedDays: Int\n  carrier: String\n}\n\ntype TrackingInfo {\n  carrier: String!\n  trackingNumber: String!\n  url: String\n  status: String\n  estimatedDelivery: DateTime\n}\n\ntype OrderNote {\n  id: ID!\n  content: String!\n  isInternal: Boolean!\n  author: User! @provides(fields: \"id\")\n  createdAt: DateTime!\n}\n\ntype OrderEvent {\n  id: ID!\n  type: OrderEventType!\n  description: String!\n  metadata: JSON\n  createdAt: DateTime!\n  actor: User @provides(fields: \"id\")\n}\n\ntype Refund {\n  id: ID!\n  amount: Money!\n  reason: String\n  status: RefundStatus!\n  gateway: String\n  gatewayTransactionId: String\n  processedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype OrderConnection {\n  edges: [OrderEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: OrderAggregations\n}\n\ntype OrderEdge {\n  node: Order!\n  cursor: String!\n}\n\ntype OrderAggregations {\n  statusCounts: [StatusCount!]!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n}\n\ntype StatusCount {\n  status: OrderStatus!\n  count: Int!\n}\n\ntype OrderAnalytics {\n  totalOrders: Int!\n  totalRevenue: Money!\n  averageOrderValue: Money!\n  conversionRate: Float!\n  topProducts: [ProductSalesData!]!\n  dailyStats: [DailySalesData!]!\n}\n\ntype ProductSalesData {\n  product: Product! @requires(fields: \"id name\")\n  quantity: Int!\n  revenue: Money!\n}\n\ntype DailySalesData {\n  date: Date!\n  orders: Int!\n  revenue: Money!\n}\n\nenum OrderStatus {\n  PENDING\n  CONFIRMED\n  PROCESSING\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n}\n\nenum FulfillmentStatus {\n  UNFULFILLED\n  PARTIAL\n  FULFILLED\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  PAID\n  PARTIAL\n  REFUNDED\n  VOIDED\n}\n\nenum OrderEventType {\n  CREATED\n  PAYMENT_PROCESSED\n  INVENTORY_ALLOCATED\n  FULFILLED\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  REFUNDED\n  NOTE_ADDED\n}\n\nenum RefundStatus {\n  PENDING\n  PROCESSING\n  SUCCESS\n  FAILED\n}\n\nenum AnalyticsTimeframe {\n  TODAY\n  WEEK\n  MONTH\n  QUARTER\n  YEAR\n}\n\nenum OrderSortField {\n  CREATED_AT\n  UPDATED_AT\n  TOTAL_AMOUNT\n  ORDER_NUMBER\n}\n\ninput OrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n}\n\ninput AdminOrderFilter {\n  status: [OrderStatus!]\n  paymentStatus: [PaymentStatus!]\n  fulfillmentStatus: [FulfillmentStatus!]\n  dateRange: DateRangeInput\n  customerId: ID\n  totalRange: PriceRangeInput\n  tags: [String!]\n}\n\ninput DateRangeInput {\n  from: DateTime!\n  to: DateTime!\n}\n\ninput OrderSort {\n  field: OrderSortField!\n  direction: SortDirection!\n}\n\ninput CreateOrderInput {\n  items: [OrderItemInput!]!\n  shippingAddress: AddressInput!\n  billingAddress: AddressInput!\n  shippingMethodId: ID!\n  discountCode: String\n  notes: String\n}\n\ninput OrderItemInput {\n  productId: ID!\n  variantId: ID\n  quantity: Int!\n}\n\ninput ShippingUpdateInput {\n  shippingMethodId: ID\n  trackingNumbers: [TrackingInfoInput!]\n  estimatedDelivery: DateTime\n}\n\ninput TrackingInfoInput {\n  carrier: String!\n  trackingNumber: String!\n  url: String\n}\n\ninput AddressInput {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Address {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation\n```javascript\n// orders/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\n\nexport const createOrderLoaders = () => ({\n  orderById: new DataLoader(async (ids) => {\n    const orders = await OrderService.findByIds(ids);\n    return ids.map(id => orders.find(o => o.id === id));\n  }),\n  \n  ordersByCustomer: new DataLoader(async (customerIds) => {\n    const orderGroups = await OrderService.findByCustomerIds(customerIds);\n    return customerIds.map(id => orderGroups[id] || []);\n  }, { cache: false }),\n  \n  orderItemsByOrder: new DataLoader(async (orderIds) => {\n    const itemGroups = await OrderItemService.findByOrderIds(orderIds);\n    return orderIds.map(id => itemGroups[id] || []);\n  }, { cache: false }),\n  \n  refundsByOrder: new DataLoader(async (orderIds) => {\n    const refundGroups = await RefundService.findByOrderIds(orderIds);\n    return orderIds.map(id => refundGroups[id] || []);\n  }, { cache: false }),\n  \n  orderEventsByOrder: new DataLoader(async (orderIds) => {\n    const eventGroups = await OrderEventService.findByOrderIds(orderIds);\n    return orderIds.map(id => eventGroups[id] || []);\n  }, { cache: false }),\n  \n  shippingMethodById: new DataLoader(async (ids) => {\n    const methods = await ShippingMethodService.findByIds(ids);\n    return ids.map(id => methods.find(m => m.id === id));\n  })\n});\n```\n\n## Subgraph 4: Payments Service\n\n### Schema Definition\n```graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", \n        import: [\"@key\", \"@external\", \"@requires\"])\n  @link(url: \"https://specs.apollo.dev/authenticated/v0.1\", \n        import: [\"@authenticated\"])\n  @composeDirective(name: \"@auth\")\n\ndirective @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  USER\n  GUEST\n}\n\n# Entity stubs for reference\ntype User @key(fields: \"id\") @external {\n  id: ID! @external\n}\n\ntype Order @key(fields: \"id\") @external {\n  id: ID! @external\n  orderNumber: String! @external\n  totalAmount: Money! @external\n  customer: User! @external @requires(fields: \"id\")\n}\n\ntype Query {\n  payment(id: ID!): Payment @authenticated\n  payments(\n    filter: PaymentFilter\n    sort: PaymentSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 20\n    offset: Int = 0\n  ): PaymentConnection! @authenticated\n  \n  # Admin queries\n  allPayments(\n    filter: AdminPaymentFilter\n    sort: PaymentSort = { field: CREATED_AT, direction: DESC }\n    limit: Int = 50\n    offset: Int = 0\n  ): PaymentConnection! @auth(requires: ADMIN)\n  \n  paymentMethods: [PaymentMethod!]! @authenticated\n  paymentAnalytics(timeframe: AnalyticsTimeframe!): PaymentAnalytics! @auth(requires: ADMIN)\n  fraudAlerts(limit: Int = 20): [FraudAlert!]! @auth(requires: ADMIN)\n}\n\ntype Mutation {\n  createPaymentIntent(input: PaymentIntentInput!): PaymentIntent! @authenticated\n  confirmPayment(paymentIntentId: ID!, paymentMethodId: ID!): Payment! @authenticated\n  processRefund(paymentId: ID!, amount: Float, reason: String): Refund! @auth(requires: ADMIN)\n  captureAuthorization(paymentId: ID!, amount: Float): Payment! @auth(requires: ADMIN)\n  voidAuthorization(paymentId: ID!): Payment! @auth(requires: ADMIN)\n  \n  # Payment methods management\n  savePaymentMethod(input: PaymentMethodInput!): SavedPaymentMethod! @authenticated\n  removePaymentMethod(id: ID!): Boolean! @authenticated\n  updatePaymentMethod(id: ID!, input: PaymentMethodUpdateInput!): SavedPaymentMethod! @authenticated\n  \n  # Fraud management\n  markFraudulent(paymentId: ID!, reason: String!): Payment! @auth(requires: ADMIN)\n  approveFraudAlert(alertId: ID!): FraudAlert! @auth(requires: ADMIN)\n}\n\ntype Payment @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  order: Order! @requires(fields: \"id orderNumber totalAmount\")\n  amount: Money!\n  currency: String!\n  status: PaymentStatus!\n  method: PaymentMethod!\n  gateway: PaymentGateway!\n  \n  # Gateway details\n  gatewayTransactionId: String\n  gatewayResponse: JSON @auth(requires: ADMIN)\n  \n  # Authorization/Capture tracking\n  authorizedAmount: Money\n  capturedAmount: Money!\n  refundedAmount: Money!\n  \n  # Security\n  fraudScore: Float @auth(requires: ADMIN)\n  fraudFlags: [FraudFlag!]! @auth(requires: ADMIN)\n  riskLevel: RiskLevel!\n  \n  # Billing\n  billingAddress: Address!\n  \n  # Metadata\n  description: String\n  metadata: JSON\n  fees: [PaymentFee!]! @auth(requires: ADMIN)\n  \n  # Timestamps\n  authorizedAt: DateTime\n  capturedAt: DateTime\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  \n  # Related data\n  refunds: [PaymentRefund!]!\n  events: [PaymentEvent!]! @auth(requires: ADMIN)\n}\n\ntype PaymentIntent {\n  id: ID!\n  clientSecret: String!\n  amount: Money!\n  currency: String!\n  status: PaymentIntentStatus!\n  order: Order! @requires(fields: \"id\")\n  availablePaymentMethods: [PaymentMethod!]!\n  expiresAt: DateTime!\n  createdAt: DateTime!\n}\n\ntype SavedPaymentMethod @key(fields: \"id\") @auth(requires: USER) {\n  id: ID!\n  customer: User! @requires(fields: \"id\")\n  type: PaymentMethodType!\n  last4: String!\n  brand: String\n  expiryMonth: Int\n  expiryYear: Int\n  billingAddress: Address\n  isDefault: Boolean!\n  createdAt: DateTime!\n}\n\ntype PaymentMethod {\n  id: ID!\n  name: String!\n  type: PaymentMethodType!\n  enabled: Boolean!\n  supportedCurrencies: [String!]!\n  processingFee: ProcessingFee!\n  minimumAmount: Money\n  maximumAmount: Money\n  countries: [String!]!\n}\n\ntype PaymentGateway {\n  id: ID!\n  name: String!\n  type: String!\n  enabled: Boolean!\n  supportedMethods: [PaymentMethodType!]!\n  supportedCurrencies: [String!]!\n}\n\ntype PaymentRefund {\n  id: ID!\n  amount: Money!\n  reason: String\n  status: RefundStatus!\n  gatewayRefundId: String\n  processedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype PaymentEvent {\n  id: ID!\n  type: PaymentEventType!\n  amount: Money\n  description: String!\n  gatewayResponse: JSON\n  createdAt: DateTime!\n}\n\ntype PaymentFee {\n  type: FeeType!\n  amount: Money!\n  description: String\n}\n\ntype FraudAlert {\n  id: ID!\n  payment: Payment! @requires(fields: \"id\")\n  rule: String!\n  score: Float!\n  reason: String!\n  status: FraudAlertStatus!\n  reviewedBy: User @requires(fields: \"id\")\n  reviewedAt: DateTime\n  createdAt: DateTime!\n}\n\ntype FraudFlag {\n  type: FraudFlagType!\n  severity: FraudSeverity!\n  description: String!\n}\n\ntype ProcessingFee {\n  fixed: Money\n  percentage: Float!\n}\n\ntype PaymentConnection {\n  edges: [PaymentEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  aggregations: PaymentAggregations\n}\n\ntype PaymentEdge {\n  node: Payment!\n  cursor: String!\n}\n\ntype PaymentAggregations {\n  statusCounts: [PaymentStatusCount!]!\n  totalVolume: Money!\n  totalFees: Money!\n  averageAmount: Money!\n}\n\ntype PaymentStatusCount {\n  status: PaymentStatus!\n  count: Int!\n  amount: Money!\n}\n\ntype PaymentAnalytics {\n  totalVolume: Money!\n  totalFees: Money!\n  successRate: Float!\n  fraudRate: Float!\n  averageAmount: Money!\n  methodBreakdown: [PaymentMethodStats!]!\n  dailyVolume: [DailyVolumeData!]!\n  topDeclineReasons: [DeclineReasonData!]!\n}\n\ntype PaymentMethodStats {\n  method: PaymentMethodType!\n  volume: Money!\n  count: Int!\n  successRate: Float!\n}\n\ntype DailyVolumeData {\n  date: Date!\n  volume: Money!\n  count: Int!\n  successRate: Float!\n}\n\ntype DeclineReasonData {\n  reason: String!\n  count: Int!\n  percentage: Float!\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  CAPTURED\n  PARTIALLY_CAPTURED\n  PARTIALLY_REFUNDED\n  REFUNDED\n  VOIDED\n  FAILED\n  CANCELLED\n}\n\nenum PaymentIntentStatus {\n  REQUIRES_PAYMENT_METHOD\n  REQUIRES_CONFIRMATION\n  REQUIRES_ACTION\n  PROCESSING\n  SUCCEEDED\n  CANCELLED\n}\n\nenum PaymentMethodType {\n  CREDIT_CARD\n  DEBIT_CARD\n  PAYPAL\n  APPLE_PAY\n  GOOGLE_PAY\n  BANK_TRANSFER\n  BUY_NOW_PAY_LATER\n  CRYPTOCURRENCY\n  GIFT_CARD\n}\n\nenum RefundStatus {\n  PENDING\n  PROCESSING\n  SUCCESS\n  FAILED\n  CANCELLED\n}\n\nenum PaymentEventType {\n  AUTHORIZATION_REQUESTED\n  AUTHORIZED\n  AUTHORIZATION_FAILED\n  CAPTURE_REQUESTED\n  CAPTURED\n  CAPTURE_FAILED\n  REFUND_REQUESTED\n  REFUNDED\n  REFUND_FAILED\n  VOIDED\n  CHARGEBACK_CREATED\n  CHARGEBACK_RESOLVED\n}\n\nenum RiskLevel {\n  LOW\n  MEDIUM\n  HIGH\n  BLOCKED\n}\n\nenum FraudFlagType {\n  VELOCITY\n  GEOLOCATION\n  DEVICE_FINGERPRINT\n  BIN_CHECK\n  CVV_MISMATCH\n  AVS_MISMATCH\n  BLACKLIST\n  SUSPICIOUS_PATTERN\n}\n\nenum FraudSeverity {\n  LOW\n  MEDIUM\n  HIGH\n  CRITICAL\n}\n\nenum FraudAlertStatus {\n  PENDING_REVIEW\n  APPROVED\n  DECLINED\n  ESCALATED\n}\n\nenum FeeType {\n  PROCESSING\n  GATEWAY\n  CURRENCY_CONVERSION\n  FRAUD_PROTECTION\n  CHARGEBACK\n}\n\nenum AnalyticsTimeframe {\n  TODAY\n  WEEK\n  MONTH\n  QUARTER\n  YEAR\n}\n\nenum PaymentSortField {\n  CREATED_AT\n  AMOUNT\n  STATUS\n}\n\ninput PaymentFilter {\n  status: [PaymentStatus!]\n  methods: [PaymentMethodType!]\n  dateRange: DateRangeInput\n  amountRange: PriceRangeInput\n  orderId: ID\n}\n\ninput AdminPaymentFilter {\n  status: [PaymentStatus!]\n  methods: [PaymentMethodType!]\n  gateways: [String!]\n  riskLevels: [RiskLevel!]\n  dateRange: DateRangeInput\n  amountRange: PriceRangeInput\n  customerId: ID\n  orderId: ID\n  fraudulent: Boolean\n}\n\ninput PaymentSort {\n  field: PaymentSortField!\n  direction: SortDirection!\n}\n\ninput PaymentIntentInput {\n  orderId: ID!\n  amount: Float!\n  currency: String!\n  paymentMethods: [PaymentMethodType!]\n  description: String\n  metadata: JSON\n}\n\ninput PaymentMethodInput {\n  type: PaymentMethodType!\n  token: String!\n  billingAddress: AddressInput!\n  isDefault: Boolean = false\n}\n\ninput PaymentMethodUpdateInput {\n  billingAddress: AddressInput\n  isDefault: Boolean\n}\n\ninput DateRangeInput {\n  from: DateTime!\n  to: DateTime!\n}\n\ninput PriceRangeInput {\n  min: Float\n  max: Float\n}\n\ninput AddressInput {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Address {\n  firstName: String!\n  lastName: String!\n  company: String\n  address1: String!\n  address2: String\n  city: String!\n  province: String\n  country: String!\n  zip: String!\n  phone: String\n}\n\ntype Money {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\nscalar DateTime\nscalar Date\nscalar JSON\n```\n\n### DataLoader Implementation\n```javascript\n// payments/src/dataloaders/index.js\nimport DataLoader from 'dataloader';\n\nexport const createPaymentLoaders = () => ({\n  paymentById: new DataLoader(async (ids) => {\n    const payments = await PaymentService.findByIds(ids);\n    return ids.map(id => payments.find(p => p.id === id));\n  }),\n  \n  paymentsByOrder: new DataLoader(async (orderIds) => {\n    const paymentGroups = await PaymentService.findByOrderIds(orderIds);\n    return orderIds.map(id => paymentGroups[id] || []);\n  }, { cache: false }),\n  \n  paymentsByCustomer: new DataLoader(async (customerIds) => {\n    const paymentGroups = await PaymentService.findByCustomerIds(customerIds);\n    return customerIds.map(id => paymentGroups[id] || []);\n  }, { cache: false }),\n  \n  refundsByPayment: new DataLoader(async (paymentIds) => {\n    const refundGroups = await PaymentRefundService.findByPaymentIds(paymentIds);\n    return paymentIds.map(id => refundGroups[id] || []);\n  }, { cache: false }),\n  \n  eventsByPayment: new DataLoader(async (paymentIds) => {\n    const eventGroups = await PaymentEventService.findByPaymentIds(paymentIds);\n    return paymentIds.map(id => eventGroups[id] || []);\n  }, { cache: false }),\n  \n  savedPaymentMethods: new DataLoader(async (customerIds) => {\n    const methodGroups = await SavedPaymentMethodService.findByCustomerIds(customerIds);\n    return customerIds.map(id => methodGroups[id] || []);\n  }, { cache: false }),\n  \n  gatewayById: new DataLoader(async (ids) => {\n    const gateways = await PaymentGatewayService.findByIds(ids);\n    return ids.map(id => gateways.find(g => g.id === id));\n  }),\n  \n  fraudAlertsByPayment: new DataLoader(async (paymentIds) => {\n    const alertGroups = await FraudAlertService.findByPaymentIds(paymentIds);\n    return paymentIds.map(id => alertGroups[id] || []);\n  }, { cache: false })\n});\n```\n\n## Entity Resolution Strategy\n\n### Primary Keys and References\n\nThe Apollo Federation specification indicates that an Object or Interface type can be made into an entity by adding the @key directive to its definition in a subgraph schema. After defining an entity in a schema, other subgraphs can reference that entity in their schemas\n.\n\nKey entity relationships:\n- **User**: Primary key `id`, owned by Users subgraph\n- **Product**: Composite keys `id` and `sku`, owned by Products subgraph  \n- **Order**: Primary key `id`, owned by Orders subgraph\n- **Payment**: Primary key `id`, owned by Payments subgraph\n\n### Cross-Service References\n```graphql\n# Orders service references Products\ntype OrderItem {\n  product: Product! @requires(fields: \"id sku name price\")\n  # ... other fields\n}\n\n# Payments service references Orders and Users\ntype Payment {\n  order: Order! @requires(fields: \"id orderNumber totalAmount\")\n  # ... other fields\n}\n```\n\n## Authentication & Authorization\n\n### Directive Implementation\n\nCheck out this example of an authorization directive: directive @auth(requires: Role = ADMIN) on OBJECT | FIELD_DEFINITION\n and \nDirective that is used to indicate that the target element is accessible only to the authenticated supergraph users\n.\n\nThe schema implements multiple auth patterns:\n- `@authenticated` - Requires valid authentication\n- `@auth(requires: ROLE)` - Role-based access control\n- Field-level authorization for sensitive data\n- \nGateway-level Authentication: All incoming requests are authenticated at the gateway, typically by integrating with identity providers (IdPs). The gateway then passes user context to downstream subgraphs\n\n\n### Context Propagation\n```javascript\n// Gateway authentication middleware\nconst context = ({ req }) => {\n  const token = req.headers.authorization?.replace('Bearer ', '');\n  const user = validateAndDecodeToken(token);\n  \n  return {\n    user,\n    dataloaders: {\n      users: createUserLoaders(),\n      products: createProductLoaders(),\n      orders: createOrderLoaders(),\n      payments: createPaymentLoaders()\n    }\n  };\n};\n```\n\n## N+1 Prevention Strategy\n\n### DataLoader Pattern Implementation\n\nThe solution for the N+1 problem\u2014whether for federated or monolithic graphs\u2014is the DataLoader pattern\n and \nThe DataLoader pattern is a common solution to solve the N+1 Problem in GraphQL. It's based on the idea of batching requests within lists to reduce the number of requests\n.\n\nKey optimization techniques:\n\n1. **Batch Loading**: \nDeduplication: Connectors and DataLoaders ensure that the same request is not sent multiple times\n\n\n2. **Entity Resolution Batching**:\n```javascript\n// Router automatically batches entity resolution calls\nconst resolveProductReferences = async (representations) => {\n  const ids = representations.map(rep => rep.id);\n  return context.dataloaders.products.loadMany(ids);\n};\n```\n\n3. **Service-Level Optimization**:\n```javascript\n// Efficient database queries with IN clauses\nconst findByIds = async (ids) => {\n  return db.query(\n    'SELECT * FROM products WHERE id = ANY($1)',\n    [ids]\n  );\n};\n```\n\n### Performance Monitoring\n```javascript\n// DataLoader metrics collection\nconst createInstrumentedLoader = (batchFn, name) => {\n  return new DataLoader(async (keys) => {\n    const start = Date.now();\n    const result = await batchFn(keys);\n    \n    metrics.histogram(`dataloader.${name}.batch_size`, keys.length);\n    metrics.histogram(`dataloader.${name}.duration`, Date.now() - start);\n    \n    return result;\n  });\n};\n```\n\n## Query Examples\n\n### Complex Cross-Service Query\n```graphql\nquery GetOrderDetails($orderId: ID!) {\n  order(id: $orderId) {\n    id\n    orderNumber\n    status\n    totalAmount {\n      amount\n      currency\n      formatted\n    }\n    customer {\n      id\n      username\n      email\n      profile {\n        avatar\n      }\n    }\n    items {\n      id\n      quantity\n      unitPrice {\n        amount\n        currency\n      }\n      product {\n        id\n        name\n        images {\n          url\n          altText\n        }\n        category {\n          name\n        }\n      }\n    }\n    payment {\n      id\n      status\n      method {\n        name\n        type\n      }\n      billingAddress {\n        address1\n        city\n        country\n      }\n    }\n    shippingAddress {\n      address1\n      city\n      country\n    }\n  }\n}\n```\n\nThis query efficiently:\n1. Fetches order from Orders service\n2. Resolves customer via Users service DataLoader\n3. Resolves products via Products service DataLoader  \n4. Resolves payment via Payments service DataLoader\n5. All with proper batching and authorization\n\n### Analytics Query with Aggregations\n```graphql\nquery ECommerceAnalytics($timeframe: AnalyticsTimeframe!) {\n  orderAnalytics(timeframe: $timeframe) {\n    totalOrders\n    totalRevenue {\n      amount\n      formatted\n    }\n    averageOrderValue {\n      amount\n      formatted\n    }\n    topProducts {\n      product {\n        name\n        sku\n      }\n      quantity\n      revenue {\n        amount\n        formatted\n      }\n    }\n  }\n  \n  paymentAnalytics(timeframe: $timeframe) {\n    totalVolume {\n      amount\n      formatted  \n    }\n    successRate\n    fraudRate\n    methodBreakdown {\n      method\n      volume {\n        amount\n        formatted\n      }\n      successRate\n    }\n  }\n}\n```\n\n## Schema Composition and Deployment\n\n### Gateway Configuration\n```yaml\n# router.yaml\nsupergraph:\n  path: ./supergraph.graphql\n\nauthentication:\n  providers:\n    jwt:\n      keys:\n        - url: \"https://auth.example.com/.well-known/jwks.json\"\n      header_name: \"Authorization\"\n      header_value_prefix: \"Bearer \"\n\nauthorization:\n  directives:\n    authenticated: true\n    requiresAuth: true\n\ntelemetry:\n  metrics:\n    prometheus:\n      enabled: true\n  \n  tracing:\n    jaeger:\n      endpoint: \"http://jaeger:14268/api/traces\"\n\nsubgraphs:\n  users:\n    routing_url: \"http://users-service:4001/graphql\"\n    schema:\n      path: \"./users.graphql\"\n  \n  products:\n    routing_url: \"http://products-service:4002/graphql\"\n    schema:\n      path: \"./products.graphql\"\n  \n  orders:\n    routing_url: \"http://orders-service:4003/graphql\"\n    schema:\n      path: \"./orders.graphql\"\n  \n  payments:\n    routing_url: \"http://payments-service:4004/graphql\"\n    schema:\n      path: \"./payments.graphql\"\n```\n\n### CI/CD Schema Validation\n```yaml\n# .github/workflows/schema-check.yml\nname: Schema Check\non:\n  pull_request:\n    paths:\n      - 'services/*/schema.graphql'\n\njobs:\n  schema-check:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      \n      - name: Install Rover CLI\n        run: curl -sSL https://rover.apollo.dev/nix/latest | sh\n      \n      - name: Schema Composition Check\n        run: |\n          rover supergraph compose \\\n            --config supergraph.yaml \\\n            --output composed.graphql\n      \n      - name: Breaking Change Detection\n        run: |\n          rover subgraph check production@current \\\n            --schema services/${{ matrix.service }}/schema.graphql \\\n            --name ${{ matrix.service }}\n    \n    strategy:\n      matrix:\n        service: [users, products, orders, payments]\n```\n\nThis federated e-commerce schema provides:\n\n- **Domain Separation**: \nClear boundaries between different domains in your application\n\n- **",
+  "total_score": 59.760000000000005,
+  "max_score": 85,
+  "percentage": 0.7030588235294118,
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_directive_implementation",
+      "points_earned": 5.69,
+      "max_points": 7,
+      "percentage": 0.8125,
+      "sub_scores": [
+        {
+          "sub_id": "link_directive_compliance",
+          "raw_value": 1.0,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "entity_key_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_subgraph_resolution",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: link_directive_compliance: 100%x25% + entity_key_design: 75%x35% + cross_subgraph_resolution: 75%x40%",
+      "improvement_hints": [
+        "entity_key_design: 75% -> 80% (+0.1 pts)",
+        "cross_subgraph_resolution: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_composition_validity",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "entity_key_stability",
+      "points_earned": 4.72,
+      "max_points": 6,
+      "percentage": 0.7875,
+      "sub_scores": [
+        {
+          "sub_id": "key_immutability",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_resolution",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "composite_key_design",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: key_immutability: 100%x40% + cross_service_resolution: 75%x35% + composite_key_design: 50%x25%",
+      "improvement_hints": [
+        "composite_key_design: 50% -> 80% (+0.5 pts)",
+        "cross_service_resolution: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_boundary_separation",
+      "points_earned": 8.75,
+      "max_points": 10,
+      "percentage": 0.875,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_clarity",
+          "raw_value": 1.0,
+          "weighted_value": 0.5,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_domain_coupling",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_clarity: 100%x50% + cross_domain_coupling: 75%x50%",
+      "improvement_hints": [
+        "cross_domain_coupling: 75% -> 80% (+0.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_directive_implementation",
+      "points_earned": 4.65,
+      "max_points": 6,
+      "percentage": 0.775,
+      "sub_scores": [
+        {
+          "sub_id": "field_level_authorization",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "role_based_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "token_validation_implementation",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: field_level_authorization: 75%x40% + role_based_consistency: 100%x35% + token_validation_implementation: 50%x25%",
+      "improvement_hints": [
+        "token_validation_implementation: 50% -> 80% (+0.5 pts)",
+        "field_level_authorization: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 5 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dataloader_implementation",
+      "points_earned": 5.17,
+      "max_points": 6,
+      "percentage": 0.8624999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "batch_loading_coverage",
+          "raw_value": 1.0,
+          "weighted_value": 0.45,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "caching_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_batching",
+          "raw_value": 0.75,
+          "weighted_value": 0.15000000000000002,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: batch_loading_coverage: 100%x45% + caching_strategy: 75%x35% + federation_batching: 75%x20%",
+      "improvement_hints": [
+        "caching_strategy: 75% -> 80% (+0.1 pts)",
+        "federation_batching: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "type_design_consistency",
+      "points_earned": 4.56,
+      "max_points": 5,
+      "percentage": 0.9124999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "naming_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "nullability_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "input_output_patterns",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: naming_consistency: 100%x35% + nullability_design: 75%x35% + input_output_patterns: 100%x30%",
+      "improvement_hints": [
+        "nullability_design: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "validation_error_handling",
+      "points_earned": 1.75,
+      "max_points": 5,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "input_validation_coverage",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_type_design",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_error_propagation",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: input_validation_coverage: 50%x40% + error_type_design: 25%x35% + federation_error_propagation: 25%x25%",
+      "improvement_hints": [
+        "error_type_design: 25% -> 80% (+1.0 pts)",
+        "federation_error_propagation: 25% -> 80% (+0.7 pts)",
+        "input_validation_coverage: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "query_execution_efficiency",
+      "points_earned": 3.75,
+      "max_points": 5,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "service_call_efficiency",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "field_resolution_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "common_query_optimization",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: service_call_efficiency: 75%x40% + field_resolution_strategy: 75%x35% + common_query_optimization: 75%x25%",
+      "improvement_hints": [
+        "service_call_efficiency: 75% -> 80% (+0.1 pts)",
+        "field_resolution_strategy: 75% -> 80% (+0.1 pts)",
+        "common_query_optimization: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "error_resilience_patterns",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "circuit_breaker_implementation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "graceful_degradation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "error_boundary_definition",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: circuit_breaker_implementation: 0%x40% + graceful_degradation: 0%x35% + error_boundary_definition: 0%x25%",
+      "improvement_hints": [
+        "circuit_breaker_implementation: 0% -> 80% (+1.6 pts)",
+        "graceful_degradation: 0% -> 80% (+1.4 pts)",
+        "error_boundary_definition: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auth_performance_coherence",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "auth_efficiency_design",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "auth_batching_compatibility",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_service_auth_consistency",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_efficiency_design: 75%x40% + auth_batching_compatibility: 75%x35% + cross_service_auth_consistency: 50%x25%",
+      "improvement_hints": [
+        "cross_service_auth_consistency: 50% -> 80% (+0.5 pts)",
+        "auth_efficiency_design: 75% -> 80% (+0.1 pts)",
+        "auth_batching_compatibility: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "federation_domain_alignment",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [
+        {
+          "sub_id": "entity_ownership_alignment",
+          "raw_value": 1.0,
+          "weighted_value": 0.45,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resolution_pattern_coherence",
+          "raw_value": 1.0,
+          "weighted_value": 0.35,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "key_design_domain_support",
+          "raw_value": 1.0,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: entity_ownership_alignment: 100%x45% + resolution_pattern_coherence: 100%x35% + key_design_domain_support: 100%x20%",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "security_resilience_integration",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "auth_failure_resilience",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "security_error_boundary_alignment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeout_circuit_integration",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auth_failure_resilience: 0%x40% + security_error_boundary_alignment: 0%x35% + timeout_circuit_integration: 0%x25%",
+      "improvement_hints": [
+        "auth_failure_resilience: 0% -> 80% (+1.3 pts)",
+        "security_error_boundary_alignment: 0% -> 80% (+1.1 pts)",
+        "timeout_circuit_integration: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "network_security_controls",
+      "points_earned": 0.6,
+      "max_points": 4,
+      "percentage": 0.15,
+      "sub_scores": [
+        {
+          "sub_id": "network_isolation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "gateway_authentication",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "trusted_source_verification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: network_isolation: 0%x40% + gateway_authentication: 50%x30% + trusted_source_verification: 0%x30%",
+      "improvement_hints": [
+        "network_isolation: 0% -> 80% (+1.3 pts)",
+        "trusted_source_verification: 0% -> 80% (+1.0 pts)",
+        "gateway_authentication: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

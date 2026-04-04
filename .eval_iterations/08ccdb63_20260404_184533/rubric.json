@@ -1,0 +1,1043 @@
+{
+  "task": "Summarize a 2,000-word technical blog post into a 3-bullet executive summary",
+  "domain": "Executive Technical Communication",
+  "total_points": 138,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "executive_strategic_positioning",
+      "category": "Executive Relevance",
+      "description": "Evaluates whether each bullet point presents a clear business value proposition that connects technical capabilities to strategic outcomes executives need for decision-making",
+      "pass_condition": "All 3 bullets must state a business problem/opportunity, explain why it matters strategically, and present a clear solution with quantifiable impact (ROI, market advantage, risk mitigation) with zero implementation details",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "scr_structure_adherence",
+            "description": "Each bullet point contains identifiable Situation-Complication-Resolution elements appropriate for executive consumption",
+            "weight": 0.4,
+            "measurement": "1.0 if all 3 bullets contain clear SCR elements, 0.7 if 2 bullets have complete SCR, 0.4 if 1 bullet has complete SCR, 0.0 if no bullets follow SCR",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "business_impact_quantification",
+            "description": "Strategic outcomes expressed in C-suite metrics (revenue, market position, competitive advantage, operational efficiency)",
+            "weight": 0.35,
+            "measurement": "1.0 if 3+ quantified business impacts using executive KPIs, 0.7 if 2 quantified impacts, 0.4 if 1 quantified impact, 0.0 if no quantified business impacts",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "decision_utility",
+            "description": "Content enables strategic decision-making rather than technical understanding",
+            "weight": 0.25,
+            "measurement": "1.0 if all bullets answer 'what should we do strategically', 0.7 if 2 bullets enable decisions, 0.4 if 1 bullet enables decisions, 0.0 if focused on technical explanation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Current AI chatbot limitations cause 40% customer escalation to human agents (situation), threatening our customer satisfaction targets and increasing support costs by $2M annually (complication). Implementing advanced NLP reduces escalations by 60% while improving customer satisfaction scores by 25 points (resolution)."
+      ],
+      "fail_examples": [
+        "The blog post discusses natural language processing improvements in chatbot technology. New transformer architectures show better performance. This could help our customer service operations."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "McKinsey's SCR framework 'organizes ideas into Situation, Complication, and Resolution' and 'mirrors the natural way humans process stories or problems'"
+    },
+    {
+      "id": "technical_jargon_translation",
+      "category": "Language Translation",
+      "description": "Evaluates strategic translation of specific technical solutions into executive-friendly language that maintains solution authenticity while eliminating implementation details",
+      "pass_condition": "Each bullet must include specific technical identifiers (named algorithms, architectural patterns, or methodologies) translated into precise business functionality, with maximum 1 technical term per bullet and zero implementation jargon, demonstrating clear understanding of technical-business value mapping",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "implementation_details_present": -1.5,
+          "excessive_technical_jargon": -1.0,
+          "missing_business_context_for_technical_terms": -1.0,
+          "technical_complexity_not_translated": -1.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Cloud infrastructure modernization enables 99.9% uptime guarantees, supporting our global expansion into markets requiring enterprise-grade reliability commitments."
+      ],
+      "fail_examples": [
+        "Implementation of Kubernetes orchestration with microservices architecture using Docker containers provides better scalability and resource utilization through horizontal pod autoscaling and load balancing configurations."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "Technical communication professionals use eight core 'Measures of Excellence': Honesty, Clarity, Accuracy, Comprehensiveness, Accessibility, Conciseness, Professional Appearance, and Correctness. Use 'plain language, where technical language is defined or examples/further context are provided'"
+    },
+    {
+      "id": "word_count_compliance",
+      "category": "Length Optimization",
+      "description": "Evaluates strict adherence to executive summary length constraints and efficient information density optimization for C-suite consumption patterns; also: Evaluates adherence to cognitive load limits with exactly three bullets, each addressing one distinct concept within specified word limits",
+      "pass_condition": "Total word count must be 90-120 words (5-6% of source), with each bullet point containing 25-45 words and zero redundant language",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 10,
+        "sub_attributes": [
+          {
+            "sub_id": "total_length_compliance",
+            "description": "Overall summary meets 90-120 word target range representing 5-6% compression of 2000-word source",
+            "weight": 0.5,
+            "measurement": "1.0 if 90-120 words, 0.7 if 80-89 or 121-135 words, 0.4 if 70-79 or 136-150 words, 0.0 if below 70 or above 150 words",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "bullet_length_balance",
+            "description": "Each bullet point contains 25-45 words with balanced information distribution",
+            "weight": 0.3,
+            "measurement": "1.0 if all bullets are 25-45 words, 0.7 if 2/3 bullets in range, 0.4 if 1/3 bullets in range, 0.0 if no bullets in optimal range",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "information_density",
+            "description": "Maximum strategic information per word with zero redundancy or filler language",
+            "weight": 0.2,
+            "measurement": "1.0 if every word contributes unique strategic value, 0.7 if minimal redundancy, 0.4 if moderate redundancy, 0.0 if significant filler or repetition",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "98 words total with bullets of 32, 33, and 33 words respectively, each containing unique strategic insights without overlapping information or executive communication redundancy."
+      ],
+      "fail_examples": [
+        "157 words total with bullets of 52, 48, and 57 words containing repeated concepts and unnecessary qualifying language inappropriate for executive time constraints."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "Executive summaries should be '5% to 10% of the length of your paper' and '90-120 words (3 bullets \u00d7 30-40 words each), representing 5-6% of 2,000-word source'"
+    },
+    {
+      "id": "actionability_specificity",
+      "category": "Actionability",
+      "description": "Evaluates provision of specific, implementable next steps that enable immediate executive decision-making with clear accountability and timelines; also: Evaluates whether the summary provides specific, concrete actions executives can immediately implement rather than abstract strategic concepts",
+      "pass_condition": "Minimum 2 bullets must contain specific actionable recommendations with defined decision points, timelines, or success metrics that executives can implement immediately",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 11,
+        "sub_attributes": [
+          {
+            "sub_id": "decision_specificity",
+            "description": "Recommendations include specific decision points rather than general directional guidance",
+            "weight": 0.4,
+            "measurement": "1.0 if 3 bullets contain specific decisions, 0.7 if 2 bullets contain specific decisions, 0.4 if 1 bullet contains specific decisions, 0.0 if no specific actionable decisions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_clarity",
+            "description": "Clear next steps or processes that executives can initiate without additional technical translation",
+            "weight": 0.35,
+            "measurement": "1.0 if implementation path is explicitly clear, 0.7 if implementation path is implied but identifiable, 0.4 if implementation requires interpretation, 0.0 if no clear implementation guidance",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "success_measurement",
+            "description": "Actionable items include measurable outcomes or success criteria for executive tracking",
+            "weight": 0.25,
+            "measurement": "1.0 if 2+ bullets include success metrics, 0.7 if 1 bullet includes success metrics, 0.4 if success measures are implied, 0.0 if no measurable outcomes provided",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Approve $2.3M cloud migration budget for Q1 implementation, targeting 99.9% uptime SLA to support European market expansion by March 2024."
+      ],
+      "fail_examples": [
+        "Consider cloud migration options to improve system reliability and support business growth objectives when market conditions are favorable."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "SCRAP Framework requires 'Actionable' components and 'Effective resolutions call for action and move audience from passive receivers of information to active participants, motivated to act'"
+    },
+    {
+      "id": "business_impact_clarity",
+      "category": "Business Impact Clarity",
+      "description": "Evaluates explicit articulation of 'so what' connections between technical capabilities and quantified business outcomes using executive KPIs",
+      "pass_condition": "All bullets must contain explicit linkage between technical features and business outcomes (revenue, efficiency, competitive advantage, risk mitigation) with quantified impact statements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "outcome_quantification",
+            "description": "Business impacts expressed in specific quantitative terms using executive-relevant metrics",
+            "weight": 0.4,
+            "measurement": "1.0 if all bullets include quantified business outcomes, 0.7 if 2 bullets include quantified outcomes, 0.4 if 1 bullet includes quantified outcomes, 0.0 if no quantified business impacts",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "technical_business_linkage",
+            "description": "Clear causal connection between technical capabilities and business outcomes without logical gaps",
+            "weight": 0.35,
+            "measurement": "1.0 if technical-business causality is explicit and logical, 0.7 if causality is present but requires minor interpretation, 0.4 if causality is weak or unclear, 0.0 if no clear connection between technical and business elements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "executive_kpi_alignment",
+            "description": "Business outcomes framed using C-suite performance indicators (revenue, market share, operational efficiency, risk metrics)",
+            "weight": 0.25,
+            "measurement": "1.0 if outcomes align with standard C-suite KPIs, 0.7 if outcomes are business-relevant but not executive-focused, 0.4 if outcomes are operational rather than strategic, 0.0 if outcomes are technical rather than business metrics",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Advanced encryption protocols reduce data breach risk by 85%, protecting against potential $50M regulatory fines while enabling secure expansion into regulated healthcare markets."
+      ],
+      "fail_examples": [
+        "New encryption provides better security features and improved data protection capabilities that enhance overall system reliability and user trust."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "[Partial] Each bullet connects technical capability to business outcome using executive language"
+    },
+    {
+      "id": "critical_insight_prioritization",
+      "category": "Completeness & Prioritization",
+      "description": "Evaluates whether the summary demonstrates clear selection criteria for featured insights based on explicit business impact, competitive implications, or strategic urgency mentioned in source material",
+      "pass_condition": "Each bullet must address business challenges explicitly ranked or prioritized in the source material (using phrases like 'primary concern,' 'critical issue,' 'highest impact'), with clear connection between bullet content and source-stated business priorities",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "strategic_significance",
+            "description": "Selected insights represent highest-impact strategic opportunities or challenges from source material",
+            "weight": 0.5,
+            "measurement": "1.0 if all 3 insights are clearly highest strategic priority from source, 0.7 if 2/3 insights are top priority, 0.4 if 1/3 insights is top priority, 0.0 if insights are secondary or tactical rather than strategic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "editorial_focus",
+            "description": "Summary demonstrates expert editorial judgment by excluding less critical information in favor of strategic priorities",
+            "weight": 0.5,
+            "measurement": "1.0 if summary clearly prioritizes strategic over tactical information, 0.7 if generally prioritizes strategic insights, 0.4 if mixed strategic and tactical focus, 0.0 if includes low-priority or non-strategic information",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Summary focusing on market-changing AI capabilities, competitive timing advantages, and revenue impact while excluding technical implementation details or minor feature improvements."
+      ],
+      "fail_examples": [
+        "Summary including routine system updates, minor performance improvements, and technical configuration details alongside strategic market opportunities."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "[Partial] Most people are only able to retain three pieces of information at a time"
+    },
+    {
+      "id": "strategic_technical_coherence",
+      "category": "Cross-cutting Coherence",
+      "description": "Evaluates whether strategic business positioning aligns logically with technical capabilities described, ensuring executive recommendations are technically feasible and business claims are technically supported",
+      "pass_condition": "Business outcomes claimed must be directly supported by specific technical capabilities mentioned in source material, with no claims for functionality beyond what the described technology actually provides",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "technical_business_alignment",
+            "description": "Technical capabilities described can realistically deliver the business outcomes promised",
+            "weight": 0.5,
+            "measurement": "1.0 if technical capabilities fully support business claims, 0.7 if technical capabilities mostly support business claims, 0.4 if technical capabilities partially support business claims, 0.0 if technical capabilities cannot deliver promised business outcomes",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "feasibility_consistency",
+            "description": "Implementation timelines and resource requirements align between technical complexity and business expectations",
+            "weight": 0.5,
+            "measurement": "1.0 if timelines and resources are consistent across technical and business dimensions, 0.7 if mostly consistent with minor gaps, 0.4 if some inconsistencies present, 0.0 if significant misalignment between technical and business feasibility",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Claims that '40% cost reduction' aligns with described 'automated processing capabilities' and stated '6-month implementation timeline' is realistic for the technical scope described."
+      ],
+      "fail_examples": [
+        "Claims '80% efficiency improvement' but describes only minor technical upgrades, or promises '30-day implementation' for complex technical architecture changes."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "Systems thinking principles requiring coherence between technical and business domains, combined with engineering communication standards for realistic capability-outcome alignment"
+    },
+    {
+      "id": "competitive_impact_consistency",
+      "category": "Cross-cutting Coherence",
+      "description": "Evaluates whether competitive positioning claims align with stated business impacts and market timing, ensuring strategic narrative coherence across all three bullets",
+      "pass_condition": "Competitive advantages must be specific and differentiated (beyond generic efficiency/cost claims), with consistent market positioning that shows clear understanding of competitive landscape and specific differentiating capabilities",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "competitive_business_alignment",
+            "description": "Competitive advantages claimed are proportional to and consistent with business impact sizes described",
+            "weight": 0.6,
+            "measurement": "1.0 if competitive claims fully align with business impact scale, 0.7 if mostly aligned with minor inconsistencies, 0.4 if partial alignment with some contradictions, 0.0 if competitive claims contradict business impact magnitude",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "strategic_narrative_coherence",
+            "description": "Overall strategic story across all three bullets presents consistent competitive positioning without contradictory claims",
+            "weight": 0.4,
+            "measurement": "1.0 if strategic narrative is fully coherent across bullets, 0.7 if mostly coherent with minor inconsistencies, 0.4 if some narrative contradictions present, 0.0 if contradictory strategic positioning across bullets",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Claims of 'market leadership position' align with '$10M revenue impact' and 'first-mover advantage in emerging regulatory market' across all three bullets."
+      ],
+      "fail_examples": [
+        "Claims 'significant competitive advantage' in bullet 1 but describes 'catching up to industry standard' in bullet 2, or promises '$50M impact' but describes 'minor competitive improvement.'"
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "Strategic communication principles requiring internal consistency across executive messaging, combined with STC's Comprehensiveness excellence measure for coherent strategic narrative"
+    },
+    {
+      "id": "executive_decision_synthesis",
+      "category": "Cross-cutting Coherence",
+      "description": "Evaluates whether the three bullets together form a coherent decision framework that enables unified executive action rather than conflicting or unrelated recommendations; also: Evaluates whether the three bullets form a logical strategic narrative that explains the relationship between initiatives and builds a compelling case for the overall recommendation",
+      "pass_condition": "The three bullets must address complementary aspects of a single strategic objective or build upon each other in logical sequence, with explicit connections showing unified decision framework rather than three independent recommendations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "unified_action_framework",
+            "description": "Three bullets support a coherent strategic direction rather than conflicting or unrelated actions",
+            "weight": 0.6,
+            "measurement": "1.0 if bullets form unified action framework, 0.7 if bullets are complementary but not unified, 0.4 if bullets are independent but not conflicting, 0.0 if bullets contain conflicting recommendations or priorities",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_priority_coherence",
+            "description": "Resource requirements and timeline implications across bullets are compatible and realistic for unified implementation",
+            "weight": 0.4,
+            "measurement": "1.0 if resource and timeline requirements are fully compatible, 0.7 if mostly compatible with manageable conflicts, 0.4 if some resource or timeline conflicts present, 0.0 if incompatible resource demands or timeline conflicts",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Three bullets that describe complementary aspects of cloud modernization strategy: infrastructure upgrade, security enhancement, and market expansion, all supporting unified digital transformation initiative."
+      ],
+      "fail_examples": [
+        "Bullet 1 recommends major AI investment for 2024, bullet 2 suggests cost reduction through staff cuts, bullet 3 proposes acquisition requiring all available capital - creating resource conflicts."
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "[Partial] Executive decision-making research emphasizing coherent strategic frameworks"
+    },
+    {
+      "id": "resolution_first_structure",
+      "category": "Communication Strategy",
+      "description": "Evaluates whether each bullet leads with the resolution/answer rather than building up to it",
+      "pass_condition": "Each bullet opens with the key finding, decision, or outcome within the first 10 words",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "answer_placement",
+            "description": "Key resolution appears in first 10 words of each bullet",
+            "weight": 0.5,
+            "measurement": "position_analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "inverted_pyramid",
+            "description": "Most important information precedes supporting context",
+            "weight": 0.3,
+            "measurement": "information_hierarchy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "executive_directness",
+            "description": "Avoids logical buildup and states conclusions immediately",
+            "weight": 0.2,
+            "measurement": "narrative_structure",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "'Implement API gateway to reduce latency by 40% across microservices architecture'",
+        "'Migrate to cloud infrastructure will cut operational costs 25% annually'"
+      ],
+      "fail_examples": [
+        "'Current system performance shows declining metrics, suggesting we should consider implementing...'",
+        "'After analyzing the data and reviewing options, the recommendation is...'"
+      ],
+      "domain": "Executive Technical Communication",
+      "research_basis": "Expert summaries lead with the answer and counter natural inclination to logically build an argument and reveal your conclusion at the end"
+    },
+    {
+      "id": "balanced_risk_context",
+      "category": "Executive Context",
+      "description": "Evaluates whether the summary provides balanced context including key dependencies, limitations, or risks that executives need for informed decision-making; also: Evaluates whether the summary provides balanced perspective including key risks, resource requirements, or implementation challenges necessary for informed executive decision-making",
+      "pass_condition": "At least one bullet must acknowledge a significant dependency, limitation, or risk factor that could impact the proposed outcomes",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "dependency_acknowledgment",
+            "description": "Critical dependencies or prerequisites are identified",
+            "weight": 0.5,
+            "measurement": "presence_quality_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "risk_transparency",
+            "description": "Potential risks or limitations are appropriately contextualized",
+            "weight": 0.5,
+            "measurement": "presence_quality_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "investment_transparency",
+      "category": "Resource Planning",
+      "description": "Evaluates whether the summary provides executives with sufficient context about resource requirements, investment levels, or effort needed to achieve stated outcomes",
+      "pass_condition": "At least 2 bullets must include indication of resource scale, investment level, or effort required (budget ranges, team size, time investment)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "resource_scale_indication",
+            "description": "Provides context on human or technical resources needed",
+            "weight": 0.5,
+            "measurement": "specificity_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "investment_context",
+            "description": "Indicates financial or time investment magnitude",
+            "weight": 0.5,
+            "measurement": "specificity_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "stakeholder_impact_awareness",
+      "category": "Organizational Context",
+      "description": "Evaluates whether the summary considers impact on key stakeholders, organizational change requirements, or cross-functional implications that executives must manage",
+      "pass_condition": "At least one bullet must acknowledge stakeholder impact, change management needs, or cross-functional coordination requirements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "stakeholder_consideration",
+            "description": "Identifies impact on key internal or external stakeholders",
+            "weight": 0.6,
+            "measurement": "relevance_quality_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "change_management_awareness",
+            "description": "Acknowledges organizational change or coordination needs",
+            "weight": 0.4,
+            "measurement": "presence_quality_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "source_fidelity_verification",
+      "category": "Content Authenticity",
+      "description": "Evaluates whether the summary demonstrates clear derivation from the specific source material through unique details, specific context, and traceable claims rather than generic industry statements",
+      "pass_condition": "Each bullet must contain at least one specific detail, metric, or context that could only come from the source document, and claims must be traceable to source content rather than generic industry knowledge",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "source_specificity",
+            "description": "Presence of unique details from source",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "claim_traceability",
+            "description": "Claims traceable to source vs generic",
+            "weight": 0.6,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "projection_credibility_assessment",
+      "category": "Financial Realism",
+      "description": "Evaluates whether quantified projections and timelines reflect realistic market conditions, implementation complexity, and organizational constraints rather than aspirational or arbitrary figures",
+      "pass_condition": "Financial projections must include qualifying context about assumptions, market conditions, or implementation prerequisites, and timelines must reflect realistic deployment complexity",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "assumption_transparency",
+            "description": "Clear basis for financial projections",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_realism",
+            "description": "Implementation timelines reflect complexity",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_portfolio_logic",
+      "category": "Strategic Coherence",
+      "description": "Evaluates whether multiple recommendations form a logical strategic portfolio with clear rationale for technology selection, sequencing, and resource allocation rather than disconnected initiatives",
+      "pass_condition": "The combination of recommendations must demonstrate strategic logic for why these specific technologies work together, with clear rationale for selection over alternatives and consideration of resource allocation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "selection_rationale",
+            "description": "Clear logic for technology choices",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "portfolio_synergy",
+            "description": "Technologies complement rather than compete",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "solution_specificity_authenticity",
+      "category": "Content Authenticity",
+      "description": "Evaluates whether the summary captures the specific technical solution, methodology, or innovation detailed in the source rather than using generic technology buzzwords that could apply to any initiative; also: Evaluates whether technical concepts referenced can be clearly defined and have logical implementation relationships rather than being meaningless buzzword combinations",
+      "pass_condition": "Each bullet must reference specific technical approaches, methodologies, or innovations unique to the source content, avoiding generic terms like 'machine learning,' 'cloud architecture,' or 'digital transformation' without context",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "unique_solution_elements",
+            "description": "References specific technical innovations from source",
+            "weight": 0.7,
+            "measurement": "specificity_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "generic_language_avoidance",
+            "description": "Avoids interchangeable buzzword terminology",
+            "weight": 0.3,
+            "measurement": "inverse_generic_count",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "contextual_business_environment",
+      "category": "Strategic Context",
+      "description": "Evaluates whether the summary provides sufficient context about market conditions, competitive pressures, or business environment factors that justify the strategic recommendations and their timing",
+      "pass_condition": "At least one bullet must reference market context, competitive dynamics, regulatory environment, or business conditions that create urgency or opportunity for the recommended actions",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "market_context_inclusion",
+            "description": "References relevant market or competitive factors",
+            "weight": 0.5,
+            "measurement": "context_presence_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "urgency_justification",
+            "description": "Explains timing or urgency drivers for recommendations",
+            "weight": 0.5,
+            "measurement": "urgency_clarity_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "quantitative_credibility",
+      "category": "Accuracy",
+      "description": "Evaluates whether quantified claims are grounded in source material evidence or include appropriate uncertainty qualifiers rather than presenting arbitrary precision; also: Evaluates whether financial projections include appropriate uncertainty indicators, methodology references, or confidence qualifiers rather than presenting estimates as definitive outcomes",
+      "pass_condition": "All quantified claims must either be directly cited from source material or include uncertainty qualifiers (estimated, projected, potential) and avoid false precision (e.g., '23.7%' should be '20-25%')",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "source_grounded",
+            "description": "Metrics derived from or supported by source material",
+            "weight": 0.6,
+            "measurement": "percentage_of_claims",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "industry_realistic",
+            "description": "Claims fall within realistic industry ranges",
+            "weight": 0.4,
+            "measurement": "binary_assessment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "decision_context_completeness",
+      "category": "Strategic Value",
+      "description": "Evaluates whether the summary provides essential contextual information about current state, market conditions, organizational readiness, or constraints that executives need for informed decision-making",
+      "pass_condition": "At least 2 bullets must include contextual elements such as current state baselines, market timing factors, organizational prerequisites, or implementation risks that inform the strategic recommendation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "current_state_context",
+            "description": "Provides baseline or current state information",
+            "weight": 0.4,
+            "measurement": "binary_per_bullet",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_context",
+            "description": "Addresses readiness, constraints, or prerequisites",
+            "weight": 0.6,
+            "measurement": "count_based",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_clarity_precision",
+      "category": "Communication Quality",
+      "description": "Evaluates whether strategic language is precise and meaningful rather than generic business buzzwords, with clear articulation of trade-offs, alternatives, and specific strategic implications",
+      "pass_condition": "Maximum 3 generic business terms across all bullets (e.g., 'transform', 'modernize', 'leverage'), with each bullet containing at least one specific strategic trade-off or alternative consideration",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "buzzword_avoidance",
+            "description": "Minimizes generic business terminology",
+            "weight": 0.4,
+            "measurement": "count_penalty",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trade_off_clarity",
+            "description": "Articulates specific strategic choices or trade-offs",
+            "weight": 0.6,
+            "measurement": "binary_per_bullet",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "contextual_feasibility_assessment",
+      "category": "Strategic Realism",
+      "description": "Evaluates whether recommendations acknowledge organizational readiness, resource constraints, and implementation prerequisites rather than providing one-size-fits-all directives",
+      "pass_condition": "Recommendations must include contextual qualifiers about organizational readiness, resource requirements, or prerequisite conditions rather than universal implementation commands",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "readiness_acknowledgment",
+            "description": "Recognition of organizational prerequisites",
+            "weight": 0.5,
+            "measurement": "contextual_qualifier_presence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "constraint_awareness",
+            "description": "Acknowledgment of implementation barriers",
+            "weight": 0.5,
+            "measurement": "realistic_scoping_indicators",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_substance_depth",
+      "category": "Content Quality",
+      "description": "Evaluates whether the summary provides substantive, specific strategic insights rather than generic business buzzwords that could apply to any technology initiative",
+      "pass_condition": "Each bullet must contain at least 2 specific, unique strategic insights that clearly differentiate this initiative from generic technology projects, with zero meaningless buzzwords like 'synergistic capabilities' or 'next-generation'",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "insight_specificity",
+            "description": "Presence of unique, actionable strategic insights",
+            "weight": 0.6,
+            "measurement": "binary_per_bullet",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "buzzword_elimination",
+            "description": "Absence of meaningless corporate jargon",
+            "weight": 0.4,
+            "measurement": "penalty_per_instance",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "competitive_differentiation_specificity",
+      "category": "Strategic Positioning",
+      "description": "Evaluates whether the summary articulates specific, defensible competitive advantages and differentiation rather than generic efficiency improvements",
+      "pass_condition": "At least 2 bullets must identify specific competitive advantages, market positioning benefits, or unique capabilities that differentiate from competitors, beyond generic cost/efficiency claims",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "unique_advantage_identification",
+            "description": "Specific competitive advantages beyond generic efficiency",
+            "weight": 0.7,
+            "measurement": "count_per_bullet",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "market_positioning_clarity",
+            "description": "Clear articulation of market position improvement",
+            "weight": 0.3,
+            "measurement": "qualitative_assessment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "executive_communication_hierarchy",
+      "category": "Executive Readiness",
+      "description": "Evaluates whether information is presented in executive-preferred hierarchy with business impact first, followed by strategic context, with technical details minimized and properly contextualized",
+      "pass_condition": "Each bullet must lead with clear business outcome or strategic implication within first 8 words, with any technical terms appearing only after business context is established",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "outcome_first_structure",
+            "description": "Business outcomes presented before technical details",
+            "weight": 0.7,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "technical_contextualization",
+            "description": "Technical terms properly contextualized within business framework",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    },
+    {
+      "id": "urgency_context_establishment",
+      "category": "Decision Context",
+      "description": "Evaluates whether the summary establishes clear business context about current challenges, market pressures, or competitive threats that create urgency for the recommended actions and justify immediate executive attention",
+      "pass_condition": "At least one bullet must establish current state context, market pressure, competitive threat, or business challenge that creates urgency and justifies why these initiatives require immediate executive decision-making rather than future consideration",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "current_state_context",
+            "description": "Clear articulation of current business challenges or limitations",
+            "weight": 0.5,
+            "measurement": "presence_assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "urgency_drivers",
+            "description": "Explicit identification of factors creating urgency for action",
+            "weight": 0.5,
+            "measurement": "presence_assessment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Executive Technical Communication",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "executive_relevance",
+      "name": "Executive Relevance",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "structural_compliance",
+      "name": "Structural Compliance",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "technical_accuracy",
+      "name": "Technical Accuracy",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "length_optimization",
+      "name": "Length Optimization",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "language_translation",
+      "name": "Language Translation",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "business_impact_clarity",
+      "name": "Business Impact Clarity",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "actionability",
+      "name": "Actionability",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "completeness_prioritization",
+      "name": "Completeness & Prioritization",
+      "description": "",
+      "weight": 0.05,
+      "criteria_ids": []
+    }
+  ]
+}

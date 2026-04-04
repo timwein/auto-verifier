@@ -1,0 +1,56 @@
+[
+  {
+    "current_approach_summary": "The generator is writing comprehensive, detailed emails with extensive traction metrics, multiple value propositions, and lengthy explanations that far exceed professional cold email standards.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Ultra-brief teaser approach: Write emails under 75 words that create curiosity without revealing full details, focusing on one compelling hook and a simple meeting request. Strip out all metrics, background, and explanations to force brevity.",
+        "why_it_might_work": "Research shows emails between 50-125 words get optimal response rates, and this approach would force compliance with professional length standards.",
+        "example_signal": "A 60-word email that mentions one intriguing fact about the business and asks for a 15-minute call would hit the sweet spot for professional investor outreach."
+      },
+      {
+        "rank": 2,
+        "strategy": "Bullet-point format with strict word limits: Structure the email as 3-4 bullet points with a maximum of 15 words per bullet, covering only the most essential information (problem, solution, traction, ask). Use white space and formatting to make it scannable.",
+        "why_it_might_work": "This format naturally constrains length while maintaining readability and ensuring the email stays within the 75-125 word professional standard range.",
+        "example_signal": "An email with 4 bullets totaling under 100 words that covers the key points without elaboration would meet length requirements while staying organized."
+      },
+      {
+        "rank": 3,
+        "strategy": "Question-driven micro-pitch: Lead with a single compelling question related to the investor's portfolio, follow with one sentence about the company, and end with a meeting request. Eliminate all background context, metrics, and explanations.",
+        "why_it_might_work": "This approach forces extreme brevity by using a question format that naturally limits word count while still providing value, fitting well within the 50-125 word professional range.",
+        "example_signal": "A 50-word email starting with a strategic question about their portfolio company's challenges would demonstrate research while staying ultra-concise."
+      }
+    ],
+    "recommendation": "Alternative 1 (ultra-brief teaser) because it most directly addresses the core issue of excessive length while maintaining the intrigue needed for investor outreach.",
+    "criterion_id": "optimal_word_count",
+    "current_score": 0.43103448275862066,
+    "score_history": "65% \u2192 43% \u2192 43%"
+  },
+  {
+    "current_approach_summary": "The generator is using a detailed, metrics-heavy subject line (55 characters) that gets truncated on mobile devices, burying the key hook in invisible text.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Ultra-short hook strategy: Lead with the most compelling single metric in under 30 characters, using the preheader text to provide additional context. Focus on one powerful number that creates immediate intrigue.",
+        "why_it_might_work": "Mobile notifications show only 30-40 characters, so front-loading the strongest hook ensures full visibility and maximum impact on mobile devices.",
+        "example_signal": "Subject: '$47K MRR, 140% growth' (24 chars) with preheader extending the pitch would be fully visible on all mobile devices."
+      },
+      {
+        "rank": 2,
+        "strategy": "Question-based curiosity strategy: Replace metrics with an intriguing question that creates urgency and curiosity, keeping it under 35 characters. Use psychological triggers rather than data points.",
+        "why_it_might_work": "Questions naturally engage mobile users who are quickly scanning notifications, and curiosity-driven subject lines perform well in mobile environments where attention spans are shorter.",
+        "example_signal": "Subject: 'Ready for 140% growth?' (22 chars) creates intrigue while staying fully visible on mobile notifications."
+      },
+      {
+        "rank": 3,
+        "strategy": "Personalized urgency strategy: Use the founder's name and create time-sensitive language in under 30 characters, leveraging mobile users' tendency to respond to personalized, urgent messages.",
+        "why_it_might_work": "Mobile users respond strongly to personalization and urgency cues, and shorter personalized messages have higher open rates on mobile devices.",
+        "example_signal": "Subject: '[Name], 8-week runway' (varies by name length) creates personal urgency while optimizing for mobile character limits."
+      }
+    ],
+    "recommendation": "Alternative 1 (ultra-short hook strategy) because it directly addresses the mobile optimization criterion by ensuring full visibility while maintaining the strongest conversion element (impressive metrics).",
+    "criterion_id": "mobile_subject_optimization",
+    "current_score": 0.029806259314456036,
+    "score_history": "5% \u2192 3% \u2192 3%"
+  }
+]

@@ -1,0 +1,581 @@
+{
+  "task": "Create a SQL query to find the top 10 customers by lifetime value excluding refunds, from a schema you define",
+  "domain": "SQL Data Engineering",
+  "total_points": 63,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "normalization_and_relationships",
+      "category": "Schema Design & Data Modeling",
+      "description": "Evaluates adherence to normalization standards with proper entity separation, foreign key relationships, and elimination of data redundancy through appropriate normal form design",
+      "pass_condition": "Schema must achieve 3NF minimum with zero redundant data, implement comprehensive foreign key constraints with CASCADE/RESTRICT rules, demonstrate advanced normalization techniques (junction tables for many-to-many, separate lookup tables for categorical data), and include detailed entity relationship documentation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "normalization_level",
+            "description": "Achievement of Third Normal Form with proper decomposition of entities",
+            "weight": 0.4,
+            "measurement": "1.0 if achieves 3NF with proper entity decomposition, 0.7 if reaches 2NF with minor violations, 0.4 if basic 1NF only, 0.0 if unnormalized or significant redundancy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "constraint_implementation",
+            "description": "Implementation of foreign key constraints and referential integrity",
+            "weight": 0.3,
+            "measurement": "1.0 if all relationships have explicit FK constraints with proper naming, 0.7 if 80%+ relationships constrained, 0.4 if 50-79% constrained, 0.0 if under 50% or no constraints",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fact_dimension_separation",
+            "description": "Clear separation between fact tables (measures/metrics) and dimension tables (descriptive attributes)",
+            "weight": 0.3,
+            "measurement": "1.0 if perfect star schema with measures isolated in fact tables, 0.7 if mostly separated with 1-2 minor violations, 0.4 if basic separation attempted, 0.0 if no dimensional modeling applied",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Customers table (customer_id PK, customer_name, email), Orders fact table (order_id PK, customer_id FK, order_date, total_amount), OrderItems fact table (order_item_id PK, order_id FK, product_id FK, quantity, unit_price), Products dimension (product_id PK, product_name, category)"
+      ],
+      "fail_examples": [
+        "Single denormalized table with customer_name, order_date, product_name all in one table",
+        "Tables without foreign key constraints declared"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Normalized schemas for OLTP systems should target Third Normal Form (3NF) to minimize write anomalies and storage redundancy. For analytical workloads, fact tables should be normalized to 3NF while dimension tables remain in 2NF using star schema patterns for ease-of-use and higher query performance."
+    },
+    {
+      "id": "dimensional_modeling_architecture",
+      "category": "Schema Design & Data Modeling",
+      "description": "Evaluates appropriate use of dimensional modeling concepts when the analytical requirements benefit from such structure",
+      "pass_condition": "If schema uses dimensional modeling approach, must implement surrogate keys for dimension tables and define consistent grain. Alternative normalized approaches acceptable if they efficiently support the CLV analytical requirements",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "natural_keys_as_primary": -1.5,
+          "mixed_grain_in_facts": -2.0,
+          "missing_business_keys": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "dim_customer table with customer_sk (surrogate) and customer_id (business key), fact_orders with consistent order-line grain"
+      ],
+      "fail_examples": [
+        "Using customer_id as primary key in dimension table",
+        "Fact table mixing order-level and order-line-level measures"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Implementation of conformed dimensions with unique surrogate keys used consistently across all facts, ensuring consistent attribute meanings in every fact table."
+    },
+    {
+      "id": "index_strategy_optimization",
+      "category": "Query Performance & Optimization",
+      "description": "Evaluates whether the schema design considers appropriate indexing strategies for the query patterns, including indexes on join columns and frequently filtered columns",
+      "pass_condition": "Schema must include explicit CREATE INDEX statements with specific index types (clustered, non-clustered, composite), demonstrate understanding of index selectivity and cardinality considerations, and provide covering indexes for the CLV query to eliminate key lookups",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "composite_join_indexes",
+            "description": "Presence and design quality of composite indexes on frequently joined columns",
+            "weight": 0.4,
+            "measurement": "1.0 if composite index spans customer_id + temporal column with proper column order, 0.7 if composite exists but suboptimal column ordering, 0.4 if only single-column indexes on join keys, 0.0 if no strategic indexing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "covering_index_strategy",
+            "description": "Implementation of covering indexes to avoid key lookups on large result sets",
+            "weight": 0.35,
+            "measurement": "1.0 if covering index includes all SELECT columns with INCLUDE clause, 0.7 if partial covering with some key lookups, 0.4 if mentions covering concept but incomplete implementation, 0.0 if no covering index consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "clustered_key_design",
+            "description": "Proper clustered index design for analytical workload patterns",
+            "weight": 0.25,
+            "measurement": "1.0 if clustered on surrogate key with appropriate fillfactor for insert patterns, 0.7 if clustered appropriately but no fillfactor consideration, 0.4 if clustered on natural key causing fragmentation, 0.0 if default or inappropriate clustering",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "CREATE INDEX IX_Orders_Customer_Date_Covering ON Orders(customer_id, order_date) INCLUDE (order_amount, refund_amount) WITH FILLFACTOR = 85"
+      ],
+      "fail_examples": [
+        "Basic CREATE INDEX ON Orders(customer_id) without covering or composite design"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Strategic indexing on frequently used columns in WHERE, JOIN, ORDER BY, and GROUP BY clauses... Indexes are among the most powerful tools for improving query performance, dramatically reducing execution time when properly designed."
+    },
+    {
+      "id": "query_execution_efficiency",
+      "category": "Query Performance & Optimization",
+      "description": "Evaluates SQL query structure for efficiency through appropriate join types, aggregation strategies, and query organization",
+      "pass_condition": "Query must use appropriate join types, efficient aggregation approaches (avoiding unnecessary subqueries or self-joins), and demonstrate understanding of query optimization principles",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "join_optimization",
+            "description": "Optimal join algorithm selection and join order consideration",
+            "weight": 0.4,
+            "measurement": "1.0 if uses proper INNER/LEFT joins with optimal order (smallest to largest tables), 0.7 if correct join types but suboptimal ordering, 0.4 if basic joins without optimization consideration, 0.0 if inappropriate join types or cross joins",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "aggregation_strategy",
+            "description": "Efficient aggregation approach using window functions vs GROUP BY appropriately",
+            "weight": 0.35,
+            "measurement": "1.0 if leverages window functions for ranking with proper partitioning, 0.7 if uses appropriate aggregation but could optimize further, 0.4 if basic GROUP BY without window function consideration, 0.0 if inefficient aggregation patterns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "execution_plan_awareness",
+            "description": "Query structure demonstrates understanding of execution plan optimization",
+            "weight": 0.25,
+            "measurement": "1.0 if includes hints or structure clearly optimized for execution plan, 0.7 if good structure likely to produce efficient plan, 0.4 if basic structure without plan consideration, 0.0 if structure likely to cause poor execution plans",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "SELECT TOP 10 customer_id, SUM(net_amount) OVER (PARTITION BY customer_id) as lifetime_value FROM orders WHERE refund_flag = 0 ORDER BY lifetime_value DESC"
+      ],
+      "fail_examples": [
+        "SELECT * FROM customers c CROSS JOIN orders o WHERE c.id = o.customer_id"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Uses set-based operations like JOINs, CTEs, or window functions for optimal performance... Inefficient SQL drives 63% of performance issues, with 7% of queries potentially consuming 70%+ of database resources."
+    },
+    {
+      "id": "lifetime_value_calculation_accuracy",
+      "category": "Business Logic & Calculation Accuracy",
+      "description": "Evaluates correct implementation of customer lifetime value methodology with proper handling of refunds, returns, and multi-transaction aggregation following standard CLV calculation practices",
+      "pass_condition": "Query must correctly sum all positive transactions per customer, subtract refunds/returns using proper identification methods, handle partial refunds accurately, and calculate net lifetime value using SUM() aggregation with appropriate WHERE clauses for exclusions",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "double_counting_transactions": -2.0,
+          "incorrect_refund_logic": -1.5,
+          "missing_partial_refund_handling": -1.0,
+          "no_negative_value_consideration": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "SUM(CASE WHEN transaction_type = 'sale' THEN amount WHEN transaction_type = 'refund' THEN -amount ELSE 0 END) as lifetime_value"
+      ],
+      "fail_examples": [
+        "SUM(order_amount) without any refund consideration",
+        "Including refund transactions as positive values"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Standard CLV methodology requires accurate net revenue calculation excluding returns and refunds to provide meaningful customer value metrics for business decision-making"
+    },
+    {
+      "id": "data_integrity_and_null_handling",
+      "category": "Data Integrity & Edge Case Handling",
+      "description": "Evaluates robust handling of NULL values, data quality issues, and boundary conditions including customers with zero/negative lifetime value, missing data scenarios, and referential integrity considerations",
+      "pass_condition": "Query must include explicit NULL handling using COALESCE() or IS NOT NULL filters, address zero/negative lifetime value scenarios with appropriate business logic, and ensure joins preserve data integrity without creating orphaned records",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "no_null_handling": -1.5,
+          "missing_zero_value_logic": -1.0,
+          "orphaned_records_possible": -1.5,
+          "division_by_zero_risk": -2.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "WHERE COALESCE(order_amount, 0) > 0 AND customer_id IS NOT NULL"
+      ],
+      "fail_examples": [
+        "SUM(order_amount) without NULL consideration",
+        "Joins that could produce orphaned customer records"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Proper handling of three-valued logic with NULL values, avoiding NOT IN predicates with NULL columns... Uses NULLIF functions for division operations and proper NULL checking in calculations."
+    },
+    {
+      "id": "sql_standards_and_code_quality",
+      "category": "SQL Standards & Code Quality",
+      "description": "Evaluates adherence to ANSI SQL standards, proper coding conventions, and maintainable query structure including explicit column selection, meaningful aliases, and formatting that follows enterprise development standards",
+      "pass_condition": "Query must demonstrate advanced SQL standards including explicit transaction isolation levels, comprehensive error handling with TRY/CATCH blocks, parameterized query structure for security, detailed inline documentation explaining business logic, and adherence to enterprise naming conventions with consistent prefixing/schema qualification",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "select_star_usage": -1.0,
+          "inconsistent_aliasing": -0.5,
+          "poor_formatting": -0.5,
+          "database_specific_syntax": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "SELECT c.customer_id, c.customer_name, SUM(o.order_amount) AS lifetime_value FROM customers c INNER JOIN orders o ON c.customer_id = o.customer_id"
+      ],
+      "fail_examples": [
+        "SELECT * FROM customers, orders WHERE customers.id = orders.customer_id"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Explicit column selection avoiding SELECT *, appropriate WHERE clause usage, and optimized result set filtering... Early bug detection in code review is less expensive than issues caught later."
+    },
+    {
+      "id": "scalability_architecture",
+      "category": "Scalability & Enterprise Architecture",
+      "description": "Evaluates query design considerations that support scalability with larger datasets",
+      "pass_condition": "Query design should include appropriate filtering strategies to limit result sets, avoid operations that would perform poorly on large datasets, and demonstrate awareness of scalability considerations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "partition_awareness",
+            "description": "Query design that leverages table partitioning for performance",
+            "weight": 0.4,
+            "measurement": "1.0 if includes partition elimination through date filtering or similar strategies, 0.7 if some partition consideration, 0.4 if basic awareness but incomplete implementation, 0.0 if no partitioning consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scan_avoidance",
+            "description": "Query structure that avoids full table scans through proper filtering",
+            "weight": 0.35,
+            "measurement": "1.0 if WHERE clauses enable index seeks on large tables, 0.7 if mostly avoids full scans, 0.4 if some filtering but potential scan issues, 0.0 if likely to cause full table scans",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "concurrent_load_consideration",
+            "description": "Design considerations for enterprise concurrent user scenarios",
+            "weight": 0.25,
+            "measurement": "1.0 if mentions read replicas, materialized views, or other concurrency strategies, 0.7 if shows awareness of concurrent load issues, 0.4 if basic consideration, 0.0 if no concurrency consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "WHERE order_date >= '2020-01-01' AND order_date < '2024-01-01' to enable partition elimination"
+      ],
+      "fail_examples": [
+        "Query requiring full table scan of orders table without date filtering"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Enterprise query performance requires partition-aware design and index utilization to handle multi-million record datasets with acceptable response times"
+    },
+    {
+      "id": "security_and_access_control",
+      "category": "Security & Compliance Framework",
+      "description": "Evaluates basic security considerations in schema and query design appropriate for customer data",
+      "pass_condition": "Schema should limit exposure of sensitive customer data through appropriate table design, avoid storing sensitive information in plain text where noted, and structure data access in a way that could support role-based restrictions",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "role_based_access",
+            "description": "Implementation of role-based security model for data access",
+            "weight": 0.4,
+            "measurement": "1.0 if defines specific roles with appropriate table/column permissions, 0.7 if basic role model attempted, 0.4 if some security consideration but incomplete, 0.0 if no access control consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_privacy_compliance",
+            "description": "Consideration of data privacy requirements for customer information",
+            "weight": 0.35,
+            "measurement": "1.0 if addresses PII handling with encryption or masking strategies, 0.7 if shows privacy awareness, 0.4 if basic privacy consideration, 0.0 if no privacy considerations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "audit_trail_capability",
+            "description": "Implementation of audit mechanisms for data access and modifications",
+            "weight": 0.25,
+            "measurement": "1.0 if includes audit tables or logging mechanisms, 0.7 if mentions audit requirements, 0.4 if basic audit awareness, 0.0 if no audit consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "GRANT SELECT ON customer_lifetime_value_view TO analyst_role; CREATE AUDIT POLICY customer_data_access"
+      ],
+      "fail_examples": [
+        "Full table access without role restrictions or audit capabilities"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Enterprise data security requires role-based access control and audit capabilities to meet regulatory compliance requirements like GDPR and SOX"
+    },
+    {
+      "id": "temporal_analysis_methodology",
+      "category": "Analytical Methodology & Reporting Standards",
+      "description": "Evaluates appropriate handling of time-based aspects in lifetime value calculations",
+      "pass_condition": "Query should handle temporal aspects of lifetime value appropriately, considering the full customer relationship period and providing a clear methodology for the calculation timeframe",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "date_range_handling",
+            "description": "Proper implementation of temporal boundaries for lifetime calculations",
+            "weight": 0.4,
+            "measurement": "1.0 if includes parameterized date ranges with clear start/end boundaries, 0.7 if basic date filtering implemented, 0.4 if some temporal consideration but incomplete, 0.0 if no temporal boundary consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "lifecycle_stage_awareness",
+            "description": "Consideration of customer lifecycle stages in value calculation methodology",
+            "weight": 0.35,
+            "measurement": "1.0 if addresses acquisition vs retention value differences, 0.7 if shows awareness of lifecycle impacts, 0.4 if basic lifecycle consideration, 0.0 if no lifecycle stage consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "bi_framework_alignment",
+            "description": "Methodology alignment with standard business intelligence reporting practices",
+            "weight": 0.25,
+            "measurement": "1.0 if follows standard CLV calculation methodologies used in BI tools, 0.7 if mostly aligned with BI standards, 0.4 if basic BI consideration, 0.0 if no BI framework alignment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "WHERE customer_acquisition_date >= @analysis_start_date AND order_date <= @analysis_end_date"
+      ],
+      "fail_examples": [
+        "Lifetime calculation without defined temporal boundaries or lifecycle consideration"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Customer analytics requires proper temporal analysis with defined calculation periods and lifecycle stage consideration for meaningful business insights"
+    },
+    {
+      "id": "schema_query_coherence",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates whether the SQL query design properly leverages the defined schema structure, ensuring joins align with declared foreign key relationships, indexes support query patterns, and dimensional modeling supports analytical requirements",
+      "pass_condition": "Query joins must utilize all declared foreign key relationships appropriately, leverage at least 80% of defined indexes through WHERE/JOIN clauses, and demonstrate that dimensional model design directly supports the analytical query requirements",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "joins_bypass_declared_fks": -2.0,
+          "unused_critical_indexes": -1.5,
+          "dimensional_model_mismatch": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Query joins customers to orders using customer_id FK, utilizes customer_date_idx in WHERE clause, aggregates align with fact table grain"
+      ],
+      "fail_examples": [
+        "Query joins tables without using declared foreign key columns",
+        "Query requires indexes not defined in schema"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Effective data warehouse design requires alignment between dimensional modeling, indexing strategy, and analytical query patterns for optimal performance"
+    },
+    {
+      "id": "implicit_conversion_prevention",
+      "category": "Performance Architecture",
+      "description": "Evaluates prevention of implicit data type conversions that cause row-by-row processing and severe performance degradation",
+      "pass_condition": "All JOIN and WHERE conditions use matching data types without requiring implicit conversions",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "join_type_matching",
+            "description": "JOIN conditions use identical data types",
+            "weight": 0.5,
+            "measurement": "binary_check",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "where_type_matching",
+            "description": "WHERE clause predicates avoid type mismatches",
+            "weight": 0.5,
+            "measurement": "binary_check",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "customer_id (INT) = order.customer_id (INT)",
+        "CAST(order_date AS DATE) = '2023-01-01' instead of order_date = '2023-01-01'"
+      ],
+      "fail_examples": [
+        "customer_id (INT) = order.customer_id (VARCHAR)",
+        "numeric_column = '123' without explicit conversion"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Implicit conversions in JOIN or WHERE conditions require SQL Server to convert data types per row, severely impacting performance"
+    },
+    {
+      "id": "sargable_predicate_usage",
+      "category": "Performance Architecture",
+      "description": "Evaluates use of search argument-able (SARGABLE) predicates that allow proper index utilization",
+      "pass_condition": "WHERE clause conditions are written in forms that enable index seeks rather than scans",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "function_avoidance",
+            "description": "Avoids functions on indexed columns in WHERE clauses",
+            "weight": 0.4,
+            "measurement": "violation_count",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "leading_wildcard_avoidance",
+            "description": "Avoids leading wildcards in LIKE predicates",
+            "weight": 0.3,
+            "measurement": "violation_count",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "range_optimization",
+            "description": "Uses proper range conditions for date/numeric filtering",
+            "weight": 0.3,
+            "measurement": "optimization_score",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "order_date >= '2023-01-01' AND order_date < '2024-01-01'",
+        "customer_name LIKE 'Smith%'",
+        "amount > 1000"
+      ],
+      "fail_examples": [
+        "YEAR(order_date) = 2023",
+        "customer_name LIKE '%Smith%'",
+        "UPPER(customer_name) = 'SMITH'"
+      ],
+      "domain": "SQL Data Engineering",
+      "research_basis": "Non-sargable conditions preventing index use"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "schema_design",
+      "name": "Schema Design & Data Modeling",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "query_performance",
+      "name": "Query Performance & Optimization",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "business_logic_accuracy",
+      "name": "Business Logic & Calculation Accuracy",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "data_integrity",
+      "name": "Data Integrity & Edge Case Handling",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "sql_standards",
+      "name": "SQL Standards & Code Quality",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "scalability_architecture",
+      "name": "Scalability & Enterprise Architecture",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "security_compliance",
+      "name": "Security & Compliance Framework",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "analytical_methodology",
+      "name": "Analytical Methodology & Reporting Standards",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    }
+  ]
+}

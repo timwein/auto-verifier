@@ -1,0 +1,78 @@
+{
+  "run_id": "e8dc962b_20260404_184718",
+  "iteration": 1,
+  "total_score": 33.44,
+  "max_score": 67,
+  "percentage": 0.49910447761194027,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/e8dc962b_20260404_184718/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "batna_quantified_alternatives_analysis",
+      "points_earned": 1.75,
+      "max_points": 7,
+      "percentage": 0.24999999999999997
+    },
+    {
+      "criterion_id": "batna_margin_structure_alignment",
+      "points_earned": 2.62,
+      "max_points": 6,
+      "percentage": 0.4375
+    },
+    {
+      "criterion_id": "saas_concession_levers",
+      "points_earned": 3.3,
+      "max_points": 8,
+      "percentage": 0.4125
+    },
+    {
+      "criterion_id": "anchoring_market_intelligence",
+      "points_earned": 2.19,
+      "max_points": 7,
+      "percentage": 0.3125
+    },
+    {
+      "criterion_id": "vendor_objection_enterprise_responses",
+      "points_earned": 7.0,
+      "max_points": 7,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "risk_mitigation_contract_protection",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "compliance_sox_governance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "financial_tco_modeling",
+      "points_earned": 1.12,
+      "max_points": 6,
+      "percentage": 0.1875
+    },
+    {
+      "criterion_id": "negotiation_stakeholder_execution",
+      "points_earned": 3.06,
+      "max_points": 7,
+      "percentage": 0.4375
+    },
+    {
+      "criterion_id": "contract_renewal_protection",
+      "points_earned": 1.4,
+      "max_points": 4,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "shadow_it_prevention_controls",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

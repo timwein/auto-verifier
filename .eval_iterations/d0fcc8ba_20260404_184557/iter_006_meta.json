@@ -1,0 +1,90 @@
+{
+  "run_id": "d0fcc8ba_20260404_184557",
+  "iteration": 6,
+  "total_score": 55.65,
+  "max_score": 76,
+  "percentage": 0.7322368421052632,
+  "delta_from_prior": 0.0151,
+  "focus_areas": [
+    "header_schema_inference.header_detection_accuracy",
+    "header_schema_inference.intelligent_column_naming",
+    "header_schema_inference.data_type_inference",
+    "header_schema_inference.schema_consistency_validation",
+    "production_error_handling.missing_structured_logging"
+  ],
+  "content_path": ".eval_iterations/d0fcc8ba_20260404_184557/iter_006_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "rfc4180_dialect_detection",
+      "points_earned": 16.0,
+      "max_points": 16,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "rfc4180_field_consistency",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "mixed_delimiter_quoted_fields",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "malformed_data_recovery",
+      "points_earned": 7.0,
+      "max_points": 7,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "streaming_performance_optimization",
+      "points_earned": 4.64,
+      "max_points": 7,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "header_schema_inference",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "production_error_handling",
+      "points_earned": 5.5,
+      "max_points": 7,
+      "percentage": 0.7857142857142857
+    },
+    {
+      "criterion_id": "data_lineage_audit_trail",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6624999999999999
+    },
+    {
+      "criterion_id": "defensive_programming_patterns",
+      "points_earned": 4.0,
+      "max_points": 5,
+      "percentage": 0.8
+    },
+    {
+      "criterion_id": "data_quality_statistical_validation",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "bom_encoding_handling",
+      "points_earned": 3.8,
+      "max_points": 4,
+      "percentage": 0.9500000000000001
+    },
+    {
+      "criterion_id": "performance_vs_pandas",
+      "points_earned": 1.9,
+      "max_points": 4,
+      "percentage": 0.475
+    }
+  ]
+}

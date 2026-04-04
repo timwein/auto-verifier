@@ -1,0 +1,731 @@
+{
+  "task": "Write a counterargument to the claim 'AGI will arrive before 2030'",
+  "domain": "AGI Timeline Forecasting",
+  "total_points": 123,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "ood_generalization_failure_analysis",
+      "category": "Technical Bottleneck Analysis",
+      "description": "Demonstrates understanding of out-of-distribution generalization failures in current AI systems and their implications for AGI development; also: Evaluates identification of specific cognitive deficits in current AI systems using standardized benchmarks, particularly memory and continual learning limitations; also: Evaluates evidence for vs. against ability to integrate capabilities across diverse domains, identifying specific integration failures",
+      "pass_condition": "Must identify and analyze at least 3 types of OOD generalization failures (such as compositional generalization, domain shift, or adversarial brittleness), provide concrete examples of these failures from known AI systems, and explain why these failures indicate fundamental challenges for achieving robust general intelligence by 2030",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 14,
+        "sub_attributes": [
+          {
+            "sub_id": "failure_mode_taxonomy",
+            "description": "Categorizes specific types of OOD generalization failures with technical precision",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies 4+ distinct failure types with technical definitions and explains mechanistic causes, 0.7 if identifies 3-4 types with some mechanistic understanding, 0.4 if lists failure types without deep analysis, 0.0 if absent or conflates different failure modes",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "brittleness_mechanism_analysis",
+            "description": "Identifies specific mechanisms by which narrow optimization fails to produce robust general capabilities",
+            "weight": 0.35,
+            "measurement": "1.0 if explains 3+ mechanisms (Goodhart's law in ML, shortcut learning, spurious feature exploitation) with technical detail, 0.7 if explains 2 mechanisms clearly, 0.4 if mentions brittleness without mechanistic understanding, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "architectural_limitation_analysis",
+            "description": "Explains why failures reflect fundamental architectural constraints rather than solvable engineering problems",
+            "weight": 0.3,
+            "measurement": "1.0 if provides mechanistic explanation of how current architectures inherently struggle with certain types of generalization, 0.7 if explains some architectural constraints, 0.4 if mentions architecture but without deep analysis, 0.0 if treats issues as merely data or scaling problems",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis of compositional generalization failures in SCAN benchmark showing 95% accuracy on trained compositions dropping to <20% on novel combinations, combined with explanation of how transformer attention mechanisms fail to learn systematic compositional rules"
+      ],
+      "fail_examples": [
+        "Mentioning that 'AI fails on edge cases' without specific categorization of failure types or analysis of underlying architectural causes"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "Expert arguments demonstrate that 'large language models (LLMs) can't reason. Model 'reasoning' is tricky to assess because training on human data lets models emulate humans so well' and 'Strong arguments include specific examples of test-vs-deployment performance gaps'"
+    },
+    {
+      "id": "agi_benchmark_methodology",
+      "category": "Capabilities Evaluation Framework",
+      "description": "Demonstrates understanding of AGI assessment methodologies and evaluation challenges in measuring progress toward general intelligence; also: Analyzes specific examples of test-vs-deployment performance gaps and evaluation gaming by AI systems",
+      "pass_condition": "Must discuss at least 2 established AGI evaluation approaches or frameworks, demonstrate understanding of measurement validity issues in current AI benchmarks, and analyze the gap between laboratory demonstrations and robust deployed capabilities",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "benchmark_framework_application",
+            "description": "References and correctly applies established AGI evaluation methodologies",
+            "weight": 0.4,
+            "measurement": "1.0 if references 3+ established frameworks (ARC, GELU, cognitive science batteries) with correct interpretation, 0.7 if applies 2 frameworks correctly, 0.4 if mentions frameworks without proper application, 0.0 if absent or misapplied",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "capability_vs_deployment_distinction",
+            "description": "Distinguishes between laboratory capability demonstrations and robust deployable systems",
+            "weight": 0.35,
+            "measurement": "1.0 if provides clear criteria for deployment readiness with specific examples of gap between demo and deployment, 0.7 if makes reasonable distinctions, 0.4 if acknowledges difference without depth, 0.0 if conflates demos with deployment readiness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "measurement_validity_analysis",
+            "description": "Analyzes validity issues in current AGI capability measurements and benchmarks",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies specific validity threats (construct validity, ecological validity, gaming) with examples, 0.7 if analyzes some validity issues, 0.4 if mentions measurement concerns superficially, 0.0 if absent or assumes benchmarks are valid",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis applying Chollet's ARC benchmark showing current systems achieving <20% performance on novel reasoning tasks, combined with discussion of how this relates to general intelligence measurement validity"
+      ],
+      "fail_examples": [
+        "Citing impressive performance on coding benchmarks without analyzing whether these measure general intelligence or narrow programming pattern matching"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "[Partial] Experts use quantitative AGI definitions that assess specific cognitive abilities, with current models like 'GPT-4 at 27%, GPT-5 at 57%' revealing 'substantial gap remaining'"
+    },
+    {
+      "id": "scaling_law_breakthrough_distinction",
+      "category": "Capabilities Evaluation Framework",
+      "description": "Evaluates whether recent AI progress represents predictable scaling improvements or fundamental algorithmic breakthroughs necessary for AGI",
+      "pass_condition": "Must analyze current progress against established scaling laws (compute, data, parameter scaling), identify what types of capabilities emerge vs. improve gradually, and assess whether observed trends can continue to AGI without architectural innovations",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "conflating_scaling_with_intelligence": -1.5,
+          "ignoring_established_scaling_laws": -1.0,
+          "assuming_emergence_without_evidence": -1.2
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis showing that while language model perplexity follows predictable scaling laws, specific reasoning capabilities like mathematical problem-solving show discontinuous improvements that may not be sustainable"
+      ],
+      "fail_examples": [
+        "Arguing that continued scaling of current transformer architectures will automatically lead to AGI without addressing fundamental architectural limitations"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "[Partial] Strong arguments include concrete constraints like 'high-quality public training data could run out by a median date of 2028. Researchers might even move backward, losing access to the data sources'"
+    },
+    {
+      "id": "computational_complexity_constraints",
+      "category": "Computational Complexity Analysis",
+      "description": "Analyzes computational constraints on AGI development including algorithmic efficiency, energy requirements, and resource limitations",
+      "pass_condition": "Must analyze at least 2 computational constraint categories (such as energy efficiency, computational scalability, or hardware limitations), discuss how these constraints affect AGI development feasibility, and reference relevant computational principles or established results where applicable",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "complexity_theory_application",
+            "description": "Applies computational complexity theory to analyze intelligence algorithm requirements",
+            "weight": 0.4,
+            "measurement": "1.0 if correctly applies complexity theory (P vs NP, circuit complexity, communication complexity) to intelligence problems, 0.7 if applies some complexity analysis correctly, 0.4 if mentions complexity without rigorous analysis, 0.0 if absent or misapplies theory",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "energy_efficiency_analysis",
+            "description": "Quantitatively analyzes energy requirements and efficiency constraints for AGI-level computation",
+            "weight": 0.35,
+            "measurement": "1.0 if provides specific energy calculations comparing brain efficiency to current AI systems with orders-of-magnitude analysis, 0.7 if makes quantitative energy efficiency arguments, 0.4 if mentions energy concerns without calculations, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "physical_limits_assessment",
+            "description": "Evaluates physical constraints on information processing relevant to AGI timeline feasibility",
+            "weight": 0.25,
+            "measurement": "1.0 if analyzes specific physical limits (Landauer's principle, quantum limits, thermodynamic constraints) with relevance to AGI, 0.7 if discusses some physical constraints, 0.4 if mentions limits superficially, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis showing human brain achieves ~20W power consumption for general intelligence while GPT-4 inference requires ~50kW, combined with thermodynamic arguments about fundamental efficiency limits"
+      ],
+      "fail_examples": [
+        "Claiming computational limits without specific analysis of complexity theory or quantitative efficiency comparisons"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "[Partial] Strong arguments include specific economic constraints: 'models won't create enough revenue to justify training runs over $10bn. That'll mean progress slows massively after about 2028'"
+    },
+    {
+      "id": "alignment_safety_timeline_impact",
+      "category": "Alignment and Safety Integration",
+      "description": "Evaluates how alignment problems, safety constraints, and responsible deployment requirements impact AGI development timelines and deployment readiness",
+      "pass_condition": "Must identify at least 4 major alignment/safety challenges, analyze how these affect development timelines, reference established safety frameworks, and distinguish between capability development and safe deployment readiness",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "alignment_problem_categorization",
+            "description": "Identifies and analyzes major alignment challenges that must be solved before safe AGI deployment",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies 4+ major challenges (reward misalignment, mesa-optimization, distributional shift, value learning) with technical depth, 0.7 if identifies 3+ challenges with some analysis, 0.4 if mentions alignment issues superficially, 0.0 if absent or misunderstands alignment problems",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "safety_framework_application",
+            "description": "Applies established AI safety frameworks to analyze AGI development requirements",
+            "weight": 0.3,
+            "measurement": "1.0 if correctly applies 2+ frameworks (MIRI's agent foundations, Paul Christiano's iterated amplification, Stuart Russell's human preference learning), 0.7 if applies 1 framework correctly, 0.4 if mentions frameworks without proper application, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_impact_analysis",
+            "description": "Analyzes how solving alignment/safety problems affects AGI development timelines",
+            "weight": 0.35,
+            "measurement": "1.0 if provides specific arguments about timeline delays due to safety requirements with quantitative estimates, 0.7 if makes reasonable timeline impact arguments, 0.4 if acknowledges safety affects timelines without depth, 0.0 if ignores safety timeline impact",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis of how solving the reward misalignment problem requires fundamental advances in value learning and preference modeling, potentially adding 5-10 years to safe AGI development beyond capability achievement"
+      ],
+      "fail_examples": [
+        "Mentioning 'AI safety concerns' without specific analysis of how these technical problems affect development timelines"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "Expert critiques show 'AI safety benchmarks have emerged as a popular tool for evaluation' but 'provide an incomplete and unreliable basis for assessing deployment safety' with 'limited coverage of risks, fail to probabilistically quantify real-world hazards'"
+    },
+    {
+      "id": "empirical_forecasting_methodology",
+      "category": "Empirical Evidence Quality",
+      "description": "Evaluates rigor of empirical analysis, proper interpretation of AI progress metrics, and application of established forecasting methodologies to AGI timeline prediction",
+      "pass_condition": "Must apply at least 2 established forecasting frameworks (inside-view vs outside-view, reference class forecasting), provide quantitative analysis of historical AI progress patterns, and demonstrate understanding of forecasting accuracy and uncertainty quantification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "forecasting_framework_application",
+            "description": "Applies established forecasting methodologies to AGI timeline analysis",
+            "weight": 0.4,
+            "measurement": "1.0 if correctly applies 2+ frameworks (reference class forecasting, inside-outside view, scenario analysis) with technical rigor, 0.7 if applies frameworks with some rigor, 0.4 if mentions frameworks superficially, 0.0 if absent or misapplied",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "historical_pattern_analysis",
+            "description": "Analyzes historical AI development patterns and applies them to AGI timeline forecasting",
+            "weight": 0.35,
+            "measurement": "1.0 if provides quantitative analysis of historical progress rates with statistical methodology, 0.7 if analyzes historical patterns with some quantitative rigor, 0.4 if mentions history without rigorous analysis, 0.0 if absent or cherry-picks examples",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "uncertainty_quantification",
+            "description": "Properly quantifies and communicates epistemic uncertainty in timeline forecasts",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific uncertainty bounds with justified confidence intervals, 0.7 if acknowledges uncertainty with some quantification, 0.4 if mentions uncertainty without quantification, 0.0 if presents point estimates without uncertainty analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Application of reference class forecasting using historical technology development timelines (internet, mobile computing) to establish base rates for transformative technology deployment, combined with uncertainty bounds based on expert disagreement"
+      ],
+      "fail_examples": [
+        "Making confident timeline predictions without applying established forecasting methodologies or quantifying uncertainty"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "Strong arguments reference 'A 2012 meta-analysis of 95 such opinions found a bias towards predicting that the onset of AGI would occur within 16\u201326 years for modern and historical predictions alike' and 'Experts distinguish between inside-view models and outside-view models'"
+    },
+    {
+      "id": "economic_deployment_feasibility",
+      "category": "Economic and Deployment Constraints",
+      "description": "Analyzes economic feasibility, infrastructure requirements, and market deployment constraints that affect AGI timeline viability in practice",
+      "pass_condition": "Must analyze at least 3 economic constraint categories (development costs, infrastructure requirements, market adoption), provide quantitative cost estimates where possible, and evaluate regulatory and deployment barriers",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "cost_analysis",
+            "description": "Provides quantitative analysis of AGI development and deployment costs",
+            "weight": 0.4,
+            "measurement": "1.0 if provides specific cost estimates with breakdown of major components (compute, talent, infrastructure), 0.7 if makes reasonable cost arguments with some quantification, 0.4 if mentions costs without estimates, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "infrastructure_requirements",
+            "description": "Analyzes infrastructure and resource requirements for AGI development and deployment at scale",
+            "weight": 0.35,
+            "measurement": "1.0 if analyzes specific infrastructure needs (chip manufacturing, energy, data centers) with capacity constraints, 0.7 if identifies key infrastructure requirements, 0.4 if mentions infrastructure superficially, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "regulatory_barrier_analysis",
+            "description": "Evaluates regulatory and institutional barriers to AGI development and deployment",
+            "weight": 0.25,
+            "measurement": "1.0 if analyzes specific regulatory frameworks and their timeline impact, 0.7 if identifies key regulatory barriers, 0.4 if mentions regulation without specific analysis, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis estimating AGI training costs at $1B+ based on current compute scaling trends, combined with assessment of global chip manufacturing capacity constraints and regulatory approval timelines"
+      ],
+      "fail_examples": [
+        "Discussing AGI timelines without considering economic feasibility or deployment constraints"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "Strong arguments include specific economic constraints: 'models won't create enough revenue to justify training runs over $10bn. That'll mean progress slows massively after about 2028'"
+    },
+    {
+      "id": "capability_safety_integration",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluates coherence between capability assessment and safety/alignment requirement analysis in determining AGI deployment readiness",
+      "pass_condition": "Must demonstrate understanding of how capability achievements and safety requirements interact, show how alignment challenges affect deployment timelines beyond capability development, and maintain consistency between capability benchmarks and safety deployment standards",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "capability_safety_tradeoff_analysis",
+            "description": "Analyzes how capability development and safety requirements interact and potentially conflict",
+            "weight": 0.4,
+            "measurement": "1.0 if explicitly analyzes capability-safety tradeoffs with specific examples and timeline implications, 0.7 if acknowledges tradeoffs with some analysis, 0.4 if mentions both areas but without integration, 0.0 if treats capability and safety as independent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "deployment_readiness_coherence",
+            "description": "Maintains consistency between capability benchmarks and safety deployment standards",
+            "weight": 0.35,
+            "measurement": "1.0 if clearly defines deployment readiness requiring both capability and safety milestones, 0.7 if shows good understanding of dual requirements, 0.4 if somewhat integrated approach, 0.0 if conflates capability achievement with deployment readiness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "research_priority_alignment",
+            "description": "Shows coherent understanding of how capability and safety research priorities must be balanced",
+            "weight": 0.25,
+            "measurement": "1.0 if analyzes how safety research requirements affect overall AGI timeline with specific research area examples, 0.7 if shows understanding of research balance needs, 0.4 if limited integration of research priorities, 0.0 if treats capability and safety research as unrelated",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis showing how achieving high capability on reasoning benchmarks may conflict with maintaining interpretability required for safety validation, extending deployment timelines beyond pure capability development"
+      ],
+      "fail_examples": [
+        "Treating AGI capability achievement and safety deployment as independent milestones without analyzing their interaction"
+      ],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": "[Partial] Advanced arguments recognize that 'safety is embedded in complex sociotechnical systems' and 'Automated AI R&D could also accelerate the development of models that pose enhanced CBRN'"
+    },
+    {
+      "id": "probabilistic_reasoning_calibration",
+      "category": "forecasting_methodology",
+      "description": "Evaluates use of appropriate probabilistic language, confidence calibration, and acknowledgment of scenario-dependent outcomes",
+      "pass_condition": "Must express key predictions in probabilistic terms with justified confidence levels, acknowledge multiple plausible scenarios, and demonstrate calibrated confidence that matches the strength of available evidence",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "probabilistic_expression",
+            "description": "Use of probability estimates rather than definitive claims",
+            "weight": 0.4,
+            "measurement": "frequency_and_appropriateness_of_probabilistic_language",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scenario_analysis",
+            "description": "Consideration of multiple plausible future scenarios",
+            "weight": 0.3,
+            "measurement": "breadth_and_quality_of_scenario_consideration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "confidence_calibration",
+            "description": "Matching confidence level to strength of evidence",
+            "weight": 0.3,
+            "measurement": "appropriateness_of_confidence_given_evidence_base",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "stakeholder_incentive_analysis",
+      "category": "sociotechnical_factors",
+      "description": "Evaluates consideration of how different stakeholder groups' incentives, resources, and decision-making processes affect AGI development and deployment timelines",
+      "pass_condition": "Must analyze incentives and constraints of at least 4 key stakeholder groups (e.g., tech companies, governments, researchers, investors), explain how their different priorities affect development timelines, and consider coordination problems or races that might accelerate or delay progress",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "stakeholder_diversity",
+            "description": "Coverage of different stakeholder groups and their distinct perspectives",
+            "weight": 0.4,
+            "measurement": "number_and_diversity_of_stakeholders_analyzed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "incentive_structure_analysis",
+            "description": "Quality of analysis of how incentives affect development decisions",
+            "weight": 0.3,
+            "measurement": "depth_of_incentive_analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "coordination_dynamics",
+            "description": "Consideration of competitive dynamics and coordination problems",
+            "weight": 0.3,
+            "measurement": "quality_of_strategic_interaction_analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "epistemic_rigor_assessment",
+      "category": "Reasoning Quality",
+      "description": "Evaluates the depth and rigor of uncertainty analysis, evidence quality assessment, and epistemic humility in complex forecasting scenarios; also: Evaluates proper acknowledgment of uncertainty and distinction between established facts versus speculative claims",
+      "pass_condition": "Must apply formal uncertainty quantification methods, assess evidence quality using established frameworks, distinguish between aleatory and epistemic uncertainty, and provide structured confidence intervals with justification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "uncertainty_quantification",
+            "description": "Application of formal uncertainty methods (Monte Carlo, Bayesian updating, etc.)",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "evidence_quality_assessment",
+            "description": "Systematic evaluation of evidence strength and reliability",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "confidence_calibration",
+            "description": "Well-justified confidence intervals with reasoning",
+            "weight": 0.3,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "counterargument_depth_analysis",
+      "category": "Argumentative Rigor",
+      "description": "Evaluates the depth and quality of engagement with opposing viewpoints, including steelmanning strongest counter-positions and addressing them substantively; also: Evaluates whether the argument engages with the strongest version of opposing views and acknowledges areas of legitimate expert disagreement; also: Evaluates whether the analysis acknowledges and substantively addresses the strongest opposing arguments, potential weaknesses in its own reasoning, and areas of genuine uncertainty; also: Evaluates whether the counterargument engages with the strongest versions of opposing claims rather than strawman versions, including recent developments and best arguments from AGI timeline optimists",
+      "pass_condition": "Must identify and thoroughly analyze at least 3 strongest opposing arguments, provide steelman versions that proponents would recognize as fair, and offer substantive technical rebuttals rather than dismissive acknowledgments",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 18,
+        "sub_attributes": [
+          {
+            "sub_id": "steelman_quality",
+            "description": "Quality of strongest opposing argument representation",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "rebuttal_depth",
+            "description": "Substantive technical engagement with counter-arguments",
+            "weight": 0.4,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "argument_completeness",
+            "description": "Coverage of major opposing viewpoints",
+            "weight": 0.2,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "intellectual_contribution_depth",
+      "category": "Analytical Quality",
+      "description": "Evaluates the originality, insight depth, and intellectual contribution beyond standard arguments and surface-level analysis; also: Evaluates whether the analysis provides novel insights, unique perspectives, or non-obvious connections rather than merely reciting standard arguments from the AGI discourse",
+      "pass_condition": "Must provide novel analytical frameworks, unique synthesis of existing evidence, creative insights that advance understanding, or identification of previously unconsidered factors relevant to the analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "novel_insights",
+            "description": "Original perspectives or analytical approaches",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "synthesis_quality",
+            "description": "Creative integration of diverse evidence sources",
+            "weight": 0.5,
+            "measurement": "0-3 scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "substantive_content_depth",
+      "category": "Content Quality",
+      "description": "Evaluates whether the response provides actual detailed analysis rather than just claiming to have done analysis; also: Evaluates provision of specific references for factual claims and technical assertions; also: Evaluates provision of specific evidence while maintaining appropriate epistemic humility about uncertainty and analytical limitations",
+      "pass_condition": "Must provide quantitative data from at least 5 specific studies/papers with publication details, include concrete performance metrics from named AI systems, and present detailed mathematical or algorithmic analysis rather than qualitative descriptions",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 18,
+        "sub_attributes": [
+          {
+            "sub_id": "concrete_examples",
+            "description": "Provides specific named examples rather than generic claims",
+            "weight": 0.3,
+            "measurement": "count of specific examples provided",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quantitative_data",
+            "description": "Includes actual numbers, statistics, or measurements",
+            "weight": 0.3,
+            "measurement": "presence and quality of quantitative evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "detailed_reasoning",
+            "description": "Shows step-by-step logical reasoning rather than conclusions without justification",
+            "weight": 0.4,
+            "measurement": "depth and clarity of reasoning chains",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "argument_engagement_specificity",
+      "category": "Argumentative Quality",
+      "description": "Evaluates whether the response directly engages with specific arguments made by proponents of the position being countered",
+      "pass_condition": "Must identify and directly address at least 3 specific arguments commonly made by AGI-by-2030 proponents, reference recent developments they cite as evidence, and provide targeted rebuttals rather than generic analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "specific_argument_identification",
+            "description": "Identifies specific arguments made by position proponents",
+            "weight": 0.4,
+            "measurement": "number and accuracy of identified opposing arguments",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "targeted_rebuttals",
+            "description": "Provides specific responses to identified arguments",
+            "weight": 0.4,
+            "measurement": "quality and directness of rebuttals",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "recent_development_analysis",
+            "description": "Addresses recent developments cited by proponents",
+            "weight": 0.2,
+            "measurement": "coverage of current relevant developments",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    },
+    {
+      "id": "reasoning_transparency",
+      "category": "Logical Structure",
+      "description": "Evaluates whether the logical reasoning process is explicitly shown, including how evidence connects to intermediate conclusions and how those build to final arguments",
+      "pass_condition": "Must provide explicit formal logical notation or structured proof-like reasoning for at least 2 major conclusions, include quantitative confidence intervals with mathematical justification, and demonstrate formal reasoning methods rather than just clear explanation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "explicit_reasoning",
+            "description": "Shows clear logical steps from evidence to conclusions",
+            "weight": 0.6,
+            "measurement": "quality_of_reasoning_chain_exposition",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "intermediate_conclusions",
+            "description": "Builds arguments through clearly stated intermediate steps",
+            "weight": 0.4,
+            "measurement": "clarity_of_argument_structure",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "AGI Timeline Forecasting",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "technical_bottleneck_analysis",
+      "name": "Technical Bottleneck Analysis",
+      "description": "",
+      "weight": 0.2,
+      "criteria_ids": []
+    },
+    {
+      "id": "capabilities_evaluation_framework",
+      "name": "Capabilities Evaluation Framework",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "computational_complexity_analysis",
+      "name": "Computational Complexity Analysis",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "alignment_safety_integration",
+      "name": "Alignment and Safety Integration",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "empirical_evidence_quality",
+      "name": "Empirical Evidence Quality",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "economic_deployment_constraints",
+      "name": "Economic and Deployment Constraints",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "argumentation_methodology",
+      "name": "Argumentation Methodology",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    }
+  ]
+}

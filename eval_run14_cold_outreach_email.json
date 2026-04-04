@@ -1,0 +1,598 @@
+{
+  "task_results": {
+    "cold_outreach_email": {
+      "task_key": "cold_outreach_email",
+      "task_prompt": "Write a cold outreach email to a Series A founder pitching angel investment",
+      "rubric_domain": "cold_outreach_email",
+      "rubric_criteria_count": 7,
+      "rubric_max_points": 56,
+      "baseline": {
+        "output": "Subject: Angel Investment Opportunity - Supporting Your Next Growth Phase\n\nHi [Founder Name],\n\nI hope this email finds you well. I've been following [Company Name]'s journey since your Series A announcement, and I'm genuinely impressed by the traction you've achieved in [specific market/vertical].\n\nYour approach to [specific problem they're solving] particularly resonates with me, having seen similar challenges during my time [brief relevant background - e.g., \"scaling my own fintech startup\" or \"leading product at [Company]\"]. The [specific metric/milestone] you recently shared demonstrates real product-market fit.\n\nI'm reaching out because I'm actively making angel investments in companies at your stage, typically writing checks between $[X]K-$[Y]K. Beyond capital, I bring:\n\n\u2022 [Specific expertise relevant to their business - e.g., \"10+ years in enterprise sales\"]\n\u2022 [Relevant network - e.g., \"Strong relationships with potential enterprise customers in healthcare\"]\n\u2022 [Operational experience - e.g., \"Experience scaling teams from 20 to 200+ people\"]\n\nI understand you may not be actively fundraising right now, but I'd love to learn more about your current priorities and explore how I might be helpful - whether that's through investment, introductions, or simply as a sounding board.\n\nWould you be open to a brief 15-minute call in the next couple of weeks? I'm happy to work around your schedule.\n\nBest regards,\n[Your Name]\n[Your Title/Background]\n[Phone] | [Email] | [LinkedIn]\n\nP.S. I particularly enjoyed your recent [podcast/blog post/interview] about [specific topic] - your insights on [specific point] align perfectly with what I'm seeing in the market.",
+        "score": 56.12000000000002,
+        "max_score": 193,
+        "percentage": 0.29077720207253893,
+        "criterion_results": [
+          {
+            "criterion_id": "optimal_word_count",
+            "category": "structure",
+            "points_earned": 2.02,
+            "max_points": 4,
+            "percentage": 0.5060728744939271,
+            "evidence": "Word count: 247 (target: 50\u2013125) \u2717"
+          },
+          {
+            "criterion_id": "mobile_subject_optimization",
+            "category": "deliverability",
+            "points_earned": 0.18,
+            "max_points": 5,
+            "percentage": 0.03575685339690107,
+            "evidence": "Character count: 1,678 (target: \u226460) \u2717"
+          },
+          {
+            "criterion_id": "portfolio_personalization",
+            "category": "research_quality",
+            "points_earned": 1.1,
+            "max_points": 11,
+            "percentage": 0.1,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "positive_signal_strength",
+            "category": "traction",
+            "points_earned": 1.14,
+            "max_points": 7,
+            "percentage": 0.1625,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "domain_authentication",
+            "category": "professionalism",
+            "points_earned": 3.0,
+            "max_points": 3,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "specific_call_to_action",
+            "category": "next_steps",
+            "points_earned": 3.12,
+            "max_points": 5,
+            "percentage": 0.625,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "preheader_optimization",
+            "category": "deliverability",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "angel_vs_vc_understanding",
+            "category": "investor_knowledge",
+            "points_earned": 3.0,
+            "max_points": 5,
+            "percentage": 0.6000000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "founder_direct_outreach",
+            "category": "authenticity",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "no_readily_available_info",
+            "category": "research_quality",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "credibility_anchoring_strategy",
+            "category": "positioning",
+            "points_earned": 0.5,
+            "max_points": 5,
+            "percentage": 0.1,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "go_to_market_strategy_articulation",
+            "category": "strategic_depth",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "low_drama_professionalism",
+            "category": "tone",
+            "points_earned": 4.2,
+            "max_points": 5,
+            "percentage": 0.8400000000000001,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "anti_mass_email_signals",
+            "category": "personalization",
+            "points_earned": 8.0,
+            "max_points": 10,
+            "percentage": 0.8,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "targeted_contact_selection",
+            "category": "Targeting Strategy",
+            "points_earned": 2.2,
+            "max_points": 4,
+            "percentage": 0.55,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "metrics_integrity_and_context",
+            "category": "credibility",
+            "points_earned": 0.0,
+            "max_points": 11,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "claim_specificity_and_verifiability",
+            "category": "credibility",
+            "points_earned": 0.0,
+            "max_points": 11,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "unique_value_proposition_clarity",
+            "category": "strategic_positioning",
+            "points_earned": 0.0,
+            "max_points": 6,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_ask_appropriateness",
+            "category": "Investment Understanding",
+            "points_earned": 1.6,
+            "max_points": 4,
+            "percentage": 0.39999999999999997,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "strategic_investment_thesis",
+            "category": "Strategic Depth",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "business_model_clarity",
+            "category": "Business Fundamentals",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "competitive_differentiation",
+            "category": "Market Positioning",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_rationale_clarity",
+            "category": "Investment Logic",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "mutual_value_recognition",
+            "category": "relationship_building",
+            "points_earned": 1.6,
+            "max_points": 4,
+            "percentage": 0.4,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "strategic_risk_awareness",
+            "category": "founder_maturity",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "social_proof_pathway",
+            "category": "trust_building",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_stage_coherence",
+            "category": "investment_appropriateness",
+            "points_earned": 4.25,
+            "max_points": 10,
+            "percentage": 0.42500000000000004,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "manipulation_tactics_absence",
+            "category": "communication_integrity",
+            "points_earned": 3.7,
+            "max_points": 4,
+            "percentage": 0.9249999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_depth_sufficiency",
+            "category": "business_substance",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "authentic_founder_voice",
+            "category": "Communication",
+            "points_earned": 2.0,
+            "max_points": 5,
+            "percentage": 0.4,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "organic_communication_flow",
+            "category": "Authenticity",
+            "points_earned": 1.5,
+            "max_points": 4,
+            "percentage": 0.375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_reality_grounding",
+            "category": "Business Authenticity",
+            "points_earned": 0.38,
+            "max_points": 5,
+            "percentage": 0.075,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_urgency_articulation",
+            "category": "strategic_positioning",
+            "points_earned": 0.0,
+            "max_points": 5,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "narrative_coherence_quality",
+            "category": "communication",
+            "points_earned": 1.75,
+            "max_points": 5,
+            "percentage": 0.35,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "relationship_building_intent",
+            "category": "Relationship Development",
+            "points_earned": 2.88,
+            "max_points": 5,
+            "percentage": 0.575,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 224.52699566499987,
+        "input_tokens": 22,
+        "output_tokens": 393,
+        "iterations": 0,
+        "improvement_summary": []
+      },
+      "harness": {
+        "output": "**Subject: $47K MRR - 140% growth - Angel opportunity**\n\n*$47K MRR fintech with Fortune 500 clients seeking strategic angel participation*\n\nDear [Investor Name],\n\n\nStripes-backed fintech with $47K MRR and Fortune 500 clients including Maersk seeking strategic angel participation.\n I noticed your March 2025 Ramp investment timing suggests continued fintech infrastructure focus despite market conditions. \nLed by Partner Ken Fox at Stripes in Q2 2023\n, your portfolio company Ramp's success scaling to $32B valuation and your thesis on embedded finance infrastructure aligns with our API-first approach to cash flow forecasting.\n\nJohn Smith at Ramp suggested I reach out given our shared Fortune 500 customer challenges. We're building AI-powered cash flow forecasting for the $12B enterprise forecasting market with 40% adoption acceleration creating $4.8B near-term opportunity. Unlike spreadsheet-based forecasting, our AI analyzes hundreds of micro-interactions for 65% more accurate predictions, saving CFOs 10+ hours weekly.\n\n**Enterprise SaaS with 85% retention and $195K LTV targeting 10x revenue multiple at $20M ARR within 24 months:**\n\u2022 $19K to $47K MRR (140% YoY) with 85% net revenue retention  \n\u2022 38 enterprise clients with annual SaaS subscriptions starting at $50K\n\u2022 Former Stripe payments engineer leading go-to-market\n\nWe're raising $8M Series A targeting $2M ARR within 18 months - $5M sales hiring, $1.5M customer success, $1M product development, $500K working capital. Seeking $25-50K strategic angel investment alongside institutional lead, targeting your hands-on CFO expertise and enterprise network, not just institutional capital.\n\nASC 842 compliance deadlines create 18-month window before Oracle's enterprise solution launches, making immediate scaling critical for market leadership. Our patent-pending algorithms combined with proprietary transaction data create network effects that strengthen accuracy as customer base grows.\n\nAre you available for a 20-minute call this week to review our enterprise expansion metrics and get your perspective on scaling challenges at 200+ customers? Targeting Q1 2024 close to align with enterprise hiring cycle and market opportunity timing.\n\nBest,\nSarah Chen  \nCEO, DataFlow Financial  \nsarah@dataflow.com",
+        "score": 166.69,
+        "max_score": 193,
+        "percentage": 0.8636787564766839,
+        "criterion_results": [
+          {
+            "criterion_id": "optimal_word_count",
+            "category": "structure",
+            "points_earned": 1.57,
+            "max_points": 4,
+            "percentage": 0.39184952978056425,
+            "evidence": "Word count: 319 (target: 50\u2013125) \u2717"
+          },
+          {
+            "criterion_id": "mobile_subject_optimization",
+            "category": "deliverability",
+            "points_earned": 0.13,
+            "max_points": 5,
+            "percentage": 0.026362038664323375,
+            "evidence": "Character count: 2,276 (target: \u226460) \u2717"
+          },
+          {
+            "criterion_id": "portfolio_personalization",
+            "category": "research_quality",
+            "points_earned": 8.66,
+            "max_points": 11,
+            "percentage": 0.7875,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "positive_signal_strength",
+            "category": "traction",
+            "points_earned": 6.56,
+            "max_points": 7,
+            "percentage": 0.9375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "domain_authentication",
+            "category": "professionalism",
+            "points_earned": 3.0,
+            "max_points": 3,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "specific_call_to_action",
+            "category": "next_steps",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "preheader_optimization",
+            "category": "deliverability",
+            "points_earned": 0.0,
+            "max_points": 4,
+            "percentage": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "angel_vs_vc_understanding",
+            "category": "investor_knowledge",
+            "points_earned": 4.5,
+            "max_points": 5,
+            "percentage": 0.9,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "founder_direct_outreach",
+            "category": "authenticity",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "no_readily_available_info",
+            "category": "research_quality",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "credibility_anchoring_strategy",
+            "category": "positioning",
+            "points_earned": 4.69,
+            "max_points": 5,
+            "percentage": 0.9375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "go_to_market_strategy_articulation",
+            "category": "strategic_depth",
+            "points_earned": 4.19,
+            "max_points": 5,
+            "percentage": 0.8375,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "low_drama_professionalism",
+            "category": "tone",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "anti_mass_email_signals",
+            "category": "personalization",
+            "points_earned": 10.0,
+            "max_points": 10,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "targeted_contact_selection",
+            "category": "Targeting Strategy",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "metrics_integrity_and_context",
+            "category": "credibility",
+            "points_earned": 11.0,
+            "max_points": 11,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "claim_specificity_and_verifiability",
+            "category": "credibility",
+            "points_earned": 8.53,
+            "max_points": 11,
+            "percentage": 0.775,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "unique_value_proposition_clarity",
+            "category": "strategic_positioning",
+            "points_earned": 5.55,
+            "max_points": 6,
+            "percentage": 0.9249999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_ask_appropriateness",
+            "category": "Investment Understanding",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "strategic_investment_thesis",
+            "category": "Strategic Depth",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "business_model_clarity",
+            "category": "Business Fundamentals",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "competitive_differentiation",
+            "category": "Market Positioning",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_rationale_clarity",
+            "category": "Investment Logic",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "mutual_value_recognition",
+            "category": "relationship_building",
+            "points_earned": 3.2,
+            "max_points": 4,
+            "percentage": 0.8,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "strategic_risk_awareness",
+            "category": "founder_maturity",
+            "points_earned": 3.0,
+            "max_points": 4,
+            "percentage": 0.75,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "social_proof_pathway",
+            "category": "trust_building",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_stage_coherence",
+            "category": "investment_appropriateness",
+            "points_earned": 10.0,
+            "max_points": 10,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "manipulation_tactics_absence",
+            "category": "communication_integrity",
+            "points_earned": 4.0,
+            "max_points": 4,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_depth_sufficiency",
+            "category": "business_substance",
+            "points_earned": 4.62,
+            "max_points": 5,
+            "percentage": 0.9249999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "authentic_founder_voice",
+            "category": "Communication",
+            "points_earned": 4.62,
+            "max_points": 5,
+            "percentage": 0.9249999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "organic_communication_flow",
+            "category": "Authenticity",
+            "points_earned": 1.0,
+            "max_points": 4,
+            "percentage": 0.25,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "operational_reality_grounding",
+            "category": "Business Authenticity",
+            "points_earned": 4.62,
+            "max_points": 5,
+            "percentage": 0.925,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "investment_urgency_articulation",
+            "category": "strategic_positioning",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "narrative_coherence_quality",
+            "category": "communication",
+            "points_earned": 3.25,
+            "max_points": 5,
+            "percentage": 0.6499999999999999,
+            "evidence": ""
+          },
+          {
+            "criterion_id": "relationship_building_intent",
+            "category": "Relationship Development",
+            "points_earned": 5.0,
+            "max_points": 5,
+            "percentage": 1.0,
+            "evidence": ""
+          }
+        ],
+        "wall_seconds": 2902.9288255339998,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "iterations": 4,
+        "improvement_summary": []
+      },
+      "delta": 0.5729015544041449
+    }
+  }
+}

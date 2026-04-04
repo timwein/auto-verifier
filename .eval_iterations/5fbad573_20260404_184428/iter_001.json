@@ -1,0 +1,389 @@
+{
+  "run_id": "5fbad573_20260404_184428",
+  "iteration": 1,
+  "content": "```bash\n#!/bin/bash\n\n# ==============================================================================\n# PostgreSQL Backup Script with S3 Upload, Rotation, and Notifications\n# ==============================================================================\n# Author: Database Administrator\n# Version: 1.0\n# Description: Automated PostgreSQL backup with AWS S3 storage, rotation,\n#              comprehensive logging, and multi-channel error notifications\n# ==============================================================================\n\nset -euo pipefail  # Exit on errors, undefined vars, and pipe failures\n\n# ==============================================================================\n# CONFIGURATION SECTION\n# ==============================================================================\n\n# Database Configuration\nreadonly DB_HOST=\"${DB_HOST:-localhost}\"\nreadonly DB_PORT=\"${DB_PORT:-5432}\"\nreadonly DB_NAME=\"${DB_NAME:-}\"\nreadonly DB_USER=\"${DB_USER:-postgres}\"\nreadonly DB_PASSWORD=\"${DB_PASSWORD:-}\"\n\n# AWS S3 Configuration\nreadonly S3_BUCKET=\"${S3_BUCKET:-}\"\nreadonly S3_PREFIX=\"${S3_PREFIX:-postgresql-backups}\"\nreadonly S3_REGION=\"${S3_REGION:-us-east-1}\"\nreadonly AWS_ACCESS_KEY_ID=\"${AWS_ACCESS_KEY_ID:-}\"\nreadonly AWS_SECRET_ACCESS_KEY=\"${AWS_SECRET_ACCESS_KEY:-}\"\n\n# Backup Configuration\nreadonly BACKUP_DIR=\"${BACKUP_DIR:-/tmp/pg_backups}\"\nreadonly RETENTION_DAYS=\"${RETENTION_DAYS:-7}\"\nreadonly COMPRESSION=\"${COMPRESSION:-gzip}\"\nreadonly PARALLEL_JOBS=\"${PARALLEL_JOBS:-2}\"\nreadonly BACKUP_FORMAT=\"${BACKUP_FORMAT:-custom}\"  # custom or plain\n\n# Logging Configuration\nreadonly LOG_DIR=\"${LOG_DIR:-/var/log/postgresql-backup}\"\nreadonly LOG_LEVEL=\"${LOG_LEVEL:-INFO}\"\nreadonly MAX_LOG_SIZE=\"${MAX_LOG_SIZE:-10485760}\"  # 10MB in bytes\n\n# Notification Configuration\nreadonly ENABLE_EMAIL=\"${ENABLE_EMAIL:-true}\"\nreadonly EMAIL_RECIPIENTS=\"${EMAIL_RECIPIENTS:-admin@example.com}\"\nreadonly SMTP_SERVER=\"${SMTP_SERVER:-localhost}\"\n\nreadonly ENABLE_SLACK=\"${ENABLE_SLACK:-false}\"\nreadonly SLACK_WEBHOOK_URL=\"${SLACK_WEBHOOK_URL:-}\"\nreadonly SLACK_CHANNEL=\"${SLACK_CHANNEL:-#alerts}\"\n\nreadonly ENABLE_WEBHOOK=\"${ENABLE_WEBHOOK:-false}\"\nreadonly WEBHOOK_URL=\"${WEBHOOK_URL:-}\"\n\n# Script Metadata\nreadonly SCRIPT_NAME=\"$(basename \"$0\")\"\nreadonly SCRIPT_PID=\"$$\"\nreadonly TIMESTAMP=\"$(date '+%Y-%m-%d_%H-%M-%S')\"\nreadonly LOG_FILE=\"$LOG_DIR/backup_${TIMESTAMP}.log\"\n\n# ==============================================================================\n# VALIDATION AND PREREQUISITES\n# ==============================================================================\n\nvalidate_config() {\n    local errors=()\n\n    # Required parameters validation\n    [[ -z \"$DB_NAME\" ]] && errors+=(\"DB_NAME is required\")\n    [[ -z \"$S3_BUCKET\" ]] && errors+=(\"S3_BUCKET is required\")\n    [[ -z \"$AWS_ACCESS_KEY_ID\" ]] && errors+=(\"AWS_ACCESS_KEY_ID is required\")\n    [[ -z \"$AWS_SECRET_ACCESS_KEY\" ]] && errors+=(\"AWS_SECRET_ACCESS_KEY is required\")\n\n    # Numeric validation\n    [[ ! \"$DB_PORT\" =~ ^[0-9]+$ ]] && errors+=(\"DB_PORT must be numeric\")\n    [[ ! \"$RETENTION_DAYS\" =~ ^[0-9]+$ ]] && errors+=(\"RETENTION_DAYS must be numeric\")\n    [[ ! \"$PARALLEL_JOBS\" =~ ^[0-9]+$ ]] && errors+=(\"PARALLEL_JOBS must be numeric\")\n\n    # Format validation\n    [[ ! \"$BACKUP_FORMAT\" =~ ^(custom|plain)$ ]] && errors+=(\"BACKUP_FORMAT must be 'custom' or 'plain'\")\n    [[ ! \"$COMPRESSION\" =~ ^(gzip|pigz|lz4|zstd|none)$ ]] && errors+=(\"COMPRESSION must be gzip, pigz, lz4, zstd, or none\")\n\n    # Slack validation\n    if [[ \"$ENABLE_SLACK\" == \"true\" ]] && [[ -z \"$SLACK_WEBHOOK_URL\" ]]; then\n        errors+=(\"SLACK_WEBHOOK_URL is required when ENABLE_SLACK=true\")\n    fi\n\n    # Webhook validation\n    if [[ \"$ENABLE_WEBHOOK\" == \"true\" ]] && [[ -z \"$WEBHOOK_URL\" ]]; then\n        errors+=(\"WEBHOOK_URL is required when ENABLE_WEBHOOK=true\")\n    fi\n\n    if [[ ${#errors[@]} -gt 0 ]]; then\n        log_error \"Configuration validation failed:\"\n        printf '%s\\n' \"${errors[@]}\" >&2\n        exit 1\n    fi\n}\n\ncheck_dependencies() {\n    local missing_deps=()\n\n    # Required commands\n    local required_commands=(\n        \"pg_dump\"\n        \"aws\"\n        \"date\"\n        \"du\"\n        \"find\"\n        \"curl\"\n    )\n\n    for cmd in \"${required_commands[@]}\"; do\n        if ! command -v \"$cmd\" &> /dev/null; then\n            missing_deps+=(\"$cmd\")\n        fi\n    done\n\n    # Compression tools\n    case \"$COMPRESSION\" in\n        gzip) command -v gzip &> /dev/null || missing_deps+=(\"gzip\") ;;\n        pigz) command -v pigz &> /dev/null || missing_deps+=(\"pigz\") ;;\n        lz4) command -v lz4 &> /dev/null || missing_deps+=(\"lz4\") ;;\n        zstd) command -v zstd &> /dev/null || missing_deps+=(\"zstd\") ;;\n    esac\n\n    # Email dependencies\n    if [[ \"$ENABLE_EMAIL\" == \"true\" ]]; then\n        if ! command -v mail &> /dev/null && ! command -v sendmail &> /dev/null; then\n            missing_deps+=(\"mail or sendmail\")\n        fi\n    fi\n\n    if [[ ${#missing_deps[@]} -gt 0 ]]; then\n        log_error \"Missing required dependencies: ${missing_deps[*]}\"\n        exit 1\n    fi\n}\n\n# ==============================================================================\n# LOGGING FUNCTIONS\n# ==============================================================================\n\nsetup_logging() {\n    # Create log directory if it doesn't exist\n    mkdir -p \"$LOG_DIR\"\n    \n    # Rotate log files if they exceed max size\n    if [[ -f \"$LOG_FILE\" ]] && [[ $(stat -c%s \"$LOG_FILE\" 2>/dev/null || echo 0) -gt $MAX_LOG_SIZE ]]; then\n        mv \"$LOG_FILE\" \"${LOG_FILE}.old\"\n    fi\n\n    # Initialize log file\n    exec 3>&1 4>&2  # Save stdout and stderr\n    exec 1> >(tee -a \"$LOG_FILE\")\n    exec 2> >(tee -a \"$LOG_FILE\" >&2)\n}\n\nlog_message() {\n    local level=\"$1\"\n    shift\n    local message=\"$*\"\n    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')\n    \n    echo \"[$timestamp] [$level] [PID:$SCRIPT_PID] $message\"\n}\n\nlog_info() {\n    log_message \"INFO\" \"$@\"\n}\n\nlog_warn() {\n    log_message \"WARN\" \"$@\"\n}\n\nlog_error() {\n    log_message \"ERROR\" \"$@\"\n}\n\nlog_success() {\n    log_message \"SUCCESS\" \"$@\"\n}\n\n# ==============================================================================\n# NOTIFICATION FUNCTIONS\n# ==============================================================================\n\nsend_email_notification() {\n    local subject=\"$1\"\n    local body=\"$2\"\n    local priority=\"${3:-normal}\"  # high, normal, low\n\n    if [[ \"$ENABLE_EMAIL\" != \"true\" ]]; then\n        return 0\n    fi\n\n    local priority_header=\"\"\n    case \"$priority\" in\n        high) priority_header=\"X-Priority: 1\\nImportance: high\" ;;\n        low) priority_header=\"X-Priority: 5\\nImportance: low\" ;;\n        *) priority_header=\"X-Priority: 3\\nImportance: normal\" ;;\n    esac\n\n    if command -v mail &> /dev/null; then\n        echo -e \"$body\" | mail -s \"$subject\" -a \"From: PostgreSQL Backup <noreply@$(hostname)>\" \\\n                              -a \"$priority_header\" \"$EMAIL_RECIPIENTS\"\n    elif command -v sendmail &> /dev/null; then\n        {\n            echo \"To: $EMAIL_RECIPIENTS\"\n            echo \"Subject: $subject\"\n            echo \"From: PostgreSQL Backup <noreply@$(hostname)>\"\n            echo -e \"$priority_header\"\n            echo \"\"\n            echo -e \"$body\"\n        } | sendmail \"$EMAIL_RECIPIENTS\"\n    else\n        log_error \"No email client available (mail/sendmail)\"\n        return 1\n    fi\n}\n\nsend_slack_notification() {\n    local level=\"$1\"  # INFO, SUCCESS, WARN, ERROR\n    local title=\"$2\"\n    local message=\"$3\"\n\n    if [[ \"$ENABLE_SLACK\" != \"true\" ]]; then\n        return 0\n    fi\n\n    local color=\"good\"\n    local icon=\":information_source:\"\n    \n    case \"$level\" in\n        SUCCESS)\n            color=\"good\"\n            icon=\":white_check_mark:\"\n            ;;\n        WARN)\n            color=\"warning\"\n            icon=\":warning:\"\n            ;;\n        ERROR)\n            color=\"danger\"\n            icon=\":x:\"\n            ;;\n        *)\n            color=\"#439FE0\"\n            icon=\":information_source:\"\n            ;;\n    esac\n\n    local payload=$(cat <<EOF\n{\n    \"channel\": \"$SLACK_CHANNEL\",\n    \"username\": \"PostgreSQL Backup Bot\",\n    \"icon_emoji\": \"$icon\",\n    \"attachments\": [\n        {\n            \"color\": \"$color\",\n            \"title\": \"$title\",\n            \"text\": \"$message\",\n            \"footer\": \"Host: $(hostname)\",\n            \"ts\": $(date +%s)\n        }\n    ]\n}\nEOF\n)\n\n    if ! curl -s -X POST -H 'Content-type: application/json' \\\n         --data \"$payload\" \"$SLACK_WEBHOOK_URL\" > /dev/null; then\n        log_error \"Failed to send Slack notification\"\n        return 1\n    fi\n}\n\nsend_webhook_notification() {\n    local level=\"$1\"\n    local title=\"$2\"\n    local message=\"$3\"\n\n    if [[ \"$ENABLE_WEBHOOK\" != \"true\" ]]; then\n        return 0\n    fi\n\n    local payload=$(cat <<EOF\n{\n    \"level\": \"$level\",\n    \"title\": \"$title\",\n    \"message\": \"$message\",\n    \"hostname\": \"$(hostname)\",\n    \"timestamp\": \"$(date -Iseconds)\",\n    \"script\": \"$SCRIPT_NAME\",\n    \"database\": \"$DB_NAME\"\n}\nEOF\n)\n\n    if ! curl -s -X POST -H 'Content-Type: application/json' \\\n         --data \"$payload\" \"$WEBHOOK_URL\" > /dev/null; then\n        log_error \"Failed to send webhook notification\"\n        return 1\n    fi\n}\n\nnotify_all() {\n    local level=\"$1\"\n    local title=\"$2\"\n    local message=\"$3\"\n    local email_priority=\"${4:-normal}\"\n\n    send_email_notification \"$title\" \"$message\" \"$email_priority\"\n    send_slack_notification \"$level\" \"$title\" \"$message\"\n    send_webhook_notification \"$level\" \"$title\" \"$message\"\n}\n\n# ==============================================================================\n# UTILITY FUNCTIONS\n# ==============================================================================\n\nhuman_readable_size() {\n    local bytes=\"$1\"\n    local units=(\"B\" \"KB\" \"MB\" \"GB\" \"TB\")\n    local unit=0\n    local size=\"$bytes\"\n\n    while (( size > 1024 && unit < ${#units[@]}-1 )); do\n        size=$((size / 1024))\n        ((unit++))\n    done\n\n    echo \"${size}${units[unit]}\"\n}\n\ncleanup_temp_files() {\n    if [[ -d \"$BACKUP_DIR\" ]]; then\n        log_info \"Cleaning up temporary files\"\n        find \"$BACKUP_DIR\" -name \"*.tmp\" -type f -delete 2>/dev/null || true\n    fi\n}\n\ncleanup_on_exit() {\n    local exit_code=$?\n    \n    cleanup_temp_files\n    \n    # Restore stdout and stderr\n    exec 1>&3 2>&4\n    exec 3>&- 4>&-\n\n    if [[ $exit_code -ne 0 ]]; then\n        notify_all \"ERROR\" \"PostgreSQL Backup Failed\" \\\n                  \"Backup process failed with exit code $exit_code. Check logs at $LOG_FILE for details.\" \"high\"\n    fi\n    \n    exit $exit_code\n}\n\n# ==============================================================================\n# DATABASE FUNCTIONS\n# ==============================================================================\n\ntest_database_connection() {\n    log_info \"Testing database connection to $DB_HOST:$DB_PORT/$DB_NAME\"\n    \n    local pg_cmd_base=\"PGPASSWORD='$DB_PASSWORD' psql -h '$DB_HOST' -p '$DB_PORT' -U '$DB_USER'\"\n    \n    if ! eval \"$pg_cmd_base -d '$DB_NAME' -c 'SELECT 1;'\" &>/dev/null; then\n        log_error \"Cannot connect to database $DB_NAME\"\n        notify_all \"ERROR\" \"Database Connection Failed\" \\\n                  \"Unable to connect to PostgreSQL database $DB_NAME at $DB_HOST:$DB_PORT\" \"high\"\n        return 1\n    fi\n    \n    log_success \"Database connection successful\"\n    return 0\n}\n\nget_database_size() {\n    local pg_cmd_base=\"PGPASSWORD='$DB_PASSWORD' psql -h '$DB_HOST' -p '$DB_PORT' -U '$DB_USER'\"\n    \n    eval \"$pg_cmd_base -d '$DB_NAME' -t -c \\\"SELECT pg_size_pretty(pg_database_size('$DB_NAME'));\\\"\" | xargs\n}\n\n# ==============================================================================\n# BACKUP FUNCTIONS\n# ==============================================================================\n\ncreate_backup() {\n    log_info \"Starting backup of database '$DB_NAME'\"\n    \n    # Create backup directory\n    mkdir -p \"$BACKUP_DIR\"\n    \n    local backup_file_base=\"${DB_NAME}_${TIMESTAMP}\"\n    local backup_file_ext\n    local compression_ext=\"\"\n    \n    # Set file extension based on format\n    case \"$BACKUP_FORMAT\" in\n        custom)\n            backup_file_ext=\"dump\"\n            ;;\n        plain)\n            backup_file_ext=\"sql\"\n            ;;\n    esac\n    \n    # Set compression extension\n    case \"$COMPRESSION\" in\n        gzip) compression_ext=\".gz\" ;;\n        pigz) compression_ext=\".gz\" ;;\n        lz4) compression_ext=\".lz4\" ;;\n        zstd) compression_ext=\".zst\" ;;\n        none) compression_ext=\"\" ;;\n    esac\n    \n    local backup_file_tmp=\"$BACKUP_DIR/${backup_file_base}.${backup_file_ext}${compression_ext}.tmp\"\n    local backup_file_final=\"$BACKUP_DIR/${backup_file_base}.${backup_file_ext}${compression_ext}\"\n    \n    log_info \"Creating backup file: $backup_file_final\"\n    \n    # Build pg_dump command\n    local pg_dump_cmd=\"PGPASSWORD='$DB_PASSWORD' pg_dump\"\n    pg_dump_cmd+=\" -h '$DB_HOST' -p '$DB_PORT' -U '$DB_USER' -d '$DB_NAME'\"\n    pg_dump_cmd+=\" --no-password --verbose\"\n    \n    case \"$BACKUP_FORMAT\" in\n        custom)\n            pg_dump_cmd+=\" -Fc\"\n            if [[ \"$PARALLEL_JOBS\" -gt 1 ]]; then\n                pg_dump_cmd+=\" -j $PARALLEL_JOBS\"\n            fi\n            ;;\n        plain)\n            pg_dump_cmd+=\" -Fp\"\n            ;;\n    esac\n\n    # Execute backup with compression if needed\n    local start_time=$(date +%s)\n    local backup_success=false\n\n    if [[ \"$BACKUP_FORMAT\" == \"custom\" ]]; then\n        # Custom format - pg_dump handles compression\n        if eval \"$pg_dump_cmd -f '$backup_file_tmp'\"; then\n            backup_success=true\n        fi\n    else\n        # Plain format - pipe through compression\n        case \"$COMPRESSION\" in\n            gzip)\n                if eval \"$pg_dump_cmd | gzip > '$backup_file_tmp'\"; then\n                    backup_success=true\n                fi\n                ;;\n            pigz)\n                if eval \"$pg_dump_cmd | pigz > '$backup_file_tmp'\"; then\n                    backup_success=true\n                fi\n                ;;\n            lz4)\n                if eval \"$pg_dump_cmd | lz4 > '$backup_file_tmp'\"; then\n                    backup_success=true\n                fi\n                ;;\n            zstd)\n                if eval \"$pg_dump_cmd | zstd > '$backup_file_tmp'\"; then\n                    backup_success=true\n                fi\n                ;;\n            none)\n                if eval \"$pg_dump_cmd > '$backup_file_tmp'\"; then\n                    backup_success=true\n                fi\n                ;;\n        esac\n    fi\n\n    local end_time=$(date +%s)\n    local duration=$((end_time - start_time))\n\n    if [[ \"$backup_success\" == true ]]; then\n        mv \"$backup_file_tmp\" \"$backup_file_final\"\n        local backup_size=$(stat -c%s \"$backup_file_final\")\n        local backup_size_hr=$(human_readable_size \"$backup_size\")\n        \n        log_success \"Backup completed successfully\"\n        log_info \"Backup size: $backup_size_hr\"\n        log_info \"Backup duration: ${duration}s\"\n        \n        echo \"$backup_file_final\"\n        return 0\n    else\n        log_error \"Backup failed\"\n        [[ -f \"$backup_file_tmp\" ]] && rm -f \"$backup_file_tmp\"\n        return 1\n    fi\n}\n\n# ==============================================================================\n# S3 FUNCTIONS\n# ==============================================================================\n\nconfigure_aws_cli() {\n    log_info \"Configuring AWS CLI\"\n    \n    export AWS_ACCESS_KEY_ID=\"$AWS_ACCESS_KEY_ID\"\n    export AWS_SECRET_ACCESS_KEY=\"$AWS_SECRET_ACCESS_KEY\"\n    export AWS_DEFAULT_REGION=\"$S3_REGION\"\n    \n    # Test AWS configuration\n    if ! aws sts get-caller-identity &>/dev/null; then\n        log_error \"AWS CLI configuration failed\"\n        return 1\n    fi\n    \n    log_success \"AWS CLI configured successfully\"\n    return 0\n}\n\nupload_to_s3() {\n    local backup_file=\"$1\"\n    local s3_key=\"$S3_PREFIX/$(basename \"$backup_file\")\"\n    local s3_uri=\"s3://$S3_BUCKET/$s3_key\"\n    \n    log_info \"Uploading backup to S3: $s3_uri\"\n    \n    local start_time=$(date +%s)\n    \n    if aws s3 cp \"$backup_file\" \"$s3_uri\" \\\n       --storage-class STANDARD_IA \\\n       --metadata \"database=$DB_NAME,timestamp=$TIMESTAMP,hostname=$(hostname)\"; then\n        \n        local end_time=$(date +%s)\n        local upload_duration=$((end_time - start_time))\n        \n        log_success \"Upload completed successfully in ${upload_duration}s\"\n        log_info \"S3 location: $s3_uri\"\n        \n        return 0\n    else\n        log_error \"Upload to S3 failed\"\n        return 1\n    fi\n}\n\ncleanup_old_backups_s3() {\n    log_info \"Cleaning up old backups in S3 (retention: $RETENTION_DAYS days)\"\n    \n    local cutoff_date=$(date -d \"$RETENTION_DAYS days ago\" '+%Y-%m-%d')\n    local deleted_count=0\n    \n    # List and delete old backups\n    while IFS=$'\\t' read -r key last_modified size; do\n        local file_date=$(echo \"$last_modified\" | cut -d'T' -f1)\n        \n        if [[ \"$file_date\" < \"$cutoff_date\" ]]; then\n            local s3_uri=\"s3://$S3_BUCKET/$key\"\n            log_info \"Deleting old backup: $s3_uri\"\n            \n            if aws s3 rm \"$s3_uri\"; then\n                ((deleted_count++))\n            else\n                log_warn \"Failed to delete: $s3_uri\"\n            fi\n        fi\n    done < <(aws s3api list-objects --bucket \"$S3_BUCKET\" --prefix \"$S3_PREFIX/\" \\\n             --query 'Contents[?contains(Key, `'\"$DB_NAME\"'`)].[Key,LastModified,Size]' \\\n             --output text 2>/dev/null || true)\n    \n    log_info \"Deleted $deleted_count old backup(s) from S3\"\n}\n\ncleanup_local_backups() {\n    log_info \"Cleaning up local backup files older than 1 day\"\n    \n    local deleted_count=0\n    \n    if [[ -d \"$BACKUP_DIR\" ]]; then\n        while IFS= read -r -d '' file; do\n            log_info \"Deleting local backup: $file\"\n            rm -f \"$file\"\n            ((deleted_count++))\n        done < <(find \"$BACKUP_DIR\" -name \"${DB_NAME}_*.dump*\" -o -name \"${DB_NAME}_*.sql*\" \\\n                 -type f -mtime +1 -print0 2>/dev/null)\n    fi\n    \n    log_info \"Deleted $deleted_count local backup(s)\"\n}\n\n# ==============================================================================\n# MAIN EXECUTION\n# ==============================================================================\n\nmain() {\n    local start_time=$(date +%s)\n    \n    log_info \"===== PostgreSQL Backup Script Started =====\"\n    log_info \"Database: $DB_NAME\"\n    log_info \"Host: $DB_HOST:$DB_PORT\"\n    log_info \"S3 Bucket: $S3_BUCKET\"\n    log_info \"Retention: $RETENTION_DAYS days\"\n    log_info \"Format: $BACKUP_FORMAT\"\n    log_info \"Compression: $COMPRESSION\"\n    \n    # Validate configuration\n    validate_config\n    \n    # Check dependencies\n    check_dependencies\n    \n    # Test database connection\n    if ! test_database_connection; then\n        exit 1\n    fi\n    \n    # Get database size for logging\n    local db_size=$(get_database_size)\n    log_info \"Database size: $db_size\"\n    \n    # Configure AWS CLI\n    if ! configure_aws_cli; then\n        notify_all \"ERROR\" \"AWS Configuration Failed\" \\\n                  \"Failed to configure AWS CLI for S3 backup\" \"high\"\n        exit 1\n    fi\n    \n    # Create backup\n    local backup_file\n    if backup_file=$(create_backup); then\n        log_success \"Local backup created: $backup_file\"\n    else\n        notify_all \"ERROR\" \"Backup Creation Failed\" \\\n                  \"Failed to create PostgreSQL backup for database $DB_NAME\" \"high\"\n        exit 1\n    fi\n    \n    # Upload to S3\n    if upload_to_s3 \"$backup_file\"; then\n        log_success \"Backup uploaded to S3 successfully\"\n    else\n        notify_all \"ERROR\" \"S3 Upload Failed\" \\\n                  \"Failed to upload backup to S3. Local backup preserved at: $backup_file\" \"high\"\n        exit 1\n    fi\n    \n    # Cleanup old backups\n    cleanup_old_backups_s3\n    cleanup_local_backups\n    \n    local end_time=$(date +%s)\n    local total_duration=$((end_time - start_time))\n    \n    log_success \"===== Backup Process Completed Successfully =====\"\n    log_info \"Total duration: ${total_duration}s\"\n    \n    # Send success notification\n    local backup_info=\"Database: $DB_NAME\\nSize: $db_size\\nDuration: ${total_duration}s\\nLocation: s3://$S3_BUCKET/$S3_PREFIX/$(basename \"$backup_file\")\"\n    notify_all \"SUCCESS\" \"PostgreSQL Backup Completed\" \"$backup_info\"\n}\n\n# ==============================================================================\n# SCRIPT INITIALIZATION\n# ==============================================================================\n\n# Set up signal handlers\ntrap cleanup_on_exit EXIT INT TERM\n\n# Set up logging\nsetup_logging\n\n# Check if running as root (optional warning)\nif [[ $EUID -eq 0 ]]; then\n    log_warn \"Running as root user\"\nfi\n\n# Validate required environment\nif [[ \"${BASH_VERSINFO[0]}\" -lt 4 ]]; then\n    log_error \"Bash 4.0 or higher required\"\n    exit 1\nfi\n\n# Run main function\nmain \"$@\"\n```\n\nThis comprehensive PostgreSQL backup script includes:\n\n## Key Features:\n\n1. **Configuration Management**: \nUses environment variables for easy configuration of database connections, S3 settings, and notification preferences\n\n\n2. **Comprehensive Logging**: \nStructured logging with multiple levels, automatic log rotation, and detailed backup metrics\n\n\n3. **Multiple Backup Formats**: \nSupports both custom format (-Fc) for compressed binary files and plain SQL format with various compression options\n\n\n4. **S3 Storage**: \nUses AWS S3 with configurable storage classes and metadata tagging for organized backup management\n\n\n5. **Backup Rotation**: \nAutomatically removes old backups based on configurable retention period\n\n\n6. **Error Handling**: Robust error checking with detailed exit codes and cleanup procedures\n\n7. **Multi-Channel Notifications**:\n   - **Email**: Traditional SMTP notifications\n   - **Slack**: \nWebhook-based notifications with color-coded messages for different severity levels\n\n   - **Custom Webhooks**: JSON payload delivery to custom endpoints\n\n8. **Performance Optimization**: \nSupport for parallel jobs in custom format backups and various compression algorithms like pigz for better performance\n\n\n9. **Security Best Practices**: \nUses environment variables for credentials and supports minimal IAM permissions\n\n\n## Usage Example:\n\n```bash\n# Set environment variables\nexport DB_NAME=\"myapp_production\"\nexport DB_HOST=\"localhost\"\nexport DB_USER=\"backup_user\"\nexport DB_PASSWORD=\"secure_password\"\nexport S3_BUCKET=\"my-backup-bucket\"\nexport AWS_ACCESS_KEY_ID=\"AKIA...\"\nexport AWS_SECRET_ACCESS_KEY=\"xxx...\"\nexport SLACK_WEBHOOK_URL=\"https://hooks.slack.com/services/...\"\nexport ENABLE_SLACK=\"true\"\n\n# Run the backup\n./postgresql-backup.sh\n```\n\nThe script can be scheduled via cron for automated daily backups and provides comprehensive monitoring and alerting for production database environments.",
+  "total_score": 16.339999999999996,
+  "max_score": 51,
+  "percentage": 0.320392156862745,
+  "criterion_scores": [
+    {
+      "criterion_id": "pg_consistent_snapshot_config",
+      "points_earned": 1.72,
+      "max_points": 6,
+      "percentage": 0.2875,
+      "sub_scores": [
+        {
+          "sub_id": "serializable_isolation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "connection_security",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "backup_optimization",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: serializable_isolation: 0%x35% + connection_security: 25%x40% + backup_optimization: 75%x25%",
+      "improvement_hints": [
+        "serializable_isolation: 0% -> 80% (+1.7 pts)",
+        "connection_security: 25% -> 80% (+1.3 pts)",
+        "backup_optimization: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "postgresql_aware_error_handling",
+      "points_earned": 0.31,
+      "max_points": 5,
+      "percentage": 0.0625,
+      "sub_scores": [
+        {
+          "sub_id": "serializable_retry_logic",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "pg_error_classification",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "operational_error_coverage",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: serializable_retry_logic: 0%x40% + pg_error_classification: 0%x35% + operational_error_coverage: 25%x25%",
+      "improvement_hints": [
+        "serializable_retry_logic: 0% -> 80% (+1.6 pts)",
+        "pg_error_classification: 0% -> 80% (+1.4 pts)",
+        "operational_error_coverage: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "aws_cli_security_integration",
+      "points_earned": 3.0,
+      "max_points": 6,
+      "percentage": 0.5,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "hardcoded_credentials",
+          "penalty": -3.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -3.0",
+      "improvement_hints": [
+        "Fix hardcoded_credentials (+3.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "s3_lifecycle_backup_rotation",
+      "points_earned": 1.12,
+      "max_points": 6,
+      "percentage": 0.1875,
+      "sub_scores": [
+        {
+          "sub_id": "rotation_strategy",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "storage_class_optimization",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "compliance_retention",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: rotation_strategy: 25%x40% + storage_class_optimization: 25%x35% + compliance_retention: 0%x25%",
+      "improvement_hints": [
+        "compliance_retention: 0% -> 80% (+1.2 pts)",
+        "rotation_strategy: 25% -> 80% (+1.3 pts)",
+        "storage_class_optimization: 25% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "backup_integrity_verification",
+      "points_earned": 3.5,
+      "max_points": 6,
+      "percentage": 0.5833333333333334,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "untested_backup_assumes_success",
+          "penalty": -2.5
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -2.5",
+      "improvement_hints": [
+        "Fix untested_backup_assumes_success (+2.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "structured_logging_monitoring",
+      "points_earned": 2.44,
+      "max_points": 5,
+      "percentage": 0.48749999999999993,
+      "sub_scores": [
+        {
+          "sub_id": "structured_logging",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "alert_integration",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "metrics_collection",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: structured_logging: 25%x40% + alert_integration: 75%x35% + metrics_collection: 50%x25%",
+      "improvement_hints": [
+        "structured_logging: 25% -> 80% (+1.1 pts)",
+        "metrics_collection: 50% -> 80% (+0.4 pts)",
+        "alert_integration: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "encryption_compliance_framework",
+      "points_earned": 3.0,
+      "max_points": 5,
+      "percentage": 0.6,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "missing_rest_encryption",
+          "penalty": -2.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 5 - -2.0",
+      "improvement_hints": [
+        "Fix missing_rest_encryption (+2.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "pgbackrest_enterprise_backup",
+      "points_earned": 1.1,
+      "max_points": 4,
+      "percentage": 0.275,
+      "sub_scores": [
+        {
+          "sub_id": "parallel_operations",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "backup_types",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "compression_encryption",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "delta_restore",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: parallel_operations: 50%x30% + backup_types: 0%x30% + compression_encryption: 50%x25% + delta_restore: 0%x15%",
+      "improvement_hints": [
+        "backup_types: 0% -> 80% (+1.0 pts)",
+        "delta_restore: 0% -> 80% (+0.5 pts)",
+        "parallel_operations: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "wal_archiving_pitr",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "archive_mode_config",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "archive_command",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "wal_storage",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "pitr_procedure",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: archive_mode_config: 0%x25% + archive_command: 0%x35% + wal_storage: 0%x25% + pitr_procedure: 0%x15%",
+      "improvement_hints": [
+        "archive_mode_config: 0% -> 80% (+0.8 pts)",
+        "archive_command: 0% -> 80% (+1.1 pts)",
+        "wal_storage: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "disaster_recovery_procedures",
+      "points_earned": 0.15,
+      "max_points": 4,
+      "percentage": 0.0375,
+      "sub_scores": [
+        {
+          "sub_id": "rpo_rto_definition",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "automated_recovery",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "testing_schedule",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "documentation",
+          "raw_value": 0.25,
+          "weighted_value": 0.0375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: rpo_rto_definition: 0%x30% + automated_recovery: 0%x30% + testing_schedule: 0%x25% + documentation: 25%x15%",
+      "improvement_hints": [
+        "rpo_rto_definition: 0% -> 80% (+1.0 pts)",
+        "automated_recovery: 0% -> 80% (+1.0 pts)",
+        "testing_schedule: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

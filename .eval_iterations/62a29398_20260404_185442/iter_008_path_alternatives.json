@@ -1,0 +1,662 @@
+[
+  {
+    "current_approach_summary": "The generator is writing a generic investment memo with high-level market data and program opportunities but completely lacks detailed unit economics analysis, cost breakdowns, margin progression modeling, or R&D amortization calculations.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build the memo around a detailed cost-exchange ratio analysis framework, modeling SkyGuard's unit economics against competitor interceptor costs and demonstrating how their drones achieve favorable cost asymmetry. Include sensitivity analysis for key variables like production scale, R&D amortization schedules, and cost-per-engagement scenarios across different threat environments.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on unit economics depth by leveraging the defense industry's current obsession with cost-exchange ratios and economic sustainability in drone warfare.",
+        "example_signal": "A detailed table showing SkyGuard's $35K unit cost vs. $2M+ interceptor costs, with margin progression from 15% at 1K units to 45% at 100K units, plus R&D amortization scenarios across 3-7 year payback periods."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the entire memo as a manufacturing economics deep-dive, starting with detailed BOM analysis (sensors 40%, frame 25%, propulsion 20%, etc.), then modeling how tooling amortization, yield improvements, and scale economics drive margin progression from prototype to mass production. Include defense-specific variables like security clearance costs, ITAR compliance, and government contract payment terms.",
+        "why_it_might_work": "This approach transforms the memo into a comprehensive unit economics model that directly demonstrates the depth of cost analysis the measurement spec requires, grounded in real manufacturing economics.",
+        "example_signal": "A complete cost waterfall showing per-unit costs declining from $85K (prototype) to $28K (10K units) to $18K (100K units), with detailed R&D amortization schedules and sensitivity analysis for key defense procurement variables."
+      },
+      {
+        "rank": 3,
+        "strategy": "Frame the memo around a lifecycle cost comparison model between SkyGuard's attritable drones and traditional defense systems, with detailed analysis of acquisition costs, operating costs, R&D amortization, and total cost of ownership across different mission scenarios. Include Monte Carlo sensitivity analysis for key defense-specific variables like loss rates, mission tempo, and technology refresh cycles.",
+        "why_it_might_work": "This leverages the defense industry's focus on lifecycle cost analysis and directly addresses the measurement spec's requirement for sensitivity analysis of defense-specific variables.",
+        "example_signal": "A comprehensive TCO model showing SkyGuard's 5-year cost per mission hour vs. alternatives, with detailed R&D recovery schedules and sensitivity analysis across 15+ defense-specific variables like attrition rates and operational tempo."
+      }
+    ],
+    "recommendation": "Alternative 1 (cost-exchange ratio framework) because it directly leverages the current defense industry focus on economic warfare dynamics while providing the detailed unit economics analysis the measurement spec requires.",
+    "criterion_id": "defense_unit_economics_modeling",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is focusing on market opportunity and technical capabilities but completely ignoring the complex regulatory certification pathways required for defense drone commercialization.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed regulatory pathway roadmap that maps specific certification requirements to commercialization milestones. Start with FAA Special Airworthiness Certification under experimental category, progress through Blue UAS Framework component certification, and culminate in full DOD type certification with specific timeline estimates for each phase.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating deep understanding of the sequential certification requirements and their impact on go-to-market strategy and funding needs.",
+        "example_signal": "The memo would include a section titled 'Regulatory Pathway Analysis' with specific timelines like '18-24 months for FAA experimental certification, 12-18 months for Blue UAS Framework approval, and 24-36 months for full DOD type certification.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around regulatory risk mitigation by analyzing how SkyGuard's technology design specifically addresses known certification bottlenecks. Focus on how their AI-enabled systems can meet durability and reliability (D&R) requirements for FAA special class certification and NDAA Section 848 supply chain compliance for DOD approval.",
+        "why_it_might_work": "This approach demonstrates understanding of specific regulatory requirements and shows how the company's technical choices reduce certification risk and accelerate approval timelines.",
+        "example_signal": "The memo would analyze how SkyGuard's domestic supply chain and cybersecurity architecture specifically address Blue UAS certification requirements, reducing time-to-market risk compared to competitors using foreign components."
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the memo around a dual-track certification strategy that leverages recent regulatory changes, specifically the June 2025 'Unleashing American Drone Dominance' executive order and the accelerated Blue UAS expansion timeline. Show how SkyGuard can capitalize on the 90-day Blue UAS expansion mandate and streamlined BVLOS rulemaking.",
+        "why_it_might_work": "This demonstrates awareness of current regulatory momentum and how recent policy changes create specific commercialization opportunities with defined timelines.",
+        "example_signal": "The memo would reference the executive order's 240-day timeline for BVLOS final rules and explain how SkyGuard's positioning allows them to be among the first to benefit from expanded Blue UAS listings."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the measurement spec by providing the comprehensive regulatory pathway analysis with specific certification requirements and timelines that the criterion demands.",
+    "criterion_id": "regulatory_certification_pathway_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a standard investment memo focused on market opportunity and technology capabilities but completely ignoring the capital-intensive manufacturing requirements and complex cash flow challenges specific to defense contracting.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed cash flow scenario analysis showing specific working capital requirements for defense manufacturing ramp-up, including inventory financing needs, government payment delays (45-90 days typical), and bridge financing strategies during extended procurement cycles. Present concrete financial models with quarterly cash flow projections, working capital ratios, and specific mitigation strategies like receivables factoring and inventory financing.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on realistic cash flow modeling, government payment delays, working capital requirements, and funding bridge strategies during procurement cycles.",
+        "example_signal": "A section titled 'Capital Requirements & Cash Flow Analysis' with specific dollar amounts for inventory buildup, 60-day payment cycle assumptions, and detailed bridge financing strategies."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around SkyGuard's capital efficiency strategy compared to traditional defense manufacturers, analyzing how the company will manage the capital-intensive nature of defense manufacturing through strategic partnerships, government financing programs (like DPA Title III), and innovative working capital solutions. Focus on how Series A funding specifically addresses manufacturing scale-up capital needs and cash flow timing mismatches.",
+        "why_it_might_work": "This approach demonstrates understanding of capital intensity for defense manufacturing while showing specific mitigation strategies and how the funding addresses these challenges.",
+        "example_signal": "Analysis comparing SkyGuard's capital requirements to industry benchmarks and specific strategies for managing the 3-6 month working capital cycles typical in defense contracts."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the measurement spec's emphasis on realistic cash flow modeling and specific mitigation strategies, which appears to be the core missing element.",
+    "criterion_id": "defense_capital_requirements_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a generic investment memo that mentions TRL and milestones but doesn't actually assess the company's current technology readiness level or map specific technical milestones to DOD acquisition phases.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed TRL assessment table that explicitly evaluates each critical technology element (AI algorithms, edge computing, swarm coordination) against the 9-level TRL scale with current status, evidence, and gaps. Map each technology's maturation timeline to specific DOD acquisition milestones (A, B, C) showing when TRL 6+ will be achieved for Milestone B readiness.",
+        "why_it_might_work": "This directly addresses the measurement spec by providing the realistic TRL assessment, specific technical milestones, and DOD acquisition phase mapping that the criterion explicitly requires.",
+        "example_signal": "A table showing 'AI Target Recognition: Current TRL 4, requires lab validation by Q2 2026 to reach TRL 6 for Milestone B, with specific test protocols and success criteria defined.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the entire memo as a Technology Readiness Assessment (TRA) report that follows DOD TRA Deskbook methodology, with sections on Critical Technology Elements identification, risk assessment matrix, and Technology Maturation Plan showing how SkyGuard will progress from current state to deployment-ready systems.",
+        "why_it_might_work": "This approach uses the actual DOD framework for technology readiness assessment, ensuring the memo speaks the language and follows the structure that defense acquisition professionals expect.",
+        "example_signal": "Opening with 'This TRA identifies three CTEs: autonomous navigation (TRL 5), swarm protocols (TRL 3), and secure communications (TRL 6), with maturation plans aligned to TMRR phase completion.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Organize the memo around a defense acquisition timeline that shows SkyGuard's technology development roadmap explicitly aligned with DOD budget cycles and acquisition phases, including specific program insertion points and transition agreements needed for each technology component.",
+        "why_it_might_work": "This connects technology readiness to the actual acquisition process timeline, showing investors how the company's development aligns with when DOD programs will be ready to adopt their technologies.",
+        "example_signal": "A timeline showing 'Q3 2026: Edge AI reaches TRL 7, ready for insertion into Counter-sUAS program EMD phase; Q1 2027: Swarm tech achieves TRL 6 for MQ-9 replacement program Technology Development phase.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly provides the three specific elements the measurement spec requires: realistic TRL assessment, specific technical milestones, and DOD acquisition phase mapping in a clear, structured format.",
+    "criterion_id": "technology_readiness_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a traditional investment memo focused on market size, financial projections, and technology capabilities without addressing the practical challenges of actually deploying drones in military field operations.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed operational deployment roadmap that walks through each phase from laboratory testing to full field deployment. Include specific sections on environmental qualification testing (MIL-STD-810 compliance for temperature, humidity, salt fog, vibration), operator certification pathways (from basic remote pilot to specialized military training), maintenance logistics infrastructure requirements, and integration protocols with existing military command and control systems.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating deep understanding of the specific deployment challenges rather than just describing the technology or market opportunity.",
+        "example_signal": "A section titled 'Deployment Readiness Assessment' that details SkyGuard's 18-month field qualification timeline including MIL-STD-810H environmental testing, operator training certification pathways, and maintenance depot establishment requirements."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around SkyGuard's unique solutions to known deployment failure points in military drone programs. Focus on how the company addresses specific operational challenges like contested environment performance, rapid operator training scalability, field maintenance complexity, and integration with legacy military systems rather than just describing the technology features.",
+        "why_it_might_work": "This shows understanding of deployment feasibility by highlighting how the company specifically solves real-world operational challenges that cause other drone programs to fail in field deployment.",
+        "example_signal": "Investment rationale centered on SkyGuard's proprietary 'Deployment-First Design' approach that reduces operator training time from 6 months to 3 weeks and enables field maintenance with 70% fewer specialized tools than competing systems."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly demonstrates understanding of deployment feasibility by providing concrete details about the operational deployment process rather than just claiming the company solves deployment problems.",
+    "criterion_id": "operational_deployment_feasibility",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a traditional investment memo focused on market opportunities and company capabilities without addressing mandatory cybersecurity compliance requirements for defense contractors.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around cybersecurity compliance as a core business requirement and competitive differentiator. Lead with SkyGuard's approach to NIST frameworks (CSF 2.0, SP 800-171, SP 800-53), detail their ATO strategy including timeline and costs, and present continuous monitoring capabilities as a key value proposition for defense customers.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating understanding that cybersecurity compliance is not optional but mandatory for defense contractors and requires specific frameworks, processes, and ongoing investment.",
+        "example_signal": "The memo would include sections like 'Cybersecurity Compliance Strategy' detailing NIST 800-171 implementation costs ($150K-$500K depending on scope) and 'ATO Pathway' showing 12-24 month timeline for Authority to Operate certification."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around SkyGuard's cybersecurity compliance readiness as a barrier to entry for competitors. Quantify the compliance costs and timelines that create moats, explain how their early investment in NIST frameworks positions them for rapid contract wins, and detail their continuous authorization to operate (cATO) capabilities that enable faster deployment cycles.",
+        "why_it_might_work": "This approach treats cybersecurity compliance as a strategic business advantage rather than just a requirement, showing deep understanding of how ATO processes, continuous monitoring, and compliance costs impact competitive positioning in defense markets.",
+        "example_signal": "The memo would state 'SkyGuard's $2M pre-investment in NIST 800-171 compliance and 18-month ATO head start creates a 24-36 month competitive moat against new entrants who must navigate the same compliance journey.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the stuck criterion by making cybersecurity compliance the central organizing principle of the investment memo rather than treating it as an afterthought.",
+    "criterion_id": "cybersecurity_compliance_framework",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a traditional investment memo with market data and program opportunities but lacks systematic customer discovery methodology and documented demand signals from actual defense stakeholders.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Implement a structured defense stakeholder interview methodology targeting the four key DoD customer roles (User, Funder, Buyer, Requirer) with documented findings from systematic customer discovery sessions. Include specific quotes and insights from Program Managers, end-users, and procurement officials who have validated the capability gaps and confirmed demand for the proposed solution.",
+        "why_it_might_work": "This directly addresses the measurement spec's requirement for 'systematic customer discovery methodology' and 'documented demand signals' by providing evidence of actual stakeholder validation rather than just market research.",
+        "example_signal": "The memo would include sections like 'Customer Discovery Findings' with documented interviews from 15+ defense stakeholders across different roles, showing validated pain points and confirmed willingness to procure the solution."
+      },
+      {
+        "rank": 2,
+        "strategy": "Develop and present evidence of formal validation testing partnerships with defense organizations, including pilot program agreements, testing protocols, and performance validation results that demonstrate genuine product-market fit. Focus on documented proof-of-concept deployments and formal feedback from operational testing environments.",
+        "why_it_might_work": "This satisfies the 'evidence of genuine product-market fit validation' requirement by showing actual testing and validation rather than theoretical market analysis, providing concrete proof that the solution works in real defense environments.",
+        "example_signal": "The memo would feature a 'Validation Evidence' section documenting formal testing agreements with 3+ defense installations, including performance metrics, user feedback scores, and formal validation reports from operational trials."
+      },
+      {
+        "rank": 3,
+        "strategy": "Create a comprehensive defense market requirements analysis based on formal procurement documentation, budget analysis, and capability gap assessments derived from official DoD sources, combined with evidence of alignment with specific defense acquisition programs and their documented requirements.",
+        "why_it_might_work": "This addresses 'understanding of defense market requirements' by grounding the analysis in official defense procurement processes and documented capability needs rather than general market trends.",
+        "example_signal": "The memo would include detailed analysis of specific Program Executive Office requirements, documented capability gaps from official defense assessments, and clear alignment with formal acquisition timelines and budgets."
+      }
+    ],
+    "recommendation": "Alternative 1 (stakeholder interview methodology) because it most directly addresses the core measurement spec requirement for 'systematic customer discovery methodology' and provides the concrete evidence of demand validation that the current approach completely lacks.",
+    "criterion_id": "customer_validation_evidence",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a standard investment memo with market opportunity descriptions and program details but completely lacks any financial risk modeling, sensitivity analysis, or downside scenarios for defense contracting uncertainties.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Build the entire financial section around a Monte Carlo simulation framework that explicitly models defense program cancellation risks, using historical cancellation data from GAO reports to create probability distributions for different contract termination scenarios. Structure projections as probability-weighted outcomes rather than point estimates, with detailed sensitivity analysis showing how revenue changes under different program survival rates.",
+        "why_it_might_work": "This directly addresses the measurement spec by providing quantitative risk modeling with realistic downside scenarios based on actual defense contracting data rather than optimistic projections.",
+        "example_signal": "Revenue projections would show 'Base case: $45M (60% probability), Program delay scenario: $12M (25% probability), Full cancellation scenario: $2M termination costs (15% probability)' with supporting analysis of historical program cancellation rates."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the entire financial model around a 'stress testing' approach that starts with worst-case scenarios first, then builds upward contingency plans. Use actual defense program cancellation examples (like FARA, Crusader, Comanche) to create specific risk scenarios, and model how the company would survive each one through pivot strategies, cost reduction, or alternative revenue streams.",
+        "why_it_might_work": "This inverts traditional optimistic projections by leading with downside protection and demonstrating realistic understanding of defense contracting volatility through concrete historical examples.",
+        "example_signal": "Financial section would begin with 'Scenario 1: 100% program cancellation after 18 months - Company survival strategy includes $8M cost reduction, pivot to commercial markets, and 24-month runway preservation' before showing upside cases."
+      },
+      {
+        "rank": 3,
+        "strategy": "Structure the financial projections as a decision tree that explicitly maps out branch points where programs could be cancelled, delayed, or modified, with each branch showing different financial outcomes and the company's adaptive responses. Include specific contract termination liability calculations and working capital impacts based on actual FAR regulations for multiyear defense contracts.",
+        "why_it_might_work": "This provides the systematic risk analysis and sensitivity modeling the spec requires while demonstrating deep understanding of defense contracting mechanics and realistic planning for program uncertainties.",
+        "example_signal": "Financial model would show 'Year 2 decision point: If Drone Dominance Phase 2 cancelled (30% probability based on historical data), company pivots to Counter-UAS market with $15M revenue impact and 6-month cash flow bridge requirement.'"
+      }
+    ],
+    "recommendation": "Alternative 1 (Monte Carlo simulation) because it provides the most comprehensive quantitative risk modeling that directly satisfies the measurement spec's requirement for realistic risk analysis with concrete downside scenarios.",
+    "criterion_id": "risk_adjusted_financial_realism",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is currently writing a standard investment memo that focuses on market opportunity and financial projections without addressing the complex technical development risks, certification requirements, and execution challenges specific to defense drone systems.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed technical risk assessment framework that explicitly maps out the certification pathway (Blue UAS, DO-178C software standards, MIL-STD testing), integration challenges with existing defense systems, and validation requirements including simulation testing and field trials. Present these as the primary investment considerations rather than market size.",
+        "why_it_might_work": "This directly addresses the measurement spec by making technical execution risks the central focus and demonstrating realistic understanding of defense-specific certification complexity.",
+        "example_signal": "A section titled 'Technical Execution Risk Matrix' that details specific certification timelines, testing requirements, and integration milestones with quantified probability assessments for each development phase."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the memo as a 'technical due diligence assessment' that systematically evaluates the company's capability to navigate defense drone development challenges, including autonomous system safety validation, electromagnetic compatibility testing, and supply chain security requirements. Focus on the company's technical team credentials and past experience with similar certification processes.",
+        "why_it_might_work": "This approach treats technical execution risk as the primary investment thesis rather than a secondary consideration, directly aligning with the measurement spec's focus on realistic risk assessment.",
+        "example_signal": "An analysis section examining the founding team's experience with DO-254 hardware certification and MIL-STD-810 environmental testing, with specific examples of past successful defense certifications."
+      },
+      {
+        "rank": 3,
+        "strategy": "Organize the memo around a phased development timeline that breaks down technical milestones, regulatory approvals, and testing requirements into specific stages with associated risks and mitigation strategies. Include detailed discussion of verification and validation challenges for autonomous systems and the complexity of achieving Authority to Operate (ATO) certification.",
+        "why_it_might_work": "This demonstrates sophisticated understanding of defense drone development complexity by showing how technical risks compound across development phases.",
+        "example_signal": "A timeline showing Phase 1 prototype development with MIL-STD-461F EMI testing, Phase 2 Blue UAS certification process, and Phase 3 operational validation with specific risk factors and success criteria for each phase."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly transforms the memo structure to center on technical execution risks as the primary investment consideration, which aligns perfectly with the stuck criterion's focus on realistic technical risk assessment.",
+    "criterion_id": "technical_execution_risk_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a standard investment memo that focuses on market opportunity and technical capabilities but lacks any analysis of how incumbent defense contractors will respond to competitive threats.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Frame the memo as a 'competitive battleground analysis' that explicitly maps out how each major incumbent (Lockheed Martin, Northrop Grumman, RTX, General Dynamics, Boeing) will likely respond to SkyGuard's market entry through acquisition attempts, competitive product development, or market access restrictions. Include specific defensive strategies SkyGuard must deploy against each type of incumbent response.",
+        "why_it_might_work": "This directly addresses the measurement spec by analyzing incumbent responses and providing specific defensive strategies rather than ignoring competitive dynamics entirely.",
+        "example_signal": "A section titled 'Incumbent Response Matrix' that details how Lockheed Martin's venture arm will likely attempt acquisition while Northrop Grumman may leverage their Beacon ecosystem to develop competing autonomous solutions, with SkyGuard's counter-strategies for each scenario."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the memo around three 'competitive threat scenarios' (acquisition pressure, technology leapfrogging, and procurement gatekeeping) with detailed analysis of how traditional defense contractors historically respond to startup threats, supported by specific examples from SpaceX vs ULA or Palantir vs traditional IT contractors. Include SkyGuard's specific mitigation strategies for each threat vector.",
+        "why_it_might_work": "This approach centers the entire memo on competitive response analysis with historical precedents and specific defensive strategies, directly fulfilling the measurement criteria.",
+        "example_signal": "Opening with 'SkyGuard faces three critical competitive threats from incumbents' and dedicating 60% of the memo to analyzing how RTX might accelerate their own drone development timeline or how Boeing could leverage existing DoD relationships to restrict SkyGuard's market access."
+      },
+      {
+        "rank": 3,
+        "strategy": "Write the memo as a 'David vs Goliath playbook' that positions SkyGuard's competitive strategy entirely around anticipating and countering incumbent responses, using game theory principles to predict how consolidated defense contractors will react to market disruption and detailing SkyGuard's asymmetric advantages and defensive positioning against each predicted response.",
+        "why_it_might_work": "This reframes the entire investment thesis around competitive dynamics and incumbent responses, making competitive response strategy the central theme rather than a missing element.",
+        "example_signal": "A memo that opens with 'SkyGuard's investment thesis depends on successfully navigating predictable incumbent responses' and includes sections like 'Acquisition Defense Strategy' and 'Technology Moat Protection Against Prime Contractor Competition.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it provides the most structured and comprehensive approach to analyzing specific incumbent responses while maintaining the investment memo format, directly addressing the stuck criterion with concrete, actionable competitive intelligence.",
+    "criterion_id": "competitive_response_strategy",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is currently writing a standard investment memo with market opportunity data and capability gaps but completely ignoring the complex regulatory compliance burden that defense drone companies must navigate.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Restructure the memo around a comprehensive regulatory compliance roadmap that details the specific cybersecurity frameworks (NIST, Blue UAS requirements), quality management systems (AS9100D certification), and operational impact assessments required for defense contracts. Present SkyGuard's competitive advantage as having already navigated these complex requirements rather than just having good technology.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating deep understanding of the comprehensive regulatory compliance burden including cybersecurity frameworks, quality management systems, and operational impact of defense-specific requirements.",
+        "example_signal": "The memo would include sections like 'Regulatory Compliance Moat: SkyGuard's AS9100D certification and Blue UAS pathway positioning' and 'Cybersecurity Framework Implementation: NIST compliance reducing customer procurement friction by 18 months.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Transform the memo into a risk-mitigation focused investment thesis that quantifies the operational complexity costs of regulatory compliance (certification timelines, audit requirements, supply chain restrictions) and positions SkyGuard as having solved these challenges through systematic compliance architecture. Include specific cost impacts of NDAA compliance, FCC authorization delays, and AS9100D implementation on competitor market entry.",
+        "why_it_might_work": "This approach evaluates the operational impact of defense-specific requirements by treating regulatory complexity as a quantifiable business risk and competitive moat rather than just a checkbox.",
+        "example_signal": "The memo would feature analysis like 'Regulatory Barrier Analysis: Average 24-month compliance timeline creates $3.2M market entry cost for new entrants, while SkyGuard's pre-certified platform enables immediate contract pursuit.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses all three components of the measurement spec (cybersecurity frameworks, quality management systems, and operational impact) by making regulatory compliance the central value proposition rather than a footnote.",
+    "criterion_id": "regulatory_operational_complexity_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is making vague technical claims about 'proprietary edge computing capabilities' and 'swarm coordination technology' without providing specific performance metrics, benchmarks, or evidence that would establish credible competitive advantage.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Focus on specific, measurable performance benchmarks against established military drone standards (e.g., 'achieves 15-hour endurance vs. industry standard 8-12 hours for Group 3 UAVs' or 'payload capacity of 45kg exceeds typical 30kg threshold for tactical drones'). Include concrete technical specifications like range, altitude, and sensor capabilities with direct comparisons to known systems like MQ-9 Reaper or Wing Loong II.",
+        "why_it_might_work": "Specific performance metrics with industry benchmarks demonstrate actual technical superiority rather than making unsubstantiated claims about proprietary technology.",
+        "example_signal": "SkyGuard's X-Series achieves 18-hour endurance at 25,000ft altitude with 50kg payload capacity, exceeding the MQ-9's 27-hour endurance but at significantly lower cost per flight hour."
+      },
+      {
+        "rank": 2,
+        "strategy": "Emphasize proven technical validation through third-party testing, military trials, or partnerships with established defense contractors rather than claiming proprietary advantages. Reference specific test results, certification standards met (like MIL-STD compliance), or validation by recognized defense organizations.",
+        "why_it_might_work": "Third-party validation and proven test results provide credible evidence of technical performance rather than relying on unverified proprietary claims.",
+        "example_signal": "SkyGuard drones have completed 500+ hours of U.S. Army testing at Yuma Proving Ground, achieving 99.2% mission success rate in counter-UAS scenarios."
+      },
+      {
+        "rank": 3,
+        "strategy": "Address specific technical limitations or trade-offs honestly while demonstrating how the company's approach solves real operational problems that existing solutions cannot handle effectively. Focus on mission-critical gaps in current drone capabilities with evidence of how SkyGuard's solution performs better.",
+        "why_it_might_work": "Acknowledging realistic technical constraints while showing superior performance in specific use cases demonstrates technical credibility rather than making implausible superiority claims.",
+        "example_signal": "While SkyGuard drones sacrifice maximum speed (180 km/h vs 210 km/h industry standard), they achieve 40% better fuel efficiency enabling extended loiter time critical for persistent surveillance missions."
+      }
+    ],
+    "recommendation": "Alternative 1 (specific performance benchmarks) because the measurement spec specifically looks for credible performance claims that demonstrate actual competitive advantage, which requires concrete, verifiable metrics rather than vague proprietary technology assertions.",
+    "criterion_id": "technical_performance_credibility_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a traditional investment memo that lists market opportunities, technical capabilities, and financial projections without weaving them into a unified strategic narrative that demonstrates clear cause-and-effect relationships between these elements.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a single, specific strategic thesis (e.g., 'SkyGuard is positioned to become the dominant supplier for the Pentagon's $1B Drone Dominance Program by solving the cost-at-scale challenge that legacy defense contractors cannot address'). Build every section to reinforce this central narrative, showing how technical capabilities directly enable market capture, how market position drives competitive advantages, and how this creates predictable financial outcomes.",
+        "why_it_might_work": "This creates the coherent strategic narrative the criterion demands by ensuring all elements serve a unified investment thesis rather than existing as disconnected capabilities and market facts.",
+        "example_signal": "The memo would open with the thesis, then show how SkyGuard's edge computing specifically enables the $5,000 per unit price point required for Drone Dominance, how this creates barriers for traditional contractors, and how capturing 15% of this program generates the projected $75M ARR."
+      },
+      {
+        "rank": 2,
+        "strategy": "Organize the memo around a clear problem-solution-outcome framework where SkyGuard solves a specific, urgent defense problem that existing players cannot address. Focus on one critical capability gap (e.g., autonomous swarm coordination under electronic warfare conditions) and demonstrate how SkyGuard's unique technical approach creates sustainable competitive advantages that translate directly into financial returns and market dominance.",
+        "why_it_might_work": "This approach ensures strategic coherence by creating clear logical connections between market need, technical differentiation, competitive positioning, and financial projections within a single problem-solving narrative.",
+        "example_signal": "The memo would identify the specific EW-resistant swarm coordination gap, explain how SkyGuard's proprietary mesh networking solves it uniquely, show why this creates a 3-year competitive moat, and project the resulting $200M TAM capture."
+      }
+    ],
+    "recommendation": "Alternative 1 because it directly addresses the coherence issue by organizing all content around a single strategic thesis, ensuring every element reinforces the same investment narrative rather than presenting disconnected facts.",
+    "criterion_id": "strategic_coherence_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a conventional investment memo with standard market data, program opportunities, and capability descriptions that reads like a generic defense industry overview.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Write from the perspective of a former defense procurement officer who has lived through multiple failed drone programs, focusing on the brutal realities of supply chain vulnerabilities, manufacturing bottlenecks, and the 17 single-point-of-failure components that could kill any drone company overnight. Include specific war stories about programs that collapsed due to Chinese component dependencies or regulatory changes.",
+        "why_it_might_work": "This demonstrates authentic domain expertise through lived experience and insider knowledge of actual program failures rather than surface-level market analysis.",
+        "example_signal": "Opening with 'Having watched three drone startups burn through $200M because they couldn't source brushless motors during the 2023 rare earth embargo, I approach SkyGuard with hard-earned skepticism about their supply chain claims.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the memo as a technical deep-dive into SkyGuard's specific engineering solutions to known drone warfare problems identified in Ukraine, such as AeroScope vulnerability, swarm coordination under jamming, and distributed manufacturing resilience. Focus on the technical architecture decisions that separate viable defense drones from commercial adaptations.",
+        "why_it_might_work": "This shows sophisticated understanding of current battlefield realities and technical challenges that only someone with deep domain knowledge would prioritize.",
+        "example_signal": "SkyGuard's mesh networking protocol specifically addresses the AeroScope tracking vulnerability that killed Ukrainian operators in 2022, using frequency-hopping spread spectrum with 200ms hop intervals to prevent geolocation triangulation."
+      },
+      {
+        "rank": 3,
+        "strategy": "Frame the analysis around the industrial mobilization challenge, comparing SkyGuard's production model to Ukraine's distributed workshop approach and examining whether they can achieve the 10,000 units/month scale that modern conflicts demand. Include specific analysis of their manufacturing automation, component sourcing strategy, and ability to pivot production during wartime constraints.",
+        "why_it_might_work": "This demonstrates understanding that modern drone warfare is fundamentally about manufacturing capacity and industrial resilience, not just technology features.",
+        "example_signal": "While SkyGuard claims 1,000 unit monthly capacity, their reliance on Taiwanese semiconductor fabs for flight controllers creates the same vulnerability that forced Ukraine to redesign their entire production line in 2024."
+      }
+    ],
+    "recommendation": "Alternative 1 (procurement officer perspective) because it most directly addresses the authenticity criterion by grounding analysis in specific, lived experience rather than abstract market knowledge.",
+    "criterion_id": "domain_expertise_authenticity_assessment",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is focusing on market size data and program opportunities without demonstrating any concrete customer validation or binding commitments from defense buyers.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Pivot to showcasing formal customer validation through Letters of Intent (LOIs) or Memorandums of Understanding (MOUs) with specific defense agencies or prime contractors. Include evidence of pilot program agreements, test and evaluation partnerships, or formal expressions of interest from named government customers that demonstrate binding procurement pathways.",
+        "why_it_might_work": "This directly addresses the criterion by providing concrete evidence of customer commitment rather than just market opportunity analysis.",
+        "example_signal": "The memo would feature signed LOIs from SOCOM for pilot testing or an MOU with Lockheed Martin for integration into existing platforms."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the investment case around demonstrated progression through formal DoD acquisition pathways (Urgent Capability, Middle Tier, or Major Capability) with documented milestone achievements and stakeholder validation. Show evidence of requirements validation, acquisition planning approvals, or inclusion in official DoD capability development documents.",
+        "why_it_might_work": "This approach demonstrates systematic customer validation through the formal defense procurement process rather than speculative market analysis.",
+        "example_signal": "The memo would cite SkyGuard's inclusion in a validated Joint Urgent Operational Need (JUON) or progression to Milestone A in the acquisition framework."
+      },
+      {
+        "rank": 3,
+        "strategy": "Focus on demonstrating early customer validation through participation in formal defense innovation programs like SBIR Phase II/III transitions, Other Transaction Authority (OTA) awards, or inclusion in DoD technology transition initiatives that provide clear pathways to procurement.",
+        "why_it_might_work": "These programs represent formal government validation mechanisms that create binding pathways to larger procurement opportunities.",
+        "example_signal": "The memo would highlight SkyGuard's $2M SBIR Phase II award with transition pathway to Phase III production contract or OTA prototype award with follow-on production options."
+      }
+    ],
+    "recommendation": "Alternative 1 (LOIs/MOUs) because it provides the most direct and tangible evidence of customer commitment that investors can verify and quantify.",
+    "criterion_id": "binding_customer_commitment_evidence",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is currently providing generic market opportunity data and capability gaps without analyzing the specific barriers that make it difficult for new entrants like SkyGuard to actually penetrate the defense drone market.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Reframe the memo around a detailed competitive landscape analysis that explicitly maps incumbent advantages (Lockheed Martin, General Atomics, Northrop Grumman) including their decades-long customer relationships, existing sustainment contracts, and proprietary integration with DoD systems. Analyze how these create switching costs through training requirements, data migration complexity, and operational disruption risks that procurement officers face when considering new vendors.",
+        "why_it_might_work": "This directly addresses the measurement spec by focusing on realistic assessment of incumbent relationships and customer switching costs rather than just market size.",
+        "example_signal": "A section titled 'Incumbent Moats and Market Entry Challenges' that quantifies the cost and time required for DoD to retrain personnel on new drone systems versus continuing with existing MQ-9 operators."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the memo as a risk assessment that acknowledges the 'Valley of Death' phenomenon where defense startups secure initial contracts but struggle to transition to production-scale programs due to ecosystem lock-in effects. Detail how prime contractors use teaming arrangements, supply chain integration, and ITAR compliance requirements to create barriers that prevent direct competition, then position SkyGuard's strategy specifically to navigate these constraints.",
+        "why_it_might_work": "This approach recognizes ecosystem lock-in effects and demonstrates understanding of defense contracting relationships as barriers to entry.",
+        "example_signal": "Analysis showing how General Atomics' 20-year MQ-9 sustainment contracts create vendor lock-in through proprietary ground control systems and specialized maintenance training that would cost $50M+ to replicate."
+      },
+      {
+        "rank": 3,
+        "strategy": "Focus the memo on SkyGuard's pathway through alternative acquisition channels (OTAs, SBIR Phase III, Middle Tier Acquisition) that bypass traditional procurement barriers, while explicitly acknowledging why the traditional prime contractor route is blocked by incumbent advantages. Analyze how these alternative pathways still face limitations in scaling due to established relationships between primes and program offices.",
+        "why_it_might_work": "This shows realistic assessment of market entry barriers by acknowledging traditional channels are blocked while identifying specific workarounds.",
+        "example_signal": "A section explaining why SkyGuard cannot compete directly for the $4.3B MQ-9 replacement due to incumbent certification advantages, but can access the market through the $150M Drone Dominance prototype phase."
+      }
+    ],
+    "recommendation": "Alternative 1, because it most directly addresses the measurement spec by analyzing incumbent relationships and switching costs rather than avoiding or minimizing these barriers.",
+    "criterion_id": "market_penetration_barrier_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is focusing on market opportunities and program details but failing to address the rapid technology obsolescence risks and sustained R&D investment requirements that are critical for maintaining competitive advantage in defense drones.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Frame the investment thesis around SkyGuard's adaptive technology architecture that specifically counters the 'months not years' obsolescence cycle plaguing defense drones. Focus on their modular, software-defined platform that enables rapid iteration and field updates to stay ahead of countermeasures, rather than traditional hardware specifications.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on technology lifecycle risks by demonstrating understanding that drone technological half-life is measured in months and requires continuous adaptation capabilities.",
+        "example_signal": "The memo would highlight SkyGuard's 'evolutionary resilience' platform that can push software updates to deployed drones within 48 hours to counter new electronic warfare tactics, citing Ukraine battlefield lessons."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the analysis around competitive innovation threats from adversaries and the R&D investment arms race required to maintain technological superiority. Emphasize SkyGuard's strategy for sustained innovation funding and their approach to staying ahead of rapidly evolving countermeasures and enemy capabilities.",
+        "why_it_might_work": "This targets the measurement spec's emphasis on competitive innovation threats and sustained R&D investment requirements by showing deep understanding of the innovation race dynamics in defense technology.",
+        "example_signal": "The memo would detail SkyGuard's 25% revenue reinvestment in R&D specifically for counter-countermeasure development and their partnership strategy with commercial tech firms to accelerate innovation cycles."
+      },
+      {
+        "rank": 3,
+        "strategy": "Position the investment case around SkyGuard's approach to the 'hider-finder' competition and their strategy for maintaining technological advantage against increasingly sophisticated air defense systems. Focus on their multi-layered approach to avoiding detection and their continuous capability evolution.",
+        "why_it_might_work": "This addresses the measurement spec by demonstrating understanding of how defense drone companies must continuously evolve to maintain effectiveness against adaptive adversaries and sophisticated defense systems.",
+        "example_signal": "The memo would analyze SkyGuard's three-generation technology roadmap showing how they plan to stay ahead of enemy air defense evolution and their investment in next-generation stealth and jamming resistance."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the core issue of rapid technology obsolescence that is unique to the defense drone space and shows understanding of the fundamental challenge facing all companies in this sector.",
+    "criterion_id": "technology_obsolescence_defense_strategy",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is focusing on traditional defense contracting metrics like program opportunities and capability gaps without addressing the fundamental revenue scalability challenges inherent in government contracting.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Reframe the memo around a dual-revenue model that explicitly addresses how the company will transition from project-based government contracts to recurring revenue streams through software-as-a-service offerings, maintenance subscriptions, and data analytics services. Focus on how the company plans to build predictable revenue streams that reduce dependence on lumpy government contract cycles.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on 'strategies for building sustainable recurring revenue streams' and 'revenue predictability issues' by showing concrete plans to move beyond project-based contracting.",
+        "example_signal": "The memo would detail how SkyGuard plans to generate 40% of revenue from recurring subscriptions within 3 years through drone-as-a-service offerings and predictive maintenance contracts."
+      },
+      {
+        "rank": 2,
+        "strategy": "Structure the entire analysis around concentration risk mitigation by demonstrating how the company will diversify across multiple government agencies, international markets, and commercial applications rather than betting on single large programs. Include specific strategies for avoiding over-dependence on any single contract or customer.",
+        "why_it_might_work": "This directly tackles the 'program concentration risk' element of the measurement spec by showing how the company plans to spread risk across multiple revenue sources rather than relying on winner-take-all contracts.",
+        "example_signal": "The memo would show a revenue diversification plan targeting 30% DoD, 25% DHS, 20% international allies, and 25% commercial markets to avoid single-program dependency."
+      },
+      {
+        "rank": 3,
+        "strategy": "Focus the investment thesis on the company's ability to create long-term sustainment and support contracts that provide multi-year revenue visibility, emphasizing how defense contractors can build 'revenue tails' through lifecycle support, training, and upgrade services that extend far beyond initial platform delivery.",
+        "why_it_might_work": "This addresses the 'revenue predictability issues' by showing how the company can create longer-term, more predictable revenue streams within the existing government contracting framework.",
+        "example_signal": "The memo would highlight how SkyGuard's 15-year lifecycle support contracts provide 70% revenue visibility beyond the initial 3-year development phase."
+      }
+    ],
+    "recommendation": "Alternative 1 (dual-revenue model) because it most comprehensively addresses all three elements of the measurement spec - concentration risk, predictability, and recurring revenue strategies - by fundamentally changing the business model rather than just optimizing within traditional defense contracting constraints.",
+    "criterion_id": "defense_revenue_scalability_model",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is currently producing a standard investment memo format with market opportunity and capability analysis but failing to identify and quantify strategic dependencies and single points of failure.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo as a strategic risk assessment framework that systematically maps critical dependencies across five vulnerability domains: structural materials (carbon fiber, rare earth magnets), propulsion systems, power/battery supply chains, sensor/semiconductor dependencies, and logistics integration. Quantify each dependency with specific metrics like supplier concentration ratios, geographic risk exposure, and time-to-replacement estimates.",
+        "why_it_might_work": "This directly addresses the measurement spec by identifying and quantifying strategic dependencies and single points of failure that could critically impact business continuity.",
+        "example_signal": "The memo would include statements like 'SkyGuard faces 85% dependency on three carbon fiber suppliers concentrated in Japan/China with 18-month lead times, creating critical supply chain vulnerability.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around SkyGuard's mitigation strategies for known defense drone vulnerabilities, analyzing how the company addresses GPS spoofing risks, electronic warfare susceptibility, technology transfer threats, and key personnel concentration. Present the investment case as betting on their ability to solve these strategic dependencies rather than just market opportunity.",
+        "why_it_might_work": "This approach transforms strategic dependencies from risks into competitive advantages by showing how the company specifically addresses single points of failure.",
+        "example_signal": "The memo would state 'SkyGuard's proprietary anti-jamming technology reduces GPS spoofing vulnerability from industry-standard 40% to 15%, addressing a critical single point of failure.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the memo around a 'strategic resilience scorecard' that evaluates SkyGuard against specific dependency metrics: customer concentration (% revenue from top 3 customers), supplier diversification index, technology obsolescence timeline, and key personnel risk (% of critical knowledge held by <5 people). Use these metrics to position the investment decision.",
+        "why_it_might_work": "This creates a quantitative framework for evaluating strategic dependencies and single points of failure as required by the measurement spec.",
+        "example_signal": "The memo would include 'SkyGuard scores 3.2/5.0 on our Strategic Resilience Index, with high marks for supplier diversification but concerning 67% revenue concentration in DoD contracts.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the measurement spec by systematically identifying and quantifying the specific types of strategic dependencies mentioned (supplier concentration, technology obsolescence, etc.) with concrete metrics.",
+    "criterion_id": "strategic_dependency_risk_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is currently producing a high-level investment memo that focuses on market opportunities and capability gaps but lacks detailed analysis of implementation complexity, resource requirements, and execution risks.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed implementation roadmap that explicitly maps out cross-functional coordination challenges, organizational capability gaps, and granular milestone dependencies. Instead of leading with market opportunity, lead with an honest assessment of what it would actually take to execute this business plan, including specific resource requirements, timeline dependencies, and execution risks at each phase.",
+        "why_it_might_work": "This directly addresses the measurement spec by making implementation complexity the central organizing principle rather than a secondary consideration.",
+        "example_signal": "The memo would include sections like 'Phase 1 Execution Challenges: Manufacturing scale-up requires 18-month lead time for specialized components, coordination between R&D, manufacturing, and compliance teams, with identified risk of 6-month delay if ITAR approval process encounters complications.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Adopt a 'red team' perspective that systematically identifies and analyzes what could go wrong with implementation, including detailed resource bottlenecks, organizational misalignments, and dependency failures. Frame the investment thesis around how well the company has anticipated and planned for these execution challenges rather than just market potential.",
+        "why_it_might_work": "This approach forces honest assessment of execution risks and demonstrates realistic understanding of implementation complexity by highlighting potential failure modes.",
+        "example_signal": "The memo would include analysis like 'Critical vulnerability: Company's current 15-person engineering team lacks expertise in military-grade encryption protocols, requiring 6-month hiring cycle for 3 specialized engineers, creating dependency risk for Q3 prototype delivery milestone.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Use a detailed capability maturity assessment framework that evaluates the company's current organizational readiness against the specific requirements for defense drone development, including gaps in personnel, processes, infrastructure, and partnerships. Structure the investment decision around closing these capability gaps rather than just market opportunity.",
+        "why_it_might_work": "This provides granular analysis of organizational capability gaps and resource requirements needed to bridge them, directly addressing the measurement spec's focus on realistic implementation assessment.",
+        "example_signal": "The memo would include detailed capability mapping like 'Manufacturing readiness: Current facility can produce 50 units/month; scaling to 500 units/month requires $2.3M facility expansion, 8 additional technicians, and 12-month equipment procurement cycle, with identified coordination challenges between production and quality assurance teams.'"
+      }
+    ],
+    "recommendation": "Alternative 1 (implementation roadmap approach) because it fundamentally restructures the memo to make implementation complexity the primary focus rather than treating it as an afterthought, which directly aligns with what the measurement spec is evaluating.",
+    "criterion_id": "implementation_complexity_depth_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a traditional investment memo focused on current market size, government programs, and capability gaps without addressing how the market will evolve or how competitive dynamics will shift over the investment horizon.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around three distinct market evolution scenarios (Drone-as-a-Service disruption, counter-drone arms race, and autonomous swarm proliferation) with SkyGuard's adaptive positioning for each scenario. Map out how competitive advantages shift across 2-3 technology cycles and detail the company's strategic pivots required for each scenario.",
+        "why_it_might_work": "This directly addresses scenario planning for market changes and technology disruption cycles by showing understanding of multiple possible futures and adaptive strategy requirements.",
+        "example_signal": "A section titled 'Market Evolution Scenarios 2025-2030' that analyzes how SkyGuard's competitive moat changes if the market shifts from hardware sales to service-based models, and specific strategic responses for each scenario."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment thesis around SkyGuard's position in the emerging 'counter-drone vs drone' technology arms race, analyzing how rapid defensive technology advancement (26% CAGR in anti-drone market) creates cyclical disruption patterns. Detail how the company's R&D roadmap anticipates and responds to 3-5 year technology obsolescence cycles in both offensive and defensive capabilities.",
+        "why_it_might_work": "This demonstrates understanding of competitive landscape shifts and technology disruption cycles by recognizing that defense drone companies must constantly evolve to stay ahead of countermeasures.",
+        "example_signal": "Analysis showing how SkyGuard's modular architecture allows rapid adaptation when new jamming technologies emerge, with specific timelines for technology refresh cycles and competitive response strategies."
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the memo around the transition from traditional defense contractors to AI-native drone companies, analyzing how market leadership will shift from hardware-focused incumbents to software-defined platforms. Map out the 5-10 year competitive realignment as startups with AI-first architectures disrupt established players, and position SkyGuard's strategy within this transformation.",
+        "why_it_might_work": "This addresses competitive landscape shifts over the investment horizon by recognizing fundamental changes in what creates competitive advantage in the drone market.",
+        "example_signal": "A competitive landscape analysis showing how companies like General Atomics may lose market share to AI-native startups, with SkyGuard's positioning strategy to capture this transition."
+      }
+    ],
+    "recommendation": "Alternative 1 (scenario planning approach) because it most directly addresses all three measurement criteria - market evolution dynamics, competitive landscape shifts, and adaptive strategy requirements - in a structured framework that investors can evaluate.",
+    "criterion_id": "dynamic_market_evolution_strategy",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a standard investment memo with market data and program opportunities but completely ignoring intellectual property landscape analysis and protection strategies.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around IP risk assessment as the core investment thesis, analyzing SkyGuard's freedom-to-operate challenges in the crowded defense drone patent landscape dominated by major players like Boeing, Raytheon, and DJI. Include detailed analysis of patent thickets in autonomous navigation, swarm coordination, and counter-drone technologies, with specific mitigation strategies like design-around approaches, licensing agreements, and defensive patent portfolios.",
+        "why_it_might_work": "This directly addresses the measurement spec by demonstrating comprehensive understanding of IP landscape challenges and protection strategies specific to defense drone technology.",
+        "example_signal": "The memo would include sections like 'Patent Landscape Risk Analysis' showing specific patent conflicts, 'Freedom-to-Operate Strategy' detailing licensing costs vs design-around timelines, and 'Defensive IP Portfolio Development' outlining filing strategies for core innovations."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the investment opportunity through the lens of IP competitive advantage, analyzing how SkyGuard's proprietary technologies can navigate the complex patent minefield where over 2,200 litigation cases were filed between 2019-2023. Focus on identifying white space opportunities in emerging areas like AI-driven autonomy and swarm coordination while addressing infringement risks from established players' patent portfolios.",
+        "why_it_might_work": "This approach treats IP landscape analysis as a strategic differentiator rather than just a risk factor, showing sophisticated understanding of how patent strategy drives competitive positioning in defense drones.",
+        "example_signal": "The memo would feature competitive IP mapping showing patent density by technology area, analysis of litigation trends affecting defense drone startups, and strategic recommendations for building patent moats around SkyGuard's core innovations."
+      },
+      {
+        "rank": 3,
+        "strategy": "Center the investment case on SkyGuard's IP protection strategy for dual-use technologies that must navigate both commercial and defense patent landscapes, including analysis of ITAR restrictions, government rights in patents, and the unique challenges of protecting innovations that require early disclosure to defense customers and regulators.",
+        "why_it_might_work": "This addresses the specific complexities of defense drone IP protection including regulatory disclosure requirements and government licensing obligations that are unique to this sector.",
+        "example_signal": "The memo would include analysis of how defense contracts affect patent rights, strategies for protecting trade secrets in government partnerships, and assessment of international patent filing strategies given ITAR restrictions."
+      }
+    ],
+    "recommendation": "Alternative 1 - The IP risk assessment approach is most likely to succeed because it directly tackles the measurement spec's focus on 'IP landscape challenges and comprehensive strategy' by making patent analysis the central framework rather than an afterthought.",
+    "criterion_id": "intellectual_property_landscape_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is focusing on market opportunities and technical capabilities but failing to analyze SkyGuard's strategic position within the consolidated defense industrial ecosystem.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Frame SkyGuard as a strategic disruptor challenging the 'Big Five' oligopoly by analyzing how its position as a new entrant can exploit ecosystem vulnerabilities like supply chain dependencies on foreign components, certification barriers that protect incumbents, and the DoD's need for competitive alternatives to break vendor lock-in cycles. Position the investment as enabling DoD's strategic goal of industrial base diversification.",
+        "why_it_might_work": "This directly addresses ecosystem lock-in effects and competitive advantages that extend beyond technical capabilities by positioning SkyGuard within the broader industrial base consolidation problem.",
+        "example_signal": "The memo would analyze how SkyGuard's modular architecture avoids the proprietary integration dependencies that lock customers into Lockheed Martin's ecosystem, while its commercial supply chain reduces reliance on defense-specific vendors."
+      },
+      {
+        "rank": 2,
+        "strategy": "Analyze SkyGuard's platform integration strategy through the lens of avoiding the certification and clearance barriers that create ecosystem lock-in, positioning the company as building 'exit ramps' into defense contracts by maintaining data portability and open standards while still meeting security requirements. Focus on how this creates sustainable competitive advantages by reducing customer switching costs compared to traditional defense contractors.",
+        "why_it_might_work": "This addresses platform integration strategies and sustainable competitive advantages by showing how SkyGuard's approach differs from the proprietary lock-in mechanisms used by established defense contractors.",
+        "example_signal": "The memo would detail how SkyGuard's API-first architecture and standards-based data formats enable customers to integrate with multiple platforms simultaneously, reducing the vendor dependency that characterizes traditional defense procurement."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most directly addresses the ecosystem positioning analysis by framing SkyGuard's strategic value within the broader defense industrial base consolidation context that the measurement spec specifically targets.",
+    "criterion_id": "strategic_ecosystem_positioning_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a traditional investment memo focused on market opportunities, financial projections, and technical capabilities without addressing the unique organizational scaling challenges specific to defense contractors.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo as an organizational risk assessment that explicitly analyzes how security compartmentalization creates information silos, slows decision-making, and fragments teams across different clearance levels. Frame the investment thesis around SkyGuard's specific strategies for managing classified program structures, cross-functional collaboration despite security barriers, and talent retention in security-constrained environments.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on security compartmentalization effects, classified program management structures, and talent retention in security-constrained environments by making these organizational challenges the central investment consideration.",
+        "example_signal": "The memo would include sections like 'Compartmentalization Risk Mitigation Strategy' and 'Cleared Talent Pipeline Management' showing understanding that defense scaling isn't just about market size but organizational complexity."
+      },
+      {
+        "rank": 2,
+        "strategy": "Write the memo from the perspective of evaluating SkyGuard's cultural integration model, analyzing how they bridge military-civilian workforce gaps, manage veteran-to-civilian employee ratios, and create unified team identity across different professional backgrounds. Focus on their approach to integrating ex-military personnel with civilian engineers and the cultural frameworks they use to prevent military-civilian workplace friction.",
+        "why_it_might_work": "This targets the military-civilian cultural integration aspect of the measurement spec by treating cultural compatibility as a core business risk and competitive advantage rather than an afterthought.",
+        "example_signal": "The memo would analyze SkyGuard's 'Cultural Bridge Program' or discuss how their leadership structure balances military operational experience with civilian innovation mindsets."
+      },
+      {
+        "rank": 3,
+        "strategy": "Position the memo as a talent ecosystem analysis that examines SkyGuard's approach to building and retaining a workforce where employees can't freely share information, collaborate across all projects, or advance based purely on merit due to clearance requirements. Analyze their strategies for career development when promotion paths are constrained by security access levels and how they maintain employee engagement despite compartmentalized work environments.",
+        "why_it_might_work": "This addresses the talent retention in security-constrained environments component by recognizing that defense contractor HR challenges are fundamentally different from typical tech companies due to clearance-based limitations.",
+        "example_signal": "The memo would include analysis of SkyGuard's 'Clearance-Adaptive Career Pathways' and discuss how they prevent talent flight when employees can't see the full scope of company projects."
+      }
+    ],
+    "recommendation": "Alternative 1 because it most comprehensively addresses all four measurement spec components (security compartmentalization, military-civilian integration, classified program management, and talent retention) by making organizational complexity the central investment framework rather than treating it as a side consideration.",
+    "criterion_id": "defense_organizational_scaling_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is writing a standard investment memo focused on market opportunity and technical capabilities without addressing the unique exit constraints that defense companies face.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo as a 'Defense Exit Constraints Analysis' that explicitly examines CFIUS review requirements, security clearance transfer limitations, classified asset valuation challenges, and the restricted pool of strategic acquirers due to foreign ownership restrictions. Frame the investment thesis around how SkyGuard's specific characteristics either mitigate or exacerbate these exit constraints.",
+        "why_it_might_work": "This directly addresses the measurement spec by making exit constraints the central analytical framework rather than a side consideration.",
+        "example_signal": "A section titled 'Exit Strategy Constraints Assessment' that analyzes how SkyGuard's classified technology portfolio creates valuation opacity for potential acquirers and limits the buyer pool to cleared U.S. entities."
+      },
+      {
+        "rank": 2,
+        "strategy": "Write the memo from the perspective of addressing investor concerns about defense company exit challenges, using SkyGuard as a case study to demonstrate understanding of CFIUS processes, clearance transfer complexities, and how classified assets complicate due diligence and valuation for potential acquirers. Include specific examples of how these constraints have affected recent defense tech exits.",
+        "why_it_might_work": "This approach demonstrates deep understanding of the unique exit constraints by positioning them as the primary investment risk that must be analyzed and mitigated.",
+        "example_signal": "Analysis comparing SkyGuard's exit prospects to recent defense tech transactions, noting how classified program revenues create valuation challenges and limit strategic buyer options to domestic cleared entities."
+      }
+    ],
+    "recommendation": "Alternative 1, because it makes exit constraints the organizing principle of the entire memo rather than treating them as one factor among many, which directly aligns with what the measurement spec is evaluating.",
+    "criterion_id": "defense_exit_strategy_constraints_analysis",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a standard investment memo format with market overview and company positioning but lacks any realistic implementation timeline with proper dependency mapping, resource allocation, or critical path analysis.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the memo around a detailed 24-month execution roadmap with specific defense acquisition phases (TMRR, EMD, LRIP), showing how SkyGuard will navigate each milestone with resource requirements, dependencies, and contingency plans. Include realistic timelines for prototype development (6-12 months), testing phases (12-18 months), and production ramp-up aligned with DoD procurement cycles.",
+        "why_it_might_work": "This directly addresses the measurement spec by providing concrete dependency mapping through defense acquisition phases, realistic resource allocation for each milestone, and proper critical path analysis with contingency planning.",
+        "example_signal": "A timeline showing Q1-Q2 2026 prototype completion requiring 15 engineers and $2M, dependent on successful TMRR phase completion, with fallback plans if testing reveals integration issues."
+      },
+      {
+        "rank": 2,
+        "strategy": "Frame the entire memo as a risk-adjusted implementation assessment, breaking down the path to market into parallel workstreams (technology development, regulatory approval, manufacturing scale-up, customer validation) with interdependencies clearly mapped, resource bottlenecks identified, and multiple scenario planning with probability-weighted outcomes.",
+        "why_it_might_work": "This approach forces realistic timeline assessment by explicitly modeling dependencies between workstreams, resource constraints, and provides the contingency planning that the measurement spec requires.",
+        "example_signal": "A matrix showing manufacturing scale-up cannot begin until prototype testing completes (dependency), requires 18-month lead time for specialized components (critical path), with identified alternative suppliers as contingency."
+      },
+      {
+        "rank": 3,
+        "strategy": "Build the memo around a detailed competitive positioning timeline that maps SkyGuard's development milestones against specific DoD procurement windows and competitor capabilities, showing realistic resource allocation to capture identified opportunities with clear dependencies on external factors like budget cycles and regulatory changes.",
+        "why_it_might_work": "This creates realistic timeline pressure by anchoring development to external procurement deadlines, forces proper resource allocation planning to meet competitive windows, and naturally incorporates contingency planning for market timing risks.",
+        "example_signal": "A timeline showing SkyGuard must complete EMD phase by Q3 2027 to compete for the $150M Drone Dominance prototype contract, requiring front-loaded R&D investment and backup plans if initial designs fail validation."
+      }
+    ],
+    "recommendation": "Alternative 1 because it directly maps to defense acquisition terminology and phases that investors would expect to see in a defense drone investment memo, providing the most credible and detailed implementation timeline.",
+    "criterion_id": "execution_timeline_realism",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  }
+]

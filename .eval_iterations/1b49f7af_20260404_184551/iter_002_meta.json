@@ -1,0 +1,78 @@
+{
+  "run_id": "1b49f7af_20260404_184551",
+  "iteration": 2,
+  "total_score": 48.28,
+  "max_score": 54,
+  "percentage": 0.8940740740740741,
+  "delta_from_prior": 0.2235,
+  "focus_areas": [
+    "incident_impact_quantification.error_budget_consumption",
+    "mttr_mtbf_metrics_integration.mttr_measurement",
+    "mttr_mtbf_metrics_integration.baseline_comparison",
+    "mttr_mtbf_metrics_integration.mtbf_trend_analysis",
+    "observability_three_pillar_gaps.detection_delay_analysis"
+  ],
+  "content_path": ".eval_iterations/1b49f7af_20260404_184551/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "blameless_language_systems_focus",
+      "points_earned": 9.0,
+      "max_points": 9,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "timeline_precision_correlation",
+      "points_earned": 4.12,
+      "max_points": 5,
+      "percentage": 0.825
+    },
+    {
+      "criterion_id": "cascading_failure_propagation",
+      "points_earned": 5.1,
+      "max_points": 6,
+      "percentage": 0.85
+    },
+    {
+      "criterion_id": "observability_three_pillar_gaps",
+      "points_earned": 4.56,
+      "max_points": 5,
+      "percentage": 0.9125
+    },
+    {
+      "criterion_id": "resilience_patterns_application",
+      "points_earned": 5.1,
+      "max_points": 6,
+      "percentage": 0.85
+    },
+    {
+      "criterion_id": "action_items_systemic_remediation",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "incident_impact_quantification",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "contributing_factors_depth",
+      "points_earned": 3.5,
+      "max_points": 4,
+      "percentage": 0.875
+    },
+    {
+      "criterion_id": "mttr_mtbf_metrics_integration",
+      "points_earned": 2.2,
+      "max_points": 4,
+      "percentage": 0.5499999999999999
+    },
+    {
+      "criterion_id": "action_item_tracking_mechanisms",
+      "points_earned": 3.7,
+      "max_points": 4,
+      "percentage": 0.925
+    }
+  ]
+}

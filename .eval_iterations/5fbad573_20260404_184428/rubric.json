@@ -1,0 +1,493 @@
+{
+  "task": "Write a bash script that backs up a PostgreSQL database to S3 with rotation, logging, and error notifications",
+  "domain": "postgresql_backup_automation",
+  "total_points": 51,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "pg_consistent_snapshot_config",
+      "category": "PostgreSQL Operations Excellence",
+      "description": "Evaluates proper configuration of pg_dump for production-grade consistent snapshots, including serializable isolation, connection security, and PostgreSQL-specific backup parameters that ensure data integrity under concurrent workloads",
+      "pass_condition": "Must use --serializable-deferrable flag, implement secure credential handling (environment variables or .pgpass reference), and include minimum 3 of these pg_dump optimizations: --verbose, --compress=9, --format=custom, --no-privileges, --no-owner",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "serializable_isolation",
+            "description": "Implementation of --serializable-deferrable for consistent snapshots without blocking writers",
+            "weight": 0.35,
+            "measurement": "1.0 if --serializable-deferrable used with proper retry logic for deferrable transaction waits, 0.7 if --serializable-deferrable present but no retry handling, 0.4 if uses --single-transaction without serializable, 0.0 if no consistency controls",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_security",
+            "description": "Secure connection handling with SSL enforcement and credential management",
+            "weight": 0.4,
+            "measurement": "1.0 if uses --ssl-mode=require with .pgpass at 600 permissions and --no-password flag, 0.7 if 2 of 3 security measures present, 0.4 if only SSL or credential security implemented, 0.0 if plaintext connections or hardcoded credentials",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "backup_optimization",
+            "description": "PostgreSQL-specific dump optimizations for production environments",
+            "weight": 0.25,
+            "measurement": "1.0 if includes 4+ optimizations (--verbose, --compress=9, --format=custom, --no-privileges, --no-owner), 0.7 if 3 optimizations present, 0.4 if 1-2 basic optimizations, 0.0 if plain pg_dump with no optimization flags",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "pg_dump --serializable-deferrable --ssl-mode=require --no-password --verbose --format=custom --compress=9 --no-privileges --no-owner with .pgpass file at 600 permissions"
+      ],
+      "fail_examples": [
+        "pg_dump with --single-transaction but missing --serializable-deferrable, or SSL connection without .pgpass security"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "[Partial] SOC 2 Compliance: PostgreSQL can support SOC 2 compliance by implementing security controls, access control mechanisms, data encryption, and auditing capabilities"
+    },
+    {
+      "id": "postgresql_aware_error_handling",
+      "category": "PostgreSQL Operations Excellence",
+      "description": "Implements comprehensive PostgreSQL-aware error detection and recovery mechanisms for all failure modes including database-specific errors, network issues, storage problems, and partial failures with appropriate retry logic and escalation patterns",
+      "pass_condition": "Must implement exponential backoff retry for both PostgreSQL-specific errors (connection failures, serializable transaction conflicts with error codes 40001, 40P01) and general transient failures, handle minimum 4 failure scenarios including disk space and connection timeouts with specific exit codes, include error classification for at least 3 PostgreSQL-specific scenarios, and provide proper exit codes for monitoring integration",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "serializable_retry_logic",
+            "description": "Proper retry handling for PostgreSQL serializable transaction deferrals and conflicts",
+            "weight": 0.4,
+            "measurement": "1.0 if implements exponential backoff specifically for serialization failures with max retry limits, 0.7 if basic retry for serializable deferrals, 0.4 if generic retry without PostgreSQL error code awareness, 0.0 if no retry logic for serializable conflicts",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pg_error_classification",
+            "description": "Distinguishes PostgreSQL-specific error conditions from generic failures",
+            "weight": 0.35,
+            "measurement": "1.0 if categorizes errors by PostgreSQL error codes with different handling, 0.7 if distinguishes 2-3 PostgreSQL error types, 0.4 if basic PostgreSQL vs system error separation, 0.0 if treats all errors generically",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operational_error_coverage",
+            "description": "Handles common PostgreSQL operational failure scenarios with appropriate responses",
+            "weight": 0.25,
+            "measurement": "1.0 if handles 4+ scenarios (connection timeout, disk space, lock conflicts, permission issues, SSL failures), 0.7 if covers 3 operational scenarios, 0.4 if handles 1-2 basic error cases, 0.0 if minimal error handling",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Error handling that retries with exponential backoff when pg_dump returns serialization error 40001, but immediately fails and alerts on authentication or disk space errors"
+      ],
+      "fail_examples": [
+        "Generic bash error handling that retries any pg_dump failure without understanding PostgreSQL-specific error conditions"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "[Partial] Error Handling and Retry Logic: Exponential backoff with jitter, circuit breakers, partial failure recovery"
+    },
+    {
+      "id": "aws_cli_security_integration",
+      "category": "AWS S3 Integration & Security",
+      "description": "Implements secure AWS CLI integration using IAM roles instead of hardcoded credentials, with proper S3 encryption and multipart upload handling for large databases",
+      "pass_condition": "Must use IAM role authentication (no hardcoded credentials), implement S3 server-side encryption (SSE-S3 or SSE-KMS), and include aws s3 cp with --storage-class parameter",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "hardcoded_credentials": -3.0,
+          "no_encryption": -2.0,
+          "inefficient_upload": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "aws s3 cp backup.sql.gz s3://bucket/backup/ --sse aws:kms --storage-class STANDARD_IA using IAM role authentication"
+      ],
+      "fail_examples": [
+        "Script contains AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY variables, or uploads without encryption"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Great: Uses IAM roles with temporary tokens, .pgpass with restrictive permissions, --ssl-mode=require"
+    },
+    {
+      "id": "s3_lifecycle_backup_rotation",
+      "category": "Backup Rotation & Lifecycle Management",
+      "description": "Implements intelligent backup rotation using S3 lifecycle policies or script-based retention with multiple tiers and cost optimization through storage class transitions",
+      "pass_condition": "Must implement either S3 lifecycle policies with object tagging OR script-based rotation with minimum 3 retention tiers (daily/weekly/monthly), and include storage class transitions for cost optimization",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "rotation_strategy",
+            "description": "Implements comprehensive backup rotation with multiple retention periods",
+            "weight": 0.4,
+            "measurement": "1.0 if uses S3 lifecycle policies with proper tagging or implements 3+ retention tiers, 0.7 if script-based rotation with 2 retention periods, 0.4 if basic retention logic, 0.0 if simple file deletion without tiering",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "storage_class_optimization",
+            "description": "Utilizes S3 storage classes for cost optimization across backup lifecycle",
+            "weight": 0.35,
+            "measurement": "1.0 if implements Standard \u2192 IA \u2192 Glacier transitions with appropriate timing, 0.7 if uses 2 storage classes with transitions, 0.4 if single storage class with cost consideration, 0.0 if no storage class optimization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compliance_retention",
+            "description": "Addresses compliance requirements in retention policy design",
+            "weight": 0.25,
+            "measurement": "1.0 if implements compliance-aware retention with legal hold capabilities, 0.7 if mentions compliance requirements in retention logic, 0.4 if basic long-term retention, 0.0 if no compliance consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "S3 lifecycle policy that moves backups to IA after 30 days, Glacier after 90 days, with daily/weekly/monthly retention tiers"
+      ],
+      "fail_examples": [
+        "Simple script that deletes backups older than X days without tiered retention or cost optimization"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Automated lifecycle rules matching retention requirements, graduated storage classes, automated cleanup"
+    },
+    {
+      "id": "backup_integrity_verification",
+      "category": "Backup Integrity & Verification",
+      "description": "Implements backup integrity verification through validation checks, checksum verification, and PostgreSQL-specific integrity checks to ensure backup quality",
+      "pass_condition": "Must include pg_restore --list validation to verify backup structure, implement backup size and checksum verification against expected ranges, and include at least 2 integrity checks (file corruption detection, metadata validation)",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "no_restoration_test": -2.0,
+          "missing_checksum_validation": -1.5,
+          "untested_backup_assumes_success": -2.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Script performs pg_restore --list validation followed by restoration to test database with row count verification"
+      ],
+      "fail_examples": [
+        "Backup script only checks if pg_dump command returns success code without any restoration or integrity testing"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "A backup that cannot be restored is not a backup"
+    },
+    {
+      "id": "structured_logging_monitoring",
+      "category": "Monitoring & Alerting Integration",
+      "description": "Implements structured logging compatible with centralized monitoring systems and integrates with incident management tools for comprehensive backup monitoring",
+      "pass_condition": "Must output structured logs (JSON format recommended), implement minimum 3 alert severity levels, and include backup metrics (duration, size, success rate)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "structured_logging",
+            "description": "Outputs machine-readable logs compatible with centralized logging systems",
+            "weight": 0.4,
+            "measurement": "1.0 if uses JSON structured logging with proper field standardization, 0.7 if implements key-value structured format, 0.4 if consistent log format but not structured, 0.0 if unstructured logging",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "alert_integration",
+            "description": "Integrates with incident management and notification systems",
+            "weight": 0.35,
+            "measurement": "1.0 if implements webhook/API integration with PagerDuty/Slack with severity levels, 0.7 if email alerts with proper severity classification, 0.4 if basic notification system, 0.0 if no alerting integration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "metrics_collection",
+            "description": "Collects and reports comprehensive backup operation metrics",
+            "weight": 0.25,
+            "measurement": "1.0 if tracks 4+ metrics (duration, size, success rate, error types) with timestamps, 0.7 if tracks 3 key metrics, 0.4 if basic success/failure tracking, 0.0 if no metrics collection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "JSON logs with timestamp, backup_duration, backup_size_bytes, and Slack webhook integration with ERROR/WARN/INFO severity levels"
+      ],
+      "fail_examples": [
+        "Simple echo statements to stdout without structure or external notification integration"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Dashboard with core metrics, structured logs for analysis, integration with incident response systems"
+    },
+    {
+      "id": "encryption_compliance_framework",
+      "category": "Security & Compliance Framework",
+      "description": "Implements comprehensive encryption strategy adhering to SOC 2/PCI DSS requirements with proper key management and audit logging",
+      "pass_condition": "Must implement encryption in transit (SSL) and at rest (S3 SSE), include audit logging for backup operations, and demonstrate 3-2-1 backup rule compliance",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_transit_encryption": -2.0,
+          "missing_rest_encryption": -2.0,
+          "no_audit_trail": -1.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "SSL PostgreSQL connection with KMS-encrypted S3 storage and comprehensive audit logging"
+      ],
+      "fail_examples": [
+        "Plaintext database connection or unencrypted S3 storage without audit trail"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "TDE or equivalent storage encryption, AES-256 encryption, HSM or cloud KMS key management with regular rotation"
+    },
+    {
+      "id": "pgbackrest_enterprise_backup",
+      "category": "Enterprise Backup Implementation",
+      "description": "Evaluates implementation of advanced backup features using pg_dump parameters and bash scripting techniques",
+      "pass_condition": "Implements at least 2 of: parallel pg_dump operations using --jobs parameter, custom compression implementation, backup splitting for large databases, or advanced pg_dump options (--exclude-table-data, --section)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "parallel_operations",
+            "description": "Configures parallel backup and restore operations",
+            "weight": 0.3,
+            "measurement": "binary_present",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "backup_types",
+            "description": "Supports full/differential/incremental backup types",
+            "weight": 0.3,
+            "measurement": "count_types",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compression_encryption",
+            "description": "Implements ZSTD compression and encryption",
+            "weight": 0.25,
+            "measurement": "binary_both",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "delta_restore",
+            "description": "Supports delta restore capability",
+            "weight": 0.15,
+            "measurement": "binary_present",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "pgBackRest configuration with process-max=4, backup-type=incr, compress-type=zst, cipher-type=aes-256-cbc"
+      ],
+      "fail_examples": [
+        "Basic pg_dump without compression or parallel operations"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Modern PostgreSQL backup solutions should support parallel backup and restore, full/differential/incremental backups, delta restore, ZSTD compression, and encryption"
+    },
+    {
+      "id": "wal_archiving_pitr",
+      "category": "Point-in-Time Recovery",
+      "description": "Implements WAL-related backup considerations and provides framework for Point-in-Time Recovery integration",
+      "pass_condition": "Includes WAL backup functionality using pg_receivewal or archive directory copying, demonstrates checkpoint coordination with pg_start_backup/pg_stop_backup functions, and provides documented procedures for PITR setup",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "archive_mode_config",
+            "description": "Sets archive_mode=on in PostgreSQL configuration",
+            "weight": 0.25,
+            "measurement": "binary_present",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "archive_command",
+            "description": "Implements proper archive_command for WAL shipping",
+            "weight": 0.35,
+            "measurement": "functional_test",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "wal_storage",
+            "description": "Stores WAL files in durable location (S3/equivalent)",
+            "weight": 0.25,
+            "measurement": "location_check",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pitr_procedure",
+            "description": "Documents and tests Point-in-Time Recovery procedure",
+            "weight": 0.15,
+            "measurement": "documentation_present",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "archive_command = 'aws s3 cp %p s3://bucket/wal/%f' with archive_mode = on and recovery testing"
+      ],
+      "fail_examples": [
+        "Only pg_dump backups without WAL archiving or PITR capability"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Professional implementations include archive_mode=on with archive_command configured for Point-in-Time Recovery capability"
+    },
+    {
+      "id": "disaster_recovery_procedures",
+      "category": "Business Continuity",
+      "description": "Provides comprehensive disaster recovery support through documented procedures and recovery validation",
+      "pass_condition": "Includes executable recovery verification commands, documents specific RPO/RTO implications of the backup strategy, provides step-by-step recovery procedures as executable comments, and includes backup validation routines that can verify recoverability",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "rpo_rto_definition",
+            "description": "Clearly defines Recovery Point Objective and Recovery Time Objective",
+            "weight": 0.3,
+            "measurement": "specific_values",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "automated_recovery",
+            "description": "Implements automated recovery procedures and scripts",
+            "weight": 0.3,
+            "measurement": "script_present",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "testing_schedule",
+            "description": "Establishes regular disaster recovery testing schedule",
+            "weight": 0.25,
+            "measurement": "schedule_documented",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "documentation",
+            "description": "Maintains comprehensive disaster recovery documentation",
+            "weight": 0.15,
+            "measurement": "completeness_check",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "RPO: 15 minutes, RTO: 4 hours, automated restore scripts, quarterly DR tests with documented results"
+      ],
+      "fail_examples": [
+        "No defined recovery objectives, manual-only procedures, no testing schedule"
+      ],
+      "domain": "postgresql_backup_automation",
+      "research_basis": "Clear RPO/RTO requirements, documented disaster recovery plans, automated recovery procedures, regular testing"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "postgresql_operations",
+      "name": "PostgreSQL Operations Excellence",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "aws_s3_integration",
+      "name": "AWS S3 Integration & Security",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "backup_rotation_lifecycle",
+      "name": "Backup Rotation & Lifecycle Management",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling_reliability",
+      "name": "Error Handling & Reliability",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "backup_integrity_verification",
+      "name": "Backup Integrity & Verification",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "monitoring_alerting_integration",
+      "name": "Monitoring & Alerting Integration",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "security_compliance",
+      "name": "Security & Compliance Framework",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "production_readiness",
+      "name": "Production Readiness & Operations",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    }
+  ]
+}

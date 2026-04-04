@@ -1,0 +1,84 @@
+{
+  "run_id": "243fe48e_20260404_184554",
+  "iteration": 1,
+  "total_score": 25.959999999999997,
+  "max_score": 62,
+  "percentage": 0.4187096774193548,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/243fe48e_20260404_184554/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "task_granularity_atomicity",
+      "points_earned": 3.6,
+      "max_points": 6,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "dependency_parallelization_design",
+      "points_earned": 0.94,
+      "max_points": 5,
+      "percentage": 0.1875
+    },
+    {
+      "criterion_id": "multi_source_sensor_config",
+      "points_earned": 1.57,
+      "max_points": 6,
+      "percentage": 0.26249999999999996
+    },
+    {
+      "criterion_id": "schema_evolution_detection",
+      "points_earned": 4.72,
+      "max_points": 7,
+      "percentage": 0.6749999999999999
+    },
+    {
+      "criterion_id": "idempotent_upsert_implementation",
+      "points_earned": 2.4,
+      "max_points": 6,
+      "percentage": 0.4
+    },
+    {
+      "criterion_id": "comprehensive_retry_logic",
+      "points_earned": 1.05,
+      "max_points": 4,
+      "percentage": 0.26249999999999996
+    },
+    {
+      "criterion_id": "performance_anti_pattern_avoidance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "data_quality_enforcement",
+      "points_earned": 1.57,
+      "max_points": 6,
+      "percentage": 0.26249999999999996
+    },
+    {
+      "criterion_id": "monitoring_alerting_framework",
+      "points_earned": 1.31,
+      "max_points": 5,
+      "percentage": 0.2625
+    },
+    {
+      "criterion_id": "idempotency_quality_alignment",
+      "points_earned": 1.4,
+      "max_points": 4,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "performance_monitoring_integration",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "connection_secret_management",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001
+    }
+  ]
+}

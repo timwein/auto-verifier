@@ -1,0 +1,721 @@
+{
+  "task": "Design a federated GraphQL schema for an e-commerce platform spanning 4 subgraphs (users, products, orders, payments) with proper entity resolution, auth directives, and N+1 prevention",
+  "domain": "federated_graphql_schema_design",
+  "total_points": 85,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "federation_directive_implementation",
+      "category": "Federation Specification Compliance",
+      "description": "Evaluates correct implementation of Apollo Federation 2.0 directives with proper @link imports, valid @key selections for entity resolution, and appropriate use of @requires/@provides for computed fields across subgraph boundaries",
+      "pass_condition": "All 4 subgraphs include @link directive with correct federation v2.0 import, minimum 3 entities with composite @key directives, at least 2 @requires/@provides pairs for cross-subgraph field resolution, and 100% valid entity key selection",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "link_directive_compliance",
+            "description": "Proper @link directive implementation with federation v2.0 imports in all subgraphs",
+            "weight": 0.25,
+            "measurement": "1.0 if all 4 subgraphs have correct @link directive, 0.7 if 3/4 correct, 0.4 if 2/4 correct, 0.0 if fewer than 2",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "entity_key_design",
+            "description": "Strategic selection of entity keys for federation composition and query planning optimization",
+            "weight": 0.35,
+            "measurement": "1.0 if all entities use appropriate keys with stable, immutable fields, 0.7 if mostly composite keys but 1-2 suboptimal choices, 0.4 if mix of good and poor key choices, 0.0 if primarily primitive single-field keys",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_subgraph_resolution",
+            "description": "Implementation of @requires/@provides directives for computed fields spanning subgraph boundaries",
+            "weight": 0.4,
+            "measurement": "1.0 if 3+ @requires/@provides pairs with complex field dependencies, 0.7 if 2 pairs with moderate complexity, 0.4 if 1-2 simple pairs, 0.0 if absent or incorrectly implemented",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User entity with @key(fields: \"id email\") in users subgraph, extended in orders subgraph with @external fields"
+      ],
+      "fail_examples": [
+        "Product entity with only @key(fields: \"id\") when SKU is available, missing @external declarations"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Schemas must include proper @link directives and federation-specific import declarations. Valid subgraphs must automatically extend schemas with all required definitions and correctly resolve the Query._service field."
+    },
+    {
+      "id": "schema_composition_validity",
+      "category": "Federation Specification Compliance",
+      "description": "Validates that the federated schema demonstrates proper entity resolution across all 4 subgraphs, avoids circular dependencies, and follows valid federation composition patterns",
+      "pass_condition": "Schema composes successfully with rover supergraph compose command, zero composition errors, entity resolution works for minimum 5 cross-subgraph relationships, dependency graph shows no circular entity references",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "composition_error": -1.5,
+          "unresolvable_entity_reference": -2.0,
+          "circular_dependency": -2.4,
+          "entity_resolution_depth_exceeding_2_hops": -1.0,
+          "invalid_external_field_reference": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Clean dependency flow: Users -> Orders -> Payments with no circular references"
+      ],
+      "fail_examples": [
+        "Orders subgraph references Product.inventory but Products subgraph doesn't expose inventory field"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Automated composition validation with breaking change detection... Schema changes that don't fail fast lead to runtime failures and client errors"
+    },
+    {
+      "id": "entity_key_stability",
+      "category": "Entity Modeling & Design",
+      "description": "Evaluates the selection and implementation of stable, immutable entity keys that enable reliable federation composition across service boundaries",
+      "pass_condition": "Minimum 4 entities with stable keys using immutable identifiers, zero mutable fields as primary keys, proper @key directive placement on all federated entities",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "key_immutability",
+            "description": "Uses immutable identifiers as entity keys across all subgraphs",
+            "weight": 0.4,
+            "measurement": "1.0 if all entity keys use UUIDs/sequential IDs/composite immutable keys, 0.7 if mostly immutable with 1 questionable key, 0.4 if 2-3 mutable keys used, 0.0 if multiple mutable fields as keys",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_service_resolution",
+            "description": "Entity keys enable clean resolution without circular dependencies between subgraphs",
+            "weight": 0.35,
+            "measurement": "1.0 if all entities resolvable with single-direction dependencies, 0.7 if minor coupling exists but no cycles, 0.4 if tight coupling present, 0.0 if circular dependencies exist",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "composite_key_design",
+            "description": "Complex entities use properly structured composite keys when single fields insufficient",
+            "weight": 0.25,
+            "measurement": "1.0 if composite keys logically structured for OrderItem/PaymentTransaction type entities, 0.7 if mostly correct with minor issues, 0.4 if overly complex composites, 0.0 if missing composites where needed",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User entity with @key(fields: \"id\") using UUID, OrderItem with @key(fields: \"orderId productId\") composite key"
+      ],
+      "fail_examples": [
+        "User entity keyed on email field that could change, Product using SKU as key when SKU might be reassigned"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Keys defined for entity resolution should uniquely identify resources and avoid scenarios where they pass dynamic field data around query execution"
+    },
+    {
+      "id": "domain_boundary_separation",
+      "category": "Entity Modeling & Design",
+      "description": "Assesses clear separation of concerns between user management, product catalog, order processing, and payment domains with minimal cross-cutting dependencies; also: Evaluates logical service boundaries aligned with e-commerce domain concepts and minimized inter-service dependencies",
+      "pass_condition": "Each subgraph defines maximum 1 root entity type, cross-subgraph references limited to ID fields only, zero business rule validation logic shared between subgraphs, each domain owns 100% of its entity mutations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 10,
+        "sub_attributes": [
+          {
+            "sub_id": "entity_ownership_clarity",
+            "description": "Clear ownership of entity types and their core attributes within appropriate subgraphs",
+            "weight": 0.5,
+            "measurement": "1.0 if Users owns user data, Products owns catalog data, Orders owns order processing, Payments owns financial data with no overlap, 0.7 if mostly clear with minor overlaps, 0.4 if some confusion, 0.0 if significant ownership conflicts",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_domain_coupling",
+            "description": "Minimal coupling between domains beyond necessary entity references",
+            "weight": 0.5,
+            "measurement": "1.0 if coupling limited to foreign key references and federation directives, 0.7 if minor business logic leakage, 0.4 if moderate coupling, 0.0 if tight coupling across domains",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Users subgraph contains user profiles and authentication, Products contains catalog and inventory, clean foreign key references only"
+      ],
+      "fail_examples": [
+        "Products subgraph contains user preference logic, Orders subgraph duplicates payment processing logic"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Federation alignment with Domain Driven Design principles maintaining clear boundaries while enabling explicit integration points"
+    },
+    {
+      "id": "auth_directive_implementation",
+      "category": "Authorization & Security",
+      "description": "Evaluates implementation of field-level authorization that balances comprehensive security coverage with federation query efficiency, using auth patterns that support optimal query planning",
+      "pass_condition": "Auth directives on minimum 70% of sensitive fields with patterns that support efficient batching, auth checks designed to minimize federation round-trips, consistent role-based patterns that don't compromise query optimization",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "field_level_authorization",
+            "description": "Implementation of auth directives on sensitive fields across all subgraphs",
+            "weight": 0.4,
+            "measurement": "1.0 if auth directives on all PII, financial, and sensitive operational fields, 0.7 if 80-90% coverage, 0.4 if 60-80% coverage, 0.0 if less than 60% coverage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "role_based_consistency",
+            "description": "Consistent role-based access control patterns across all subgraphs",
+            "weight": 0.35,
+            "measurement": "1.0 if uniform role definitions and auth patterns across all 4 subgraphs, 0.7 if mostly consistent with minor variations, 0.4 if some inconsistencies, 0.0 if ad-hoc auth implementations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "token_validation_implementation",
+            "description": "Proper JWT/OAuth token validation implementation in resolver context",
+            "weight": 0.25,
+            "measurement": "1.0 if all subgraphs implement consistent token validation with proper error handling, 0.7 if mostly implemented with minor gaps, 0.4 if basic implementation, 0.0 if missing or incorrect token handling",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "@auth(requires: USER) on user profile fields, @auth(requires: ADMIN) on sensitive admin operations"
+      ],
+      "fail_examples": [
+        "Missing auth directives on PII fields, inconsistent role naming between subgraphs"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Authorization logic owned and enforced inside each subgraph with centralized identity forwarding... Broken Object Level Authorization remains the most significant risk for APIs"
+    },
+    {
+      "id": "security_compliance",
+      "category": "Authorization & Security",
+      "description": "Validates schema design patterns that support OAuth 2.0/OIDC standards and common API security practices",
+      "pass_condition": "Auth directives implement minimum 3 OAuth scopes with proper claim validation, input validation includes custom scalars with regex patterns, field-level auth uses JWT claim paths, sensitive PII fields require explicit admin roles",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "non_oauth_compliant_tokens": -1.5,
+          "missing_input_validation": -1.0,
+          "exposed_sensitive_data": -2.0,
+          "weak_authorization_patterns": -1.0,
+          "insecure_error_handling": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "JWT tokens with proper claims validation, input sanitization on all mutations"
+      ],
+      "fail_examples": [
+        "Exposing user email addresses without proper authorization, missing input validation on payment mutations"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "The OWASP API Security Top 10 is the leading resource for understanding and mitigating the most significant security threats facing GraphQL APIs"
+    },
+    {
+      "id": "dataloader_implementation",
+      "category": "Performance Optimization",
+      "description": "Evaluates schema design patterns that prevent N+1 queries with consideration for batching and caching strategies across all subgraphs",
+      "pass_condition": "Schema designed to support efficient batching for minimum 4 entity types, foreign key relationships structured for batch loading, federation entity design supports batching patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "batch_loading_coverage",
+            "description": "DataLoader implementation across all entity types and foreign key relationships",
+            "weight": 0.45,
+            "measurement": "1.0 if DataLoader for all entities (User, Product, Order, Payment) plus relationships, 0.7 if 80% coverage, 0.4 if 60% coverage, 0.0 if less than 60%",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "caching_strategy",
+            "description": "Proper cache implementation with appropriate TTL and invalidation patterns",
+            "weight": 0.35,
+            "measurement": "1.0 if request-scoped caching with proper invalidation, 0.7 if good caching with minor issues, 0.4 if basic caching, 0.0 if no caching strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "federation_batching",
+            "description": "Optimization for federation-specific batching patterns at entity resolution boundaries",
+            "weight": 0.2,
+            "measurement": "1.0 if entity resolution uses batching for cross-subgraph calls, 0.7 if mostly optimized, 0.4 if some optimization, 0.0 if no federation-specific batching",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User DataLoader batches user lookups by ID, Order DataLoader batches orders by userId"
+      ],
+      "fail_examples": [
+        "Individual database calls for each user lookup, no batching for order items"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "The DataLoader pattern is the standard solution for N+1 problems in both federated and monolithic graphs... DataLoader implementation in every resolver, even those that aren't for entities"
+    },
+    {
+      "id": "type_design_consistency",
+      "category": "Schema Design Patterns",
+      "description": "Evaluates consistent type design, naming conventions, appropriate field nullability, and scalable schema evolution patterns across all subgraphs",
+      "pass_condition": "Naming follows strict GraphQL conventions with PascalCase types and camelCase fields, nullability analysis shows 95%+ appropriate choices, input/output types share common interface patterns, enum values follow SCREAMING_SNAKE_CASE consistently",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "naming_consistency",
+            "description": "Consistent naming conventions and patterns across all subgraphs",
+            "weight": 0.35,
+            "measurement": "1.0 if uniform camelCase/PascalCase usage and consistent field naming patterns, 0.7 if mostly consistent with minor deviations, 0.4 if some inconsistencies, 0.0 if inconsistent naming throughout",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "nullability_design",
+            "description": "Appropriate field nullability design reflecting business requirements",
+            "weight": 0.35,
+            "measurement": "1.0 if nullability properly reflects required vs optional fields across all entities, 0.7 if mostly correct with minor issues, 0.4 if some inappropriate nullability choices, 0.0 if poor nullability design",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "input_output_patterns",
+            "description": "Standardized patterns for input types, output types, and common schema elements",
+            "weight": 0.3,
+            "measurement": "1.0 if consistent Input/Payload patterns for mutations and standardized common types, 0.7 if mostly consistent patterns, 0.4 if some pattern variations, 0.0 if inconsistent type patterns",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Consistent CreateUserInput, UpdateProductInput patterns, proper nullable fields for optional data"
+      ],
+      "fail_examples": [
+        "Mixed naming conventions between subgraphs, required fields marked nullable without business justification"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "GraphQL schema design best practices emphasize consistency and proper type design for maintainability and developer experience"
+    },
+    {
+      "id": "validation_error_handling",
+      "category": "Schema Design Patterns",
+      "description": "Assesses comprehensive input validation, structured error handling, and consistent error propagation patterns across federated operations",
+      "pass_condition": "Input validation uses custom directive patterns for complex business rules, error types include machine-readable error codes, error propagation includes federation trace context, validation errors include field path information",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "input_validation_coverage",
+            "description": "Comprehensive input validation implementation across all mutations",
+            "weight": 0.4,
+            "measurement": "1.0 if all mutation inputs have proper validation rules, 0.7 if 90%+ coverage, 0.4 if 70-90% coverage, 0.0 if less than 70% validation coverage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "error_type_design",
+            "description": "Well-structured error types and consistent error response patterns",
+            "weight": 0.35,
+            "measurement": "1.0 if structured error types with proper error codes and messages, 0.7 if mostly structured with minor inconsistencies, 0.4 if basic error handling, 0.0 if poor error structure",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "federation_error_propagation",
+            "description": "Proper error handling and propagation across federated subgraph boundaries",
+            "weight": 0.25,
+            "measurement": "1.0 if errors properly bubble up through federation with appropriate context, 0.7 if mostly correct error propagation, 0.4 if some error handling issues, 0.0 if poor federation error handling",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Email validation on user registration, structured ValidationError types with field-specific messages"
+      ],
+      "fail_examples": [
+        "Missing validation on payment amount inputs, generic error messages without specific context"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Standardized error responses without exposing stack traces, database schemas, or implementation details... Debug mode in production can easily lead to stack trace leaks"
+    },
+    {
+      "id": "query_execution_efficiency",
+      "category": "Query Composition & Planning",
+      "description": "Evaluates schema design for federated query execution efficiency with optimal field resolution strategies",
+      "pass_condition": "Schema supports single-query resolution for common patterns (user profile with recent orders), federation joins require maximum 2 service calls for typical e-commerce queries, field resolution depth limited to 3 levels for performance-critical paths",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "service_call_efficiency",
+            "description": "Minimal service calls required for complex federated queries",
+            "weight": 0.4,
+            "measurement": "1.0 if complex queries require \u22643 service calls, 0.7 if mostly efficient with some 4-call queries, 0.4 if many 4+ call queries, 0.0 if consistently inefficient call patterns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "field_resolution_strategy",
+            "description": "Optimal field resolution ordering and strategy for federation query planning",
+            "weight": 0.35,
+            "measurement": "1.0 if field resolution optimizes for parallel execution and minimal dependencies, 0.7 if mostly optimized resolution, 0.4 if some suboptimal resolution patterns, 0.0 if poor resolution strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "common_query_optimization",
+            "description": "Optimization for typical e-commerce query patterns (user orders, product details, order history)",
+            "weight": 0.25,
+            "measurement": "1.0 if common queries highly optimized with minimal federation overhead, 0.7 if most common queries optimized, 0.4 if some optimization, 0.0 if poor optimization for common patterns",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User order history query resolved efficiently with parallel product and payment lookups"
+      ],
+      "fail_examples": [
+        "Sequential service calls when parallel execution possible, inefficient query planning for product browsing"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Composition hints that help understand how schema definitions influence query planning and performance. Experts recognize schemas designed for efficient query planning rather than just functional correctness."
+    },
+    {
+      "id": "error_resilience_patterns",
+      "category": "Error Handling & Resilience",
+      "description": "Assesses schema design patterns that support comprehensive error propagation and partial failure handling in distributed operations",
+      "pass_condition": "Error types include federation source service identification, schema defines fallback field resolution for minimum 3 entity types, error boundaries prevent cascade failures between payment and order services",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "circuit_breaker_implementation",
+            "description": "Circuit breaker patterns implemented for cross-service communication resilience",
+            "weight": 0.4,
+            "measurement": "1.0 if circuit breakers implemented for all critical cross-service dependencies, 0.7 if most critical paths protected, 0.4 if basic circuit breaker implementation, 0.0 if no circuit breaker patterns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "graceful_degradation",
+            "description": "Graceful degradation strategies for partial service failures",
+            "weight": 0.35,
+            "measurement": "1.0 if non-critical service failures don't break core functionality, 0.7 if mostly graceful with minor cascading failures, 0.4 if some degradation handling, 0.0 if poor failure isolation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "error_boundary_definition",
+            "description": "Clear error boundaries and propagation strategies across federated service boundaries",
+            "weight": 0.25,
+            "measurement": "1.0 if clear error boundaries with appropriate propagation vs isolation decisions, 0.7 if mostly well-defined boundaries, 0.4 if some boundary confusion, 0.0 if poor error boundary design",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Payment service failure doesn't prevent order viewing, product service degradation shows cached data"
+      ],
+      "fail_examples": [
+        "Products service failure breaks entire user experience, no fallback strategies for service unavailability"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Reliability patterns such as circuit breakers, timeouts, and retry patterns built into the federation architecture"
+    },
+    {
+      "id": "auth_performance_coherence",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates coherence between authorization patterns and performance optimization strategies to ensure security measures don't compromise federation query efficiency",
+      "pass_condition": "Auth directives designed for efficient evaluation, auth checks don't introduce N+1 patterns, consistent auth caching strategies across subgraphs that support DataLoader batching patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "auth_efficiency_design",
+            "description": "Authorization patterns designed to work efficiently with federation query planning",
+            "weight": 0.4,
+            "measurement": "1.0 if auth checks don't add unnecessary query planning complexity or round-trips, 0.7 if mostly efficient auth with minor overhead, 0.4 if some auth-related performance issues, 0.0 if auth patterns conflict with query optimization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "auth_batching_compatibility",
+            "description": "Auth validation compatible with DataLoader batching patterns across subgraphs",
+            "weight": 0.35,
+            "measurement": "1.0 if auth checks can be batched with entity resolution, 0.7 if mostly batchable with minor exceptions, 0.4 if some batching conflicts, 0.0 if auth prevents efficient batching",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_service_auth_consistency",
+            "description": "Consistent auth caching and validation patterns that support federation performance goals",
+            "weight": 0.25,
+            "measurement": "1.0 if auth caching strategies align across subgraphs and support performance targets, 0.7 if mostly aligned strategies, 0.4 if some inconsistencies, 0.0 if conflicting auth approaches impact performance",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "JWT validation cached at gateway level supporting DataLoader patterns, role checks don't force sequential query execution"
+      ],
+      "fail_examples": [
+        "Per-field auth checks prevent query batching, inconsistent token validation forcing extra service calls"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Effective federated GraphQL systems require authorization patterns that complement rather than conflict with performance optimization strategies"
+    },
+    {
+      "id": "federation_domain_alignment",
+      "category": "Cross-Cutting Integration",
+      "description": "Assesses coherence between federation entity design choices and domain-driven service boundaries to ensure entity resolution patterns align with business logic ownership",
+      "pass_condition": "Entity keys align with domain ownership patterns, federation directives respect service boundary integrity, entity resolution patterns support rather than violate domain separation principles",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "entity_ownership_alignment",
+            "description": "Federation entity design respects and reinforces domain-driven service boundaries",
+            "weight": 0.45,
+            "measurement": "1.0 if entity extensions only add fields appropriate to extending service's domain, 0.7 if mostly appropriate with minor domain leakage, 0.4 if some inappropriate entity extensions, 0.0 if entity design violates domain boundaries",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resolution_pattern_coherence",
+            "description": "Entity resolution patterns align with business logic ownership across services",
+            "weight": 0.35,
+            "measurement": "1.0 if @requires/@provides patterns reflect genuine business relationships, 0.7 if mostly coherent with minor misalignments, 0.4 if some forced federation patterns, 0.0 if federation patterns conflict with domain logic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "key_design_domain_support",
+            "description": "Entity key choices support rather than complicate domain-driven service interactions",
+            "weight": 0.2,
+            "measurement": "1.0 if entity keys facilitate clean domain interactions, 0.7 if mostly supportive key design, 0.4 if some key choices complicate domain boundaries, 0.0 if key design conflicts with domain separation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Order entity extended by Payments with payment-specific fields only, User entity key supports both authentication and order association"
+      ],
+      "fail_examples": [
+        "Products service extending User entity with product preference logic, entity keys that force cross-domain business logic"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Federation alignment with Domain Driven Design principles maintaining clear boundaries while enabling explicit integration points"
+    },
+    {
+      "id": "security_resilience_integration",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates integration between security measures and resilience patterns to ensure auth failures and security boundaries work coherently with circuit breaker and error handling strategies",
+      "pass_condition": "Auth failures handled by resilience patterns without compromising security, security boundaries align with error boundaries, auth timeouts integrate with circuit breaker strategies",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "auth_failure_resilience",
+            "description": "Authentication/authorization failures properly integrated with circuit breaker and error handling patterns",
+            "weight": 0.4,
+            "measurement": "1.0 if auth failures trigger appropriate circuit breaker responses without security compromise, 0.7 if mostly integrated with minor gaps, 0.4 if some integration issues, 0.0 if auth and resilience patterns conflict",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "security_error_boundary_alignment",
+            "description": "Security boundaries align with service error boundaries for consistent failure handling",
+            "weight": 0.35,
+            "measurement": "1.0 if security boundaries and error boundaries are coherently designed, 0.7 if mostly aligned with minor inconsistencies, 0.4 if some boundary conflicts, 0.0 if security and error boundaries poorly integrated",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeout_circuit_integration",
+            "description": "Auth timeout handling integrates properly with circuit breaker timeout strategies",
+            "weight": 0.25,
+            "measurement": "1.0 if auth timeouts and circuit breaker timeouts work coherently, 0.7 if mostly coordinated timing strategies, 0.4 if some timing conflicts, 0.0 if timeout strategies conflict between auth and resilience",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Auth service timeout triggers circuit breaker without exposing security details, consistent timeout strategies across auth and business logic"
+      ],
+      "fail_examples": [
+        "Auth failures bypass circuit breaker patterns, security timeouts conflict with performance circuit breaker settings"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Secure distributed systems require coordinated security and resilience patterns to avoid creating vulnerabilities through conflicting failure handling strategies"
+    },
+    {
+      "id": "network_security_controls",
+      "category": "Security Configuration",
+      "description": "Evaluates schema design considerations for secure federation deployment patterns",
+      "pass_condition": "Schema includes gateway-only types for sensitive operations, subgraph schemas assume mTLS between services, auth directives reference gateway-provided context only, zero direct client-to-subgraph access patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "network_isolation",
+            "description": "Subgraphs are network-isolated and only accessible from federation gateway",
+            "weight": 0.4,
+            "measurement": "binary: proper network controls vs exposed endpoints",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "gateway_authentication",
+            "description": "Gateway authenticates requests before forwarding to subgraphs",
+            "weight": 0.3,
+            "measurement": "scale: comprehensive auth validation to no validation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trusted_source_verification",
+            "description": "Subgraphs verify requests originate from trusted federation gateway",
+            "weight": 0.3,
+            "measurement": "scale: cryptographic verification to no source validation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Subgraphs deployed in private network segments with gateway as only ingress point",
+        "JWT tokens or API keys used to authenticate gateway-to-subgraph communication",
+        "Network policies preventing direct external access to subgraph endpoints"
+      ],
+      "fail_examples": [
+        "Subgraph endpoints publicly accessible bypassing federation gateway",
+        "No authentication required for subgraph-to-subgraph communication",
+        "Missing network controls allowing direct database access from compromised subgraphs"
+      ],
+      "domain": "federated_graphql_schema_design",
+      "research_basis": "Subgraphs accepting unauthenticated traffic, allowing attackers to bypass security by directly accessing subgraph endpoints. Broken authorization becomes more impactful in GraphQL due to flexible data fetching."
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "federation_specification_compliance",
+      "name": "Federation Specification Compliance",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "entity_modeling_design",
+      "name": "Entity Modeling & Design",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "authorization_security",
+      "name": "Authorization & Security",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "performance_optimization",
+      "name": "Performance Optimization",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "schema_design_patterns",
+      "name": "Schema Design Patterns",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "subgraph_architecture",
+      "name": "Subgraph Architecture",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "query_composition",
+      "name": "Query Composition & Planning",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling_resilience",
+      "name": "Error Handling & Resilience",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    }
+  ]
+}

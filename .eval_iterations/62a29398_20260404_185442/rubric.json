@@ -1,0 +1,1799 @@
+{
+  "task": "Draft a 1-page investment memo on a hypothetical Series A company in the defense drone space",
+  "domain": "Defense Drone Series A Investment Memo",
+  "total_points": 209,
+  "pass_threshold": 0.7,
+  "criteria": [
+    {
+      "id": "itar_compliance_cost_modeling",
+      "category": "Defense Regulatory & Compliance Framework",
+      "description": "Evaluates whether the memo addresses ITAR compliance requirements and export control implications with realistic cost considerations and revenue impact analysis",
+      "pass_condition": "Must acknowledge ITAR compliance as a major operational cost (estimated 5-15% of revenue), address export restrictions limiting international market access, and demonstrate understanding of defense technology export control requirements affecting business model",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "compliance_cost_quantification",
+            "description": "Specific dollar estimates for ITAR compliance including legal, administrative, and facility security costs",
+            "weight": 0.4,
+            "measurement": "1.0 if includes detailed cost breakdown with $500K-2M range and ongoing compliance burden, 0.7 if provides rough estimates without breakdown, 0.4 if mentions costs without quantification, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "export_revenue_impact",
+            "description": "Quantified analysis of how export controls limit addressable market and international revenue potential",
+            "weight": 0.35,
+            "measurement": "1.0 if quantifies specific TAM reduction percentage with country-specific analysis, 0.7 if estimates overall export limitation impact, 0.4 if acknowledges export restrictions without quantification, 0.0 if ignores export implications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "regulatory_category_specificity",
+            "description": "Identification of specific ITAR categories and technical data classification requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if names specific ITAR categories and technical data requirements, 0.7 if identifies general ITAR applicability, 0.4 if mentions export controls generically, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Estimates $1.2M annual ITAR compliance costs including $400K legal fees, $300K facility security upgrades, and $500K administrative burden, with export restrictions reducing TAM by 22% excluding China, Russia, and Iran markets worth $2.8B"
+      ],
+      "fail_examples": [
+        "Mentions ITAR compliance as a consideration without cost estimates or revenue impact analysis"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "ITAR violations carry fines of up to $1 million per violation and can trigger enforcement actions that destroy business viability"
+    },
+    {
+      "id": "security_clearance_scaling_analysis",
+      "category": "Defense Regulatory & Compliance Framework",
+      "description": "Assesses whether the memo addresses security clearance requirements as a scaling constraint with impact on hiring timeline and compensation costs",
+      "pass_condition": "Must identify security clearance levels required for defense work, acknowledge 12-24 month processing timelines as hiring constraint, and address 20-40% salary premiums for cleared workforce in financial planning",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "clearance_level_requirements",
+            "description": "Specific identification of required clearance levels for different roles and contract types",
+            "weight": 0.3,
+            "measurement": "1.0 if specifies Secret/TS requirements by role with contract justification, 0.7 if identifies general clearance needs, 0.4 if mentions security requirements vaguely, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_cost_impact",
+            "description": "Quantified analysis of clearance processing delays and salary premiums on hiring and operations",
+            "weight": 0.4,
+            "measurement": "1.0 if includes specific timelines (12-36 months) and salary premiums (25-40%), 0.7 if estimates delays and costs roughly, 0.4 if acknowledges impact without numbers, 0.0 if ignores timing/cost implications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "talent_pool_constraints",
+            "description": "Analysis of limited talent pool and competitive hiring challenges in cleared workforce market",
+            "weight": 0.3,
+            "measurement": "1.0 if quantifies talent pool limitations with hiring ratios or competition analysis, 0.7 if discusses cleared workforce scarcity, 0.4 if mentions hiring challenges generally, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Requires 60% of engineering team to hold Secret clearance within 24 months, with 18-month average processing time creating $2.4M in interim contractor costs and 35% salary premiums reducing hiring pool by estimated 70%"
+      ],
+      "fail_examples": [
+        "Notes that some employees will need security clearances without specifying levels, timelines, or impact on hiring and operations"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Companies cannot perform on classified contracts until FCL is obtained, and the process can take 1-2 years"
+    },
+    {
+      "id": "procurement_cycle_pathway_analysis",
+      "category": "DOD Procurement & Sales Strategy",
+      "description": "Evaluates understanding of DOD acquisition processes and realistic pathway selection with appropriate timeline considerations",
+      "pass_condition": "Must demonstrate understanding of DOD acquisition phases, provide realistic procurement timeline expectations (18-36 months typical), and show awareness of major procurement pathways and milestone requirements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "program_specificity",
+            "description": "Names specific DOD programs and demonstrates understanding of their acquisition status",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 3+ specific programs with correct phase mapping, 0.7 if identifies 2 programs with phases, 0.4 if names programs without phase context, 0.0 if only generic mentions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_realism",
+            "description": "Provides procurement timeline that reflects actual DOD acquisition velocity",
+            "weight": 0.35,
+            "measurement": "1.0 if 18-36 month timeline with 4+ specific milestones, 0.7 if correct timeframe with 2-3 milestones, 0.4 if mentions long timelines but lacks specificity, 0.0 if unrealistic sub-12 month expectations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pathway_selection_rationale",
+            "description": "Justification for chosen contracting pathway based on program requirements and company capabilities",
+            "weight": 0.25,
+            "measurement": "1.0 if detailed rationale for SBIR/prime/subcontractor pathway with tradeoffs, 0.7 if clear pathway selection with basic justification, 0.4 if mentions pathways without selection logic, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Targets MQ-9 Reaper replacement program currently in Technology Maturation phase, with 24-month timeline including 6-month RFI response, 12-month prototype competition, and production award milestone"
+      ],
+      "fail_examples": [
+        "Plans to sell to DOD within 6 months without identifying specific programs or understanding acquisition phases"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Defense procurement requires specific capability gap identification and market research validation"
+    },
+    {
+      "id": "defense_market_program_validation",
+      "category": "Defense Program-Specific Market Analysis",
+      "description": "Assesses market opportunity validation through credible defense capability gap analysis and realistic market sizing methodology",
+      "pass_condition": "Must identify specific defense capability areas with quantified market opportunities, provide evidence-based market sizing methodology with realistic assumptions, and demonstrate understanding of defense procurement budget patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "program_identification_sizing",
+            "description": "Names specific programs with realistic market size estimates backed by budget analysis",
+            "weight": 0.45,
+            "measurement": "1.0 if names 3+ programs with $100M+ opportunities and budget support, 0.7 if identifies 2 programs with sizing, 0.4 if mentions programs without proper sizing, 0.0 if generic market discussion",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "capability_gap_analysis",
+            "description": "Identifies specific technical or operational gaps the company addresses within named programs",
+            "weight": 0.35,
+            "measurement": "1.0 if detailed gap analysis with technical specifications and requirements, 0.7 if identifies gaps with supporting evidence, 0.4 if mentions gaps generally, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "budget_cycle_alignment",
+            "description": "Demonstrates understanding of defense budget planning cycles and program funding status",
+            "weight": 0.2,
+            "measurement": "1.0 if discusses multi-year budget cycles with specific appropriation references, 0.7 if acknowledges budget timing considerations, 0.4 if mentions budget constraints generally, 0.0 if ignores budget reality",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Targets Counter-sUAS program ($2.1B through 2028) addressing detection range gaps below 1km and MQ-9 replacement program ($4.3B allocated) requiring 40% cost reduction with equivalent capability"
+      ],
+      "fail_examples": [
+        "Claims $50B total drone market without identifying specific programs or capability requirements"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Identifies 3+ specific programs (e.g., MQ-9 replacement, counter-UAS systems) with $100M+ addressable value each"
+    },
+    {
+      "id": "technical_differentiation_incumbents",
+      "category": "Technical Differentiation & Competitive Moats",
+      "description": "Evaluates competitive positioning against established defense contractors with credible differentiation claims and sustainable advantage analysis",
+      "pass_condition": "Must identify major incumbent competitors in defense drone space (e.g., Lockheed Martin, General Atomics, Northrop Grumman), articulate specific areas of technical or operational differentiation, and provide sustainable competitive advantage thesis beyond cost competition",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "unrealistic_performance_claims": -2.0,
+          "cost_only_differentiation": -1.5,
+          "ignoring_incumbent_advantages": -1.0,
+          "weak_ip_protection": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Outperforms General Atomics MQ-9 with 40% longer endurance (30 vs 21 hours) and 60% better fuel efficiency, protected by 12 core patents in propulsion optimization and autonomous navigation"
+      ],
+      "fail_examples": [
+        "Claims to be better than existing solutions without naming competitors or providing specific technical comparisons"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Specific technical/cost advantages with barrier to incumbent replication analysis"
+    },
+    {
+      "id": "defense_financial_modeling_realism",
+      "category": "Defense-Specific Financial Modeling",
+      "description": "Evaluates comprehensive DCF models using defense-appropriate assumptions including discount rates, milestone payment structures, contract dependencies, and detailed revenue recognition aligned with government contracting realities",
+      "pass_condition": "Must use 12-15% discount rates appropriate for defense contractors, provide detailed contract milestone-based revenue recognition modeling with specific payment triggers, demonstrate understanding of multi-year contract structures, align revenue projections with 2-3 year procurement cycles, and show realistic revenue ramp considering technical development timeline and customer adoption constraints",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "discount_rate_appropriateness",
+            "description": "Uses discount rates reflecting defense industry risk profile and capital requirements",
+            "weight": 0.3,
+            "measurement": "1.0 if uses 12-15% discount rate with defense industry justification, 0.7 if appropriate rate range without strong justification, 0.4 if acknowledges higher risk but wrong rate, 0.0 if uses generic tech discount rates",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "payment_structure_realism",
+            "description": "Models milestone-based payments and government cash flow timing reflecting actual contracting terms",
+            "weight": 0.4,
+            "measurement": "1.0 if detailed milestone payment schedule with government payment delays, 0.7 if models milestone payments with basic timing, 0.4 if acknowledges different payment terms, 0.0 if assumes standard commercial payment terms",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "revenue_cycle_alignment",
+            "description": "Revenue projections aligned with realistic procurement cycle timing and defense budget planning",
+            "weight": 0.3,
+            "measurement": "1.0 if revenue ramp reflects 18-36 month sales cycles with budget cycle considerations, 0.7 if longer sales cycles modeled, 0.4 if acknowledges longer cycles but unrealistic ramp, 0.0 if assumes rapid commercial-style growth",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "DCF model uses 13.5% discount rate reflecting defense industry risk, models 60/30/10 milestone payment structure with 90-day government payment delays, revenue ramp beginning 24 months post-investment"
+      ],
+      "fail_examples": [
+        "Uses 8% discount rate typical for SaaS companies with monthly recurring revenue assumptions"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Modified DCF analysis with higher discount rates (12-15% for defense vs. 15-25%+ for early-stage startups) reflecting defense sector risks"
+    },
+    {
+      "id": "dual_use_revenue_strategy",
+      "category": "Dual-Use Commercial Strategy",
+      "description": "Evaluates commercial application strategy for faster revenue generation while maintaining defense focus, including realistic market penetration timeline and revenue contribution analysis",
+      "pass_condition": "Must identify at least 2 specific commercial applications with addressable markets >$50M each, provide realistic penetration timeline 6-18 months faster than defense sales, and quantify revenue mix with commercial contributing 20-40% of early revenue",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "commercial_market_identification",
+            "description": "Specific commercial applications with realistic market sizing and penetration strategy",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies multiple commercial markets with specific sizing and entry strategy, 0.7 if identifies markets with basic analysis, 0.4 if mentions commercial opportunities generally, 0.0 if purely defense focused",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_revenue_acceleration",
+            "description": "Commercial revenue timeline that realistically accelerates cash flow relative to defense sales",
+            "weight": 0.35,
+            "measurement": "1.0 if commercial revenue 12+ months earlier than defense with supporting rationale, 0.7 if faster commercial timeline with basic justification, 0.4 if mentions timing advantage, 0.0 if unrealistic timing or no acceleration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "revenue_mix_optimization",
+            "description": "Balance between commercial revenue generation and defense market focus for investor returns",
+            "weight": 0.25,
+            "measurement": "1.0 if quantified revenue mix strategy balancing cash flow and defense focus, 0.7 if discusses revenue balance considerations, 0.4 if mentions both markets without integration, 0.0 if conflicted strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Targets precision agriculture ($1.2B market) and infrastructure inspection ($800M market) for 12-month revenue acceleration, projecting 35% commercial revenue mix in years 1-2 before defense contracts mature"
+      ],
+      "fail_examples": [
+        "Mentions potential civilian uses without specific markets, timing, or revenue contribution analysis"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Dual-use applications provide faster revenue generation and reduce dependence on defense procurement cycles"
+    },
+    {
+      "id": "defense_team_credentials_assessment",
+      "category": "Defense-Qualified Team Assessment",
+      "description": "Evaluates team composition strategy for defense industry requirements including relevant experience and security clearance planning",
+      "pass_condition": "Must address defense industry experience requirements for key roles, demonstrate understanding of security clearance needs for leadership positions, and provide credible strategy for building relationships with DoD stakeholders",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "unverifiable_defense_claims": -2.0,
+          "no_cleared_personnel": -1.5,
+          "purely_commercial_backgrounds": -1.0,
+          "generic_defense_experience_claims": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "CEO with 12 years at General Atomics leading MQ-9 program development, CTO holds active TS/SCI clearance from prior DARPA role, VP Sales previously managed $2B in DOD contracts at Raytheon"
+      ],
+      "fail_examples": [
+        "Team has extensive aerospace experience without specific defense program involvement or current clearances"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "[Partial] Senior Partners or Managing Directors at top-tier defense-focused VC funds, often with backgrounds combining: 12-15 years investment experience, MBA from top institutions, 6-8 years as defense contractor program manager or Pentagon acquisition officer, Security clearance experience"
+    },
+    {
+      "id": "policy_geopolitical_risk_analysis",
+      "category": "Policy & Geopolitical Risk Analysis",
+      "description": "Evaluates analysis of administration policy impacts, export control risks, and geopolitical factors affecting defense drone demand with specific risk quantification and mitigation strategies",
+      "pass_condition": "Must identify at least 3 specific policy risks with potential revenue impact quantification, analyze export control limitations on international sales, and assess geopolitical demand drivers with supporting evidence",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "policy_risk_quantification",
+            "description": "Identification and quantification of specific policy risks that could impact business model",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 3+ policy risks with revenue impact estimates and mitigation strategies, 0.7 if identifies risks with some quantification, 0.4 if acknowledges policy risks generally, 0.0 if ignores policy considerations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "export_control_analysis",
+            "description": "Analysis of how changing export control policies affect international market opportunities",
+            "weight": 0.3,
+            "measurement": "1.0 if detailed export control impact analysis with country-specific restrictions, 0.7 if general export limitation analysis, 0.4 if acknowledges export restrictions, 0.0 if ignores international implications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "geopolitical_demand_assessment",
+            "description": "Assessment of how geopolitical tensions and conflicts drive defense drone demand",
+            "weight": 0.3,
+            "measurement": "1.0 if specific geopolitical analysis with demand impact quantification, 0.7 if discusses geopolitical demand drivers, 0.4 if mentions global tensions generally, 0.0 if purely domestic focus",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies budget sequestration risk (-15% revenue impact), export control tightening limiting $800M international opportunity, and Ukraine conflict driving 40% increase in counter-drone system demand"
+      ],
+      "fail_examples": [
+        "Assumes stable policy environment without considering potential changes in administration priorities or international relations"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Analysis of policy/administration change vulnerability... Defense spending priorities can shift dramatically with administration changes"
+    },
+    {
+      "id": "defense_partnership_ecosystem_strategy",
+      "category": "Defense Partnership & Integration Strategy",
+      "description": "Evaluates strategy for relationships with systems integrators, prime vs. subcontractor positioning, and integration capabilities with existing defense platforms",
+      "pass_condition": "Must identify specific integration requirements with named defense platforms, define prime vs. subcontractor strategy with named partners, and address systems integration capabilities required for defense deployment",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "platform_integration_specificity",
+            "description": "Specific requirements for integration with existing defense systems and command-and-control platforms",
+            "weight": 0.4,
+            "measurement": "1.0 if details integration with specific platforms and technical requirements, 0.7 if identifies integration needs with some specificity, 0.4 if acknowledges integration requirements generally, 0.0 if standalone system assumptions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "partnership_positioning_strategy",
+            "description": "Clear strategy for prime contractor vs. subcontractor positioning with identified partners",
+            "weight": 0.35,
+            "measurement": "1.0 if detailed partnership strategy with named companies and role definition, 0.7 if partnership approach with general partner types, 0.4 if mentions need for partnerships, 0.0 if go-it-alone approach",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "systems_integration_capability",
+            "description": "Assessment of company's capability to integrate with complex defense systems architecture",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates integration capability with technical team and experience, 0.7 if addresses integration capability needs, 0.4 if acknowledges integration complexity, 0.0 if underestimates integration requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Plans integration with Link 16 tactical data links and GCCS-A command systems, targeting subcontractor role with Lockheed Martin for 60% of revenue while building prime capability"
+      ],
+      "fail_examples": [
+        "Positions product as standalone solution without addressing integration requirements with existing defense infrastructure"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Specific analysis of prime contractor partnerships vs. direct government sales, with named potential partners and contract vehicles"
+    },
+    {
+      "id": "corporate_venture_strategy",
+      "category": "Strategic Partnerships",
+      "description": "Assesses strategy for leveraging corporate venture relationships for validation and procurement access",
+      "pass_condition": "Identifies specific corporate venture partners and articulates clear value beyond capital including engineering collaboration, customer validation, or procurement credibility",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "partner_identification",
+            "description": "Names specific corporate venture arms (e.g., Lockheed Martin Ventures, Boeing HorizonX) with strategic rationale",
+            "weight": 0.4,
+            "measurement": "0-4 scale based on specificity and strategic fit",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "collaboration_framework",
+            "description": "Details engineering collaboration, customer validation, or procurement access mechanisms",
+            "weight": 0.4,
+            "measurement": "0-4 scale based on depth and feasibility of collaboration plan",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transformative_impact",
+            "description": "Quantifies how corporate venture relationships accelerate market entry or capability development",
+            "weight": 0.2,
+            "measurement": "0-4 scale based on measurable impact projections",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Identifies Lockheed Martin Ventures as lead investor with specific plan for F-35 supply chain integration and customer validation through LM's government relationships"
+      ],
+      "fail_examples": [
+        "Generic mention of 'strategic investors' without naming specific corporate venture arms or articulating value beyond capital"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Corporate venture arms can provide engineering collaboration, customer validation, and procurement credibility that can be transformative for the right startup"
+    },
+    {
+      "id": "investor_credibility_strategy",
+      "category": "Investment Structure",
+      "description": "Evaluates how investor selection provides government stakeholder credibility and de-risking",
+      "pass_condition": "Demonstrates understanding that well-known defense/aerospace investors provide government stakeholder credibility and includes this in investor selection criteria",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "defense_investor_focus",
+            "description": "Targets investors with established defense sector credibility (e.g., Andreessen Horowitz American Dynamism, Shield Capital, Founders Fund)",
+            "weight": 0.5,
+            "measurement": "0-4 scale based on investor defense sector reputation and track record",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "government_derisking",
+            "description": "Articulates how investor selection reduces perceived risk for government stakeholders",
+            "weight": 0.3,
+            "measurement": "0-4 scale based on understanding of government stakeholder risk perception",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "procurement_advantage",
+            "description": "Explains how investor credibility translates to procurement process advantages",
+            "weight": 0.2,
+            "measurement": "0-4 scale based on specific procurement benefits identified",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Targets Shield Capital as lead investor, noting their defense sector expertise provides immediate credibility with Pentagon acquisition officers and reduces government stakeholder concerns about startup reliability"
+      ],
+      "fail_examples": [
+        "Focuses solely on investor capital amount without considering defense sector credibility or government stakeholder perception"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Startups backed by well-known defense or aerospace investors are frequently viewed as 'de-risked' by government stakeholders"
+    },
+    {
+      "id": "manufacturing_excellence_capability",
+      "category": "Operational Capabilities",
+      "description": "Evaluates manufacturing and supply chain capabilities essential for defense sector success; also: Evaluates company's operational capabilities including manufacturing scalability, quality management systems, supply chain security, and production infrastructure required for defense sector execution",
+      "pass_condition": "Must provide detailed manufacturing scalability analysis including specific quality certifications (AS9100D, ISO 9001), quantified supply chain security protocols with tier-2 supplier vetting requirements, production capacity modeling with capital requirements for 10x volume scaling, and detailed cost structure analysis showing path to competitive unit economics at scale",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "quality_standards",
+            "description": "Addresses defense-grade quality requirements (AS9100, ISO 9001) and testing protocols",
+            "weight": 0.3,
+            "measurement": "0-4 scale based on quality standard compliance planning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "supply_chain_security",
+            "description": "Plans for secure supply chain including domestic sourcing requirements and vendor vetting",
+            "weight": 0.4,
+            "measurement": "0-4 scale based on supply chain security framework",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "production_scalability",
+            "description": "Demonstrates path from prototype to volume production with specific manufacturing partnerships or capabilities",
+            "weight": 0.3,
+            "measurement": "0-4 scale based on scalability planning and manufacturing strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Details AS9100 certification timeline, identifies domestic component suppliers for ITAR compliance, and establishes manufacturing partnership with defense-qualified facility for volume production"
+      ],
+      "fail_examples": [
+        "Focuses only on prototype development without addressing defense manufacturing standards, supply chain security, or production scalability requirements"
+      ],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": "Advantage will belong to those who can build, deliver, and endure - understanding that defense requires manufacturing excellence"
+    },
+    {
+      "id": "technical_feasibility_risk_assessment",
+      "category": "Technical Risk Analysis",
+      "description": "Evaluates technical performance claims substantiation with realistic development timelines, prototype validation evidence, fundamental technical analysis, and honest assessment of engineering risks and feasibility",
+      "pass_condition": "Must provide evidence of current prototype performance data with detailed technical architecture, identify at least 3 specific technical risks with mitigation strategies, provide fundamental physics or engineering validation data, acknowledge development uncertainties with honest complexity assessment, provide realistic TRL progression timeline with validation milestones, and demonstrate evidence-based feasibility analysis with supporting data",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "prototype_validation",
+            "description": "Evidence of current technical capabilities vs. claims",
+            "weight": 0.4,
+            "measurement": "binary_with_detail",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "risk_identification",
+            "description": "Honest assessment of technical development risks",
+            "weight": 0.3,
+            "measurement": "count_and_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trl_progression",
+            "description": "Realistic technology readiness level advancement plan",
+            "weight": 0.3,
+            "measurement": "timeline_realism",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "defense_unit_economics_modeling",
+      "category": "Financial Analysis",
+      "description": "Evaluates depth of unit economics analysis including per-unit costs, margin progression, R&D amortization, and sensitivity analysis for key defense-specific variables",
+      "pass_condition": "Must provide detailed unit cost breakdown including materials, labor, overhead allocation, R&D amortization per unit, gross margin progression over volume, and sensitivity analysis for at least 3 key variables (contract delays, cost overruns, volume changes)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "unit_cost_breakdown",
+            "description": "Detailed per-unit cost structure analysis",
+            "weight": 0.4,
+            "measurement": "completeness_and_realism",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "margin_progression",
+            "description": "Realistic margin improvement with scale",
+            "weight": 0.3,
+            "measurement": "mathematical_soundness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sensitivity_modeling",
+            "description": "Impact analysis of key variable changes",
+            "weight": 0.3,
+            "measurement": "scenario_coverage",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "regulatory_certification_pathway_analysis",
+      "category": "Regulatory Risk",
+      "description": "Evaluates understanding of FAA airworthiness certification, DOD type certification requirements, and regulatory approval timelines with impact on commercialization strategy",
+      "pass_condition": "Must identify specific certification requirements (FAA Part 107/135, DOD airworthiness), provide realistic certification timeline (typically 12-36 months), estimate certification costs ($2-10M range), and demonstrate understanding of operational limitations during certification process",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "certification_requirements",
+            "description": "Identification of applicable regulatory frameworks",
+            "weight": 0.3,
+            "measurement": "accuracy_and_completeness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_realism",
+            "description": "Realistic certification timeline estimates",
+            "weight": 0.4,
+            "measurement": "industry_benchmark_alignment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operational_impact",
+            "description": "Understanding of certification constraints on operations",
+            "weight": 0.3,
+            "measurement": "strategic_implications",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "defense_capital_requirements_analysis",
+      "category": "Capital Structure",
+      "description": "Evaluates understanding of capital intensity for defense manufacturing, working capital requirements for government contracts, and cash flow timing challenges with mitigation strategies; also: Evaluates realistic cash flow modeling including government payment delays, working capital requirements, and funding bridge strategies during extended procurement cycles",
+      "pass_condition": "Must quantify manufacturing capital requirements, model working capital needs for contract fulfillment (typically 20-40% of contract value), address payment timing gaps (60-120 days government payment cycles), and identify financing strategies for contract fulfillment",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "capital_intensity_modeling",
+            "description": "Manufacturing and equipment capital requirements",
+            "weight": 0.3,
+            "measurement": "quantitative_accuracy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "working_capital_analysis",
+            "description": "Contract fulfillment working capital needs",
+            "weight": 0.4,
+            "measurement": "cash_flow_realism",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "financing_strategy",
+            "description": "Strategies for bridging payment timing gaps",
+            "weight": 0.3,
+            "measurement": "feasibility_and_specificity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "technology_readiness_assessment",
+      "category": "Technical Risk Analysis",
+      "description": "Evaluates whether the memo provides realistic assessment of current Technology Readiness Level (TRL), identifies specific technical milestones required for defense deployment, and maps development timeline against DOD acquisition phases",
+      "pass_condition": "Must specify current TRL level (1-9 scale), identify at least 3 critical technical milestones with timeline estimates, demonstrate understanding of TRL requirements for each acquisition phase (TRL 6 for EMD, TRL 8 for production), and provide risk-adjusted development timeline with technical dependencies",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "trl_specification",
+            "description": "Current TRL level clearly stated with supporting evidence",
+            "weight": 0.3,
+            "measurement": "binary_with_evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "milestone_mapping",
+            "description": "Technical milestones mapped to acquisition phases with realistic timelines",
+            "weight": 0.4,
+            "measurement": "completeness_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "risk_assessment",
+            "description": "Technical risks identified with mitigation strategies and timeline impact",
+            "weight": 0.3,
+            "measurement": "depth_analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "operational_deployment_feasibility",
+      "category": "Implementation Risk",
+      "description": "Evaluates understanding of field deployment challenges including environmental testing requirements, operator training needs, maintenance and logistics support, and integration complexity with existing military operations",
+      "pass_condition": "Must identify specific environmental testing standards (MIL-STD requirements), quantify operator training timeline and costs, address field maintenance and logistics support requirements, demonstrate understanding of deployment integration with existing military workflows, and provide realistic field testing timeline",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "testing_standards",
+            "description": "Military testing standards and certification requirements identified",
+            "weight": 0.3,
+            "measurement": "specification_accuracy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "training_logistics",
+            "description": "Operator training and maintenance support requirements quantified",
+            "weight": 0.4,
+            "measurement": "completeness_realism",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "integration_complexity",
+            "description": "Deployment integration challenges with existing operations assessed",
+            "weight": 0.3,
+            "measurement": "depth_understanding",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "cybersecurity_compliance_framework",
+      "category": "Security Requirements",
+      "description": "Evaluates understanding of mandatory cybersecurity requirements including NIST frameworks, Authority to Operate (ATO) processes, continuous monitoring requirements, and associated compliance costs for defense systems",
+      "pass_condition": "Must identify applicable cybersecurity frameworks (NIST 800-53, CMMC levels), demonstrate understanding of ATO process timeline and costs, address continuous monitoring and incident response requirements, quantify cybersecurity compliance costs as percentage of development budget, and identify required security certifications",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "framework_compliance",
+            "description": "Applicable cybersecurity frameworks and CMMC level requirements identified",
+            "weight": 0.4,
+            "measurement": "accuracy_completeness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "ato_process",
+            "description": "Authority to Operate process timeline and costs understood",
+            "weight": 0.3,
+            "measurement": "realism_assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "ongoing_compliance",
+            "description": "Continuous monitoring and compliance cost structure quantified",
+            "weight": 0.3,
+            "measurement": "cost_accuracy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "customer_validation_evidence",
+      "category": "Market Validation",
+      "description": "Evaluates comprehensive market and customer validation strategy including systematic customer discovery methodology, documented demand signals, and understanding of defense market requirements with evidence of genuine product-market fit validation",
+      "pass_condition": "Must provide detailed customer discovery methodology with interview protocols for defense stakeholders, documented evidence of validated customer pain points with supporting data, concrete demand signals beyond theoretical alignment, credible strategy for early customer validation including pilot program approaches, and measurable indicators of product-market fit progression with defense procurement decision-maker requirements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "stakeholder_interviews",
+            "description": "Evidence of direct engagement with defense decision-makers",
+            "weight": 0.4,
+            "measurement": "Number and quality of documented stakeholder conversations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pilot_agreements",
+            "description": "Formal validation through pilot programs or LOIs",
+            "weight": 0.35,
+            "measurement": "Existence and scope of formal validation agreements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "user_feedback",
+            "description": "Quantified feedback on capability gaps and solution fit",
+            "weight": 0.25,
+            "measurement": "Quality and specificity of documented user requirements validation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "risk_adjusted_financial_realism",
+      "category": "Financial Analysis",
+      "description": "Evaluates whether financial projections include realistic risk modeling, sensitivity analysis, and downside scenarios that account for defense contracting uncertainties and program cancellation risks",
+      "pass_condition": "Must include Monte Carlo or scenario-based risk modeling with at least 3 scenarios (base/upside/downside), quantify program cancellation risk impact (typically 15-25% of defense programs face delays/cancellations), and model cash flow volatility with 6-18 month payment delays",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "scenario_modeling",
+            "description": "Multiple scenario financial projections with probability weighting",
+            "weight": 0.4,
+            "measurement": "Quality and realism of scenario analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "program_risk_quantification",
+            "description": "Specific modeling of program cancellation and delay risks",
+            "weight": 0.35,
+            "measurement": "Accuracy of risk probability estimates and impact modeling",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cash_flow_volatility",
+            "description": "Realistic modeling of government payment delays and working capital needs",
+            "weight": 0.25,
+            "measurement": "Accuracy of cash flow timing and working capital requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "technical_execution_risk_assessment",
+      "category": "Technical Analysis",
+      "description": "Evaluates realistic assessment of technical development risks, integration challenges, and execution complexity specific to defense drone systems including testing, certification, and performance validation requirements",
+      "pass_condition": "Must identify at least 3 major technical risk factors with mitigation strategies, address defense-specific testing and certification requirements (DO-178C, MIL-STD compliance), quantify development timeline risks, and provide evidence of technical feasibility through prototypes or testing data",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "technical_risk_identification",
+            "description": "Comprehensive identification of development and integration risks",
+            "weight": 0.35,
+            "measurement": "Quality and completeness of technical risk analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "certification_requirements",
+            "description": "Understanding of defense testing and certification complexity",
+            "weight": 0.35,
+            "measurement": "Accuracy of compliance and certification timeline estimates",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "feasibility_evidence",
+            "description": "Concrete evidence of technical feasibility and performance validation",
+            "weight": 0.3,
+            "measurement": "Quality of prototype data, testing results, or technical demonstrations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "competitive_response_strategy",
+      "category": "Strategic Analysis",
+      "description": "Evaluates analysis of how incumbent defense contractors will respond to competitive threats, including potential acquisition attempts, competitive product development, or market access restrictions, with specific defensive strategies",
+      "pass_condition": "Must analyze likely competitive responses from at least 2 major incumbents, address acquisition threat mitigation strategies, identify potential competitive product development timelines, and provide specific strategies for maintaining independent market position against well-resourced competitors",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "incumbent_response_analysis",
+            "description": "Realistic assessment of how major defense contractors will respond",
+            "weight": 0.4,
+            "measurement": "Quality of competitive response scenario planning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "acquisition_threat_mitigation",
+            "description": "Strategies for maintaining independence against acquisition attempts",
+            "weight": 0.35,
+            "measurement": "Effectiveness of proposed defensive strategies",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sustainable_differentiation",
+            "description": "Long-term competitive positioning against resourced incumbents",
+            "weight": 0.25,
+            "measurement": "Viability of sustained competitive advantage thesis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "regulatory_operational_complexity_assessment",
+      "category": "Operational Risk Analysis",
+      "description": "Evaluates comprehensive regulatory compliance burden including cybersecurity frameworks, quality management systems, and operational impact of defense-specific requirements",
+      "pass_condition": "Must address NIST 800-171/CMMC cybersecurity requirements with implementation costs, specify quality management system requirements (AS9100/ISO 9001), quantify compliance operational overhead as percentage of workforce (typically 8-15%), and assess audit and certification maintenance costs",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "cybersecurity_compliance_costs",
+            "description": "NIST/CMMC implementation and maintenance costs",
+            "weight": 0.4,
+            "measurement": "Specific cost estimates and timeline",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quality_system_requirements",
+            "description": "Defense quality management system implementation",
+            "weight": 0.3,
+            "measurement": "AS9100/ISO certification costs and timeline",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operational_overhead_impact",
+            "description": "Compliance burden on operational efficiency",
+            "weight": 0.3,
+            "measurement": "8-15% workforce allocation to compliance",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "technical_performance_credibility_assessment",
+      "category": "Technical Analysis",
+      "description": "Evaluates whether technical performance claims are credible and demonstrate actual competitive advantage rather than revealing fundamental technical inferiority that undermines the investment thesis",
+      "pass_condition": "Technical performance metrics must demonstrate superiority or competitive parity in at least 2 key performance areas compared to incumbent solutions, with credible explanation for any performance trade-offs that shows net advantage",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "performance_superiority",
+            "description": "Demonstrates measurable technical superiority in key metrics",
+            "weight": 0.4,
+            "measurement": "binary_with_evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trade_off_justification",
+            "description": "Provides credible justification for performance trade-offs",
+            "weight": 0.3,
+            "measurement": "qualitative_assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_positioning",
+            "description": "Technical specs support rather than undermine competitive positioning",
+            "weight": 0.3,
+            "measurement": "logical_consistency",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_coherence_assessment",
+      "category": "Strategic Analysis",
+      "description": "Evaluates whether technical capabilities, market positioning, competitive strategy, and financial projections form a coherent and internally consistent strategic narrative with clear value proposition and compelling investment thesis",
+      "pass_condition": "Technical capabilities must logically support market positioning claims, competitive strategy must align with technical differentiation, financial projections must be consistent with technical development timeline and market penetration assumptions, and must demonstrate clear problem-solution-market fit narrative with compelling investment thesis that connects all elements into unified value proposition",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "technical_market_alignment",
+            "description": "Technical capabilities support stated market positioning",
+            "weight": 0.4,
+            "measurement": "logical_consistency",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_strategy_coherence",
+            "description": "Competitive strategy aligns with technical differentiation claims",
+            "weight": 0.3,
+            "measurement": "strategic_logic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "financial_strategic_consistency",
+            "description": "Financial projections consistent with technical and market constraints",
+            "weight": 0.3,
+            "measurement": "assumption_alignment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "domain_expertise_authenticity_assessment",
+      "category": "Industry Knowledge",
+      "description": "Evaluates whether the analysis demonstrates authentic domain expertise through nuanced insights, industry-specific knowledge, and sophisticated understanding that goes beyond surface-level compliance with evaluation criteria",
+      "pass_condition": "Must demonstrate sophisticated understanding through industry-specific insights, nuanced analysis of sector dynamics, identification of non-obvious challenges or opportunities, and evidence of deep rather than superficial domain knowledge",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "industry_insight_depth",
+            "description": "Provides sophisticated, non-obvious industry insights",
+            "weight": 0.4,
+            "measurement": "expertise_demonstration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "nuanced_analysis",
+            "description": "Shows nuanced understanding of complex industry dynamics",
+            "weight": 0.35,
+            "measurement": "analytical_sophistication",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "authentic_expertise",
+            "description": "Demonstrates authentic rather than superficial domain knowledge",
+            "weight": 0.25,
+            "measurement": "knowledge_authenticity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "binding_customer_commitment_evidence",
+      "category": "Customer Validation",
+      "description": "Evaluates strategy for securing early customer commitments and formal validation pathways in defense markets",
+      "pass_condition": "Must outline realistic strategy for securing pilot agreements or letters of intent from defense customers, provide credible timeline for achieving formal customer commitments (typically 12-24 months), and demonstrate understanding of defense procurement validation processes",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "binding_agreements",
+            "description": "Signed LOIs or contracts with specific dollar commitments",
+            "weight": 0.4,
+            "measurement": "binary_with_amount_threshold",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "procurement_progression",
+            "description": "Documented advancement through formal procurement processes",
+            "weight": 0.35,
+            "measurement": "stage_progression_evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_commitments",
+            "description": "Customer-committed timelines for purchase decisions",
+            "weight": 0.25,
+            "measurement": "specificity_and_realism",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "market_penetration_barrier_analysis",
+      "category": "Competitive Strategy",
+      "description": "Evaluates realistic assessment of market entry barriers including incumbent relationships, customer switching costs, and ecosystem lock-in effects specific to defense contracting relationships",
+      "pass_condition": "Must quantify customer switching costs, analyze incumbent relationship advantages (existing contracts, integration dependencies), identify specific market entry barriers with mitigation strategies, and provide evidence-based market share capture timeline against entrenched competitors",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "switching_cost_analysis",
+            "description": "Quantified customer switching costs and mitigation strategies",
+            "weight": 0.35,
+            "measurement": "quantitative_analysis_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "incumbent_advantages",
+            "description": "Analysis of incumbent relationship and integration advantages",
+            "weight": 0.35,
+            "measurement": "specificity_and_realism",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "entry_barrier_mitigation",
+            "description": "Specific strategies for overcoming identified market barriers",
+            "weight": 0.3,
+            "measurement": "feasibility_and_specificity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "technology_obsolescence_defense_strategy",
+      "category": "Technology Risk",
+      "description": "Evaluates analysis of technology lifecycle risks, competitive innovation threats, and sustained R&D investment requirements to maintain technological advantage in rapidly evolving defense technology sectors",
+      "pass_condition": "Must identify technology obsolescence timeline (typically 3-5 years in defense tech), quantify required R&D investment as percentage of revenue (typically 15-25% for defense tech companies), analyze competitive innovation threats with response strategies, and demonstrate sustainable innovation pipeline beyond current product",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "obsolescence_timeline",
+            "description": "Realistic assessment of technology lifecycle and refresh requirements",
+            "weight": 0.3,
+            "measurement": "timeline_realism_and_evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "rd_investment_requirements",
+            "description": "Quantified ongoing R&D investment needs for competitive sustainability",
+            "weight": 0.4,
+            "measurement": "percentage_and_justification",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "innovation_pipeline",
+            "description": "Evidence of sustainable innovation capability beyond current product",
+            "weight": 0.3,
+            "measurement": "pipeline_depth_and_credibility",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "defense_revenue_scalability_model",
+      "category": "Business Model Viability",
+      "description": "Evaluates realistic assessment of defense revenue scalability challenges including program concentration risk, revenue predictability issues, and strategies for building sustainable recurring revenue streams in project-based government contracting environment",
+      "pass_condition": "Must analyze program concentration risk with diversification strategy, address revenue lumpiness and predictability challenges specific to government contracting, quantify customer concentration risk (typically high in defense), and provide credible path to recurring revenue streams or service-based revenue models",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "concentration_risk_analysis",
+            "description": "Assessment of program and customer concentration risks with mitigation",
+            "weight": 0.35,
+            "measurement": "risk_quantification_and_mitigation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "revenue_predictability",
+            "description": "Analysis of revenue lumpiness and predictability challenges",
+            "weight": 0.35,
+            "measurement": "realism_and_modeling_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "recurring_revenue_strategy",
+            "description": "Credible path to recurring or service-based revenue streams",
+            "weight": 0.3,
+            "measurement": "feasibility_and_timeline",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_dependency_risk_analysis",
+      "category": "Risk Assessment",
+      "description": "Evaluates identification and quantification of strategic dependencies and single points of failure that could critically impact business continuity, including key personnel risks, supplier concentration, technology obsolescence threats, and customer concentration vulnerabilities",
+      "pass_condition": "Must identify at least 3 critical dependencies with specific mitigation strategies, quantify key person risk with succession planning, analyze supplier concentration risks with alternative sourcing strategies, and assess technology obsolescence timeline with competitive response scenarios",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "key_personnel_dependency",
+            "description": "Analysis of critical team member dependencies with succession planning",
+            "weight": 0.3,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "supplier_concentration_risk",
+            "description": "Assessment of critical supplier dependencies and alternative sourcing",
+            "weight": 0.25,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "technology_obsolescence_analysis",
+            "description": "Evaluation of technology lifecycle and competitive threats",
+            "weight": 0.25,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_concentration_vulnerability",
+            "description": "Analysis of customer dependency and diversification strategy",
+            "weight": 0.2,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "implementation_complexity_depth_analysis",
+      "category": "Operational Assessment",
+      "description": "Evaluates realistic assessment of implementation complexity including detailed resource requirements, organizational capability gaps, cross-functional coordination challenges, and granular milestone dependencies with honest assessment of execution risks",
+      "pass_condition": "Must provide detailed resource allocation across functions with specific headcount plans, identify at least 4 organizational capability gaps with hiring/development strategies, map critical path dependencies between milestones, and quantify implementation risk factors with probability-weighted impact analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "resource_allocation_granularity",
+            "description": "Detailed breakdown of resource needs across all functions",
+            "weight": 0.3,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "capability_gap_identification",
+            "description": "Honest assessment of organizational capability shortfalls",
+            "weight": 0.25,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "milestone_dependency_mapping",
+            "description": "Critical path analysis of interdependent milestones",
+            "weight": 0.25,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "execution_risk_quantification",
+            "description": "Probability-weighted analysis of implementation risks",
+            "weight": 0.2,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "dynamic_market_evolution_strategy",
+      "category": "Strategic Analysis",
+      "description": "Evaluates understanding of market evolution dynamics, competitive landscape shifts over investment horizon, and adaptive strategy requirements including scenario planning for market changes, competitive responses, and technology disruption cycles",
+      "pass_condition": "Must analyze market evolution across 3-5 year investment horizon with specific trend drivers, model competitive landscape changes with new entrant scenarios, provide adaptive strategy framework for 3 different market scenarios, and demonstrate understanding of technology disruption cycles affecting competitive positioning",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "market_trend_evolution_analysis",
+            "description": "Analysis of market dynamics changes over investment timeline",
+            "weight": 0.3,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_landscape_shifts",
+            "description": "Modeling of competitive environment evolution and new entrants",
+            "weight": 0.3,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "adaptive_strategy_framework",
+            "description": "Strategic flexibility planning for multiple market scenarios",
+            "weight": 0.25,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "disruption_cycle_awareness",
+            "description": "Understanding of technology and market disruption patterns",
+            "weight": 0.15,
+            "measurement": "depth_scale_1_5",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "intellectual_property_landscape_analysis",
+      "category": "Legal and IP Strategy",
+      "description": "Evaluates understanding of IP landscape challenges and comprehensive strategy for defense drone technology protection",
+      "pass_condition": "Must acknowledge patent landscape complexity in defense drone technology, outline strategy for freedom to operate assessment, and provide comprehensive IP protection plan including defensive patents, trade secrets, and estimated IP development costs ($500K-2M range)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "freedom_to_operate_analysis",
+            "description": "Assessment of potential IP conflicts and clearance strategies",
+            "weight": 0.3,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_ip_landscape",
+            "description": "Mapping of competitive patent threats and opportunities",
+            "weight": 0.3,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "comprehensive_ip_protection",
+            "description": "Multi-faceted IP protection strategy beyond basic patents",
+            "weight": 0.25,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "ip_risk_quantification",
+            "description": "Financial impact analysis of IP-related risks and mitigation costs",
+            "weight": 0.15,
+            "measurement": "binary_with_depth",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_ecosystem_positioning_analysis",
+      "category": "Strategic Analysis",
+      "description": "Evaluates understanding of the company's strategic position within the defense industrial base, including supply chain dependencies, ecosystem lock-in effects, platform integration strategies, and sustainable competitive advantages that extend beyond current technical capabilities",
+      "pass_condition": "Must identify at least 3 critical supply chain dependencies with risk mitigation strategies, analyze platform lock-in opportunities with 2+ major defense systems, demonstrate understanding of ecosystem network effects, and articulate sustainable competitive moats beyond current technology (e.g., data advantages, integration complexity, switching costs)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "supply_chain_analysis",
+            "description": "Identification of critical dependencies and vulnerabilities",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on depth of supply chain risk analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "platform_integration_strategy",
+            "description": "Strategy for becoming embedded in defense platforms",
+            "weight": 0.4,
+            "measurement": "0-3 scale based on integration lock-in potential",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sustainable_moats",
+            "description": "Competitive advantages beyond current technology",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on durability of competitive position",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "defense_organizational_scaling_analysis",
+      "category": "Organizational Development",
+      "description": "Evaluates understanding of unique organizational challenges in scaling defense contractors, including security compartmentalization effects, military-civilian cultural integration, classified program management structures, and talent retention in security-constrained environments",
+      "pass_condition": "Must address security compartmentalization impact on team collaboration and information sharing, analyze military-civilian talent integration challenges with specific retention strategies, demonstrate understanding of classified program organizational structures (SCIF requirements, need-to-know protocols), and quantify organizational overhead costs for security compliance (typically 12-20% of operational costs)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "security_compartmentalization_impact",
+            "description": "Analysis of security requirements on organizational efficiency",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on understanding of security constraints",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "talent_integration_strategy",
+            "description": "Strategy for integrating military and civilian talent effectively",
+            "weight": 0.4,
+            "measurement": "0-3 scale based on cultural integration planning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "classified_program_management",
+            "description": "Organizational design for classified work environments",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on classified program structure understanding",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "defense_exit_strategy_constraints_analysis",
+      "category": "Exit Strategy",
+      "description": "Evaluates understanding of unique exit constraints for defense companies including CFIUS review requirements, security clearance transfer limitations, classified asset valuation challenges, and restricted strategic acquirer pool due to foreign ownership restrictions",
+      "pass_condition": "Must identify CFIUS review requirements and timeline (typically 6-12 months), analyze security clearance transfer constraints limiting acquirer pool, address classified technology valuation and due diligence challenges, quantify impact on exit multiples compared to commercial tech companies (typically 20-40% discount), and identify realistic strategic acquirer universe with rationale",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "regulatory_exit_constraints",
+            "description": "Analysis of CFIUS and security-related exit limitations",
+            "weight": 0.4,
+            "measurement": "0-3 scale based on regulatory constraint understanding",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "acquirer_pool_analysis",
+            "description": "Realistic assessment of potential strategic acquirers",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on acquirer identification and rationale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "valuation_impact_assessment",
+            "description": "Understanding of defense-specific valuation constraints",
+            "weight": 0.3,
+            "measurement": "0-3 scale based on valuation impact quantification",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    },
+    {
+      "id": "execution_timeline_realism",
+      "category": "Operational Planning",
+      "description": "Evaluates realism of implementation timeline including proper dependency mapping, resource allocation planning, critical path analysis, and realistic milestone achievement assessment with contingency planning",
+      "pass_condition": "Must provide detailed project timeline with critical path dependencies, resource allocation across development phases, realistic milestone definitions with success criteria, identification of timeline risks with mitigation strategies, and contingency planning for development delays",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "timeline_dependency_mapping",
+            "description": "Proper identification and sequencing of critical dependencies",
+            "weight": 0.4,
+            "measurement": "ordinal_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_allocation_realism",
+            "description": "Realistic resource planning across development phases",
+            "weight": 0.3,
+            "measurement": "binary_with_quality",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "contingency_planning",
+            "description": "Risk mitigation and contingency strategies for timeline delays",
+            "weight": 0.3,
+            "measurement": "ordinal_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Defense Drone Series A Investment Memo",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "defense_regulatory_compliance",
+      "name": "Defense Regulatory & Compliance Framework",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "dod_procurement_strategy",
+      "name": "DOD Procurement & Sales Strategy",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "defense_market_program_analysis",
+      "name": "Defense Program-Specific Market Analysis",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "technical_differentiation_moats",
+      "name": "Technical Differentiation & Competitive Moats",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "defense_financial_modeling",
+      "name": "Defense-Specific Financial Modeling",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "dual_use_revenue_strategy",
+      "name": "Dual-Use Commercial Strategy",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "defense_team_credentials",
+      "name": "Defense-Qualified Team Assessment",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "policy_geopolitical_risks",
+      "name": "Policy & Geopolitical Risk Analysis",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "defense_partnership_ecosystem",
+      "name": "Defense Partnership & Integration Strategy",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

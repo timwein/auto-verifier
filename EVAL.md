@@ -12,6 +12,52 @@ The rubric harness is a generation-verification loop that generates task-specifi
 
 ---
 
+## Run 14 Results
+
+Run 14 is the first eval after fixing the rubric mismatch bug (baseline and harness were previously scored against different rubrics). Both baseline and harness are now scored against the same generated rubric. Fresh rubrics generated via the full pipeline for all 25 tasks. All tasks ran in parallel. **25/25 tasks improved, 0 regressions.**
+
+| Task | Description | Baseline | Harness | Delta | Iters |
+|---|---|---|---|---|---|
+| agi_counterargument | Write a counterargument to the claim 'AGI will arrive before 2030' | 15.4% | 91.1% | +75.7pp | 5 |
+| comp_analysis_memo | Write a competitive analysis memo for a fintech startup | 14.1% | 73.6% | +59.5pp | 4 |
+| cold_outreach_email | Write a cold outreach email to a Series A founder pitching angel investment | 29.1% | 86.4% | +57.3pp | 4 |
+| ml_experiment_report | Write an ML experiment report comparing fine-tuning approaches | 33.5% | 83.4% | +49.9pp | 4 |
+| debugging_walkthrough | Write a debugging walkthrough for a memory leak in a Node.js service | 27.3% | 76.4% | +49.1pp | 8 |
+| system_design_doc | Write a system design doc for a real-time notifications service | 38.4% | 81.6% | +43.2pp | 4 |
+| terraform_multi_env | Write Terraform modules for a multi-environment AWS deployment | 42.1% | 81.4% | +39.3pp | 5 |
+| billing_schema | Design a JSON schema for a multi-tenant SaaS billing system | 38.3% | 77.3% | +38.9pp | 4 |
+| attention_explanation | Explain transformer attention mechanisms to a smart 16-year-old | 36.2% | 74.5% | +38.3pp | 5 |
+| exec_summary | Summarize a 2,000-word technical blog post into a 3-bullet executive summary | 29.0% | 66.6% | +37.6pp | 4 |
+| incident_postmortem | Write a blameless postmortem for a 4-hour payment processing outage | 65.5% | 99.3% | +33.8pp | 2 |
+| bash_backup | Write a bash script that backs up a PostgreSQL database to S3 | 32.3% | 66.0% | +33.7pp | 6 |
+| graphql_schema_federation | Design a federated GraphQL schema for a multi-service e-commerce platform | 48.7% | 78.5% | +29.9pp | 4 |
+| rust_concurrent_cache | Implement a thread-safe LRU cache in Rust with TTL expiration | 41.8% | 70.9% | +29.1pp | 9 |
+| sql_ltv_query | Create a SQL query to find the top 10 customers by lifetime value | 58.5% | 86.8% | +28.3pp | 3 |
+| investment_memo | Draft a 1-page investment memo on a Series A defense drone startup | 6.9% | 32.3% | +25.3pp | 4 |
+| api_rate_limiter | Implement a distributed rate limiter with sliding window | 37.0% | 62.0% | +25.0pp | 4 |
+| startup_naming | Generate 5 names for a startup that does AI-powered contract review | 42.8% | 66.1% | +23.3pp | 7 |
+| legal_contract_redline | Redline a vendor SaaS agreement from the buyer's perspective | 47.9% | 70.3% | +22.4pp | 4 |
+| data_pipeline_dag | Design an Airflow DAG for an ETL pipeline with SLA monitoring | 42.1% | 63.9% | +21.8pp | 6 |
+| csv_parser | Generate a Python function that parses messy CSV data | 59.3% | 75.4% | +16.1pp | 6 |
+| security_threat_model | Create a STRIDE threat model for a healthcare API handling PHI | 52.9% | 68.7% | +15.8pp | 4 |
+| regulatory_gap_analysis | Perform a GDPR gap analysis for a US SaaS company expanding to the EU | 61.7% | 75.9% | +14.2pp | 4 |
+| negotiation_playbook | Create a negotiation playbook for an enterprise SaaS deal | 64.9% | 78.0% | +13.1pp | 4 |
+| board_deck_narrative | Write the narrative section of a Series B board deck | 23.0% | 27.9% | +4.9pp | 4 |
+| **MEAN (25 tasks)** | | **39.6%** | **72.6%** | **+33.0pp** | **4.7** |
+
+### Run 14 Observations
+
+- **First eval with rubric mismatch fix** — Baseline and harness are now scored against the same generated rubric. Run 12's deltas were invalid because baseline was scored against sample rubrics while harness was scored against generated rubrics. Run 14 is the first fair apples-to-apples comparison.
+- **25/25 improved, 0 regressions** — Every task showed positive delta. Run 12 had 7/22 regressions; all are now positive with the fix.
+- **+33.0pp mean delta** — Significantly higher than Run 12's +6.1pp (which was measured against mismatched rubrics). The true lift from the harness loop is substantial.
+- **Lower baselines (39.6% vs 68.0% in Run 12)** — Generated rubrics are harder than sample rubrics. Baselines scored against generated rubrics are much lower, confirming the rubric mismatch was inflating Run 12 baselines.
+- **cold_outreach_email and investment_memo recovered** — Both completely failed in Run 12 (empty harness output). The empty-history guard fix resolved cold_outreach_email (86.4%). investment_memo completed but scored low (32.3%) due to a very demanding 47-criterion rubric and repeated scorer JSON parse failures.
+- **billing_schema recovered** — Missing entirely from Run 12, now completes successfully at +38.9pp.
+- **incident_postmortem near-perfect (99.3%)** — Highest absolute harness score, reaching near-ceiling in just 2 iterations.
+- **board_deck_narrative lowest delta (+4.9pp)** — Generated rubric was extremely demanding (29 criteria, 170 max points) with 16 criteria stuck at 0% throughout all iterations.
+
+---
+
 ## Run 12 Results
 
 Run 12 is the first eval where every task generates a fresh rubric via the full pipeline (research, multi-pass generation, negotiation, tradeoff detection, quality gate). No sample rubrics used. All 10 scoring fixes from the Run 10 debug analysis are active. 22 of 25 tasks scored (2 had 0% harness output from generation failures, 1 rate-limit error retried successfully but cold_outreach_email and investment_memo failed to produce harness output).

@@ -1,0 +1,715 @@
+{
+  "task": "Write a competitive analysis memo comparing 4 AI code assistant tools (Cursor, GitHub Copilot, Cody, Windsurf) across 8 dimensions with a recommendation for a 200-person engineering org",
+  "domain": "AI Code Assistant Evaluation",
+  "total_points": 86,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "latency_flow_state_impact",
+      "category": "Technical Capabilities & Code Quality",
+      "description": "Analysis of code completion latency impact on developer flow state based on documented performance specifications, user reports, and established cognitive psychology research on flow state thresholds",
+      "pass_condition": "Must analyze documented latency specifications, reference established flow state research thresholds (sub-100ms for non-disruptive), and assess potential productivity impact based on available performance data and user feedback",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "latency_measurement_precision",
+            "description": "Specific millisecond measurements of completion response times under different conditions",
+            "weight": 0.4,
+            "measurement": "1.0 if provides precise latency measurements (e.g., p50, p95, p99) in milliseconds across different scenarios, 0.7 if provides some specific timing data, 0.4 if mentions speed differences without precise measurements, 0.0 if uses vague speed descriptions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "flow_state_threshold_application",
+            "description": "Application of established cognitive psychology thresholds for maintaining developer flow",
+            "weight": 0.35,
+            "measurement": "1.0 if references specific flow state research (100ms non-disruptive threshold, 1-second attention maintenance) and maps tool performance to these thresholds, 0.7 if acknowledges flow state impact with some research basis, 0.4 if mentions developer experience impact generically, 0.0 if ignores psychological impact",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "productivity_correlation_analysis",
+            "description": "Quantified relationship between latency and measurable productivity impacts",
+            "weight": 0.25,
+            "measurement": "1.0 if correlates latency measurements with specific productivity metrics (keystrokes saved, time to completion, error rates), 0.7 if attempts some productivity correlation, 0.4 if mentions productivity impact without measurement, 0.0 if treats latency as isolated metric",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "GitHub Copilot averages 240ms p95 latency which exceeds the 100ms flow maintenance threshold, correlating with 12% increased task switching in complex refactoring scenarios"
+      ],
+      "fail_examples": [
+        "Notes that Cursor feels faster than GitHub Copilot during testing without specific measurements or flow state impact analysis"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Developers lose 23 minutes of focus per interruption; latency directly impacts developer flow state... <100ms latency, >30% acceptance rate, minimal flow disruption"
+    },
+    {
+      "id": "enterprise_security_compliance",
+      "category": "Enterprise Security & Compliance",
+      "description": "Evaluation of documented enterprise security features including claimed data residency controls, published compliance certifications, stated IP protection mechanisms, and documented vulnerability scanning capabilities",
+      "pass_condition": "Must identify and document specific compliance certifications held by each tool (SOC 2 Type II, ISO 27001, GDPR), provide exact data residency locations and controls for each service, list specific IP protection mechanisms with technical implementation details, and document vulnerability scanning capabilities with scan frequency and coverage scope.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 8,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_compliance_certification_verification": -2.0,
+          "no_data_residency_analysis": -1.5,
+          "missing_ip_protection_evaluation": -1.5,
+          "no_vulnerability_scanning_assessment": -1.5,
+          "generic_security_claims_without_evidence": -1.0,
+          "missing_enterprise_sso_integration_analysis": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Verifies GitHub Copilot's SOC 2 Type II certification current through 2024, tests data residency options with EU/US boundary enforcement, and evaluates IP filtering with proprietary code leak prevention scoring 94% effectiveness"
+      ],
+      "fail_examples": [
+        "States that all tools are enterprise-ready with good security without verifying specific certifications or testing security mechanisms"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Enterprise evaluation requires SOC 2 Type II as the minimum credible certification, with ISO 27001 providing an international information security management system framework often required alongside SOC 2 for global enterprises"
+    },
+    {
+      "id": "code_telemetry_data_governance",
+      "category": "Enterprise Security & Compliance",
+      "description": "Analysis of code telemetry collection practices, data minimization controls, and governance frameworks for protecting sensitive enterprise source code from unauthorized access or model training inclusion",
+      "pass_condition": "Must document specific telemetry data types collected, evaluate opt-out mechanisms with granularity assessment, analyze data retention policies with specific timeframes, and test effectiveness of sensitive data filtering",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "telemetry_transparency_analysis",
+            "description": "Detailed analysis of what code data is collected and how it's processed",
+            "weight": 0.3,
+            "measurement": "1.0 if documents specific data types with collection frequency and processing purposes, 0.7 if provides good detail on data collection practices, 0.4 if mentions data collection generically, 0.0 if ignores telemetry transparency",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_minimization_controls",
+            "description": "Evaluation of controls for limiting data collection and retention",
+            "weight": 0.35,
+            "measurement": "1.0 if tests granular opt-out controls with specific retention periods and deletion verification, 0.7 if analyzes some data minimization features, 0.4 if mentions privacy controls superficially, 0.0 if ignores data governance controls",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sensitive_data_filtering",
+            "description": "Assessment of mechanisms to prevent sensitive code patterns from being collected or processed",
+            "weight": 0.35,
+            "measurement": "1.0 if tests filtering effectiveness with specific sensitive patterns (API keys, proprietary algorithms, PII) and measures leak prevention, 0.7 if evaluates some filtering capabilities, 0.4 if mentions sensitive data protection generically, 0.0 if ignores sensitive data risks",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Tests Cody's telemetry opt-out granularity finding per-repository controls with 30-day retention limits, while confirming API key pattern filtering blocks 97% of test secrets from telemetry collection"
+      ],
+      "fail_examples": [
+        "Notes that tools provide privacy controls and don't send sensitive data without testing specific mechanisms or documenting collection practices"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "[Partial] Vendors using wrapper architectures around third-party APIs create audit gaps, cannot demonstrate complete data isolation, lack model governance control, and cannot provide detailed audit trails"
+    },
+    {
+      "id": "developer_productivity_quantification",
+      "category": "Developer Productivity & Experience",
+      "description": "Analysis of productivity improvement potential using SPACE/DORA framework concepts, with assessment of claimed productivity benefits and available case study data across different developer skill levels",
+      "pass_condition": "Must reference minimum 3 SPACE/DORA metrics in analysis framework, analyze claimed productivity improvements from available case studies and vendor documentation, and assess potential impact across different developer experience levels based on available research",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "space_dora_framework_application",
+            "description": "Rigorous application of established productivity measurement frameworks",
+            "weight": 0.4,
+            "measurement": "1.0 if uses 3+ SPACE/DORA metrics with baseline and post-adoption measurements showing statistical significance, 0.7 if applies some framework metrics with quantification, 0.4 if mentions frameworks without rigorous measurement, 0.0 if ignores established productivity frameworks",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "skill_level_segmentation",
+            "description": "Analysis of productivity impacts across different developer experience levels",
+            "weight": 0.35,
+            "measurement": "1.0 if segments analysis by junior/mid/senior developers with specific productivity differential measurements, 0.7 if provides some skill-level analysis, 0.4 if mentions different impacts without segmentation, 0.0 if treats all developers uniformly",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cycle_time_measurement",
+            "description": "Quantified analysis of development cycle improvements from code completion to deployment",
+            "weight": 0.25,
+            "measurement": "1.0 if measures specific cycle time improvements (commit frequency, PR cycle time, deployment frequency) with percentage changes, 0.7 if quantifies some cycle improvements, 0.4 if mentions faster development without metrics, 0.0 if ignores development velocity impact",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis shows 23% improvement in deployment frequency and 31% reduction in lead time for changes using Windsurf, with junior developers showing 45% greater productivity gains compared to 18% for senior developers"
+      ],
+      "fail_examples": [
+        "Reports that developers are more productive and satisfied when using AI assistance tools without specific metrics or framework-based measurement"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "21% more tasks completed, 98% more pull requests merged with maintained satisfaction scores... The SPACE framework captures five dimensions of developer productivity"
+    },
+    {
+      "id": "learning_curve_adoption_analysis",
+      "category": "Developer Productivity & Experience",
+      "description": "Analysis of tool learning curves, onboarding effectiveness, and time-to-productivity measurements for different developer personas in enterprise environments, including resistance patterns and adoption barriers",
+      "pass_condition": "Must measure time-to-productivity across minimum 3 developer personas, document specific adoption barriers with mitigation strategies, and quantify learning curve impact with timeline measurements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "persona_based_adoption_analysis",
+            "description": "Segmented analysis of adoption patterns across different developer roles and experience levels",
+            "weight": 0.4,
+            "measurement": "1.0 if analyzes 3+ distinct developer personas (junior, senior, architect, etc.) with specific adoption timelines and productivity curves, 0.7 if provides some persona-based analysis, 0.4 if mentions different adoption patterns without segmentation, 0.0 if treats adoption uniformly",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "barrier_identification_mitigation",
+            "description": "Systematic identification of adoption barriers with practical mitigation strategies",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies specific barriers (workflow disruption, trust issues, complexity) with tested mitigation approaches and success rates, 0.7 if documents some barriers with solutions, 0.4 if mentions adoption challenges generically, 0.0 if ignores adoption resistance",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "time_to_productivity_measurement",
+            "description": "Quantified timeline from tool introduction to measurable productivity improvement",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific timelines (days/weeks) to reach productivity benchmarks with measurement methodology, 0.7 if estimates some productivity timelines, 0.4 if mentions learning period without quantification, 0.0 if ignores productivity ramp-up time",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Testing shows junior developers reach 80% productivity potential with Cursor in 5 days vs 12 days with GitHub Copilot, while senior developers show resistance to workflow changes requiring 3-week adoption periods with dedicated training sessions"
+      ],
+      "fail_examples": [
+        "Notes that some developers take longer to adopt AI tools and may require training without specific timelines or persona analysis"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "[Partial] Leading organizations only reach around 60% active usage; teams seeing improvements may be accumulating quality debt... Teams forced to adopt AI before they're ready often show worse metrics than those who adopt organically"
+    },
+    {
+      "id": "integration_ecosystem_compatibility",
+      "category": "Integration & Platform Architecture",
+      "description": "Evaluation of documented IDE ecosystem integration capabilities, stated CI/CD pipeline compatibility, and documented toolchain interoperability with assessment of documented implementation requirements",
+      "pass_condition": "Must document specific IDE integrations available for each tool (minimum 4 IDEs), list supported CI/CD platforms with integration methods (minimum 3 platforms), provide concrete API examples or extension points available, and specify exact implementation requirements including setup time, technical prerequisites, and configuration complexity.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 7,
+        "sub_attributes": [],
+        "penalties": {
+          "insufficient_ide_integration_testing": -2.0,
+          "missing_cicd_pipeline_analysis": -1.5,
+          "no_api_extensibility_evaluation": -1.5,
+          "missing_deployment_complexity_assessment": -1.0,
+          "no_version_control_integration_analysis": -1.0,
+          "generic_integration_claims": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Tests integration across VSCode, IntelliJ, Vim, and Sublime with feature parity analysis, evaluates Jenkins/GitHub Actions/GitLab CI compatibility with specific webhook configurations, and documents API extensibility with custom plugin examples"
+      ],
+      "fail_examples": [
+        "States that tools integrate well with popular IDEs and development workflows without testing specific integrations or analyzing implementation requirements"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "<48 hours to full deployment, native SSO, 30+ IDE integrations... Time to deployment, SSO integration, IDE compatibility, CI/CD pipeline integration"
+    },
+    {
+      "id": "offline_capability_assessment",
+      "category": "Enterprise Scalability & Performance",
+      "description": "Evaluation of offline functionality and local model capabilities with analysis of accuracy trade-offs compared to cloud-based solutions, including degradation patterns across programming languages and context complexity",
+      "pass_condition": "Must analyze documented offline functionality with feature availability comparison to cloud models, evaluate local model accuracy performance across minimum 3 programming languages with documented degradation patterns, and assess network resilience with documented performance characteristics under different connectivity scenarios",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "offline_feature_availability",
+            "description": "Analysis of which features remain functional without internet connectivity",
+            "weight": 0.4,
+            "measurement": "1.0 if documents specific offline capabilities with feature-by-feature availability and performance comparison, 0.7 if provides good offline analysis, 0.4 if mentions offline support without detail, 0.0 if ignores offline capabilities",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "local_model_performance",
+            "description": "Comparison of local vs cloud model performance and accuracy",
+            "weight": 0.35,
+            "measurement": "1.0 if quantifies local model performance differences with specific accuracy and latency comparisons, 0.7 if analyzes some local model capabilities, 0.4 if mentions local processing without metrics, 0.0 if ignores local model options",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "network_resilience",
+            "description": "Assessment of graceful degradation and recovery patterns during connectivity issues",
+            "weight": 0.25,
+            "measurement": "1.0 if tests specific network failure scenarios with recovery time and functionality preservation analysis, 0.7 if evaluates some network resilience, 0.4 if mentions connectivity handling generically, 0.0 if ignores network dependency risks",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Cursor maintains 70% completion accuracy in offline mode using local models with 2x latency increase, while Windsurf provides no offline functionality, creating productivity risk during network outages affecting 15% of remote developers"
+      ],
+      "fail_examples": [
+        "Mentions that some tools work offline while others require internet connection without testing specific capabilities or performance impacts"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "[Partial] air-gapped deployment options"
+    },
+    {
+      "id": "total_cost_ownership_analysis",
+      "category": "Total Cost of Ownership",
+      "description": "Comprehensive TCO analysis including licensing costs, training overhead, support requirements, implementation costs, and quantified ROI projections over 3-year horizon with sensitivity analysis for different adoption scenarios",
+      "pass_condition": "Must provide detailed 3-year cost breakdown with minimum 5 cost categories, calculate ROI with sensitivity analysis across adoption scenarios, and include hidden costs with specific examples and impact quantification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "comprehensive_cost_breakdown",
+            "description": "Detailed analysis of all cost components over 3-year timeline",
+            "weight": 0.35,
+            "measurement": "1.0 if provides granular cost breakdown (licensing, training, support, infrastructure, opportunity costs) with annual projections, 0.7 if covers major cost categories with some detail, 0.4 if mentions costs without comprehensive analysis, 0.0 if focuses only on licensing costs",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "roi_sensitivity_analysis",
+            "description": "ROI calculations with sensitivity analysis across different adoption and productivity scenarios",
+            "weight": 0.35,
+            "measurement": "1.0 if calculates ROI with multiple scenarios (conservative, baseline, optimistic) and sensitivity to key variables, 0.7 if provides some ROI analysis with scenarios, 0.4 if mentions ROI without detailed calculation, 0.0 if ignores return on investment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "hidden_cost_identification",
+            "description": "Identification and quantification of hidden or indirect costs often overlooked in initial analysis",
+            "weight": 0.3,
+            "measurement": "1.0 if identifies specific hidden costs (change management, productivity dips, tool conflicts) with quantified impact, 0.7 if documents some hidden costs, 0.4 if mentions additional costs generically, 0.0 if ignores indirect cost implications",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "3-year TCO analysis shows Cursor at $485/developer including training costs and productivity ramp, with ROI ranging from 180% (conservative) to 340% (optimistic) based on 15-30% productivity gains, while identifying $50K hidden integration costs"
+      ],
+      "fail_examples": [
+        "Compares subscription costs per user without considering implementation, training, or ongoing support costs, or calculating return on investment"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Verified ROI studies showing 376% ROI over three years (like Forrester's analysis of GitHub Copilot Enterprise)... Most vendors require custom enterprise quotes creating procurement challenges"
+    },
+    {
+      "id": "pilot_program_rollout_strategy",
+      "category": "Adoption & Change Management",
+      "description": "Detailed pilot program design for 200-person engineering organization including phased rollout approach, success metrics definition, feedback collection mechanisms, change management strategy, and scaling strategy with stakeholder alignment and risk mitigation",
+      "pass_condition": "Must design specific pilot phases with timeline and participant selection criteria, define minimum 4 quantitative success metrics with measurement methodology, include change management and stakeholder communication plan, and provide scaling strategy with risk mitigation for full organizational rollout",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "pilot_phase_design",
+            "description": "Structured approach to pilot program phases with clear criteria and timelines",
+            "weight": 0.4,
+            "measurement": "1.0 if designs specific pilot phases (team selection, duration, scope) with clear progression criteria and timeline, 0.7 if provides good pilot structure, 0.4 if mentions pilot approach without detail, 0.0 if ignores pilot methodology",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "success_metrics_framework",
+            "description": "Definition of quantitative success metrics with measurement methodology",
+            "weight": 0.35,
+            "measurement": "1.0 if defines 4+ specific metrics (productivity, satisfaction, adoption rate, quality) with measurement methodology, 0.7 if defines some success metrics, 0.4 if mentions success criteria generically, 0.0 if ignores success measurement",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scaling_risk_mitigation",
+            "description": "Strategy for scaling from pilot to full organization with identified risks and mitigation plans",
+            "weight": 0.25,
+            "measurement": "1.0 if provides detailed scaling strategy with specific risks (resistance, performance, cost) and mitigation approaches, 0.7 if addresses some scaling considerations, 0.4 if mentions rollout scaling superficially, 0.0 if ignores scaling challenges",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Designs 3-phase pilot: 10-person team (2 weeks), 50-person division (6 weeks), then full rollout, measuring code completion usage, PR velocity, and developer satisfaction with NPS scores, identifying rollout resistance risk and proposing champion network mitigation"
+      ],
+      "fail_examples": [
+        "Suggests starting with a small group and expanding based on feedback without specific pilot design or success metrics"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Change management research and technology adoption frameworks emphasizing structured pilot programs for minimizing organizational disruption and maximizing adoption success"
+    },
+    {
+      "id": "technical_security_alignment_coherence",
+      "category": "Cross-cutting Analysis",
+      "description": "Evaluates coherence between technical capabilities assessment and enterprise security requirements, ensuring that recommended tools can deliver promised functionality within security constraints and compliance frameworks",
+      "pass_condition": "Must demonstrate how technical capabilities (context windows, latency, accuracy) align with security constraints (data residency, IP protection), identify conflicts between performance and security requirements with resolution strategies, and validate feasibility of technical features under enterprise security policies",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "capability_security_mapping",
+            "description": "Analysis of how technical capabilities perform under security constraints",
+            "weight": 0.4,
+            "measurement": "1.0 if maps specific technical features to security constraints showing performance impact, 0.7 if analyzes some technical-security interactions, 0.4 if mentions security impact on performance generically, 0.0 if treats technical and security dimensions independently",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "conflict_resolution_analysis",
+            "description": "Identification and resolution of conflicts between technical performance and security requirements",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies specific technical-security conflicts with practical resolution strategies, 0.7 if acknowledges some conflicts with solutions, 0.4 if mentions potential conflicts without resolution, 0.0 if ignores technical-security tensions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "enterprise_feasibility_validation",
+            "description": "Validation that technical promises remain achievable under enterprise security and compliance constraints",
+            "weight": 0.25,
+            "measurement": "1.0 if validates technical feasibility under specific enterprise constraints with evidence, 0.7 if provides some feasibility assessment, 0.4 if mentions enterprise compatibility generically, 0.0 if ignores practical implementation constraints",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis shows Cursor's 32k context window reduces to 18k under EU data residency requirements, impacting completion accuracy by 12%, while Cody's local model option maintains performance but sacrifices latest training data advantages"
+      ],
+      "fail_examples": [
+        "Separately evaluates technical performance and security features without analyzing how security constraints impact technical capabilities or create implementation conflicts"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Systems engineering principles emphasizing coherent analysis of functional and non-functional requirements in enterprise technology evaluation"
+    },
+    {
+      "id": "productivity_cost_roi_coherence",
+      "category": "Cross-cutting Analysis",
+      "description": "Validates coherence between productivity improvement claims, cost analysis, and ROI calculations, ensuring that productivity metrics support financial projections and cost assumptions align with deployment requirements",
+      "pass_condition": "Must verify that productivity improvement percentages support ROI calculations with mathematical consistency, validate cost assumptions against actual deployment requirements identified in integration analysis, and reconcile productivity claims with organizational change impact",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "productivity_roi_mathematical_inconsistency": -1.5,
+          "cost_deployment_assumption_mismatch": -1.0,
+          "productivity_claims_unsupported_by_adoption_analysis": -1.0,
+          "missing_productivity_financial_reconciliation": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "23% productivity improvement claim supports $2.1M annual value calculation through reduced development time, with cost assumptions of $485/developer validated against actual integration and training requirements from technical assessment"
+      ],
+      "fail_examples": [
+        "Claims high ROI from productivity gains while separately identifying low productivity improvements, or cost analysis that ignores integration complexity identified in technical evaluation"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Financial analysis consistency principles requiring mathematical coherence between operational improvements and financial projections in technology investment evaluation"
+    },
+    {
+      "id": "scalability_adoption_risk_coherence",
+      "category": "Cross-cutting Analysis",
+      "description": "Ensures coherence between scalability analysis, adoption strategy, and risk assessment, validating that scaling assumptions align with identified adoption barriers and that risk mitigation strategies address actual scalability constraints",
+      "pass_condition": "Must validate that scalability performance claims align with adoption timeline assumptions, ensure risk mitigation strategies address specific scalability bottlenecks identified, and verify adoption strategy accounts for performance degradation patterns under enterprise load",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "scaling_adoption_timeline_alignment",
+            "description": "Coherence between scalability assumptions and realistic adoption timelines",
+            "weight": 0.4,
+            "measurement": "1.0 if adoption timelines account for identified scalability constraints and performance impacts, 0.7 if shows some alignment between scaling and adoption, 0.4 if mentions both without coherent integration, 0.0 if treats scaling and adoption independently",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "risk_mitigation_scalability_targeting",
+            "description": "Risk mitigation strategies specifically address identified scalability bottlenecks",
+            "weight": 0.35,
+            "measurement": "1.0 if risk strategies directly target specific scalability issues with concrete mitigation approaches, 0.7 if addresses some scalability risks, 0.4 if mentions risks without scalability connection, 0.0 if ignores scalability-risk relationship",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "performance_degradation_adoption_planning",
+            "description": "Adoption strategy accounts for performance degradation patterns under enterprise load",
+            "weight": 0.25,
+            "measurement": "1.0 if adoption planning explicitly accounts for performance impacts and degradation patterns, 0.7 if considers some performance impacts in adoption, 0.4 if mentions performance considerations generically, 0.0 if ignores performance impact on adoption",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Adoption strategy phases rollout to stay below 100 concurrent users until API rate limit upgrades, with risk mitigation addressing identified latency degradation through training on performance expectations"
+      ],
+      "fail_examples": [
+        "Proposes rapid full organization adoption while separately identifying significant performance bottlenecks under enterprise load without addressing this contradiction"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "Systems thinking principles requiring coherent integration of technical constraints, organizational capabilities, and risk factors in technology adoption planning"
+    },
+    {
+      "id": "ai_code_quality_rework_rate",
+      "category": "Code Quality & Technical Impact",
+      "description": "Analysis of AI-generated code quality based on available research on rework rates, documented defect density studies, and identified AI-specific quality considerations like edge case handling",
+      "pass_condition": "Must analyze available research showing AI code rework rates target of <5% with documented defect density comparisons to human-written code, and assess AI-specific quality considerations based on available studies and documentation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "rework_rate_analysis",
+            "description": "Quantitative analysis of code churn percentage for AI vs human code",
+            "weight": 0.4,
+            "measurement": "4pts: <3%, 3pts: 3-5%, 2pts: 5-7%, 1pt: >7%",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "defect_density_comparison",
+            "description": "Comparative defect density analysis between AI and human code",
+            "weight": 0.3,
+            "measurement": "4pts: AI equal/better, 3pts: 10% higher, 2pts: 25% higher, 1pt: >25% higher",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "edge_case_identification",
+            "description": "Assessment of AI tool's ability to identify and handle edge cases",
+            "weight": 0.3,
+            "measurement": "4pts: proactive edge case detection, 3pts: adequate coverage, 2pts: basic handling, 1pt: poor edge case awareness",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Tool shows 2.8% rework rate vs 3.3% baseline with equivalent defect density",
+        "AI code demonstrates proactive edge case handling in complex business logic"
+      ],
+      "fail_examples": [
+        "Tool exhibits 6.5% code churn rate with hidden edge cases requiring significant rework",
+        "AI-generated code passes tests but contains subtle bugs discovered in production"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "5.7-7.1% code churn roughly double the 3.3% baseline, with AI code hiding edge cases and subtle bugs; around 30% of developers don't trust AI-generated output"
+    },
+    {
+      "id": "dora_ai_capabilities_model",
+      "category": "Organizational Performance & AI Maturity",
+      "description": "Evaluation against DORA AI Capabilities Model including clear AI stance, healthy data ecosystems, AI-accessible internal data, strong version control practices, working in small batches, user-centric focus, and quality internal platforms",
+      "pass_condition": "Demonstrates support for at least 5 of 7 DORA AI capabilities with measurable organizational performance impact",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "ai_stance_integration",
+            "description": "Tool supports clear AI stance and governance frameworks",
+            "weight": 0.3,
+            "measurement": "4pts: comprehensive AI governance support, 3pts: good policy integration, 2pts: basic compliance, 1pt: minimal governance",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_ecosystem_health",
+            "description": "Enables healthy data ecosystems and AI-accessible internal data",
+            "weight": 0.4,
+            "measurement": "4pts: seamless internal data integration, 3pts: good data access, 2pts: limited integration, 1pt: poor data connectivity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "development_practices",
+            "description": "Supports version control, small batches, user-centric focus, and quality platforms",
+            "weight": 0.3,
+            "measurement": "4pts: excellent practice support, 3pts: good integration, 2pts: adequate support, 1pt: poor practice alignment",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Tool integrates with internal APIs and supports incremental development with strong version control",
+        "Demonstrates measurable improvement in DORA metrics through AI capability enhancement"
+      ],
+      "fail_examples": [
+        "Tool operates in isolation without organizational data integration",
+        "No measurable impact on organizational performance despite individual productivity gains"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "The DORA AI Capabilities Model identifies seven capabilities that determine whether AI translates to organizational performance: (1) Clear AI stance, (2) Healthy data ecosystems, (3) AI-accessible internal data, (4) Strong version control practices, (5) Working in small batches, (6) User-centric focus, and (7) Quality internal platforms"
+    },
+    {
+      "id": "context_window_architectural_understanding",
+      "category": "Technical Capabilities & Architecture",
+      "description": "Evaluation of documented context window capabilities and architectural understanding features based on vendor specifications and available technical documentation",
+      "pass_condition": "Must provide exact context window token limits for each tool (with target of 200,000+ tokens), specify maximum file processing capacity with documented limits (targeting 400,000-500,000 files), and identify specific cross-service dependency tracking features with technical implementation details from vendor documentation.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "context_window_size",
+            "description": "Maximum token context window capacity",
+            "weight": 0.3,
+            "measurement": "4pts: 200,000+ tokens, 3pts: 64,000+ tokens, 2pts: 32,000+ tokens, 1pt: <8,000 tokens",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "file_processing_capacity",
+            "description": "Number of files that can be processed simultaneously",
+            "weight": 0.3,
+            "measurement": "4pts: 400,000-500,000 files, 3pts: 100,000+ files, 2pts: 10,000+ files, 1pt: <1,000 files",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "dependency_tracking",
+            "description": "Real-time cross-service and architectural dependency understanding",
+            "weight": 0.4,
+            "measurement": "4pts: real-time cross-service tracking, 3pts: good dependency mapping, 2pts: basic relationships, 1pt: single-file context only",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Tool understands that authentication services connect to three different user management systems across 500,000 files",
+        "Provides real-time dependency tracking across microservices architecture"
+      ],
+      "fail_examples": [
+        "Limited to single-file context without architectural awareness",
+        "Cannot track dependencies between services or understand system relationships"
+      ],
+      "domain": "AI Code Assistant Evaluation",
+      "research_basis": "200,000+ token context windows processing 400,000-500,000 files with real-time cross-service dependency tracking; Understanding that authentication services connect to three different user management systems is more valuable than generating comprehensive test suites without architectural awareness"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "technical_capabilities",
+      "name": "Technical Capabilities & Code Quality",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "enterprise_security",
+      "name": "Enterprise Security & Compliance",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "developer_productivity",
+      "name": "Developer Productivity & Experience",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "integration_architecture",
+      "name": "Integration & Platform Architecture",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "enterprise_scalability",
+      "name": "Enterprise Scalability & Performance",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "total_cost_ownership",
+      "name": "Total Cost of Ownership",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "vendor_risk_management",
+      "name": "Vendor Risk & Strategic Alignment",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "adoption_change_management",
+      "name": "Adoption & Change Management",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

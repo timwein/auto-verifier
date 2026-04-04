@@ -1,0 +1,602 @@
+{
+  "task": "Perform a SOC 2 Type II readiness gap analysis for a 50-person B2B SaaS startup, identifying control gaps across all 5 trust service criteria with remediation priorities and estimated timelines",
+  "domain": "soc2_readiness_assessment",
+  "total_points": 73,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "tsc_poc_granular_mapping",
+      "category": "Trust Services Criteria Mapping Accuracy",
+      "description": "Granular mapping of control gaps to specific AICPA TSC points-of-focus with appropriate subsection references, demonstrating understanding of the framework's hierarchical structure and inter-dependencies between common criteria and category-specific requirements",
+      "pass_condition": "Must map gaps to at least 25 specific TSC points-of-focus across all 5 trust service criteria, with subsection references in standard format (e.g., CC6.1, A1.2), demonstrate understanding of all 17 foundational CC controls as prerequisites, and identify at least 8 inter-dependencies between common criteria and category-specific requirements with explicit mapping",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "poc_citation_accuracy",
+            "description": "Accuracy and granularity of specific TSC point-of-focus citations with correct subsection formatting",
+            "weight": 0.35,
+            "measurement": "1.0 if 20+ specific POF citations with 90%+ accuracy in subsection formatting, 0.7 if 15-19 citations with 80%+ accuracy, 0.4 if 10-14 citations with 70%+ accuracy, 0.0 if fewer than 10 or below 70% accuracy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cc_foundational_prioritization",
+            "description": "Proper identification and prioritization of Common Criteria foundational controls before category-specific criteria",
+            "weight": 0.3,
+            "measurement": "1.0 if identifies 8+ CC gaps with clear prerequisite sequencing, 0.7 if identifies 6-7 CC gaps with partial sequencing, 0.4 if identifies 4-5 CC gaps with minimal sequencing, 0.0 if fewer than 4 CC gaps identified",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "criteria_interdependency_mapping",
+            "description": "Recognition of control interdependencies between trust service criteria and proper gap clustering",
+            "weight": 0.35,
+            "measurement": "1.0 if maps 6+ interdependencies with clustered remediation approach, 0.7 if maps 4-5 interdependencies with partial clustering, 0.4 if maps 2-3 interdependencies with minimal clustering, 0.0 if fewer than 2 interdependencies mapped",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Maps incident response gaps to CC7.4 (incident response procedures), A1.1 (system availability monitoring), and PI1.2 (processing completeness during incidents) with explicit recognition that CC7.4 must be implemented before category-specific availability controls"
+      ],
+      "fail_examples": [
+        "Maps incident response to generic 'Security' and 'Availability' criteria without specific point-of-focus citations or acknowledgment of foundational CC prerequisite controls"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "AICPA 2017 Trust Services Criteria framework explicitly structures Common Criteria as foundational requirements that must be met before category-specific criteria can be effectively evaluated"
+    },
+    {
+      "id": "saas_specific_control_alignment",
+      "category": "Trust Services Criteria Mapping Accuracy",
+      "description": "Mapping of B2B SaaS-specific control gaps to relevant TSC points-of-focus, particularly around API security, multi-tenancy, data processing integrity, and third-party integrations",
+      "pass_condition": "Must identify at least 8 SaaS-specific control gaps mapped to relevant TSC points-of-focus including minimum 3 API/integration controls referenced to PI criteria, 2 multi-tenancy controls referenced to CC6 criteria, and identify CUEC requirements for at least 5 third-party dependencies",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "api_security_gap_mismapping": -1.5,
+          "multi_tenancy_control_omission": -1.0,
+          "third_party_integration_misalignment": -1.0,
+          "data_processing_integrity_confusion": -2.0,
+          "cuec_documentation_oversight": -1.5,
+          "generic_enterprise_control_recommendation": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Maps API rate limiting and authentication gaps to PI1.1 (processing authorization) and CC6.1 (logical access controls), identifies multi-tenant data isolation requirements under CC6.3 (network security), and documents CUEC requirements for AWS, Stripe, and SendGrid integrations"
+      ],
+      "fail_examples": [
+        "Maps API security generically to 'Security criteria' without distinguishing processing integrity aspects, recommends enterprise-grade HSM solutions inappropriate for 50-person startup scale, or fails to identify multi-tenancy control requirements specific to SaaS architecture"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "SOC 2 auditor guidance from AICPA specifically emphasizes that SaaS companies must demonstrate processing integrity controls for APIs and proper segregation controls for multi-tenant environments under the 2017 TSC framework"
+    },
+    {
+      "id": "control_design_effectiveness_assessment",
+      "category": "Control Design and Implementation Assessment",
+      "description": "Evaluation of existing control design against SOC 2 requirements, distinguishing between missing controls, ineffective controls, and controls requiring enhancement with specific remediation paths",
+      "pass_condition": "Must evaluate at least 20 existing controls for design adequacy, categorize minimum 15 gaps as missing/ineffective/needs-enhancement with specific technical remediation recommendations, and provide criticality assessment for each gap with clear justification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "design_deficiency_categorization",
+            "description": "Accurate categorization of control gaps as missing, ineffective, or requiring enhancement with technical specificity",
+            "weight": 0.4,
+            "measurement": "1.0 if categorizes 15+ gaps with specific technical rationale and remediation paths, 0.7 if categorizes 12-14 gaps with good technical detail, 0.4 if categorizes 8-11 gaps with moderate detail, 0.0 if fewer than 8 gaps or lacks technical specificity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_feasibility_analysis",
+            "description": "Assessment of control implementation complexity and resource requirements for startup environment",
+            "weight": 0.3,
+            "measurement": "1.0 if provides implementation complexity analysis for 12+ controls with resource estimates, 0.7 if analyzes 9-11 controls with partial resource consideration, 0.4 if analyzes 6-8 controls with basic feasibility notes, 0.0 if lacks implementation analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compensating_control_identification",
+            "description": "Identification of existing controls that could serve as compensating measures during remediation phases",
+            "weight": 0.3,
+            "measurement": "1.0 if identifies 6+ compensating controls with gap coverage analysis, 0.7 if identifies 4-5 compensating controls with good coverage assessment, 0.4 if identifies 2-3 compensating controls with basic assessment, 0.0 if lacks compensating control identification",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Categorizes password policy control as 'requiring enhancement' due to missing complexity requirements for CC6.1 compliance, recommends specific technical implementation using existing AD infrastructure, and identifies current MFA requirement as partial compensating control"
+      ],
+      "fail_examples": [
+        "Identifies access control gaps but provides generic 'implement better controls' recommendation without distinguishing between missing authentication controls, ineffective authorization mechanisms, or inadequate monitoring capabilities"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "AICPA AT-C 205 requires auditors to test design effectiveness before operating effectiveness, making proper gap categorization critical for audit preparation and remediation planning"
+    },
+    {
+      "id": "cloud_architecture_security_assessment",
+      "category": "SaaS Architecture and Integration Controls",
+      "description": "Technical assessment of cloud infrastructure security controls including container security, microservices communication, API gateways, and shared responsibility model implementation with cloud providers",
+      "pass_condition": "Must assess minimum 10 cloud infrastructure controls across container/orchestration security, API security, network segmentation, and data encryption in transit/at rest, with gap identification for at least 6 specific controls and cloud provider shared responsibility documentation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "container_orchestration_controls",
+            "description": "Assessment of Kubernetes/container security controls including pod security, service mesh, and runtime protection",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensively assesses container security controls with specific K8s/Docker recommendations, 0.7 if good container security assessment with partial specificity, 0.4 if basic container security consideration, 0.0 if lacks container-specific control assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "api_gateway_security_controls",
+            "description": "Evaluation of API security including rate limiting, authentication, input validation, and output filtering controls",
+            "weight": 0.4,
+            "measurement": "1.0 if evaluates 8+ API security controls with technical implementation details, 0.7 if evaluates 6-7 API controls with good technical depth, 0.4 if evaluates 4-5 API controls with basic assessment, 0.0 if lacks comprehensive API security evaluation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "shared_responsibility_documentation",
+            "description": "Clear documentation of cloud provider vs. organization security responsibilities and control mapping",
+            "weight": 0.3,
+            "measurement": "1.0 if documents shared responsibility for 5+ service areas with specific control ownership, 0.7 if documents 3-4 service areas with good clarity, 0.4 if documents 2 service areas with basic coverage, 0.0 if lacks shared responsibility analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Assesses Kubernetes RBAC controls for CC6.1 compliance, evaluates API Gateway rate limiting and authentication for PI1.1, documents AWS shared responsibility for infrastructure controls while identifying organization responsibility for application-layer security and data classification"
+      ],
+      "fail_examples": [
+        "Provides generic cloud security recommendations without distinguishing between IaaS/PaaS control responsibilities, lacks specific assessment of containerized application security controls, or fails to map cloud provider security services to TSC requirements"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Cloud security frameworks from NIST and CSA emphasize the criticality of properly documenting shared responsibility models for SOC 2 compliance, particularly for processing integrity and confidentiality controls"
+    },
+    {
+      "id": "multi_tenancy_data_isolation_controls",
+      "category": "SaaS Architecture and Integration Controls",
+      "description": "Assessment of multi-tenant architecture controls ensuring proper customer data isolation, segregation controls, and tenant-specific access restrictions critical for B2B SaaS SOC 2 compliance",
+      "pass_condition": "Must evaluate minimum 12 multi-tenancy controls including database-level isolation, application-level segregation, network-level separation, tenant-specific access controls, and data residency controls with specific gap identification and technical remediation recommendations for at least 8 areas, including detailed architectural diagrams showing isolation mechanisms",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "database_isolation_oversight": -1.5,
+          "application_layer_segregation_gaps": -1.0,
+          "cross_tenant_data_leakage_risk": -2.0,
+          "tenant_specific_access_control_missing": -1.0,
+          "backup_restore_segregation_omission": -1.0,
+          "logging_isolation_oversight": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Evaluates database row-level security implementation for customer data isolation (CC6.3), assesses application-layer tenant context validation for all API endpoints (PI1.1), identifies gaps in backup/restore tenant segregation procedures, and recommends specific database schema and application code modifications"
+      ],
+      "fail_examples": [
+        "Provides generic data security recommendations without addressing multi-tenant architecture specifics, fails to identify cross-tenant data leakage risks in shared database environments, or lacks assessment of tenant-specific access control enforcement mechanisms"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "AICPA SOC 2 guidance specifically emphasizes that multi-tenant SaaS providers must demonstrate effective controls preventing unauthorized cross-tenant data access, particularly under CC6.3 and confidentiality criteria"
+    },
+    {
+      "id": "risk_severity_remediation_sequencing",
+      "category": "Remediation Prioritization and Resource Allocation",
+      "description": "Strategic timeline planning that integrates risk-based control prioritization with SOC 2 Type II observation period requirements, balancing audit criticality, business risk exposure, and startup resource constraints while ensuring sufficient observation time for all implemented controls",
+      "pass_condition": "Must provide detailed 12+ month timeline with risk-based prioritization of minimum 15 control gaps across 3 tiers, ensure critical controls have minimum 3-month observation period before audit, sequence implementation to meet both risk priorities and observation requirements, and include specific milestone planning for control implementation phases with dependency management and buffer periods",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "risk_tier_classification",
+            "description": "Accurate classification of control gaps into risk-based priority tiers with clear criteria",
+            "weight": 0.35,
+            "measurement": "1.0 if classifies 15+ gaps into 3 clear risk tiers with specific criteria and rationale, 0.7 if classifies 12-14 gaps with good risk tiering, 0.4 if classifies 8-11 gaps with basic risk assessment, 0.0 if lacks systematic risk-based prioritization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "dependency_sequencing_logic",
+            "description": "Logical sequencing of remediation activities considering control dependencies and foundational requirements",
+            "weight": 0.4,
+            "measurement": "1.0 if provides clear dependency sequencing for 10+ controls with prerequisite mapping, 0.7 if sequences 7-9 controls with good dependency logic, 0.4 if sequences 4-6 controls with basic dependency consideration, 0.0 if lacks dependency-based sequencing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "startup_resource_optimization",
+            "description": "Optimization of remediation approach for 50-person startup resource constraints and operational priorities",
+            "weight": 0.25,
+            "measurement": "1.0 if optimizes for startup scale with specific resource allocation and cost-benefit analysis, 0.7 if good startup-scale considerations with resource awareness, 0.4 if basic startup considerations, 0.0 if lacks startup-specific resource optimization",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Prioritizes CC1.2 (governance) and CC6.1 (logical access) as critical foundational controls before category-specific gaps, sequences incident response development after logging infrastructure implementation, and allocates 60% of initial resources to Common Criteria gaps with detailed cost-benefit justification"
+      ],
+      "fail_examples": [
+        "Lists control gaps without risk-based prioritization methodology, sequences remediation activities without considering foundational control prerequisites, or recommends resource allocation without considering startup operational constraints and competing priorities"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Risk-based audit approaches under AICPA standards require organizations to demonstrate systematic risk assessment and control prioritization, with particular emphasis on foundational controls as prerequisites for effective category-specific controls"
+    },
+    {
+      "id": "startup_appropriate_control_scaling",
+      "category": "Remediation Prioritization and Resource Allocation",
+      "description": "Evaluation of recommended controls for appropriateness to 50-person organization scale, providing practical solutions that meet audit requirements while considering resource constraints and growth trajectory",
+      "pass_condition": "Must evaluate minimum 18 controls for startup appropriateness with specific justification including ROI calculations, provide scalability recommendations for at least 12 controls with growth milestone triggers, and include detailed cost-effectiveness analysis balancing audit requirements with organizational maturity including specific budget ranges and resource allocation recommendations",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "enterprise_overengineering": -1.5,
+          "audit_insufficiency_risk": -2.0,
+          "cost_effectiveness_oversight": -1.0,
+          "growth_accommodation_missing": -0.5,
+          "operational_burden_excess": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Recommends cloud-based SIEM solution instead of enterprise on-premises SIEM for 50-person scale, suggests SaaS-based GRC tools with growth capacity rather than custom enterprise governance platforms, balances audit requirements with operational simplicity"
+      ],
+      "fail_examples": [
+        "Recommends enterprise-grade HSM solutions inappropriate for startup scale and budget, suggests complex multi-tier approval workflows that would impede startup operational velocity, or provides audit-minimal controls that lack scalability for anticipated growth"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "SOC 2 audit standards allow for organization-size appropriate controls while maintaining effectiveness, emphasizing that control design should match organizational complexity and risk profile"
+    },
+    {
+      "id": "control_implementation_complexity_assessment",
+      "category": "Timeline Feasibility and Type II Readiness",
+      "description": "Realistic assessment of control implementation complexity factoring in startup operational velocity, resource constraints, technical complexity, and change management requirements with accurate timeline estimation",
+      "pass_condition": "Must assess implementation complexity for minimum 20 controls across technical, administrative, and physical categories with detailed effort estimation in person-hours, provide specific timeline estimates for at least 15 controls including dependency chains and critical path analysis, and account for startup operational velocity constraints with specific change management strategies and competing priority impact assessment",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "technical_implementation_complexity",
+            "description": "Assessment of technical implementation requirements including development effort, infrastructure changes, and integration complexity",
+            "weight": 0.4,
+            "measurement": "1.0 if assesses technical complexity for 12+ controls with specific implementation effort estimates, 0.7 if assesses 9-11 controls with good complexity analysis, 0.4 if assesses 6-8 controls with basic complexity consideration, 0.0 if lacks technical complexity assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "change_management_considerations",
+            "description": "Consideration of organizational change management requirements and training needs for new controls",
+            "weight": 0.3,
+            "measurement": "1.0 if includes change management and training plans for 8+ controls with timeline consideration, 0.7 if considers change management for 6-7 controls, 0.4 if basic change management consideration for 3-5 controls, 0.0 if lacks change management planning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "startup_velocity_impact",
+            "description": "Assessment of control implementation impact on startup operational velocity and competing business priorities",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensively assesses velocity impact with mitigation strategies for operational continuity, 0.7 if good velocity impact consideration with partial mitigation planning, 0.4 if basic velocity impact awareness, 0.0 if lacks startup velocity considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Estimates 3-month implementation for automated log monitoring system including tool selection, integration development, and staff training, while identifying potential impact on development sprint capacity and recommending phased rollout to minimize operational disruption"
+      ],
+      "fail_examples": [
+        "Provides generic '30-day implementation' estimates for complex technical controls without considering development effort, infrastructure requirements, or training needs, or fails to account for startup resource constraints and competing priorities"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Startup operational research indicates that compliance initiatives competing with core business priorities require careful timeline planning and change management to maintain organizational velocity and employee adoption"
+    },
+    {
+      "id": "cuec_identification_documentation",
+      "category": "Complementary User Entity Controls Documentation",
+      "description": "Identification and documentation of controls requiring customer implementation (CUEC), particularly relevant for B2B SaaS customer environments with clear responsibility matrix and implementation guidance",
+      "pass_condition": "Must identify minimum 12 potential CUEC requirements across different control categories with specific technical implementation details, document customer responsibilities for at least 10 areas with detailed procedures, and provide comprehensive responsibility matrix distinguishing service organization controls from customer controls with implementation guidance including customer onboarding requirements and validation procedures",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "cuec_scope_identification",
+            "description": "Accurate identification of controls requiring customer implementation versus service organization controls",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies 10+ CUEC areas with clear scoping rationale, 0.7 if identifies 8-9 CUEC areas with good scoping, 0.4 if identifies 5-7 CUEC areas with basic scoping, 0.0 if fewer than 5 CUEC areas or unclear scoping",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_responsibility_documentation",
+            "description": "Clear documentation of specific customer control responsibilities and implementation requirements",
+            "weight": 0.35,
+            "measurement": "1.0 if provides detailed customer responsibility documentation for 8+ areas with implementation guidance, 0.7 if documents 6-7 areas with good detail, 0.4 if documents 4-5 areas with basic guidance, 0.0 if lacks comprehensive customer responsibility documentation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "responsibility_matrix_clarity",
+            "description": "Clear responsibility matrix distinguishing service organization versus customer control responsibilities",
+            "weight": 0.25,
+            "measurement": "1.0 if provides comprehensive responsibility matrix with clear delineation and examples, 0.7 if good responsibility matrix with adequate clarity, 0.4 if basic responsibility matrix with some ambiguity, 0.0 if lacks clear responsibility delineation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies customer responsibility for user access management within their organization (CC6.2), endpoint security for devices accessing the service (CC6.3), and incident notification procedures (CC7.4), while documenting service organization responsibility for infrastructure security and multi-tenant data isolation"
+      ],
+      "fail_examples": [
+        "Assumes service organization responsibility for all controls without identifying customer-side requirements, provides vague 'customer security responsibilities' without specific control mappings, or fails to distinguish between shared and customer-exclusive control responsibilities"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "AICPA SOC 2 guidance emphasizes that service organizations must clearly identify and document complementary user entity controls (CUECs) that customers must implement for the overall control environment to be effective"
+    },
+    {
+      "id": "evidence_collection_strategy",
+      "category": "Audit Preparation and Evidence Strategy",
+      "description": "Comprehensive strategy for evidence collection and documentation to support SOC 2 Type II auditor testing including automated evidence generation, manual documentation processes, and testing procedure preparation",
+      "pass_condition": "Must develop evidence collection strategy for minimum 25 controls including automated evidence sources for at least 18 controls with specific tooling recommendations, manual documentation procedures for remaining controls with detailed collection schedules, and testing procedure preparation with specific evidence types, retention requirements, and auditor presentation formats including evidence repository organization",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "automated_evidence_systems",
+            "description": "Strategy for automated evidence collection including logging, monitoring, and reporting systems that will support auditor testing",
+            "weight": 0.4,
+            "measurement": "1.0 if develops automated evidence strategy for 15+ controls with specific system implementation, 0.7 if covers 12-14 controls with good automation planning, 0.4 if covers 8-11 controls with basic automation, 0.0 if lacks comprehensive automation strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "manual_documentation_processes",
+            "description": "Documented processes for manual evidence collection including forms, workflows, and retention procedures",
+            "weight": 0.35,
+            "measurement": "1.0 if designs manual processes for 10+ controls with specific workflows and forms, 0.7 if covers 8-9 controls with good process documentation, 0.4 if covers 5-7 controls with basic processes, 0.0 if lacks manual documentation strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "testing_procedure_preparation",
+            "description": "Preparation for auditor testing procedures including evidence compilation and testing simulation",
+            "weight": 0.25,
+            "measurement": "1.0 if includes testing procedure preparation with evidence compilation and audit simulation, 0.7 if good testing preparation with evidence organization, 0.4 if basic testing preparation, 0.0 if lacks testing procedure consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Develops automated evidence collection for access reviews using SIEM log analysis and user provisioning reports, creates manual documentation templates for business continuity testing and vendor assessments, and establishes evidence retention procedures with audit testing simulation protocols"
+      ],
+      "fail_examples": [
+        "Assumes evidence can be collected at audit time without systematic preparation, lacks automated evidence generation capabilities for high-frequency controls, or provides generic documentation recommendations without specific evidence type identification and testing considerations"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "SOC 2 Type II audits require extensive evidence collection over the observation period, with audit efficiency and effectiveness significantly improved through systematic evidence preparation and automated collection capabilities"
+    },
+    {
+      "id": "control_gap_remediation_coherence",
+      "category": "Cross-Cutting Analysis",
+      "description": "Assessment of internal coherence between identified control gaps, remediation priorities, and proposed timelines, ensuring that prioritization methodology aligns with implementation sequencing and risk-based decision making",
+      "pass_condition": "Must demonstrate logical alignment between control gap severity classifications and remediation priority rankings for at least 15 gaps, ensure implementation timeline sequences match identified dependencies for minimum 10 controls, and validate that resource allocation aligns with stated risk priorities",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "priority_timeline_misalignment": -1.5,
+          "risk_severity_priority_contradiction": -1.0,
+          "dependency_sequence_violation": -1.5,
+          "resource_allocation_inconsistency": -1.0,
+          "foundational_prerequisite_inversion": -2.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Critical CC6.1 access control gaps are prioritized first with 3-month timeline, followed by dependent API security controls in months 4-5, with resource allocation of 40% to foundational controls matching the stated risk-based prioritization methodology"
+      ],
+      "fail_examples": [
+        "High-risk foundational controls (CC1.2 governance) are scheduled after lower-priority category-specific controls despite stated priority methodology, or critical gaps receive inadequate resource allocation while medium-risk gaps receive disproportionate attention"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Effective SOC 2 readiness requires coherent project management where risk assessment, prioritization, and implementation planning are internally consistent and mutually reinforcing"
+    },
+    {
+      "id": "startup_scale_audit_requirement_balance",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluation of coherence between startup scalability recommendations and audit sufficiency requirements, ensuring that proposed solutions appropriately balance 50-person organization constraints with SOC 2 compliance effectiveness",
+      "pass_condition": "Must demonstrate balanced approach for minimum 10 controls where startup-appropriate solutions meet audit requirements, validate cost-effectiveness analysis against compliance objectives for at least 8 recommendations, and ensure scalability recommendations support rather than compromise audit readiness",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "audit_sufficiency_validation",
+            "description": "Validation that startup-scaled controls meet SOC 2 audit testing requirements",
+            "weight": 0.4,
+            "measurement": "1.0 if validates audit sufficiency for 12+ startup-scaled controls with testing considerations, 0.7 if validates 9-11 controls with good audit alignment, 0.4 if validates 6-8 controls with basic audit consideration, 0.0 if lacks audit sufficiency validation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cost_effectiveness_audit_alignment",
+            "description": "Demonstration that cost-effective solutions maintain audit effectiveness rather than compromise compliance",
+            "weight": 0.35,
+            "measurement": "1.0 if demonstrates cost-effectiveness without audit compromise for 10+ recommendations, 0.7 if demonstrates good balance for 7-9 recommendations, 0.4 if shows basic balance for 4-6 recommendations, 0.0 if cost focus compromises audit requirements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "growth_trajectory_compliance_planning",
+            "description": "Integration of growth planning with sustained compliance capability",
+            "weight": 0.25,
+            "measurement": "1.0 if integrates growth trajectory with compliance sustainability and enhancement planning, 0.7 if good integration of growth and compliance considerations, 0.4 if basic growth-compliance integration, 0.0 if growth planning conflicts with compliance requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Cloud-based SIEM recommendation provides SOC 2-sufficient log monitoring for CC7.2 compliance while remaining cost-effective for 50-person scale, with scalability path to enhanced monitoring as organization grows without requiring complete system replacement"
+      ],
+      "fail_examples": [
+        "Recommends minimal logging solution that reduces costs but fails to meet SOC 2 audit testing requirements, or suggests enterprise-grade solutions that meet audit requirements but impose unsustainable operational burden on startup operations"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Successful SOC 2 compliance in startup environments requires solutions that meet auditor expectations while maintaining operational and financial sustainability for the organization's current scale and growth trajectory"
+    },
+    {
+      "id": "tsc_criteria_remediation_implementation_integration",
+      "category": "Cross-Cutting Analysis",
+      "description": "Assessment of integration quality between TSC mapping accuracy, technical remediation recommendations, and implementation feasibility, ensuring that precise control gap identification leads to actionable and technically sound remediation plans",
+      "pass_condition": "Must demonstrate clear traceability from specific TSC point-of-focus gaps to technical remediation solutions for minimum 12 controls, validate that technical implementations address identified TSC requirements for at least 10 gaps, and ensure implementation recommendations are sufficient for closing mapped control gaps",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "gap_remediation_traceability",
+            "description": "Clear traceability from identified TSC gaps to specific technical remediation recommendations",
+            "weight": 0.4,
+            "measurement": "1.0 if demonstrates clear traceability for 15+ control gaps with specific TSC-to-solution mapping, 0.7 if traces 12-14 gaps with good mapping clarity, 0.4 if traces 8-11 gaps with adequate mapping, 0.0 if lacks clear gap-to-solution traceability",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "technical_solution_tsc_alignment",
+            "description": "Validation that proposed technical solutions adequately address specific TSC control requirements",
+            "weight": 0.35,
+            "measurement": "1.0 if validates technical solutions meet TSC requirements for 12+ controls with specific alignment analysis, 0.7 if validates 9-11 solutions with good TSC alignment, 0.4 if validates 6-8 solutions with basic alignment, 0.0 if lacks TSC-solution alignment validation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_gap_closure_sufficiency",
+            "description": "Assessment that implementation recommendations are sufficient to close identified control gaps",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates gap closure sufficiency for 10+ implementations with effectiveness analysis, 0.7 if shows sufficiency for 7-9 implementations, 0.4 if basic sufficiency analysis for 4-6 implementations, 0.0 if lacks gap closure validation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "CC6.1 logical access control gap is traced to specific MFA implementation with Active Directory integration, technical solution design addresses TSC point-of-focus requirements for user authentication and authorization, and implementation plan validates gap closure through specific technical capabilities"
+      ],
+      "fail_examples": [
+        "Identifies CC6.1 access control gap but recommends generic 'access management improvements' without specific technical implementation, or proposes technical solutions that don't fully address the granular TSC requirements identified in the gap analysis"
+      ],
+      "domain": "soc2_readiness_assessment",
+      "research_basis": "Effective SOC 2 readiness requires seamless integration between compliance gap identification and technical implementation, ensuring that remediation activities directly address identified audit requirements"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "tsc_mapping_accuracy",
+      "name": "Trust Services Criteria Mapping Accuracy",
+      "description": "",
+      "weight": 0.2,
+      "criteria_ids": []
+    },
+    {
+      "id": "control_design_assessment",
+      "name": "Control Design and Implementation Assessment",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "saas_architecture_considerations",
+      "name": "SaaS Architecture and Integration Controls",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "remediation_prioritization",
+      "name": "Remediation Prioritization and Resource Allocation",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "timeline_feasibility",
+      "name": "Timeline Feasibility and Type II Readiness",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "startup_scalability",
+      "name": "Startup-Appropriate Control Scalability",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "cuec_documentation",
+      "name": "Complementary User Entity Controls Documentation",
+      "description": "",
+      "weight": 0.06,
+      "criteria_ids": []
+    },
+    {
+      "id": "audit_preparation",
+      "name": "Audit Preparation and Evidence Strategy",
+      "description": "",
+      "weight": 0.04,
+      "criteria_ids": []
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "run_id": "b09f622c_20260404_184520",
+  "iteration": 1,
+  "total_score": 31.640000000000004,
+  "max_score": 73,
+  "percentage": 0.43342465753424664,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/b09f622c_20260404_184520/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "token_refill_atomicity",
+      "points_earned": 3.68,
+      "max_points": 7,
+      "percentage": 0.525
+    },
+    {
+      "criterion_id": "burst_overflow_mathematics",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "redis_cluster_operations",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "toctou_race_prevention",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "partition_tolerance_strategy",
+      "points_earned": 2.62,
+      "max_points": 5,
+      "percentage": 0.5249999999999999
+    },
+    {
+      "criterion_id": "circuit_breaker_implementation",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "fallback_strategies",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "performance_optimization",
+      "points_earned": 2.17,
+      "max_points": 6,
+      "percentage": 0.36249999999999993
+    },
+    {
+      "criterion_id": "prometheus_monitoring",
+      "points_earned": 0.3,
+      "max_points": 3,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "sliding_window_precision",
+      "points_earned": 2.94,
+      "max_points": 5,
+      "percentage": 0.5874999999999999
+    },
+    {
+      "criterion_id": "redis_algorithm_consistency",
+      "points_earned": 2.65,
+      "max_points": 4,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "degradation_coordination_coherence",
+      "points_earned": 0.6,
+      "max_points": 4,
+      "percentage": 0.15
+    },
+    {
+      "criterion_id": "performance_reliability_alignment",
+      "points_earned": 1.24,
+      "max_points": 3,
+      "percentage": 0.4125
+    },
+    {
+      "criterion_id": "multi_dimensional_rate_limiting",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "redis_hot_key_prevention",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

@@ -1,0 +1,776 @@
+{
+  "task": "Write a system design document for a real-time collaborative document editor supporting 100K concurrent users, covering CRDT vs OT tradeoffs, conflict resolution, persistence layer, and operational concerns",
+  "domain": "distributed_systems_design",
+  "total_points": 87,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "crdt_mathematical_correctness",
+      "category": "Algorithm Correctness & Mathematical Rigor",
+      "description": "Evaluates the mathematical understanding of CRDT algorithm selection and implementation, including convergence properties, commutativity analysis, and handling of specific document editing operations with proper mathematical foundations",
+      "pass_condition": "Must demonstrate understanding of convergence properties through citation of established results or clear explanation of convergence conditions, analyze commutativity for at least 4 concurrent operation types, and address both state-based and operation-based CRDT tradeoffs with complexity analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "convergence_proof_rigor",
+            "description": "Quality and completeness of convergence proof or citation to established proofs",
+            "weight": 0.35,
+            "measurement": "1.0 if formal proof provided or cites specific theorems (e.g., Shapiro et al. CvRDT convergence), 0.7 if references convergence properties with partial mathematical justification, 0.4 if mentions convergence without mathematical backing, 0.0 if convergence not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "commutativity_analysis",
+            "description": "Depth of commutativity analysis for concurrent document operations",
+            "weight": 0.3,
+            "measurement": "1.0 if analyzes commutativity for 4+ operation types with mathematical notation, 0.7 if covers 2-3 operations with formal analysis, 0.4 if mentions commutativity conceptually, 0.0 if commutativity not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "algorithm_complexity_analysis",
+            "description": "Mathematical analysis of time/space complexity for chosen CRDT operations",
+            "weight": 0.35,
+            "measurement": "1.0 if provides Big-O analysis for merge, insert, delete operations with justification, 0.7 if gives complexity bounds for major operations, 0.4 if mentions performance characteristics without formal analysis, 0.0 if complexity not addressed",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Selects RGA CRDT with citation to Roh et al. convergence proof, demonstrates insert(pos, char) and delete(pos) commutativity with formal notation, provides O(n) merge complexity analysis"
+      ],
+      "fail_examples": [
+        "States 'CRDTs converge eventually' without proof reference, mentions commutativity but doesn't analyze specific operations, gives performance estimates without mathematical backing"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Shapiro et al. 2011 'A comprehensive study of Convergent and Commutative Replicated Data Types' establishes formal requirements for CRDT convergence proofs"
+    },
+    {
+      "id": "operational_transform_vs_crdt_justification",
+      "category": "Algorithm Correctness & Mathematical Rigor",
+      "description": "Evaluates the mathematical and engineering justification for choosing between OT and CRDT approaches, including formal analysis of consistency guarantees, network partition behavior, and transformation function properties",
+      "pass_condition": "Must provide quantitative comparison of OT vs CRDT for at least 3 metrics (latency, bandwidth, consistency), demonstrate understanding of TP1/TP2 properties for OT or SEC properties for CRDTs, and justify choice with specific engineering constraints",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "formal_properties_understanding",
+            "description": "Demonstrates understanding of formal transformation properties (TP1/TP2) or CRDT properties (SEC)",
+            "weight": 0.4,
+            "measurement": "1.0 if correctly explains TP1/TP2 for OT or Strong Eventual Consistency for CRDTs with examples, 0.7 if mentions properties with partial understanding, 0.4 if references formal properties without detail, 0.0 if formal properties not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quantitative_tradeoff_analysis",
+            "description": "Numerical comparison of approaches across multiple engineering dimensions",
+            "weight": 0.35,
+            "measurement": "1.0 if compares 3+ metrics with numbers (bandwidth usage, operation complexity, convergence time), 0.7 if provides 2 quantitative comparisons, 0.4 if gives qualitative comparisons only, 0.0 if no comparative analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "engineering_constraint_alignment",
+            "description": "Justifies algorithm choice based on specific 100K user requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if explicitly maps algorithm properties to scale requirements with reasoning, 0.7 if connects choice to some scale considerations, 0.4 if mentions scale but doesn't connect to algorithm properties, 0.0 if choice not justified for scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Chooses CRDT over OT because conflict-free merging reduces server CPU load by ~40% vs transformation matrix computation, SEC guarantees convergence during network partitions unlike OT's server dependency"
+      ],
+      "fail_examples": [
+        "States 'CRDTs are better for collaboration' without quantitative justification, mentions OT transformation functions but doesn't explain TP1/TP2 properties, chooses algorithm without connecting to 100K user scale requirements"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Ellis & Gibbs 1989 OT foundations and Sun et al. 1998 TP1/TP2 properties provide formal framework for algorithm comparison in collaborative editing systems"
+    },
+    {
+      "id": "operation_propagation_latency_design",
+      "category": "Scalability Architecture & Performance",
+      "description": "Evaluates the architectural design for achieving sub-100ms operation propagation latency at 100K concurrent users, including specific network topology choices, operation batching strategies, and mathematical analysis of propagation delay components",
+      "pass_condition": "Must specify target latency \u2264100ms with mathematical breakdown of delay components (network RTT, serialization, conflict resolution, persistence), define hierarchical topology with \u22652 levels, and provide operation batching strategy with specific batch size thresholds",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "latency_target_breakdown",
+            "description": "Mathematical decomposition of the 100ms latency budget across system components",
+            "weight": 0.35,
+            "measurement": "1.0 if provides detailed latency budget breakdown across \u22654 components with specific millisecond allocations and identifies critical path; 0.7 if provides budget breakdown but missing critical path analysis; 0.4 if mentions latency targets but no detailed breakdown; 0.0 if no specific latency analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "network_topology_optimization",
+            "description": "Specific network topology design choices to minimize propagation hops and reduce latency",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies hierarchical topology with regional hubs, CDN edge placement strategy, and WebSocket connection pooling with specific fan-out ratios; 0.7 if describes hierarchical approach but missing specific deployment strategy; 0.4 if mentions topology considerations but lacks concrete design; 0.0 if no topology optimization discussed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operation_batching_strategy",
+            "description": "Algorithm for batching operations to optimize throughput while maintaining latency targets",
+            "weight": 0.25,
+            "measurement": "1.0 if defines adaptive batching with specific size thresholds, timeout values, and priority handling for different operation types; 0.7 if describes batching strategy with some specific parameters; 0.4 if mentions batching but lacks implementation details; 0.0 if no batching strategy provided",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Targets 100ms total latency with 40ms network RTT, 20ms serialization, 25ms conflict resolution, 15ms persistence; hierarchical topology with regional hubs serving max 5K users each"
+      ],
+      "fail_examples": [
+        "Mentions 'low latency requirements' without specific targets, describes peer-to-peer architecture without considering propagation complexity at scale"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "CAP theorem implications and distributed systems literature establish latency-consistency tradeoffs for large-scale collaborative systems"
+    },
+    {
+      "id": "horizontal_scaling_architecture",
+      "category": "Scalability Architecture & Performance",
+      "description": "Evaluates specific strategies for horizontally scaling to 100K concurrent users including sharding strategies, load balancing approaches, and auto-scaling policies",
+      "pass_condition": "Must define mathematically-justified sharding strategy with hash function analysis or consistent hashing implementation, load balancing algorithm with proven convergence properties and capacity calculations showing 99.95% success rate under load spikes, auto-scaling with predictive algorithms using at least 3 metrics and sub-30-second response times to demand changes",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "sharding_strategy_specificity",
+            "description": "Concrete sharding approach with specific partition keys and rebalancing strategy",
+            "weight": 0.4,
+            "measurement": "1.0 if defines partition key strategy, shard size limits, and rebalancing algorithm with specific triggers; 0.7 if describes sharding approach with some specific parameters; 0.4 if mentions sharding conceptually; 0.0 if no sharding strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "load_balancing_algorithm",
+            "description": "Specific load balancing approach optimized for collaborative editing workloads",
+            "weight": 0.35,
+            "measurement": "1.0 if specifies algorithm (consistent hashing, least-connections, etc.) with affinity requirements for document sessions; 0.7 if describes load balancing with some session considerations; 0.4 if mentions load balancing without specifics; 0.0 if no load balancing strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "auto_scaling_thresholds",
+            "description": "Numeric thresholds and policies for automatically scaling infrastructure",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific CPU%, memory%, and connection count thresholds with scale-up/down policies; 0.7 if defines some scaling thresholds; 0.4 if mentions auto-scaling without specific triggers; 0.0 if no auto-scaling strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Shards by document ID using consistent hashing with 1K active users per shard, sticky load balancing to maintain WebSocket affinity, auto-scale at 80% CPU with 5-minute cooldown"
+      ],
+      "fail_examples": [
+        "Mentions 'microservices architecture' without specific scaling strategy, suggests load balancing without considering session affinity requirements"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Distributed systems design patterns from large-scale web applications and real-time collaboration platforms like Figma and Google Docs"
+    },
+    {
+      "id": "consistency_model_implementation",
+      "category": "Consistency Models & CAP Theorem Implications",
+      "description": "Evaluates the specific consistency model chosen and its implementation details, including eventual consistency mechanisms, CAP theorem tradeoff decisions, and consistency guarantee specifications",
+      "pass_condition": "Must specify exact consistency model (strong eventual consistency, causal consistency, etc.), explain CAP theorem tradeoff decision with justification, and define consistency guarantees with specific timing bounds or ordering properties",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "consistency_model_specification",
+            "description": "Precise definition of chosen consistency model with formal properties",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies exact model (SEC, causal, etc.) with formal properties and implementation approach; 0.7 if defines consistency model with some formal backing; 0.4 if mentions consistency model without formal definition; 0.0 if no specific consistency model chosen",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cap_theorem_tradeoff_analysis",
+            "description": "Explicit analysis of CAP theorem implications and tradeoff decisions",
+            "weight": 0.35,
+            "measurement": "1.0 if explicitly states CAP tradeoff choice (AP vs CP) with engineering justification specific to collaborative editing; 0.7 if discusses CAP implications with partial justification; 0.4 if mentions CAP theorem without specific tradeoff analysis; 0.0 if CAP theorem not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "consistency_guarantee_bounds",
+            "description": "Specific bounds or properties for consistency guarantees provided to users",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific timing bounds for eventual consistency or ordering guarantees with measurable criteria; 0.7 if defines some consistency bounds; 0.4 if mentions consistency guarantees without specifics; 0.0 if no consistency guarantees specified",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements Strong Eventual Consistency using CRDTs, chooses AP from CAP theorem to maintain availability during network partitions, guarantees convergence within 500ms after partition healing"
+      ],
+      "fail_examples": [
+        "States system will be 'eventually consistent' without defining specific model, mentions CAP theorem without stating which guarantees are prioritized"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Brewer's CAP theorem and subsequent research on consistency models in distributed systems, particularly Strong Eventual Consistency literature"
+    },
+    {
+      "id": "partition_tolerance_design",
+      "category": "Consistency Models & CAP Theorem Implications",
+      "description": "Evaluates strategies for handling network partitions while maintaining system functionality, including partition detection, operation queuing, and reconciliation strategies",
+      "pass_condition": "Must define partition detection mechanism with specific timeout thresholds, specify operation queuing strategy during partitions, and provide detailed reconciliation algorithm for partition healing",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "partition_detection_mechanism",
+            "description": "Specific algorithm and thresholds for detecting network partitions",
+            "weight": 0.35,
+            "measurement": "1.0 if defines detection algorithm with specific timeout values, heartbeat intervals, and false positive mitigation; 0.7 if describes detection mechanism with some parameters; 0.4 if mentions partition detection without specifics; 0.0 if partition detection not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operation_queuing_strategy",
+            "description": "Strategy for handling operations during partition scenarios",
+            "weight": 0.35,
+            "measurement": "1.0 if specifies queuing limits, persistence strategy, and user notification approach during partitions; 0.7 if describes operation handling with some details; 0.4 if mentions operation queuing conceptually; 0.0 if partition operation handling not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "partition_reconciliation_algorithm",
+            "description": "Detailed algorithm for reconciling state when partitions heal",
+            "weight": 0.3,
+            "measurement": "1.0 if provides step-by-step reconciliation algorithm with conflict resolution strategy; 0.7 if describes reconciliation approach with some algorithmic detail; 0.4 if mentions reconciliation without specific algorithm; 0.0 if reconciliation not addressed",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Detects partitions using 10-second timeout with 3-strike failure detection, queues operations locally with 10MB limit, reconciles using vector clock comparison with CRDT merge algorithm"
+      ],
+      "fail_examples": [
+        "Mentions system handles partitions gracefully without defining detection or reconciliation mechanisms, assumes network is always available"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Network partition tolerance research from distributed systems literature and practical implementations in collaborative editing platforms"
+    },
+    {
+      "id": "database_design_high_write_throughput",
+      "category": "Persistence Layer & Data Management",
+      "description": "Evaluates database architecture design for handling high write throughput from 100K concurrent users, including storage engine selection, indexing strategy, and write optimization techniques",
+      "pass_condition": "Must specify storage engine with performance benchmarks showing >100K writes/sec, design write-optimized data structures (e.g., LSM trees, append-only logs) with mathematical analysis of write amplification, implement advanced techniques like write-ahead logging with group commit or asynchronous replication with consistency guarantees",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "storage_engine_selection",
+            "description": "Choice and justification of storage engine optimized for write-heavy workloads",
+            "weight": 0.3,
+            "measurement": "1.0 if specifies engine (LSM-tree based like Cassandra/RocksDB) with write optimization justification; 0.7 if chooses appropriate engine with partial justification; 0.4 if mentions storage choice without optimization reasoning; 0.0 if no storage engine specified",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "write_throughput_targets",
+            "description": "Specific numeric targets for write operations per second with capacity planning",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific ops/second targets with peak load calculations; 0.7 if defines throughput targets with some capacity analysis; 0.4 if mentions throughput considerations without specific numbers; 0.0 if no throughput targets specified",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "indexing_optimization_strategy",
+            "description": "Index design optimized for operation log queries and document retrieval",
+            "weight": 0.25,
+            "measurement": "1.0 if defines specific indexes for operation logs, document lookup, and user queries with performance justification; 0.7 if describes indexing strategy with some optimization; 0.4 if mentions indexing without specific strategy; 0.0 if indexing not addressed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "write_optimization_techniques",
+            "description": "Specific techniques to optimize write performance like batching, async writes",
+            "weight": 0.2,
+            "measurement": "1.0 if implements multiple techniques (batching, async persistence, write-ahead logs) with specific parameters; 0.7 if uses some write optimization techniques; 0.4 if mentions write optimization conceptually; 0.0 if no write optimization",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses Cassandra with LSM-tree storage for write optimization, targets 50K ops/second peak load, indexes on (document_id, timestamp) and (user_id, timestamp), implements 50ms write batching with async persistence"
+      ],
+      "fail_examples": [
+        "Chooses traditional RDBMS without considering write throughput implications, mentions database without specific performance targets or optimization strategies"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "High-throughput database design patterns from NoSQL literature and write-optimized storage engine research"
+    },
+    {
+      "id": "operation_log_storage_compaction",
+      "category": "Persistence Layer & Data Management",
+      "description": "Evaluates strategy for storing operation logs with efficient compaction and garbage collection to prevent unbounded growth while maintaining necessary history for conflict resolution",
+      "pass_condition": "Must define operation log schema with size estimates, specify compaction algorithm with timing triggers, implement tombstone cleanup strategy, and provide snapshot mechanism for operation history compression",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "operation_log_schema_sizing",
+            "description": "Specific schema design with size estimates per operation and growth calculations",
+            "weight": 0.25,
+            "measurement": "1.0 if provides detailed schema with size estimates per operation type and total storage growth projections; 0.7 if describes schema with some sizing analysis; 0.4 if mentions operation storage without size planning; 0.0 if no operation log design",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compaction_algorithm_triggers",
+            "description": "Specific algorithm and triggers for compacting operation history",
+            "weight": 0.35,
+            "measurement": "1.0 if defines compaction algorithm with specific triggers (time-based, size-based) and conflict preservation guarantees; 0.7 if describes compaction approach with some triggers; 0.4 if mentions compaction without specific algorithm; 0.0 if no compaction strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "snapshot_mechanism_design",
+            "description": "Strategy for creating document snapshots to enable operation log truncation",
+            "weight": 0.4,
+            "measurement": "1.0 if implements snapshot creation with specific intervals and incremental update strategy; 0.7 if describes snapshot mechanism with some details; 0.4 if mentions snapshots without implementation strategy; 0.0 if no snapshot mechanism",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Stores operations in 200-byte records, compacts logs older than 7 days while preserving conflict-relevant operations, creates daily snapshots with incremental operation replay capability"
+      ],
+      "fail_examples": [
+        "Mentions storing operation history without addressing unbounded growth, describes compaction without specific triggers or algorithms"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Log-structured storage systems research and operational experience from version control systems and collaborative editing platforms"
+    },
+    {
+      "id": "operational_resilience_failure_handling",
+      "category": "Operational Resilience & Production Engineering",
+      "description": "Evaluates comprehensive failure handling strategies including circuit breaker patterns, graceful degradation, disaster recovery procedures, and specific SLA definitions for real-time collaboration features",
+      "pass_condition": "Must implement adaptive circuit breaker with machine learning-based failure prediction, chaos engineering testing demonstrating system resilience under at least 5 failure scenarios, disaster recovery with automated failover requiring <5 minute RTO and zero data loss (RPO=0), and SLAs with financial penalties (e.g., 99.99% uptime with service credits)",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "no_circuit_breaker_implementation": -1.5,
+          "missing_graceful_degradation_strategy": -1.2,
+          "no_disaster_recovery_targets": -1.0,
+          "undefined_collaboration_slas": -1.0,
+          "missing_dependency_failure_handling": -0.8,
+          "no_data_consistency_recovery_plan": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements circuit breaker with 50% failure rate threshold, graceful degradation to read-only mode during write failures, RPO/RTO of 15 minutes, SLA of 99.9% availability for real-time sync"
+      ],
+      "fail_examples": [
+        "Mentions high availability without specific failure scenarios, describes monitoring without circuit breaker implementation, no specific recovery time objectives"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Site Reliability Engineering practices and production system failure mode analysis from large-scale distributed systems"
+    },
+    {
+      "id": "monitoring_alerting_capacity_planning",
+      "category": "Operational Resilience & Production Engineering",
+      "description": "Evaluates monitoring strategy with specific metrics, alerting thresholds, and capacity planning approach for anticipating scaling needs at different user loads",
+      "pass_condition": "Must define observability strategy with distributed tracing, implement ML-based anomaly detection for at least 5 metrics, provide predictive capacity planning model using time series analysis or machine learning with proven accuracy >90% for 7-day forecasts, and demonstrate cost optimization through automated resource scaling",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "monitoring_metrics_specificity",
+            "description": "Specific metrics with numeric thresholds for collaborative editing system health",
+            "weight": 0.4,
+            "measurement": "1.0 if defines 8+ specific metrics (operation latency, merge conflicts/sec, WebSocket connections, etc.) with numeric thresholds; 0.7 if provides 5-7 metrics with thresholds; 0.4 if mentions monitoring without specific metrics; 0.0 if no monitoring strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "alerting_system_design",
+            "description": "Tiered alerting system with escalation policies and alert fatigue prevention",
+            "weight": 0.3,
+            "measurement": "1.0 if implements tiered alerting with specific escalation times and alert grouping strategy; 0.7 if describes alerting system with some structure; 0.4 if mentions alerting without systematic approach; 0.0 if no alerting strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "capacity_planning_model",
+            "description": "Mathematical model for predicting scaling needs based on user growth",
+            "weight": 0.3,
+            "measurement": "1.0 if provides capacity model with scaling triggers at specific user thresholds; 0.7 if describes capacity planning with some quantitative approach; 0.4 if mentions capacity considerations without model; 0.0 if no capacity planning",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Monitors operation propagation latency (P95 <100ms), conflict resolution rate (<1%), WebSocket connection success (>99%), implements 3-tier alerting with 5/15/30 minute escalation"
+      ],
+      "fail_examples": [
+        "Mentions monitoring system health without specific metrics, describes alerting without specific thresholds or escalation policies"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Site Reliability Engineering monitoring practices and capacity planning methodologies for real-time collaborative systems"
+    },
+    {
+      "id": "conflict_resolution_edge_cases",
+      "category": "Conflict Resolution & Edge Case Handling",
+      "description": "Assesses handling of complex conflict scenarios including causality violations, tombstone management, and concurrent structural operations with mathematically sound resolution strategies",
+      "pass_condition": "Must address tombstone accumulation cleanup, late-arriving operations handling, concurrent paragraph deletion with nested edits, causality violation resolution, and operation ordering conflicts, providing algorithmic solutions with time complexity bounds for each scenario",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_tombstone_accumulation": -1.5,
+          "no_late_operation_handling": -1.2,
+          "concurrent_deletion_conflicts_ignored": -1.0,
+          "causality_violations_unaddressed": -1.3,
+          "memory_pressure_from_history_ignored": -1.0,
+          "no_operation_log_compaction_strategy": -0.8
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Addresses tombstone GC with timestamp-based cleanup after 30-day retention, handles late operations with vector clock causality checking, resolves concurrent deletions using last-writer-wins with tie-breaking"
+      ],
+      "fail_examples": [
+        "Mentions conflict resolution generally but doesn't specify handling of concurrent structural changes, ignores memory growth from operation history, no strategy for operations arriving after network partitions"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Operational experience from Figma's multiplayer infrastructure and research on conflict resolution in distributed collaborative systems"
+    },
+    {
+      "id": "websocket_connection_management",
+      "category": "Real-time Networking & Protocol Design",
+      "description": "Evaluates WebSocket connection management strategy including connection pooling, reconnection logic, message ordering guarantees, and handling of connection failures at scale",
+      "pass_condition": "Must specify connection pooling strategy with specific limits, implement exponential backoff reconnection with max retry bounds, define message ordering guarantees, and provide connection failure detection with specific timeout values",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "connection_pooling_strategy",
+            "description": "Specific approach to managing WebSocket connections at 100K user scale",
+            "weight": 0.3,
+            "measurement": "1.0 if defines connection limits per server, pooling strategy, and load distribution approach; 0.7 if describes connection management with some specifics; 0.4 if mentions connection scaling without details; 0.0 if no connection strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "reconnection_logic_resilience",
+            "description": "Robust reconnection algorithm with specific timing and retry policies",
+            "weight": 0.35,
+            "measurement": "1.0 if implements exponential backoff with specific intervals and max retry limits; 0.7 if describes reconnection strategy with some parameters; 0.4 if mentions reconnection without specific algorithm; 0.0 if no reconnection strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "message_ordering_guarantees",
+            "description": "Specific guarantees for message ordering and delivery in WebSocket protocol",
+            "weight": 0.35,
+            "measurement": "1.0 if provides ordering guarantees with sequence numbers and duplicate detection; 0.7 if describes message ordering with some guarantees; 0.4 if mentions ordering without specific implementation; 0.0 if no ordering guarantees",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Limits 5K WebSocket connections per server instance, implements exponential backoff from 1s to 60s max with 10 retry limit, ensures FIFO ordering with sequence numbers"
+      ],
+      "fail_examples": [
+        "Mentions WebSocket usage without specific connection management strategy, describes reconnection without specific timing or retry bounds"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "WebSocket protocol specifications and best practices for real-time web applications at scale"
+    },
+    {
+      "id": "protocol_efficiency_optimization",
+      "category": "Real-time Networking & Protocol Design",
+      "description": "Evaluates protocol design efficiency including message serialization format, compression strategies, and bandwidth optimization for operation transmission",
+      "pass_condition": "Must specify binary serialization format with size comparison to JSON, implement compression strategy with specific algorithms, and provide bandwidth usage estimates per concurrent user",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "serialization_format_efficiency",
+            "description": "Choice of efficient serialization format with size analysis",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies binary format (protobuf, msgpack) with size comparison to JSON; 0.7 if chooses efficient format with partial analysis; 0.4 if mentions serialization without efficiency analysis; 0.0 if no serialization strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compression_strategy",
+            "description": "Implementation of compression algorithms for reducing bandwidth usage",
+            "weight": 0.35,
+            "measurement": "1.0 if implements specific compression (gzip, delta compression) with configuration parameters; 0.7 if describes compression approach; 0.4 if mentions compression without specifics; 0.0 if no compression strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "bandwidth_usage_estimates",
+            "description": "Quantitative estimates of bandwidth requirements per user",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific bandwidth calculations per user with peak load estimates; 0.7 if gives bandwidth estimates with some analysis; 0.4 if mentions bandwidth considerations; 0.0 if no bandwidth analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses Protocol Buffers reducing message size 60% vs JSON, implements gzip compression with 9KB window, estimates 2KB/sec average bandwidth per active user"
+      ],
+      "fail_examples": [
+        "Uses JSON without considering message size optimization, mentions compression without specific algorithms or configuration"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Network protocol optimization research and bandwidth efficiency studies for real-time collaborative applications"
+    },
+    {
+      "id": "memory_optimization_strategies",
+      "category": "Memory & Resource Management",
+      "description": "Evaluates specific memory optimization strategies including operation history pruning, garbage collection of tombstones, and memory usage per concurrent user calculations",
+      "pass_condition": "Must calculate memory usage per concurrent user with breakdown by component, define operation history pruning with specific retention policies, and implement tombstone garbage collection with timing triggers",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "memory_usage_per_user_calculation",
+            "description": "Detailed calculation of memory requirements per concurrent user",
+            "weight": 0.4,
+            "measurement": "1.0 if provides detailed memory breakdown per user including operation buffers, connection state, and document cache; 0.7 if estimates memory usage with some component analysis; 0.4 if mentions memory requirements without calculation; 0.0 if no memory analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operation_history_pruning",
+            "description": "Strategy for pruning operation history while maintaining conflict resolution capability",
+            "weight": 0.35,
+            "measurement": "1.0 if defines retention policy with specific timeframes and conflict window preservation; 0.7 if describes pruning strategy with some parameters; 0.4 if mentions history cleanup without specific strategy; 0.0 if no pruning strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "garbage_collection_strategy",
+            "description": "Specific approach to garbage collecting tombstones and obsolete operations",
+            "weight": 0.25,
+            "measurement": "1.0 if implements tombstone GC with specific timing triggers and safety guarantees; 0.7 if describes GC approach with some specifics; 0.4 if mentions garbage collection without details; 0.0 if no GC strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Calculates 2MB memory per active user (1.5MB operation buffer, 0.3MB connection state, 0.2MB document cache), prunes operations older than 48 hours, GC tombstones after 7-day safety window"
+      ],
+      "fail_examples": [
+        "Mentions memory optimization without specific calculations, describes operation cleanup without retention policies or safety considerations"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Memory management research for distributed systems and operational experience from large-scale collaborative editing platforms"
+    },
+    {
+      "id": "algorithm_architecture_coherence",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates whether the chosen algorithm approach (CRDT vs OT) is consistently implemented across all architectural components including persistence, networking, and scaling strategies",
+      "pass_condition": "Algorithm choice must be explicitly reflected in persistence layer design (e.g., CRDT requires operation-based storage), network protocol must optimize for chosen algorithm's message patterns, conflict resolution strategies must match algorithm properties, and scaling architecture must account for algorithm-specific resource requirements",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "crdt_with_centralized_transformation": -1.4,
+          "ot_without_central_coordination": -1.4,
+          "algorithm_persistence_mismatch": -1.0,
+          "network_protocol_algorithm_disconnect": -0.7,
+          "scaling_strategy_algorithm_conflict": -0.7
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "CRDT algorithm choice consistently reflected in operation-based storage schema, conflict-free merge protocols, and distributed scaling without central coordination requirements"
+      ],
+      "fail_examples": [
+        "Chooses CRDT for conflict resolution but designs centralized transformation server, implements OT but describes peer-to-peer operation synchronization"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "System architecture coherence principles and consistency requirements between algorithmic choices and implementation strategies"
+    },
+    {
+      "id": "scalability_consistency_alignment",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates alignment between chosen consistency model and scalability architecture, ensuring consistency guarantees are achievable at 100K user scale with proposed infrastructure",
+      "pass_condition": "Must specify how consistency model scales with proposed sharding strategy, demonstrate that latency targets are compatible with chosen consistency level (e.g., strong consistency requires synchronous replication affecting latency), and show that network topology supports consistency requirements (e.g., eventual consistency works with hierarchical propagation)",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "strong_consistency_with_geo_distribution": -1.3,
+          "sub_100ms_latency_with_strong_consistency": -1.0,
+          "linearizability_at_100k_scale": -1.3,
+          "consistency_guarantees_exceed_network_limits": -1.0,
+          "eventual_consistency_without_convergence_bounds": -0.7
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Strong eventual consistency model aligns with distributed CRDT architecture, convergence bounds of 500ms achievable with proposed hierarchical topology and operation batching"
+      ],
+      "fail_examples": [
+        "Promises strong consistency with sub-100ms latency across global deployment, claims linearizability for 100K concurrent users without acknowledging CAP theorem constraints"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "CAP theorem constraints and distributed systems literature on achievable consistency guarantees at large scale"
+    },
+    {
+      "id": "operational_architecture_integration",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates integration between operational concerns (monitoring, failure handling, capacity planning) and core system architecture, ensuring operational strategies are feasible with proposed technical design",
+      "pass_condition": "Monitoring metrics must be derivable from proposed architecture, failure handling strategies must account for chosen algorithms and consistency models, capacity planning must align with resource usage calculations",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 3,
+        "sub_attributes": [],
+        "penalties": {
+          "monitoring_metrics_not_derivable_from_architecture": -1.0,
+          "failure_handling_ignores_algorithm_constraints": -1.0,
+          "capacity_planning_disconnected_from_resource_usage": -0.8,
+          "sla_targets_impossible_with_chosen_architecture": -1.2
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Monitoring metrics (operation merge latency, conflict resolution rate) directly measurable from CRDT implementation, failure handling preserves eventual consistency guarantees, capacity planning based on calculated memory usage per user"
+      ],
+      "fail_examples": [
+        "Proposes monitoring strong consistency metrics for eventually consistent system, defines failure recovery that violates CRDT convergence properties"
+      ],
+      "domain": "distributed_systems_design",
+      "research_basis": "Site reliability engineering practices and integration patterns between operational and architectural concerns in distributed systems"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "algorithm_correctness",
+      "name": "Algorithm Correctness & Mathematical Rigor",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "scalability_architecture",
+      "name": "Scalability Architecture & Performance",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "consistency_models",
+      "name": "Consistency Models & CAP Theorem Implications",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "persistence_data_layer",
+      "name": "Persistence Layer & Data Management",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "operational_resilience",
+      "name": "Operational Resilience & Production Engineering",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "conflict_resolution_edge_cases",
+      "name": "Conflict Resolution & Edge Case Handling",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "real_time_networking",
+      "name": "Real-time Networking & Protocol Design",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "memory_resource_management",
+      "name": "Memory & Resource Management",
+      "description": "",
+      "weight": 0.07,
+      "criteria_ids": []
+    }
+  ]
+}

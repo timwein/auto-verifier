@@ -1,0 +1,150 @@
+{
+  "run_id": "7fa8e462_20260404_184803",
+  "iteration": 2,
+  "total_score": 67.65,
+  "max_score": 101,
+  "percentage": 0.6698019801980198,
+  "delta_from_prior": 0.2798,
+  "focus_areas": [
+    "attention_type_distinctions.cross_attention_distinction",
+    "query_key_asymmetry_understanding.directional_clarity",
+    "query_key_asymmetry_understanding.asymmetry_examples",
+    "query_key_asymmetry_understanding.mathematical_grounding",
+    "mathematical_intuition_depth.parameter_effects"
+  ],
+  "content_path": ".eval_iterations/7fa8e462_20260404_184803/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "attention_type_distinctions",
+      "points_earned": 3.6,
+      "max_points": 6,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "computation_chain_accuracy",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "conceptual_bridge_construction",
+      "points_earned": 3.06,
+      "max_points": 5,
+      "percentage": 0.6124999999999999
+    },
+    {
+      "criterion_id": "misconception_prevention",
+      "points_earned": 2.75,
+      "max_points": 4,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "parallel_processing_understanding",
+      "points_earned": 2.3,
+      "max_points": 4,
+      "percentage": 0.575
+    },
+    {
+      "criterion_id": "visualization_analogies",
+      "points_earned": 2.8,
+      "max_points": 4,
+      "percentage": 0.7
+    },
+    {
+      "criterion_id": "practical_application_connection",
+      "points_earned": 1.88,
+      "max_points": 3,
+      "percentage": 0.625
+    },
+    {
+      "criterion_id": "foundation_building",
+      "points_earned": 1.95,
+      "max_points": 3,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "explanation_mathematical_coherence",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "progressive_complexity_alignment",
+      "points_earned": 1.95,
+      "max_points": 3,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "query_key_asymmetry_understanding",
+      "points_earned": 2.8,
+      "max_points": 4,
+      "percentage": 0.7000000000000001
+    },
+    {
+      "criterion_id": "mathematical_intuition_depth",
+      "points_earned": 3.38,
+      "max_points": 5,
+      "percentage": 0.675
+    },
+    {
+      "criterion_id": "active_learning_engagement",
+      "points_earned": 4.73,
+      "max_points": 7,
+      "percentage": 0.675
+    },
+    {
+      "criterion_id": "limitation_awareness",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6
+    },
+    {
+      "criterion_id": "learning_dynamics_understanding",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6
+    },
+    {
+      "criterion_id": "age_appropriate_comprehension_depth",
+      "points_earned": 5.85,
+      "max_points": 9,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "explanation_completeness_integrity",
+      "points_earned": 1.3,
+      "max_points": 4,
+      "percentage": 0.32499999999999996
+    },
+    {
+      "criterion_id": "prerequisite_knowledge_scaffolding",
+      "points_earned": 2.6,
+      "max_points": 4,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "intuitive_scaffolding_progression",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "analogy_completeness_coherence",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "computational_walkthrough_completeness",
+      "points_earned": 5.4,
+      "max_points": 8,
+      "percentage": 0.675
+    },
+    {
+      "criterion_id": "attention_impact_demonstration",
+      "points_earned": 1.5,
+      "max_points": 3,
+      "percentage": 0.5
+    }
+  ]
+}

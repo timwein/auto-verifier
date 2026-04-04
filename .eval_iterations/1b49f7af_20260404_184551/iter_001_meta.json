@@ -1,0 +1,72 @@
+{
+  "run_id": "1b49f7af_20260404_184551",
+  "iteration": 1,
+  "total_score": 36.209999999999994,
+  "max_score": 54,
+  "percentage": 0.6705555555555555,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/1b49f7af_20260404_184551/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "blameless_language_systems_focus",
+      "points_earned": 9.0,
+      "max_points": 9,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "timeline_precision_correlation",
+      "points_earned": 3.31,
+      "max_points": 5,
+      "percentage": 0.6624999999999999
+    },
+    {
+      "criterion_id": "cascading_failure_propagation",
+      "points_earned": 4.12,
+      "max_points": 6,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "observability_three_pillar_gaps",
+      "points_earned": 2.06,
+      "max_points": 5,
+      "percentage": 0.4125
+    },
+    {
+      "criterion_id": "resilience_patterns_application",
+      "points_earned": 3.98,
+      "max_points": 6,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "action_items_systemic_remediation",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "incident_impact_quantification",
+      "points_earned": 1.94,
+      "max_points": 5,
+      "percentage": 0.38750000000000007
+    },
+    {
+      "criterion_id": "contributing_factors_depth",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "mttr_mtbf_metrics_integration",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "action_item_tracking_mechanisms",
+      "points_earned": 2.8,
+      "max_points": 4,
+      "percentage": 0.7
+    }
+  ]
+}

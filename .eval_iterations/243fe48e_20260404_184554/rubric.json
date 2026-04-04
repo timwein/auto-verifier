@@ -1,0 +1,612 @@
+{
+  "task": "Design an Airflow DAG (Python) for an ETL pipeline that ingests from 3 sources (REST API, S3 parquet, PostgreSQL), handles schema drift, implements idempotent upserts, and includes alerting and retry logic",
+  "domain": "Airflow ETL Pipeline Engineering",
+  "total_points": 62,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "task_granularity_atomicity",
+      "category": "DAG Architecture & Design",
+      "description": "Evaluates task decomposition into atomic operations with proper granularity for the 3-source ETL pipeline, ensuring each task performs exactly one logical operation and dependencies reflect true data lineage requirements",
+      "pass_condition": "Minimum 12 tasks with each source having 3-4 atomic tasks (extract, validate, transform, load), plus 2+ cross-source dependency tasks, with each task performing a single logical operation that cannot be meaningfully subdivided",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "atomic_decomposition",
+            "description": "Each task performs exactly one logical operation (extract vs validate vs transform vs load)",
+            "weight": 0.4,
+            "measurement": "1.0 if all tasks are single-purpose with clear separation between extract/validate/transform/load operations, 0.7 if mostly atomic with 1-2 combined operations, 0.4 if some tasks mix multiple concerns, 0.0 if tasks are monolithic",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "task_count_optimization",
+            "description": "Optimal task count balancing parallelization opportunities with overhead",
+            "weight": 0.3,
+            "measurement": "1.0 if 12-18 total tasks allowing parallel source processing, 0.7 if 8-11 or 19-25 tasks with good rationale, 0.4 if 6-7 or 26-30 tasks limiting efficiency, 0.0 if under 6 or over 30 tasks",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "execution_time_bounds",
+            "description": "Task execution time optimized for resource efficiency and failure recovery",
+            "weight": 0.3,
+            "measurement": "1.0 if all tasks designed for under 15 minutes execution with clear timeout configurations, 0.7 if mostly under 15 minutes with 1-2 longer operations, 0.4 if some tasks estimated 15-30 minutes, 0.0 if tasks designed for over 30 minutes",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "DAG with 15 tasks: 3 extract tasks (REST/S3/PostgreSQL), 3 schema validation tasks, 3 transformation tasks, 3 upsert tasks, 2 data quality checks, 1 final notification task"
+      ],
+      "fail_examples": [
+        "DAG with 6 monolithic tasks that combine extract+transform+load per source without atomic separation"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "[Partial] Apache Airflow Design Principles: Core best practice to keep tasks atomic (single action per task) and idempotent (same output every time with same input)"
+    },
+    {
+      "id": "dependency_parallelization_design",
+      "category": "DAG Architecture & Design",
+      "description": "Assesses task dependency structure to maximize parallelization opportunities across the 3 data sources while maintaining proper data lineage and avoiding unnecessary serialization",
+      "pass_condition": "3 parallel source extraction branches with proper fan-out/fan-in patterns, no unnecessary sequential dependencies between independent source processing chains, and use of TaskGroup or dynamic task mapping for scalable patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "source_parallelization",
+            "description": "Independent parallel processing of the 3 data sources until join/merge points",
+            "weight": 0.4,
+            "measurement": "1.0 if all 3 sources process independently in parallel with clear fan-out/fan-in structure, 0.7 if 2 sources parallel with justified sequential dependency, 0.4 if limited parallelization with some unnecessary serialization, 0.0 if mostly sequential processing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "parallel_execution_ratio",
+            "description": "Percentage of total tasks that can execute in parallel vs sequential bottlenecks",
+            "weight": 0.35,
+            "measurement": "1.0 if 70%+ tasks can execute in parallel, 0.7 if 60-69% parallel execution, 0.4 if 40-59% parallel execution, 0.0 if under 40% parallel execution",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scalability_patterns",
+            "description": "Use of TaskGroup, dynamic task mapping, or other scalability patterns for future expansion",
+            "weight": 0.25,
+            "measurement": "1.0 if implements TaskGroup and dynamic task mapping for scalable source addition, 0.7 if uses TaskGroup or dynamic mapping consistently, 0.4 if some grouping but not scalable, 0.0 if no scalability patterns",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "DAG with 3 parallel TaskGroups for each source, each containing extract>>validate>>transform tasks, converging to single upsert_master_table task"
+      ],
+      "fail_examples": [
+        "Sequential DAG where REST API extraction must complete before S3 processing begins, despite no logical data dependency"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Data rests between tasks on accessible services, avoiding local temporary files that break distributed execution"
+    },
+    {
+      "id": "multi_source_sensor_config",
+      "category": "Multi-Source Integration Patterns",
+      "description": "Expert sensor configurations that implement source-specific sensor types with configurable timeout/retry parameters, proper authentication handling, and reasonable poke interval settings for each data source type",
+      "pass_condition": "All 3 source types use appropriate sensor classes (HttpSensor for REST API, S3KeySensor for S3, SqlSensor for PostgreSQL) with configured timeout, retry parameters, connection_id references, and poke_interval settings between 30-300 seconds based on source characteristics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "sensor_type_coverage",
+            "description": "Appropriate sensor selection for each source type with proper configuration",
+            "weight": 0.35,
+            "measurement": "1.0 if HttpSensor for REST, S3KeySensor for S3, SqlSensor for PostgreSQL all properly implemented, 0.7 if 2/3 sources use optimal sensors, 0.4 if 1/3 sources use optimal sensors, 0.0 if generic sensors used inappropriately",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "poke_interval_optimization",
+            "description": "Optimized poke intervals based on source data refresh patterns and system load",
+            "weight": 0.3,
+            "measurement": "1.0 if poke intervals tuned per source (30s API, 300s S3, 180s PostgreSQL) with proper timeout values, 0.7 if mostly optimized intervals, 0.4 if some consideration for intervals, 0.0 if default intervals used",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_authentication",
+            "description": "Proper authentication configuration and connection pooling for each source",
+            "weight": 0.35,
+            "measurement": "1.0 if secure authentication implemented for all sources with proper connection management and pooling, 0.7 if mostly secure with minor gaps, 0.4 if basic authentication implemented, 0.0 if authentication configuration missing or insecure",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "HttpSensor with JWT token refresh for REST API, S3KeySensor with IAM role auth, SqlSensor with connection pooling for PostgreSQL"
+      ],
+      "fail_examples": [
+        "Generic FileSensor used for all three sources without source-specific optimizations"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Uses sensors as first task to sense conditions required before DAG continuation, including file presence sensors and database sensors to guarantee consistency"
+    },
+    {
+      "id": "schema_evolution_detection",
+      "category": "Schema Evolution & Drift Handling",
+      "description": "Schema drift detection mechanisms that identify basic changes in source schemas and implement validation strategies with configurable handling of schema mismatches",
+      "pass_condition": "Schema validation tasks for all 3 sources that compare current schema against expected schema definitions stored in Variables or files, configurable handling of schema mismatch scenarios (fail/warn/continue), schema change detection with logging, and validation gates that protect downstream tasks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "automated_detection",
+            "description": "Automated detection of schema changes across all three data sources",
+            "weight": 0.35,
+            "measurement": "1.0 if automated schema fingerprinting and change detection for all 3 sources, 0.7 if automated for 2 sources with manual for 1, 0.4 if basic schema checking implemented, 0.0 if no schema change detection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compatibility_strategy",
+            "description": "Implementation of forward and backward compatibility handling with graceful degradation",
+            "weight": 0.35,
+            "measurement": "1.0 if implements both forward/backward compatibility with graceful degradation patterns, 0.7 if implements one compatibility direction well, 0.4 if basic compatibility handling, 0.0 if schema changes cause pipeline failures",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "validation_gates",
+            "description": "Schema validation gates that protect downstream consumers from breaking changes",
+            "weight": 0.3,
+            "measurement": "1.0 if validation gates prevent breaking changes from propagating with configurable tolerance, 0.7 if some validation gates implemented, 0.4 if basic validation without downstream protection, 0.0 if no validation gates",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Schema registry integration with automated fingerprinting and validation gates that allow additive changes but block breaking changes"
+      ],
+      "fail_examples": [
+        "Manual schema checking that requires DAG modification when source schemas change"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Schema Drift Management: Early detection crucial for maintaining reliable data pipelines with continuous monitoring of incoming data structures against expected schemas, flagging any deviations"
+    },
+    {
+      "id": "idempotent_upsert_implementation",
+      "category": "Idempotency & Data Consistency",
+      "description": "Implementation of truly idempotent upsert operations using proper Jinja templating, execution date templating, and consistent primary key strategies across all three data sources",
+      "pass_condition": "All upsert operations use Jinja templating for execution dates, consistent primary key handling across sources, SQL MERGE or equivalent operations, and identical results across multiple DAG runs with same parameters",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "templating_usage",
+            "description": "Proper use of Jinja templating over Python functions for parameterization",
+            "weight": 0.35,
+            "measurement": "1.0 if consistent Jinja templating for dates, IDs, and parameters across all tasks, 0.7 if mostly templated with minimal Python parameterization, 0.4 if mixed templating and Python functions, 0.0 if primarily Python-based parameterization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "upsert_operations",
+            "description": "True upsert operations that handle both inserts and updates deterministically",
+            "weight": 0.4,
+            "measurement": "1.0 if SQL MERGE or equivalent upsert operations with proper conflict resolution for all sources, 0.7 if upserts implemented for 2/3 sources correctly, 0.4 if basic insert/update logic with some issues, 0.0 if append-only or destructive operations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "execution_consistency",
+            "description": "Identical results across multiple DAG runs with same parameters and execution dates",
+            "weight": 0.25,
+            "measurement": "1.0 if design guarantees identical results on reruns with same parameters, 0.7 if mostly consistent with minor variations, 0.4 if some rerun consistency issues, 0.0 if reruns produce different results",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "SQL MERGE operations using {{ ds }} templating for date parameters with consistent primary key handling"
+      ],
+      "fail_examples": [
+        "Python functions generating timestamps at runtime causing different results on DAG reruns"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Uses templated fields and Jinja templating to pull values, avoiding Python functions that execute on every Scheduler heartbeat"
+    },
+    {
+      "id": "comprehensive_retry_logic",
+      "category": "Error Handling & Resilience",
+      "description": "Implementation of balanced retry logic with SLA-aware exponential backoff, ensuring retry strategies respect SLA constraints while providing adequate failure recovery",
+      "pass_condition": "Task-level retry configuration with exponential backoff that considers SLA limits, DAG-level SLA monitoring with sla_miss_callback functions that account for retry attempts, source-specific retry strategies that respect SLA boundaries, and automated SLA violation alerts that distinguish between retry-related and actual performance issues",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "retry_configuration",
+            "description": "Proper retry configuration with exponential backoff and appropriate retry counts per operation type",
+            "weight": 0.35,
+            "measurement": "1.0 if task-level retries configured with exponential backoff and operation-specific retry counts, 0.7 if retries configured with basic backoff, 0.4 if basic retry configuration without backoff, 0.0 if no retry configuration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "circuit_breaker_patterns",
+            "description": "Circuit breaker implementation for upstream source failures to prevent cascade failures",
+            "weight": 0.35,
+            "measurement": "1.0 if circuit breaker patterns implemented for all 3 sources with failure thresholds, 0.7 if implemented for 2/3 sources, 0.4 if basic failure detection without circuit breaking, 0.0 if no circuit breaker patterns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sla_monitoring",
+            "description": "SLA monitoring with callback functions for automated escalation and recovery",
+            "weight": 0.3,
+            "measurement": "1.0 if SLA monitoring with callback functions and automated recovery procedures, 0.7 if SLA monitoring with basic callbacks, 0.4 if basic SLA configuration without callbacks, 0.0 if no SLA monitoring",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Task retries with exponential backoff, circuit breakers that skip failed sources after 3 failures, SLA callbacks that trigger automated recovery procedures"
+      ],
+      "fail_examples": [
+        "No retry configuration or simple linear retry without considering failure types or upstream system recovery patterns"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Critical requirement for DAG idempotency ensuring each DAG run is independent, with recommended ~3 retries as default_args applied at DAG level"
+    },
+    {
+      "id": "performance_anti_pattern_avoidance",
+      "category": "Performance & Resource Optimization",
+      "description": "Avoidance of critical performance anti-patterns including Variable.get() in task definitions, XCom usage for large data transfer, and inefficient resource allocation patterns",
+      "pass_condition": "Zero usage of Variable.get() or Connection.get() in task definitions, XCom usage limited to metadata and control signals (not data payload transfer), proper resource pool assignments, and no large data objects passed through XCom",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "variable_get_in_task": -1.5,
+          "large_xcom_usage": -1.0,
+          "missing_resource_pools": -0.5,
+          "inefficient_data_transfer": -0.8
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Jinja templating for variables, XCom containing only task status/metadata, external storage references for large datasets"
+      ],
+      "fail_examples": [
+        "Variable.get('database_url') called in every task definition, passing entire DataFrames through XCom"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Variable.get() in Task Definitions: Using Variable.get() inside task definitions instead of Jinja templating causes performance issues and breaks task isolation"
+    },
+    {
+      "id": "data_quality_enforcement",
+      "category": "Data Quality & Validation",
+      "description": "Data quality validation framework with configurable quality checks and validation gates across the ETL pipeline",
+      "pass_condition": "Data quality validation tasks for all 3 sources with configurable quality checks (null checks, range validation, format validation), quality gate tasks that can halt pipeline execution based on validation results, and quality metric logging for monitoring integration",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "automated_profiling",
+            "description": "Automated data profiling and quality assessment for all data sources",
+            "weight": 0.35,
+            "measurement": "1.0 if automated profiling implemented for all 3 sources with configurable quality rules, 0.7 if profiling for 2/3 sources, 0.4 if basic quality checks implemented, 0.0 if no automated profiling",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quality_gates",
+            "description": "Quality gates that can halt pipeline execution based on configurable thresholds",
+            "weight": 0.35,
+            "measurement": "1.0 if quality gates implemented with configurable thresholds that stop pipeline on failures, 0.7 if quality gates with basic threshold enforcement, 0.4 if quality checks without enforcement, 0.0 if no quality gates",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "lineage_tracking",
+            "description": "Data lineage tracking and quality metric monitoring with alerting",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensive lineage tracking with quality metric monitoring and alerting, 0.7 if basic lineage tracking implemented, 0.4 if some lineage consideration, 0.0 if no lineage tracking",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Great Expectations integration with automated profiling, quality gates that halt execution on data quality failures, lineage tracking with OpenLineage"
+      ],
+      "fail_examples": [
+        "Basic null checks without comprehensive quality framework or enforcement mechanisms"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Data Quality Integration: Schema isn't optional\u2014it's the API between teams. Validate on ingestion, not in dashboards. By the time a metric breaks, it's too late"
+    },
+    {
+      "id": "monitoring_alerting_framework",
+      "category": "Monitoring & Alerting Framework",
+      "description": "Comprehensive monitoring and alerting setup with proper notification strategies and escalation configuration for different failure types",
+      "pass_condition": "Multi-channel alerting configuration using Airflow callback functions (on_failure_callback, on_success_callback, on_retry_callback), SLA miss callbacks for escalation, and integration points for external monitoring systems via connection_id references",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "multi_channel_alerting",
+            "description": "Multiple alerting channels configured with appropriate escalation based on severity",
+            "weight": 0.4,
+            "measurement": "1.0 if multi-channel alerting (email/Slack/PagerDuty) with severity-based routing, 0.7 if 2 channels with basic routing, 0.4 if single channel alerting, 0.0 if no alerting configuration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "metrics_integration",
+            "description": "Integration with monitoring systems for metrics collection and dashboard creation",
+            "weight": 0.35,
+            "measurement": "1.0 if comprehensive metrics integration with dashboard creation and custom metrics, 0.7 if basic metrics integration, 0.4 if some monitoring consideration, 0.0 if no metrics integration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "escalation_procedures",
+            "description": "Defined escalation procedures for different types of failures and SLA breaches",
+            "weight": 0.25,
+            "measurement": "1.0 if clear escalation procedures defined for different failure types with automated escalation, 0.7 if basic escalation procedures, 0.4 if some escalation consideration, 0.0 if no escalation procedures",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Email for warnings, Slack for failures, PagerDuty for critical SLA breaches, with Grafana dashboard integration"
+      ],
+      "fail_examples": [
+        "Single email notification for all failure types without severity differentiation or escalation"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Uses callback functionality for alerts while allowing pipeline continuation, with clear escalation paths for different failure types"
+    },
+    {
+      "id": "idempotency_quality_alignment",
+      "category": "Cross-Cutting Integration",
+      "description": "Assesses alignment between idempotency implementation and data quality validation, ensuring quality checks are themselves idempotent and upsert operations maintain data quality standards across pipeline reruns",
+      "pass_condition": "Data quality validations are idempotent and produce consistent results across reruns, upsert operations preserve data quality metadata and lineage, and quality gate failures integrate properly with retry and recovery mechanisms",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "quality_check_idempotency",
+            "description": "Data quality validations produce consistent results across multiple DAG executions with same parameters",
+            "weight": 0.4,
+            "measurement": "1.0 if quality checks are fully idempotent with consistent validation results on reruns, 0.7 if mostly consistent quality validation, 0.4 if some variation in quality check results, 0.0 if quality checks produce different results on reruns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "upsert_quality_preservation",
+            "description": "Upsert operations maintain and preserve data quality metadata and lineage information",
+            "weight": 0.35,
+            "measurement": "1.0 if upserts preserve quality metadata and lineage consistently, 0.7 if mostly preserves quality information, 0.4 if basic quality preservation, 0.0 if upserts lose quality metadata",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quality_gate_recovery",
+            "description": "Quality gate failures integrate properly with retry mechanisms and recovery procedures",
+            "weight": 0.25,
+            "measurement": "1.0 if quality gate failures trigger appropriate retry/recovery with proper escalation, 0.7 if basic integration of quality gates with error handling, 0.4 if some quality-error integration, 0.0 if quality gates isolated from error handling",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Quality validation tasks that use same templated parameters as upsert tasks, quality metadata preserved through MERGE operations"
+      ],
+      "fail_examples": [
+        "Quality checks that use current timestamp instead of templated execution date, causing different validation results on reruns"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Data pipeline reliability requires that data quality validation and idempotency work together to ensure consistent, reliable results across multiple pipeline executions"
+    },
+    {
+      "id": "performance_monitoring_integration",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates integration between performance optimization choices and monitoring framework, ensuring resource optimizations are visible in monitoring and alerting thresholds align with performance characteristics",
+      "pass_condition": "Resource pool usage visible in monitoring dashboards, performance metrics integrated with alerting thresholds, XCom optimization choices reflected in monitoring configuration, and anti-pattern avoidance validated through monitoring",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "resource_monitoring_visibility",
+            "description": "Resource pool assignments and optimization choices visible in monitoring infrastructure",
+            "weight": 0.4,
+            "measurement": "1.0 if resource usage patterns clearly visible in monitoring with proper dashboards, 0.7 if basic resource monitoring integration, 0.4 if limited resource visibility, 0.0 if resource optimization not reflected in monitoring",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "performance_alert_alignment",
+            "description": "Alerting thresholds calibrated to actual performance characteristics and optimization targets",
+            "weight": 0.35,
+            "measurement": "1.0 if alert thresholds align with performance optimization goals and resource constraints, 0.7 if mostly aligned alerting and performance, 0.4 if basic performance-alert consideration, 0.0 if alerting disconnected from performance characteristics",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "anti_pattern_monitoring",
+            "description": "Monitoring configuration validates avoidance of performance anti-patterns",
+            "weight": 0.25,
+            "measurement": "1.0 if monitoring validates anti-pattern avoidance (XCom size, task duration, resource usage), 0.7 if some anti-pattern monitoring, 0.4 if basic performance monitoring, 0.0 if no anti-pattern monitoring",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Monitoring dashboard showing resource pool utilization, alerts configured for task execution time thresholds that align with 15-minute optimization target"
+      ],
+      "fail_examples": [
+        "Generic monitoring setup that doesn't reflect specific performance optimization choices or resource allocation decisions"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Effective performance optimization requires monitoring integration to validate optimization effectiveness and ensure performance degradation is quickly detected"
+    },
+    {
+      "id": "connection_secret_management",
+      "category": "Security and Configuration",
+      "description": "Evaluates proper use of Airflow Connections and external secret backends, ensuring no hardcoded credentials in DAG code",
+      "pass_condition": "Uses Airflow connection manager with external secrets backend (e.g., HashiCorp Vault, AWS Secrets Manager), implements connection testing tasks with automatic rotation validation, zero hardcoded credentials, and connection pooling configuration for high-concurrency scenarios",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "airflow_connections",
+            "description": "Uses Airflow Connection objects for all external system connections",
+            "weight": 0.4,
+            "measurement": "binary_check",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "external_secrets",
+            "description": "Integrates external secrets backend (Vault, AWS Secrets Manager, etc.)",
+            "weight": 0.4,
+            "measurement": "binary_check",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "no_hardcoded_creds",
+            "description": "Zero hardcoded credentials, passwords, or API keys in DAG code",
+            "weight": 0.2,
+            "measurement": "binary_check",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Uses BaseHook.get_connection() to retrieve connection objects",
+        "Configures secrets_backend in airflow.cfg pointing to HashiCorp Vault",
+        "All credentials retrieved via Variable.get() or connection objects"
+      ],
+      "fail_examples": [
+        "Hardcoded database passwords in connection strings",
+        "API keys defined as string literals in DAG code",
+        "Direct credential embedding in task parameters"
+      ],
+      "domain": "Airflow ETL Pipeline Engineering",
+      "research_basis": "Uses Airflow connection manager and secrets backend like HashiCorp Vault or AWS Secrets Manager, avoiding hardcoded credentials"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "dag_architecture_design",
+      "name": "DAG Architecture & Design",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "source_integration_patterns",
+      "name": "Multi-Source Integration Patterns",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "schema_drift_management",
+      "name": "Schema Evolution & Drift Handling",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "idempotency_implementation",
+      "name": "Idempotency & Data Consistency",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling_resilience",
+      "name": "Error Handling & Resilience",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "performance_optimization",
+      "name": "Performance & Resource Optimization",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "data_quality_validation",
+      "name": "Data Quality & Validation",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "monitoring_alerting",
+      "name": "Monitoring & Alerting Framework",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "code_quality_standards",
+      "name": "Code Quality & Best Practices",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

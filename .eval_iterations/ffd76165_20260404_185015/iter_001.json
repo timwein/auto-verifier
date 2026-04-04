@@ -1,0 +1,1242 @@
+{
+  "run_id": "ffd76165_20260404_185015",
+  "iteration": 1,
+  "content": "**Subject: Series A - AI Fintech - 140% Growth - Seeking Partners**\n\nDear [Investor Name],\n\nI noticed your recent investment in [Portfolio Company] and your focus on early-stage fintech. \nGiven your track record backing companies like theirs, I wanted to reach out about DataFlow Financial.\n\n\nWe're building AI-powered cash flow forecasting for mid-market companies, solving the $2.8B problem of poor financial visibility. \nOur platform provides intelligent insights based on hundreds of financial micro-interactions, helping CFOs reduce forecasting errors by 65%.\n\n\n**Traction highlights:**\n\u2022 \n$47K MRR, growing 140% year-over-year\n\n\u2022 38 enterprise clients including 2 Fortune 500s\n\u2022 \nRaised $1.8M seed from Catalyst Ventures last year\n\n\u2022 Former Head of Finance at Stripe leading go-to-market\n\n\nWe're raising our $8M Series A to expand our sales team and accelerate market penetration.\n \nThe round is 60% committed with participation from our existing investors and two new institutional VCs.\n\n\n\nYour investment thesis around B2B financial infrastructure aligns perfectly with our vision.\n Would you be interested in a 20-minute call to discuss the opportunity?\n\n\nI'd be happy to send our pitch deck if there's initial interest.\n\n\nBest regards,\nSarah Chen\nFounder & CEO, DataFlow Financial\nsarah@dataflow.com",
+  "total_score": 78.87,
+  "max_score": 193,
+  "percentage": 0.4086528497409327,
+  "criterion_scores": [
+    {
+      "criterion_id": "optimal_word_count",
+      "points_earned": 2.62,
+      "max_points": 4,
+      "percentage": 0.6544502617801047,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "Word count: 191 (target: 50\u2013125) \u2717",
+      "methodology": "Deterministic: word count in range",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "mobile_subject_optimization",
+      "points_earned": 0.23,
+      "max_points": 5,
+      "percentage": 0.04583651642475172,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "Character count: 1,309 (target: \u226460) \u2717",
+      "methodology": "Deterministic: character count \u2264 max",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "portfolio_personalization",
+      "points_earned": 3.71,
+      "max_points": 11,
+      "percentage": 0.33749999999999997,
+      "sub_scores": [
+        {
+          "sub_id": "portfolio_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "relevance_connection",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "recent_activity",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: portfolio_specificity: 25%x45% + relevance_connection: 50%x35% + recent_activity: 25%x20%",
+      "improvement_hints": [
+        "portfolio_specificity: 25% -> 80% (+2.7 pts)",
+        "recent_activity: 25% -> 80% (+1.2 pts)",
+        "relevance_connection: 50% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "positive_signal_strength",
+      "points_earned": 4.2,
+      "max_points": 7,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "traction_metrics",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "strategic_backing",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "team_credentials",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: traction_metrics: 75%x40% + strategic_backing: 50%x35% + team_credentials: 50%x25%",
+      "improvement_hints": [
+        "strategic_backing: 50% -> 80% (+0.7 pts)",
+        "team_credentials: 50% -> 80% (+0.5 pts)",
+        "traction_metrics: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "domain_authentication",
+      "points_earned": 3.0,
+      "max_points": 3,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 3 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "specific_call_to_action",
+      "points_earned": 2.12,
+      "max_points": 5,
+      "percentage": 0.42500000000000004,
+      "sub_scores": [
+        {
+          "sub_id": "action_specificity",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_clarity",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "meeting_purpose",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: action_specificity: 50%x50% + timeline_clarity: 25%x30% + meeting_purpose: 50%x20%",
+      "improvement_hints": [
+        "timeline_clarity: 25% -> 80% (+0.8 pts)",
+        "action_specificity: 50% -> 80% (+0.8 pts)",
+        "meeting_purpose: 50% -> 80% (+0.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "preheader_optimization",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "character_count",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "curiosity_building",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "value_preview",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: character_count: 0%x40% + curiosity_building: 0%x35% + value_preview: 0%x25%",
+      "improvement_hints": [
+        "character_count: 0% -> 80% (+1.3 pts)",
+        "curiosity_building: 0% -> 80% (+1.1 pts)",
+        "value_preview: 0% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "angel_vs_vc_understanding",
+      "points_earned": 0.44,
+      "max_points": 5,
+      "percentage": 0.0875,
+      "sub_scores": [
+        {
+          "sub_id": "personal_investment_recognition",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "expertise_alignment",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "investment_size_appropriateness",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: personal_investment_recognition: 0%x40% + expertise_alignment: 25%x35% + investment_size_appropriateness: 0%x25%",
+      "improvement_hints": [
+        "personal_investment_recognition: 0% -> 80% (+1.6 pts)",
+        "investment_size_appropriateness: 0% -> 80% (+1.0 pts)",
+        "expertise_alignment: 25% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "founder_direct_outreach",
+      "points_earned": 4.0,
+      "max_points": 4,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 4 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "no_readily_available_info",
+      "points_earned": 3.1,
+      "max_points": 4,
+      "percentage": 0.775,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "asks_for_pitch_deck_first",
+          "penalty": -0.9
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 4 - -0.9",
+      "improvement_hints": [
+        "Fix asks_for_pitch_deck_first (+0.9 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "credibility_anchoring_strategy",
+      "points_earned": 1.44,
+      "max_points": 5,
+      "percentage": 0.2875,
+      "sub_scores": [
+        {
+          "sub_id": "validator_prominence",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "positioning_strategy",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "validation_context",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: validator_prominence: 50%x40% + positioning_strategy: 25%x35% + validation_context: 0%x25%",
+      "improvement_hints": [
+        "validation_context: 0% -> 80% (+1.0 pts)",
+        "positioning_strategy: 25% -> 80% (+1.0 pts)",
+        "validator_prominence: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "go_to_market_strategy_articulation",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "gtm_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "market_timing",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "strategic_insight",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: gtm_specificity: 25%x40% + market_timing: 25%x35% + strategic_insight: 25%x25%",
+      "improvement_hints": [
+        "gtm_specificity: 25% -> 80% (+1.1 pts)",
+        "market_timing: 25% -> 80% (+1.0 pts)",
+        "strategic_insight: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "low_drama_professionalism",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 5 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "anti_mass_email_signals",
+      "points_earned": 8.0,
+      "max_points": 10,
+      "percentage": 0.8,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "generic_placeholders",
+          "penalty": -2.0
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 10 - -2.0",
+      "improvement_hints": [
+        "Fix generic_placeholders (+2.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "targeted_contact_selection",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6,
+      "sub_scores": [
+        {
+          "sub_id": "single_contact",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "relevance_research",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "alignment_articulation",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: single_contact: 100%x40% + relevance_research: 25%x40% + alignment_articulation: 50%x20%",
+      "improvement_hints": [
+        "relevance_research: 25% -> 80% (+0.9 pts)",
+        "alignment_articulation: 50% -> 80% (+0.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "metrics_integrity_and_context",
+      "points_earned": 7.7,
+      "max_points": 11,
+      "percentage": 0.7,
+      "sub_scores": [
+        {
+          "sub_id": "absolute_scale",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeframe_context",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "baseline_honesty",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: absolute_scale: 100%x40% + timeframe_context: 100%x30% + baseline_honesty: 0%x30%",
+      "improvement_hints": [
+        "baseline_honesty: 0% -> 80% (+2.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "claim_specificity_and_verifiability",
+      "points_earned": 3.85,
+      "max_points": 11,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "investor_specificity",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "ip_detail",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "partnership_verification",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: investor_specificity: 50%x40% + ip_detail: 0%x30% + partnership_verification: 50%x30%",
+      "improvement_hints": [
+        "ip_detail: 0% -> 80% (+2.6 pts)",
+        "investor_specificity: 50% -> 80% (+1.3 pts)",
+        "partnership_verification: 50% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "unique_value_proposition_clarity",
+      "points_earned": 2.55,
+      "max_points": 6,
+      "percentage": 0.425,
+      "sub_scores": [
+        {
+          "sub_id": "competitive_differentiation",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "market_opportunity_sizing",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "investment_thesis_clarity",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: competitive_differentiation: 50%x40% + market_opportunity_sizing: 50%x30% + investment_thesis_clarity: 25%x30%",
+      "improvement_hints": [
+        "investment_thesis_clarity: 25% -> 80% (+1.0 pts)",
+        "competitive_differentiation: 50% -> 80% (+0.7 pts)",
+        "market_opportunity_sizing: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "investment_ask_appropriateness",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "ask_size_alignment",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "angel_role_understanding",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "round_positioning",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: ask_size_alignment: 25%x40% + angel_role_understanding: 0%x30% + round_positioning: 50%x30%",
+      "improvement_hints": [
+        "angel_role_understanding: 0% -> 80% (+1.0 pts)",
+        "ask_size_alignment: 25% -> 80% (+0.9 pts)",
+        "round_positioning: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_investment_thesis",
+      "points_earned": 1.75,
+      "max_points": 5,
+      "percentage": 0.35000000000000003,
+      "sub_scores": [
+        {
+          "sub_id": "value_proposition_clarity",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_positioning",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "market_timing_insight",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: value_proposition_clarity: 50%x40% + competitive_positioning: 25%x30% + market_timing_insight: 25%x30%",
+      "improvement_hints": [
+        "competitive_positioning: 25% -> 80% (+0.8 pts)",
+        "market_timing_insight: 25% -> 80% (+0.8 pts)",
+        "value_proposition_clarity: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "business_model_clarity",
+      "points_earned": 0.75,
+      "max_points": 5,
+      "percentage": 0.15,
+      "sub_scores": [
+        {
+          "sub_id": "revenue_model_explicit",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "unit_economics_hint",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "scalability_path",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: revenue_model_explicit: 0%x40% + unit_economics_hint: 25%x30% + scalability_path: 25%x30%",
+      "improvement_hints": [
+        "revenue_model_explicit: 0% -> 80% (+1.6 pts)",
+        "unit_economics_hint: 25% -> 80% (+0.8 pts)",
+        "scalability_path: 25% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "competitive_differentiation",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "market_awareness",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "specific_differentiation",
+          "raw_value": 0.5,
+          "weighted_value": 0.25,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_advantage",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: market_awareness: 0%x30% + specific_differentiation: 50%x50% + competitive_advantage: 0%x20%",
+      "improvement_hints": [
+        "market_awareness: 0% -> 80% (+1.0 pts)",
+        "competitive_advantage: 0% -> 80% (+0.6 pts)",
+        "specific_differentiation: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "investment_rationale_clarity",
+      "points_earned": 1.38,
+      "max_points": 5,
+      "percentage": 0.275,
+      "sub_scores": [
+        {
+          "sub_id": "use_of_funds",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timing_rationale",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "milestone_clarity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: use_of_funds: 50%x40% + timing_rationale: 25%x30% + milestone_clarity: 0%x30%",
+      "improvement_hints": [
+        "milestone_clarity: 0% -> 80% (+1.2 pts)",
+        "timing_rationale: 25% -> 80% (+0.8 pts)",
+        "use_of_funds: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "mutual_value_recognition",
+      "points_earned": 0.6,
+      "max_points": 4,
+      "percentage": 0.15,
+      "sub_scores": [
+        {
+          "sub_id": "investor_value_recognition",
+          "raw_value": 0.25,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "reciprocal_value_offer",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: investor_value_recognition: 25%x60% + reciprocal_value_offer: 0%x40%",
+      "improvement_hints": [
+        "reciprocal_value_offer: 0% -> 80% (+1.3 pts)",
+        "investor_value_recognition: 25% -> 80% (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "strategic_risk_awareness",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "challenge_acknowledgment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "mitigation_confidence",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: challenge_acknowledgment: 0%x50% + mitigation_confidence: 0%x50%",
+      "improvement_hints": [
+        "challenge_acknowledgment: 0% -> 80% (+1.6 pts)",
+        "mitigation_confidence: 0% -> 80% (+1.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "social_proof_pathway",
+      "points_earned": 0.5,
+      "max_points": 5,
+      "percentage": 0.1,
+      "sub_scores": [
+        {
+          "sub_id": "mutual_connection_presence",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "third_party_validation",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: mutual_connection_presence: 0%x60% + third_party_validation: 25%x40%",
+      "improvement_hints": [
+        "mutual_connection_presence: 0% -> 80% (+2.4 pts)",
+        "third_party_validation: 25% -> 80% (+1.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "investment_stage_coherence",
+      "points_earned": 3.0,
+      "max_points": 10,
+      "percentage": 0.3,
+      "sub_scores": [
+        {
+          "sub_id": "stage_investor_alignment",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "lead_follow_consistency",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_pressure_appropriateness",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: stage_investor_alignment: 0%x40% + lead_follow_consistency: 50%x30% + timeline_pressure_appropriateness: 50%x30%",
+      "improvement_hints": [
+        "stage_investor_alignment: 0% -> 80% (+3.2 pts)",
+        "lead_follow_consistency: 50% -> 80% (+0.9 pts)",
+        "timeline_pressure_appropriateness: 50% -> 80% (+0.9 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "manipulation_tactics_absence",
+      "points_earned": 3.4,
+      "max_points": 4,
+      "percentage": 0.85,
+      "sub_scores": [
+        {
+          "sub_id": "artificial_urgency_absence",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "scarcity_manipulation_absence",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "educational_vs_sales_tone",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: artificial_urgency_absence: 100%x40% + scarcity_manipulation_absence: 100%x30% + educational_vs_sales_tone: 50%x30%",
+      "improvement_hints": [
+        "educational_vs_sales_tone: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "operational_depth_sufficiency",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "customer_acquisition_mechanics",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "unit_economics_transparency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "scaling_challenge_awareness",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: customer_acquisition_mechanics: 0%x30% + unit_economics_transparency: 0%x30% + scaling_challenge_awareness: 0%x40%",
+      "improvement_hints": [
+        "customer_acquisition_mechanics: 0% -> 80% (+1.2 pts)",
+        "unit_economics_transparency: 0% -> 80% (+1.2 pts)",
+        "scaling_challenge_awareness: 0% -> 80% (+1.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "authentic_founder_voice",
+      "points_earned": 2.12,
+      "max_points": 5,
+      "percentage": 0.425,
+      "sub_scores": [
+        {
+          "sub_id": "technical_authenticity",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "business_language_naturalness",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "communication_polish_level",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: technical_authenticity: 50%x40% + business_language_naturalness: 50%x30% + communication_polish_level: 25%x30%",
+      "improvement_hints": [
+        "communication_polish_level: 25% -> 80% (+0.8 pts)",
+        "technical_authenticity: 50% -> 80% (+0.6 pts)",
+        "business_language_naturalness: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "organic_communication_flow",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75,
+      "sub_scores": [
+        {
+          "sub_id": "criterion_gaming_detection",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "information_flow_naturalness",
+          "raw_value": 0.75,
+          "weighted_value": 0.375,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: criterion_gaming_detection: 75%x50% + information_flow_naturalness: 75%x50%",
+      "improvement_hints": [
+        "criterion_gaming_detection: 75% -> 80% (+0.1 pts)",
+        "information_flow_naturalness: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "operational_reality_grounding",
+      "points_earned": 0.88,
+      "max_points": 5,
+      "percentage": 0.175,
+      "sub_scores": [
+        {
+          "sub_id": "operational_specificity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "constraint_realism",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "startup_experience_markers",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: operational_specificity: 25%x40% + constraint_realism: 0%x30% + startup_experience_markers: 25%x30%",
+      "improvement_hints": [
+        "constraint_realism: 0% -> 80% (+1.2 pts)",
+        "operational_specificity: 25% -> 80% (+1.1 pts)",
+        "startup_experience_markers: 25% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "investment_urgency_articulation",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "market_timing_catalyst",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "competitive_urgency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "window_of_opportunity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: market_timing_catalyst: 0%x40% + competitive_urgency: 0%x30% + window_of_opportunity: 0%x30%",
+      "improvement_hints": [
+        "market_timing_catalyst: 0% -> 80% (+1.6 pts)",
+        "competitive_urgency: 0% -> 80% (+1.2 pts)",
+        "window_of_opportunity: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "narrative_coherence_quality",
+      "points_earned": 3.0,
+      "max_points": 5,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "logical_flow",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "concept_connection",
+          "raw_value": 0.5,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: logical_flow: 75%x40% + concept_connection: 50%x60%",
+      "improvement_hints": [
+        "concept_connection: 50% -> 80% (+0.9 pts)",
+        "logical_flow: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "relationship_building_intent",
+      "points_earned": 0.88,
+      "max_points": 5,
+      "percentage": 0.175,
+      "sub_scores": [
+        {
+          "sub_id": "personal_interest",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "partnership_framing",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "curiosity_demonstration",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: personal_interest: 25%x40% + partnership_framing: 25%x30% + curiosity_demonstration: 0%x30%",
+      "improvement_hints": [
+        "curiosity_demonstration: 0% -> 80% (+1.2 pts)",
+        "personal_interest: 25% -> 80% (+1.1 pts)",
+        "partnership_framing: 25% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

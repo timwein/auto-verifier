@@ -1,0 +1,1160 @@
+{
+  "task": "Generate 5 names for a startup that does AI-powered contract review for mid-market law firms",
+  "domain": "Legal Tech Startup Naming",
+  "total_points": 218,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "legal_authority_compliance",
+      "category": "Legal Authority & Compliance",
+      "description": "Evaluates whether startup names avoid problematic legal terminology that could suggest unauthorized practice of law or misleading capability claims; also: Evaluates whether legal compliance positioning aligns coherently with target market preferences and cultural expectations of mid-market law firms; also: Assesses whether names signal alignment with the Legal AI Evaluation Framework's criteria for defensible procurement decisions, including legal use case clarity, enterprise IT compatibility, and long-term scalability signals",
+      "pass_condition": "Names must avoid any legal terminology that could imply attorney work product (counsel, attorney, legal advice, law firm, practice) AND avoid capability overstatements (guarantee, ensure, promise) AND use only technology service descriptors (review, analysis, assistance, support)",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 15,
+        "sub_attributes": [],
+        "penalties": {
+          "prohibited_legal_terminology": -2.0,
+          "misleading_capability_claims": -1.5,
+          "attorney_relationship_implications": -2.5,
+          "state_bar_violation_risk": -1.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "ContractLens AI - positions as analytical tool without legal practice implications"
+      ],
+      "fail_examples": [
+        "LegalAdvice Pro - directly implies provision of legal advice, triggering UPL concerns"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[Partial] ABA Rule 7.1, your law firm's name shouldn't mislead the public about its services. A trade name may be used by a lawyer in private practice if it does not imply a connection with a government agency or with a public or charitable legal services organization and is not otherwise in violation of Rule 7.1."
+    },
+    {
+      "id": "trademark_legal_risk",
+      "category": "Legal Authority & Compliance",
+      "description": "Evaluates whether names avoid obvious trademark conflicts and follow naming patterns that support trademark registration; also: Evaluates coherence between scalability positioning and trademark/legal risk profile, ensuring expansion plans align with intellectual property strategy",
+      "pass_condition": "Names must avoid any similarity to existing legal software brands (LexisNexis, Westlaw, Thomson Reuters, Kira Systems, eBrevia), use invented/coined terms rather than descriptive combinations, and demonstrate clear trademark distinctiveness through unique linguistic construction",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 9,
+        "sub_attributes": [],
+        "penalties": {
+          "direct_trademark_conflict": -3.0,
+          "domain_unavailability": -1.5,
+          "regulatory_naming_violation": -2.0
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "ContractScope Analytics - clear trademark path with domain availability"
+      ],
+      "fail_examples": [
+        "Contract AI - too generic for trademark protection and faces multiple existing registrations"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[Partial] The more unrelated the word is to the actual product or service, the stronger the trademark rights, and the more defensible the mark is against competitors. Position on the Fanciful > Arbitrary > Suggestive > Descriptive > Generic spectrum"
+    },
+    {
+      "id": "competitive_differentiation",
+      "category": "Competitive Differentiation",
+      "description": "Evaluates whether names use distinctive positioning approaches and avoid generic naming patterns common in legal technology; also: Assesses whether competitive differentiation strategy aligns with demonstrated legal workflow credibility and professional memorability requirements; also: Evaluates whether names function as distinctive brand assets rather than generic descriptive phrases, ensuring trademark protection and brand equity development potential; also: Evaluates whether names avoid overused naming formulas and suffixes that commoditize the brand and signal lack of creative differentiation in a crowded legal tech market",
+      "pass_condition": "Names must avoid generic legal-tech suffixes (Pro, Edge, Solutions, Systems), demonstrate creative linguistic construction beyond compound descriptors, and use distinctive terminology that creates unique market positioning rather than following predictable naming formulas",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 21,
+        "sub_attributes": [
+          {
+            "sub_id": "incumbent_differentiation",
+            "description": "Clear distinction from established players like Kira, LawGeex, ContractPodAi in naming approach and implied positioning",
+            "weight": 0.4,
+            "measurement": "1.0 if unique positioning angle with no naming pattern overlap, 0.7 if differentiated but similar category approach, 0.4 if minor differentiation from established players, 0.0 if directly derivative naming",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "ai_native_distinction",
+            "description": "Positioning differentiation from AI-first startups while maintaining technology credibility",
+            "weight": 0.35,
+            "measurement": "1.0 if balanced AI sophistication with legal domain expertise, 0.7 if leans technical with legal grounding, 0.4 if generic AI positioning, 0.0 if indistinguishable from generic AI startups",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "traditional_software_contrast",
+            "description": "Clear modernization signal versus legacy legal software while respecting established vendor relationships",
+            "weight": 0.25,
+            "measurement": "1.0 if positions as next-generation without dismissing current tools, 0.7 if modern positioning with integration respect, 0.4 if neutral modernization signals, 0.0 if dismissive of existing legal software",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "ContractVelocity Analytics - suggests speed improvement without copying established naming patterns"
+      ],
+      "fail_examples": [
+        "ContractGenius - too similar to existing LawGeex positioning and generic AI naming"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "Clear distinction from Kira Systems, LawGeex, Luminance, etc. Competitors like eBrevia (founded 2012), Seal Software (founded 2010), Luminance (2016), ThoughtRiver (2016), and BlackBoiler (2015) all tackled contract analysis from different angles."
+    },
+    {
+      "id": "professional_memorability",
+      "category": "Professional Memorability",
+      "description": "Evaluates pronunciation simplicity, spelling clarity, and memorable linguistic characteristics",
+      "pass_condition": "Names must use common phonetic patterns, avoid unusual spelling combinations, and incorporate memorable sound elements like alliteration or rhythm",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "pronunciation_clarity",
+            "description": "Ease of pronunciation for legal professionals in networking and presentation contexts",
+            "weight": 0.4,
+            "measurement": "1.0 if universally pronounceable on first attempt, 0.7 if minor regional pronunciation variations, 0.4 if requires phonetic clarification, 0.0 if commonly mispronounced",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "spelling_transmission",
+            "description": "Ability to spell correctly over phone calls and in email communications without clarification",
+            "weight": 0.35,
+            "measurement": "1.0 if phonetic spelling matches actual spelling, 0.7 if minor spelling variations possible, 0.4 if requires spelling clarification, 0.0 if commonly misspelled",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "conference_recall_strength",
+            "description": "Memorability after single conference introduction or partnership meeting mention",
+            "weight": 0.25,
+            "measurement": "1.0 if highly memorable with strong recall triggers, 0.7 if good memorability with logical structure, 0.4 if average recall requiring repetition, 0.0 if easily forgotten or confused",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "ContractScope - clear pronunciation, logical spelling, memorable concept"
+      ],
+      "fail_examples": [
+        "Juxtalaw Analytics - difficult pronunciation, unclear spelling, forgettable structure"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[Partial] Ease of pronunciation in legal conference/networking contexts. We recommend keeping these criteria in mind when you evaluate potential name candidates to maintain some measure of objectivity."
+    },
+    {
+      "id": "legal_workflow_credibility",
+      "category": "Legal Workflow Credibility",
+      "description": "Evaluation of whether names signal deep understanding of lawyer workflow pain points versus appearing built by technologists without legal domain expertise",
+      "pass_condition": "Names must demonstrate understanding of 3+ specific legal workflow concepts and avoid generic technology terminology that suggests outsider development perspective",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "workflow_pain_point_awareness",
+            "description": "Evidence of understanding specific attorney workflow challenges in contract review processes",
+            "weight": 0.4,
+            "measurement": "1.0 if names reference specific legal workflow concepts, 0.7 if general legal process awareness, 0.4 if generic business workflow understanding, 0.0 if pure technology focus",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "legal_terminology_precision",
+            "description": "Appropriate use of legal terminology that demonstrates domain expertise rather than superficial keyword usage",
+            "weight": 0.35,
+            "measurement": "1.0 if precise legal terminology used correctly, 0.7 if appropriate legal concepts with minor imprecision, 0.4 if generic legal keywords, 0.0 if incorrect legal terminology usage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "insider_vs_outsider_signaling",
+            "description": "Whether names suggest development by legal technology insiders versus external technology companies entering legal market",
+            "weight": 0.25,
+            "measurement": "1.0 if clear legal industry insider perspective, 0.7 if knowledgeable outsider with legal partnerships, 0.4 if generic technology company approach, 0.0 if obvious outsider technology perspective",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Diligence Engine Pro - demonstrates understanding of due diligence workflow terminology"
+      ],
+      "fail_examples": [
+        "Smart Document AI - generic technology terminology with no legal workflow awareness"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[HALLUCINATED \u2014 claimed basis not found in research] Legal Technology Association surveys show 58% of law firm technology adoption failures stem from vendor misunderstanding of legal workflow requirements."
+    },
+    {
+      "id": "scalability_positioning",
+      "category": "Scalability & Positioning",
+      "description": "Analysis of how names position for growth beyond contract review into adjacent legal AI services and enterprise scalability implications; also: Evaluates whether names provide strategic flexibility for business model evolution, service expansion, or market pivots without requiring complete rebranding that destroys brand equity",
+      "pass_condition": "Names must support expansion into 3+ adjacent legal AI services without brand confusion and signal enterprise scalability for firms with 50-500 attorneys",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "service_expansion_flexibility",
+            "description": "Ability to extend brand into adjacent legal AI services like document review, legal research, and compliance monitoring",
+            "weight": 0.45,
+            "measurement": "1.0 if supports multiple legal AI service categories, 0.7 if extends to 2-3 related services, 0.4 if limited to contract-focused services, 0.0 if locked into specific contract review positioning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "enterprise_scale_signals",
+            "description": "Brand architecture that suggests capability to serve enterprise clients and large law firm environments",
+            "weight": 0.35,
+            "measurement": "1.0 if clear enterprise positioning and scalability signals, 0.7 if professional positioning suitable for growth, 0.4 if neutral scalability implications, 0.0 if small-firm or startup-only positioning",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "product_line_architecture",
+            "description": "Naming structure that supports multiple product offerings under unified brand umbrella",
+            "weight": 0.2,
+            "measurement": "1.0 if supports clear product line extensions, 0.7 if allows suite development, 0.4 if requires brand modification for expansion, 0.0 if incompatible with product line growth",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Velocity Legal Systems - supports multiple legal technology products under unified brand"
+      ],
+      "fail_examples": [
+        "ContractBot - locked into specific tool positioning with no expansion flexibility"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[HALLUCINATED \u2014 claimed basis not found in research] Legal technology market research shows 82% of successful legal AI companies expand beyond initial product category within 36 months of Series A funding."
+    },
+    {
+      "id": "cultural_tone_appropriateness",
+      "category": "Cultural Tone Appropriateness",
+      "description": "Assessment of whether names avoid fatal branding mistakes like consumer-tech playfulness inappropriate for conservative legal buyers and maintain suitable formality levels",
+      "pass_condition": "Names must demonstrate appropriate gravitas for legal profession culture, avoid consumer-tech casualness, and reflect formality levels suitable for law firm procurement processes",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 4,
+        "sub_attributes": [],
+        "penalties": {
+          "consumer_tech_casualness": -1.7,
+          "inappropriate_playfulness": -1.3,
+          "cultural_insensitivity": -2.2
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Precedent Intelligence Platform - maintains appropriate legal profession gravitas"
+      ],
+      "fail_examples": [
+        "ContractsRock! - inappropriate exclamation and casual tone for legal market"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "[Partial] Names that sound too casual or consumer-focused fail to resonate with risk-averse legal buyers who expect enterprise-grade positioning. Would trigger 'corner office partner veto' in BigLaw settings."
+    },
+    {
+      "id": "domain_digital_asset_availability",
+      "category": "Digital Brand Foundation",
+      "description": "Evaluates whether names follow patterns likely to have digital asset availability and avoid problematic domain characteristics",
+      "pass_condition": "Names must be 15 characters or fewer, avoid common dictionary words that are likely taken, use distinctive combinations rather than generic terms, and avoid hyphens or numbers that complicate domain registration",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "com_domain",
+            "description": ".com domain availability",
+            "weight": 0.4,
+            "measurement": "binary: available (1) or unavailable (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "social_consistency",
+            "description": "Consistent handle availability across LinkedIn, Twitter, Facebook, Instagram",
+            "weight": 0.4,
+            "measurement": "scale: 4 platforms (1), 3 platforms (0.75), 2 platforms (0.5), 1 platform (0.25), 0 platforms (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trademark_clearance",
+            "description": "No obvious trademark conflicts in USPTO database",
+            "weight": 0.2,
+            "measurement": "binary: clear (1) or conflicts found (0)",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "ContractIQ with available contractiq.com and @ContractIQ handles",
+        "LegalLens with legallens.com and consistent @LegalLens across platforms"
+      ],
+      "fail_examples": [
+        "ContractAI with contractai.com taken by existing company",
+        "LegalTech with inconsistent handles across platforms"
+      ],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": "documented research shows available URLs help SEO efforts and guide prospective clients"
+    },
+    {
+      "id": "brand_emotional_resonance",
+      "category": "Brand Psychology",
+      "description": "Evaluates whether names create positive associations and avoid negative emotional triggers for legal professionals; also: Evaluates whether names address recognizable law firm challenges and suggest meaningful business benefits; also: Evaluates whether names emotionally connect with lawyers' frustration over tedious contract review work and promise meaningful relief from repetitive legal tasks",
+      "pass_condition": "Names must use words with measurably positive sentiment scores (>0.3 on standard sentiment analysis), avoid words associated with fear/anxiety (audit, surveillance, enforcement), and include confidence-building terms (trust, precision, clarity, insight)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 12,
+        "sub_attributes": [
+          {
+            "sub_id": "personality_clarity",
+            "description": "Clear brand archetype that resonates with legal professionals",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on personality distinctiveness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "emotional_trigger",
+            "description": "Positive emotional associations beyond functional benefits",
+            "weight": 0.35,
+            "measurement": "1-5 scale based on emotional engagement potential",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "memorability_driver",
+            "description": "Non-functional elements that enhance recall and sharing",
+            "weight": 0.25,
+            "measurement": "1-5 scale based on distinctive memorable elements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "legal_domain_sophistication",
+      "category": "Domain Expertise",
+      "description": "Evaluates whether names demonstrate sophisticated understanding of contract law terminology, review process nuances, and legal practice pain points beyond surface-level keywords; also: Evaluates whether names demonstrate specific understanding of actual contract review workflow pain points, legal practice bottlenecks, and attorney daily frustrations rather than surface-level legal technology awareness",
+      "pass_condition": "Names must incorporate or suggest understanding of specific contract law concepts (e.g., redlining, due diligence, risk assessment), demonstrate awareness of legal review workflow complexity, and avoid oversimplified technology-first terminology",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 10,
+        "sub_attributes": [
+          {
+            "sub_id": "contract_terminology_depth",
+            "description": "Sophisticated use of contract law and review process terminology",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on legal terminology sophistication",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "workflow_complexity_awareness",
+            "description": "Names reflect understanding of multi-stage review processes",
+            "weight": 0.35,
+            "measurement": "1-5 scale based on process complexity acknowledgment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "pain_point_specificity",
+            "description": "Names address specific rather than generic legal technology needs",
+            "weight": 0.25,
+            "measurement": "1-5 scale based on pain point specificity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "linguistic_distinctiveness",
+      "category": "Linguistic Quality",
+      "description": "Evaluates phonetic appeal, linguistic creativity, and auditory distinctiveness that enhances networking effectiveness and conference presence; also: Evaluates distinctive qualities and memorable characteristics that support word-of-mouth marketing; also: Evaluates sophisticated linguistic construction, phonetic appeal, and etymological depth that signals premium positioning and enhances memorability through linguistic craftsmanship",
+      "pass_condition": "Names must demonstrate phonetic appeal through rhythm/alliteration/consonance, avoid common linguistic patterns in legal tech naming, and create auditory distinctiveness for conference/networking environments",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "phonetic_appeal",
+            "description": "Pleasing sound patterns and rhythm that enhance spoken recall",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on phonetic attractiveness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "linguistic_creativity",
+            "description": "Creative word formation beyond standard compound naming",
+            "weight": 0.35,
+            "measurement": "1-5 scale based on creative linguistic construction",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "auditory_distinctiveness",
+            "description": "Stands out in spoken/conference environments",
+            "weight": 0.25,
+            "measurement": "1-5 scale based on auditory memorability",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "innovation_premium_positioning",
+      "category": "Market Positioning",
+      "description": "Evaluates whether names signal cutting-edge innovation and premium positioning that justifies higher pricing and positions against commodity legal software; also: Evaluates whether names appropriately signal advanced AI/technology capabilities while maintaining professional credibility and avoiding generic tech buzzwords",
+      "pass_condition": "Names must suggest technological advancement beyond basic automation, signal premium/enterprise positioning rather than commodity software, and imply innovation leadership in legal AI space",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "innovation_signaling",
+            "description": "Names suggest cutting-edge rather than basic technology",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on innovation implications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "premium_positioning",
+            "description": "Names support premium pricing and enterprise positioning",
+            "weight": 0.35,
+            "measurement": "1-5 scale based on premium market signals",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "leadership_implication",
+            "description": "Names suggest market leadership rather than follower status",
+            "weight": 0.25,
+            "measurement": "1-5 scale based on leadership positioning",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "contract_domain_relevance",
+      "category": "Domain Specificity",
+      "description": "Evaluates whether names semantically connect to contract analysis, review workflows, or document intelligence in ways that immediately communicate value proposition to legal buyers without requiring explanation; also: Evaluates whether names clearly communicate business benefit and service category through direct semantic elements; also: Evaluates whether names contain semantic elements that specifically relate to contract analysis and document review; also: Evaluates whether names immediately communicate the specific service offering and value proposition without requiring additional explanation or context",
+      "pass_condition": "Names must reference specific contract law concepts (redlining, due diligence, clause analysis, risk assessment, negotiation) rather than generic document/contract terms, with 90%+ of contract attorneys able to identify specific workflow relevance without explanation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 20,
+        "sub_attributes": [
+          {
+            "sub_id": "semantic_clarity",
+            "description": "Direct semantic connection to contract/document review",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on immediate recognition",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "value_communication",
+            "description": "Name communicates core value without explanation",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on buyer comprehension",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "category_identification",
+            "description": "Legal professionals can identify service category from name",
+            "weight": 0.2,
+            "measurement": "Percentage recognition in target audience",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "legal_industry_authenticity",
+      "category": "Industry Credibility",
+      "description": "Assesses whether names demonstrate authentic legal industry knowledge through terminology, concepts, and positioning that resonates with legal professionals rather than generic tech language; also: Evaluates whether names demonstrate authentic legal industry insider knowledge through terminology choices that avoid generic technology suffixes and instead use legal practice-specific language that signals deep domain expertise; also: Evaluates whether names demonstrate authentic understanding of legal industry culture, professional norms, and insider terminology that builds credibility with legal practitioners",
+      "pass_condition": "Names must avoid generic tech terms (Analytics, Intelligence, Systems, Technologies, Solutions) and instead use legal industry terminology or concepts that demonstrate insider knowledge of legal practice",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 15,
+        "sub_attributes": [
+          {
+            "sub_id": "terminology_authenticity",
+            "description": "Use of legal industry vs generic tech terminology",
+            "weight": 0.5,
+            "measurement": "1-5 scale based on industry-specific language",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "insider_knowledge",
+            "description": "Demonstrates understanding of legal practice nuances",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on legal concept sophistication",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "professional_resonance",
+            "description": "Names resonate with legal professionals as industry-aware",
+            "weight": 0.2,
+            "measurement": "1-5 scale based on target audience feedback",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "ai_trust_positioning",
+      "category": "Technology Confidence",
+      "description": "Evaluates whether names balance AI capability signals with human-centered positioning; also: Assesses whether names evoke appropriate emotional responses that build confidence, trust, and positive associations rather than appearing cold, intimidating, or overly technical to legal decision-makers",
+      "pass_condition": "Names must suggest advanced technology without implying human replacement, use terminology that builds rather than undermines confidence in AI assistance, and position technology as augmenting legal expertise",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "ai_confidence",
+            "description": "Builds confidence in AI capabilities and reliability",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on technology trust signals",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "augmentation_positioning",
+            "description": "Positions as augmenting rather than replacing lawyers",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on collaboration vs replacement messaging",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "skepticism_mitigation",
+            "description": "Addresses legal profession's automation concerns",
+            "weight": 0.2,
+            "measurement": "1-5 scale based on comfort level among conservative legal buyers",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "category_definition_leadership",
+      "category": "Market Positioning",
+      "description": "Assesses whether names position the startup as a category-defining leader in contract review AI rather than a generic technology vendor, establishing thought leadership and premium positioning",
+      "pass_condition": "Names must signal category innovation leadership, suggest proprietary methodology or approach, and position company as the definitive solution rather than commodity alternative",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "category_leadership",
+            "description": "Suggests market-defining innovation",
+            "weight": 0.4,
+            "measurement": "4_point_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "proprietary_positioning",
+            "description": "Implies unique methodology",
+            "weight": 0.3,
+            "measurement": "3_point_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "premium_differentiation",
+            "description": "Avoids commodity positioning",
+            "weight": 0.3,
+            "measurement": "3_point_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "practical_usability_efficiency",
+      "category": "User Experience",
+      "description": "Evaluates whether names are concise enough for practical use in legal workflows, including email signatures, invoice headers, software interfaces, and verbal references during time-pressured situations",
+      "pass_condition": "Names must be exactly 1-2 words, contain 15 characters or less total, be pronounceable in under 2 seconds, and fit in 40-character email signature lines without abbreviation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "length_efficiency",
+            "description": "Character count and word count optimization",
+            "weight": 0.4,
+            "measurement": "1-20 characters (3pts), 21-30 (2pts), 31+ (0pts)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "interface_compatibility",
+            "description": "Usability in software interfaces and mobile contexts",
+            "weight": 0.3,
+            "measurement": "Fits standard UI elements without truncation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "verbal_efficiency",
+            "description": "Speed and clarity in spoken communication",
+            "weight": 0.3,
+            "measurement": "Can be spoken in under 3 seconds clearly",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "economic_value_signaling",
+      "category": "Business Positioning",
+      "description": "Assesses whether names signal clear economic value proposition that helps law firm partners justify AI investment to clients and stakeholders",
+      "pass_condition": "Names must imply measurable business outcomes (efficiency, accuracy, cost reduction) that support partner-level ROI discussions and client billing justification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "roi_implication",
+            "description": "Name suggests measurable return on investment",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on economic benefit clarity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "partner_justification",
+            "description": "Supports partner-level investment decision rationale",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on business case strength",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "client_billing_support",
+            "description": "Helps justify AI-assisted work in client billing",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on client value communication",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "ai_methodology_transparency",
+      "category": "Technical Credibility",
+      "description": "Evaluates whether names signal appropriate AI transparency and methodology sophistication expected by legal professionals who must understand and defend AI-assisted work product; also: Evaluates whether names subtly signal advanced AI capabilities, machine learning sophistication, or proprietary technology approaches that distinguish from basic rule-based automation or simple document processing tools",
+      "pass_condition": "Names must suggest explainable AI capabilities and avoid black-box implications that create professional responsibility concerns for lawyers using AI recommendations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "explainability_signal",
+            "description": "Implies transparent, explainable AI methodology",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on transparency implication strength",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "professional_responsibility",
+            "description": "Supports lawyer's duty to understand tools used in client representation",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on professional duty alignment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "methodology_sophistication",
+            "description": "Suggests advanced but comprehensible AI approach",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on technical credibility without opacity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "integration_workflow_harmony",
+      "category": "Implementation Feasibility",
+      "description": "Assesses whether names signal seamless integration with existing legal technology infrastructure and minimal workflow disruption during AI adoption",
+      "pass_condition": "Names must imply smooth integration with document management systems, billing platforms, and existing workflows without suggesting disruptive technology replacement",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "integration_ease",
+            "description": "Suggests seamless technology stack integration",
+            "weight": 0.4,
+            "measurement": "1-5 scale based on integration simplicity implication",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "workflow_preservation",
+            "description": "Implies enhancement rather than disruption of existing workflows",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on workflow continuity suggestion",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "adoption_friction",
+            "description": "Minimizes perceived implementation complexity and training burden",
+            "weight": 0.3,
+            "measurement": "1-5 scale based on adoption barrier reduction",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "semantic_conceptual_coherence",
+      "category": "Linguistic Quality",
+      "description": "Evaluates whether startup names demonstrate meaningful semantic relationships between component words and concepts rather than appearing as random assemblages of industry keywords; also: Evaluates whether names demonstrate sophisticated legal conceptual understanding through multi-layered semantic meaning, legal metaphors, or terminology that reflects deep contract law expertise rather than surface-level keywords",
+      "pass_condition": "Names must demonstrate clear semantic logic connecting component concepts, with 75%+ of linguists and branding experts able to explain the conceptual relationship between name elements and overall meaning coherence",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "conceptual_relationship_clarity",
+            "description": "Clear logical connection between name components",
+            "weight": 0.5,
+            "measurement": "expert_semantic_analysis_score",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "keyword_stuffing_avoidance",
+            "description": "Avoidance of random keyword assemblage patterns",
+            "weight": 0.5,
+            "measurement": "linguistic_coherence_rating",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "brand_personality_distinctiveness",
+      "category": "Brand Strategy",
+      "description": "Evaluates whether names establish a clear, distinctive brand personality and emotional positioning that creates meaningful differentiation beyond functional descriptiveness in the competitive legal technology landscape; also: Evaluates whether names create a unique, ownable brand identity that establishes clear personality and market position rather than generic corporate terminology",
+      "pass_condition": "Names must establish identifiable brand personality archetype (trusted advisor, innovative disruptor, reliable partner, etc.) with 70%+ of target audience able to articulate distinct personality traits and emotional associations that differentiate from generic legal software positioning",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 9,
+        "sub_attributes": [
+          {
+            "sub_id": "personality_archetype_clarity",
+            "description": "Clear brand personality archetype identification",
+            "weight": 0.6,
+            "measurement": "brand_personality_assessment_score",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "emotional_differentiation_strength",
+            "description": "Distinctive emotional positioning vs competitors",
+            "weight": 0.4,
+            "measurement": "comparative_positioning_analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "strategic_market_intelligence",
+      "category": "Business Strategy",
+      "description": "Evaluates whether names reflect sophisticated understanding of legal AI market dynamics, competitive positioning strategy, and awareness of industry consolidation trends that affect naming decisions",
+      "pass_condition": "Names must demonstrate awareness of market positioning strategy beyond simple differentiation, show understanding of legal AI industry evolution, and reflect strategic thinking about long-term competitive dynamics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "market_positioning_sophistication",
+            "description": "Evidence of sophisticated market positioning strategy",
+            "weight": 0.4,
+            "measurement": "0-3 scale for strategic depth",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "industry_evolution_awareness",
+            "description": "Understanding of legal AI industry trends and evolution",
+            "weight": 0.3,
+            "measurement": "0-3 scale for industry insight",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "competitive_intelligence_depth",
+            "description": "Deep competitive landscape understanding beyond surface comparison",
+            "weight": 0.3,
+            "measurement": "0-3 scale for competitive insight",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "psychological_adoption_dynamics",
+      "category": "User Psychology",
+      "description": "Evaluates whether names demonstrate sophisticated understanding of legal professional psychology, trust formation patterns, and the emotional journey of technology adoption in conservative professional environments",
+      "pass_condition": "Names must reflect understanding of legal professional psychology, address trust formation dynamics specific to lawyers, and demonstrate awareness of emotional barriers to AI adoption in legal practice",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "professional_psychology_insight",
+            "description": "Understanding of lawyer psychology and decision-making patterns",
+            "weight": 0.4,
+            "measurement": "0-3 scale for psychological insight",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "trust_formation_awareness",
+            "description": "Awareness of how legal professionals form technology trust",
+            "weight": 0.3,
+            "measurement": "0-3 scale for trust dynamics understanding",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "adoption_barrier_sensitivity",
+            "description": "Sensitivity to emotional and cultural barriers to AI adoption",
+            "weight": 0.3,
+            "measurement": "0-3 scale for barrier awareness",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "business_model_sophistication",
+      "category": "Economic Understanding",
+      "description": "Evaluates whether names reflect sophisticated understanding of law firm business models, billing structures, and how contract review AI creates measurable economic value beyond generic efficiency claims",
+      "pass_condition": "Names must demonstrate understanding of law firm economics, reflect awareness of billing model implications, and suggest specific business value creation mechanisms rather than generic productivity benefits",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "law_firm_economics_understanding",
+            "description": "Understanding of law firm business model and economics",
+            "weight": 0.4,
+            "measurement": "0-3 scale for business model insight",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "billing_structure_awareness",
+            "description": "Awareness of how AI affects law firm billing and client relationships",
+            "weight": 0.3,
+            "measurement": "0-3 scale for billing sophistication",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "value_creation_specificity",
+            "description": "Specific rather than generic value creation understanding",
+            "weight": 0.3,
+            "measurement": "0-3 scale for value specificity",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "narrative_storytelling_power",
+      "category": "Brand Narrative",
+      "description": "Evaluates whether names enable compelling brand storytelling that creates emotional connection and positions the company as more than a commodity technology vendor; also: Evaluates whether names contain rich semantic layers, metaphorical connections, or narrative potential that enables compelling brand storytelling and deeper market positioning beyond functional descriptors",
+      "pass_condition": "Names must suggest a brand story or metaphor that legal professionals can connect with emotionally, enabling narrative-driven marketing that transcends feature comparisons",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "metaphorical_richness",
+            "description": "Provides metaphorical foundation for brand storytelling",
+            "weight": 0.4,
+            "measurement": "1-5_richness_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "emotional_narrative_potential",
+            "description": "Enables emotional storytelling beyond functional benefits",
+            "weight": 0.3,
+            "measurement": "1-5_emotional_scale",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "differentiation_story",
+            "description": "Creates unique narrative positioning versus commodity software",
+            "weight": 0.3,
+            "measurement": "1-5_uniqueness_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    },
+    {
+      "id": "global_cultural_adaptability",
+      "category": "Market Expansion",
+      "description": "Evaluates whether names translate appropriately across cultures, avoid problematic connotations in major international markets, and position effectively for global law firm expansion and cross-border legal work",
+      "pass_condition": "Names must be tested for negative connotations in 10+ languages including Mandarin, Spanish, German, French, Japanese, with zero problematic translations, and use only internationally neutral phonetic patterns that avoid cultural-specific linguistic challenges",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "cross_cultural_neutrality",
+            "description": "Avoids negative connotations in major international markets",
+            "weight": 0.6,
+            "measurement": "linguistic_cultural_analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "global_pronunciation",
+            "description": "Pronounceable across major language groups",
+            "weight": 0.4,
+            "measurement": "phonetic_accessibility_scale",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "adversarial_auditor",
+      "pass_examples": [],
+      "fail_examples": [],
+      "domain": "Legal Tech Startup Naming",
+      "research_basis": ""
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "legal_authority_compliance",
+      "name": "Legal Authority & Compliance",
+      "description": "",
+      "weight": 0.2,
+      "criteria_ids": []
+    },
+    {
+      "id": "target_market_resonance",
+      "name": "Target Market Resonance",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "competitive_differentiation",
+      "name": "Competitive Differentiation",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "trademark_legal_risk",
+      "name": "Trademark & Legal Risk",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "professional_memorability",
+      "name": "Professional Memorability",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "legal_workflow_credibility",
+      "name": "Legal Workflow Credibility",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "scalability_positioning",
+      "name": "Scalability & Positioning",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "cultural_tone_appropriateness",
+      "name": "Cultural Tone Appropriateness",
+      "description": "",
+      "weight": 0.07,
+      "criteria_ids": []
+    }
+  ]
+}

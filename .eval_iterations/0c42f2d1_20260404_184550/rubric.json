@@ -1,0 +1,829 @@
+{
+  "task": "Write a step-by-step debugging walkthrough for a race condition in a Node.js Express app where concurrent requests to a shared PostgreSQL connection pool cause intermittent 500 errors under load",
+  "domain": "Node.js Race Condition Debugging",
+  "total_points": 87,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "pool_config_depth",
+      "category": "Connection Pool Engineering",
+      "description": "Evaluates the depth of pg-pool configuration analysis including pool size calculations, connection lifecycle management, and PostgreSQL server-side limits. Expert-level requires quantitative pool sizing methodology and comprehensive timeout configuration.",
+      "pass_condition": "Must address pool sizing with quantitative methodology (CPU cores, concurrent requests, or load testing data), specify at least 3 timeout parameters with values/ranges, and explain connection acquisition/release lifecycle patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "pool_sizing_methodology",
+            "description": "Demonstrates mathematical approach to pool sizing based on load patterns and database limits",
+            "weight": 0.4,
+            "measurement": "1.0 if includes formula/calculation considering concurrent requests and database max_connections, 0.7 if mentions sizing considerations without calculations, 0.4 if generic pool size mention, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeout_configuration_specifics",
+            "description": "Addresses multiple timeout parameters with specific values or ranges",
+            "weight": 0.35,
+            "measurement": "1.0 if covers 3+ timeout types (idle, acquire, connection) with specific values, 0.7 if covers 2 timeout types with values, 0.4 if mentions timeouts without specifics, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_lifecycle_management",
+            "description": "Explains connection acquisition, usage, and release patterns in detail",
+            "weight": 0.25,
+            "measurement": "1.0 if covers acquisition queue, proper release in error handlers, and connection state validation, 0.7 if covers proper release patterns, 0.4 if basic connection management mention, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Calculates pool size as min(CPU_cores * 2, max_connections / num_app_instances) and sets idleTimeoutMillis to 30000, acquireTimeoutMillis to 60000"
+      ],
+      "fail_examples": [
+        "Mentions increasing pool size without calculation methodology or specific timeout values"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "PgBouncer is recognized as an efficient connection pooler for PostgreSQL, incorporating three distinct pooling modes: session pooling, transaction pooling, and statement pooling. Proper pool configuration involves tuning parameters like max_client_conn (e.g., 500), default_pool_size (e.g., 20), and idle_timeout (300 seconds)."
+    },
+    {
+      "id": "connection_antipattern_detection",
+      "category": "Connection Pool Engineering",
+      "description": "Identifies critical anti-patterns that cause connection leaks and race conditions in production Node.js applications through specific code examples.",
+      "pass_condition": "Must identify at least 3 specific anti-patterns with concrete code examples: missing connection release in error handlers, shared connections across request contexts, improper transaction nesting, or blocking operations within connection scope",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_error_handler_release": -2.0,
+          "no_shared_connection_warning": -1.5,
+          "missing_transaction_isolation": -1.0,
+          "no_blocking_operation_detection": -1.0,
+          "absent_connection_validation": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies missing client.release() in catch blocks, warns against storing connections in global variables, and flags synchronous operations blocking connection"
+      ],
+      "fail_examples": [
+        "Mentions connection leaks generally without identifying specific code patterns causing them"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Not releasing connections properly causes pool depletion, triggering exhaustion. SRE teams document using try-with-resources or finally blocks to ensure cleanup"
+    },
+    {
+      "id": "async_race_condition_identification",
+      "category": "Race Condition Analysis",
+      "description": "Analyzes Node.js-specific race conditions including event loop behavior, shared state mutations, and atomic operation failures with specific code patterns.",
+      "pass_condition": "Must identify at least 3 specific race condition patterns with code examples or detailed scenarios: event loop blocking, shared state without locks, improper Promise.all usage, or callback ordering issues",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "event_loop_analysis",
+            "description": "Understands event loop blocking and async operation sequencing issues",
+            "weight": 0.4,
+            "measurement": "1.0 if explains event loop blocking with specific async/await patterns, 0.7 if mentions event loop concepts, 0.4 if basic async understanding, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "shared_state_patterns",
+            "description": "Identifies unsafe shared state access patterns in concurrent requests",
+            "weight": 0.35,
+            "measurement": "1.0 if provides specific examples of shared variable mutations and proper isolation techniques, 0.7 if mentions shared state issues, 0.4 if basic concurrency awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "atomic_operation_understanding",
+            "description": "Demonstrates knowledge of atomic operations and transaction boundaries",
+            "weight": 0.25,
+            "measurement": "1.0 if covers database transaction isolation and atomic database operations, 0.7 if mentions transaction concepts, 0.4 if basic atomicity understanding, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies global counter mutations between requests, explains improper Promise.all with shared resources, demonstrates transaction isolation levels"
+      ],
+      "fail_examples": [
+        "Mentions race conditions without specific Node.js context or concrete examples"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Node.js Foundation guidelines on concurrency patterns and JavaScript specification for Promise behavior and event loop mechanics"
+    },
+    {
+      "id": "transaction_isolation_analysis",
+      "category": "Race Condition Analysis",
+      "description": "Evaluates understanding of PostgreSQL transaction isolation levels and their impact on race conditions. Expert-level requires specific isolation level recommendations and deadlock prevention strategies.",
+      "pass_condition": "Must address at least 3 aspects: specific isolation level recommendations (READ COMMITTED vs SERIALIZABLE), deadlock detection and prevention, and transaction boundary management in Express routes",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "isolation_level_specification",
+            "description": "Recommends specific PostgreSQL isolation levels for the race condition scenario",
+            "weight": 0.45,
+            "measurement": "1.0 if specifies exact isolation level (REPEATABLE READ/SERIALIZABLE) with justification, 0.7 if mentions isolation levels without specifics, 0.4 if basic transaction awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "deadlock_prevention",
+            "description": "Addresses deadlock scenarios and prevention strategies",
+            "weight": 0.3,
+            "measurement": "1.0 if includes deadlock detection patterns and retry logic, 0.7 if mentions deadlock concepts, 0.4 if basic lock awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transaction_boundary_management",
+            "description": "Defines proper transaction scoping within Express request handlers",
+            "weight": 0.25,
+            "measurement": "1.0 if shows transaction begin/commit patterns with error rollback, 0.7 if mentions transaction boundaries, 0.4 if basic transaction understanding, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Recommends REPEATABLE READ for consistency, implements deadlock retry with exponential backoff, scopes transactions to individual Express routes"
+      ],
+      "fail_examples": [
+        "Mentions transactions without isolation level specifics or deadlock handling"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Uses SERIALIZABLE transaction isolation level where PostgreSQL 'remembers' what you SELECTed and prevents serialization failures, allowing code without explicit locking"
+    },
+    {
+      "id": "async_error_boundary_implementation",
+      "category": "Error Handling & Resilience Patterns",
+      "description": "Evaluates comprehensive async error handling including proper try/catch placement, unhandled rejection handling, and error propagation patterns. Expert assessment requires production-grade error boundaries.",
+      "pass_condition": "Must demonstrate at least 4 error handling patterns: proper async/await try/catch placement, unhandledRejection event handling, Express error middleware implementation, and database error classification",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "async_error_patterns",
+            "description": "Shows proper async/await error handling in database operations",
+            "weight": 0.35,
+            "measurement": "1.0 if demonstrates try/catch with proper connection release in finally blocks, 0.7 if shows basic async error handling, 0.4 if mentions error handling, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "unhandled_rejection_handling",
+            "description": "Implements process-level error handlers for uncaught async errors",
+            "weight": 0.3,
+            "measurement": "1.0 if includes process.on('unhandledRejection') with proper logging and graceful shutdown, 0.7 if mentions unhandled rejection concepts, 0.4 if basic process error awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "express_error_middleware",
+            "description": "Implements centralized Express error handling middleware",
+            "weight": 0.35,
+            "measurement": "1.0 if shows 4-parameter Express error middleware with status code classification, 0.7 if shows basic error middleware, 0.4 if mentions Express error handling, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements try/catch with client.release() in finally, adds process.on('unhandledRejection') handler, creates Express error middleware with 500/503 status classification"
+      ],
+      "fail_examples": [
+        "Shows basic try/catch without connection cleanup or process-level error handling"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Node.js best practices guide and Express.js documentation on error handling middleware patterns for production applications"
+    },
+    {
+      "id": "circuit_breaker_resilience",
+      "category": "Error Handling & Resilience Patterns",
+      "description": "Assesses discussion of circuit breaker patterns and graceful degradation strategies for database connection failures as part of overall resilience approach.",
+      "pass_condition": "Must discuss circuit breaker concepts with at least 2 elements: failure threshold considerations and fallback strategies for database unavailability",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "circuit_breaker_implementation",
+            "description": "Implements circuit breaker pattern with specific failure thresholds",
+            "weight": 0.5,
+            "measurement": "1.0 if includes failure percentage thresholds and timeout windows with specific values, 0.7 if describes circuit breaker concept with some parameters, 0.4 if mentions circuit breakers generally, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "graceful_degradation",
+            "description": "Defines fallback strategies when database is unavailable",
+            "weight": 0.5,
+            "measurement": "1.0 if specifies concrete fallback responses (cached data, reduced functionality), 0.7 if mentions degradation concepts, 0.4 if basic fallback awareness, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements circuit breaker with 50% failure rate over 60 seconds, provides cached response fallback, implements health check endpoint"
+      ],
+      "fail_examples": [
+        "Mentions resilience patterns without specific implementation details or failure thresholds"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Implements circuit breaker with configurable threshold (e.g., 5 failures), reset timeout (30 seconds), and three states: CLOSED, OPEN, HALF_OPEN"
+    },
+    {
+      "id": "structured_logging_correlation",
+      "category": "Observability & Monitoring",
+      "description": "Evaluates implementation of structured logging with correlation IDs and context tracking for debugging race conditions across async operations. Expert assessment requires production-grade observability.",
+      "pass_condition": "Must demonstrate at least 4 observability elements: correlation ID generation and propagation, structured log format with relevant fields, async context tracking (AsyncLocalStorage), and database query logging with performance metrics",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "correlation_id_implementation",
+            "description": "Implements request correlation tracking across async boundaries",
+            "weight": 0.35,
+            "measurement": "1.0 if shows AsyncLocalStorage or async_hooks usage with correlation ID propagation, 0.7 if shows correlation ID concept without async context, 0.4 if basic request tracking, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "structured_logging_format",
+            "description": "Uses structured logging with relevant fields for race condition debugging",
+            "weight": 0.35,
+            "measurement": "1.0 if includes timestamp, correlation ID, user ID, pool metrics, and query timing in log structure, 0.7 if includes some structured fields, 0.4 if mentions structured logging, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "database_query_instrumentation",
+            "description": "Logs database operations with performance and pool state metrics",
+            "weight": 0.3,
+            "measurement": "1.0 if logs query execution time, pool utilization, and connection acquisition time, 0.7 if logs some database metrics, 0.4 if basic query logging, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses AsyncLocalStorage for correlation IDs, logs JSON with {timestamp, correlationId, poolSize, query, duration}, tracks connection acquisition timing"
+      ],
+      "fail_examples": [
+        "Uses console.log without structure or correlation across async operations"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Modern observability requires structured logging with frameworks like Pino that can automatically inject trace_id and span_id fields, allowing logs to be correlated with active traces in OpenTelemetry"
+    },
+    {
+      "id": "metrics_monitoring_implementation",
+      "category": "Observability & Monitoring",
+      "description": "Assesses comprehensive metrics collection for connection pool health and application performance monitoring. Expert evaluation requires specific metric types and alerting thresholds.",
+      "pass_condition": "Must specify at least 4 metric categories with concrete thresholds: connection pool utilization percentages, request latency percentiles, error rate thresholds, and database connection queue depth measurements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "pool_metrics_specification",
+            "description": "Defines specific connection pool health metrics with alerting thresholds",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies pool utilization >80% alert and queue depth thresholds with specific numbers, 0.7 if mentions pool metrics without thresholds, 0.4 if basic pool monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "performance_percentiles",
+            "description": "Tracks request latency and database query performance percentiles",
+            "weight": 0.35,
+            "measurement": "1.0 if specifies P95/P99 latency targets with specific millisecond values, 0.7 if mentions percentile tracking, 0.4 if basic latency monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "error_rate_alerting",
+            "description": "Implements error rate monitoring with actionable alert thresholds",
+            "weight": 0.25,
+            "measurement": "1.0 if specifies error rate percentage thresholds (>5% in 5 minutes), 0.7 if mentions error rate monitoring, 0.4 if basic error tracking, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Monitors pool utilization >80% alert, P95 latency <200ms target, error rate >5% in 5-minute window alert"
+      ],
+      "fail_examples": [
+        "Mentions monitoring without specific metrics, thresholds, or alerting criteria"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "SRE teams focus on four key metrics for monitoring system health: latency (time to serve requests), traffic (total requests), errors (failed requests), and saturation (system load)"
+    },
+    {
+      "id": "systematic_debugging_approach",
+      "category": "Debugging Methodology",
+      "description": "Evaluates step-by-step debugging methodology for isolating race conditions including specific reproduction techniques, investigation approaches, and tool usage.",
+      "pass_condition": "Must demonstrate at least 4 debugging elements: specific steps to reproduce race conditions, systematic investigation approach, named debugging tools (clinic.js, --inspect, APM tools), and isolation techniques for identifying root cause",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "reproduction_methodology",
+            "description": "Outlines systematic approach to reproducing race conditions under controlled conditions",
+            "weight": 0.3,
+            "measurement": "1.0 if specifies exact load testing parameters and reproduction steps, 0.7 if describes reproduction approach, 0.4 if mentions testing methodology, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "hypothesis_driven_investigation",
+            "description": "Demonstrates scientific approach to problem isolation with testable hypotheses",
+            "weight": 0.3,
+            "measurement": "1.0 if shows specific hypothesis formation and validation steps, 0.7 if mentions hypothesis-driven approach, 0.4 if basic problem-solving methodology, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "debugging_tool_proficiency",
+            "description": "Uses specific Node.js debugging tools appropriate for race condition analysis",
+            "weight": 0.4,
+            "measurement": "1.0 if demonstrates clinic.js, Node.js debugger, or APM tool usage with specific commands/configuration, 0.7 if names tools without usage details, 0.4 if mentions debugging tools generally, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Reproduces with 50 concurrent requests, hypothesizes pool exhaustion vs connection leaks, uses clinic.js bubbleprof to analyze async delays"
+      ],
+      "fail_examples": [
+        "Mentions debugging without systematic methodology or specific tool usage"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Software engineering best practices for systematic debugging and Node.js Foundation guidelines for performance profiling tools"
+    },
+    {
+      "id": "load_testing_reproduction",
+      "category": "Debugging Methodology",
+      "description": "Assesses methodology for reproducing race conditions through controlled load testing including concurrency patterns, test environment setup, and failure condition identification.",
+      "pass_condition": "Must include at least 3 load testing elements: specific concurrency levels for reproduction, test environment configuration matching production load patterns, and measurable failure criteria",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "concurrency_test_design",
+            "description": "Specifies controlled concurrency levels to trigger race conditions",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies exact concurrent request numbers and timing patterns, 0.7 if describes concurrency approach, 0.4 if mentions load testing, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "environment_replication",
+            "description": "Ensures test environment replicates production conditions affecting race conditions",
+            "weight": 0.35,
+            "measurement": "1.0 if matches production pool size, database constraints, and network latency, 0.7 if mentions environment matching, 0.4 if basic test setup, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "failure_criteria_definition",
+            "description": "Defines measurable criteria for race condition occurrence",
+            "weight": 0.25,
+            "measurement": "1.0 if specifies exact error rates or response time degradation that indicates the race condition, 0.7 if describes failure indicators, 0.4 if mentions failure detection, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Tests with 50 concurrent requests over 10 seconds, matches production pool size of 10, defines failure as >5% 500 errors"
+      ],
+      "fail_examples": [
+        "Mentions load testing without specific concurrency parameters or failure criteria"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Performance testing literature and chaos engineering practices for reproducing production failure scenarios in controlled environments"
+    },
+    {
+      "id": "postgresql_connection_internals",
+      "category": "PostgreSQL Internals & Performance",
+      "description": "Evaluates understanding of PostgreSQL connection handling, max_connections limits, and server-side connection state management. Expert knowledge includes connection overhead and scaling limitations.",
+      "pass_condition": "Must address at least 3 PostgreSQL internals: max_connections server parameter and calculation, connection overhead and memory usage per connection, and connection state lifecycle on server side",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "max_connections_analysis",
+            "description": "Understands PostgreSQL max_connections parameter and scaling implications",
+            "weight": 0.4,
+            "measurement": "1.0 if explains max_connections calculation based on RAM and connection overhead, 0.7 if mentions max_connections without calculation, 0.4 if basic connection limit awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_overhead_understanding",
+            "description": "Recognizes memory and resource overhead of PostgreSQL connections",
+            "weight": 0.35,
+            "measurement": "1.0 if specifies connection memory usage (work_mem, shared_buffers impact), 0.7 if mentions connection overhead concepts, 0.4 if basic resource awareness, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "server_connection_lifecycle",
+            "description": "Understands PostgreSQL connection state management and cleanup",
+            "weight": 0.25,
+            "measurement": "1.0 if explains backend process creation and connection cleanup, 0.7 if mentions server-side connection handling, 0.4 if basic lifecycle awareness, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Calculates max_connections based on available RAM and 10MB per connection overhead, explains backend process lifecycle"
+      ],
+      "fail_examples": [
+        "Mentions connection limits without PostgreSQL-specific internals or memory considerations"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Each new PostgreSQL connection requires forking of the OS process and new memory allocation, making connection establishment expensive"
+    },
+    {
+      "id": "isolation_level_performance_impact",
+      "category": "PostgreSQL Internals & Performance",
+      "description": "Assesses understanding of transaction isolation level performance trade-offs and lock contention patterns with specific recommendations.",
+      "pass_condition": "Must compare at least 2 isolation levels (READ COMMITTED vs REPEATABLE READ/SERIALIZABLE) describing specific trade-offs (lock contention, retry patterns, or throughput impacts) and recommend appropriate level for the scenario",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "isolation_level_comparison",
+            "description": "Compares performance characteristics of different PostgreSQL isolation levels",
+            "weight": 0.6,
+            "measurement": "1.0 if compares READ COMMITTED vs higher isolation levels with lock contention analysis, 0.7 if compares isolation levels without performance details, 0.4 if mentions isolation levels, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "concurrency_recommendation",
+            "description": "Provides specific isolation level recommendation for high-concurrency scenarios",
+            "weight": 0.4,
+            "measurement": "1.0 if recommends specific isolation level with justification for concurrent load, 0.7 if makes recommendation without detailed justification, 0.4 if discusses isolation choice, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Recommends READ COMMITTED for high concurrency with explicit locking, explains SERIALIZABLE retry overhead"
+      ],
+      "fail_examples": [
+        "Mentions isolation levels without performance analysis or specific recommendations"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "SERIALIZABLE isolation can cause frequent errors due to concurrent access to lower-level resources like pages rather than rows"
+    },
+    {
+      "id": "nodejs_event_loop_optimization",
+      "category": "Node.js Production Practices",
+      "description": "Evaluates understanding of Node.js event loop behavior and optimization for database operations. Expert assessment requires specific recommendations for non-blocking patterns and worker thread usage.",
+      "pass_condition": "Must address at least 3 Node.js optimization areas: event loop blocking detection and prevention, proper async/await usage patterns for database operations, and clustering or worker thread strategies for CPU-intensive tasks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "event_loop_monitoring",
+            "description": "Implements event loop lag detection and blocking prevention",
+            "weight": 0.4,
+            "measurement": "1.0 if includes event loop lag monitoring with specific thresholds, 0.7 if mentions event loop concepts, 0.4 if basic async understanding, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "async_pattern_optimization",
+            "description": "Uses optimal async/await patterns for database operations",
+            "weight": 0.35,
+            "measurement": "1.0 if shows proper Promise.all usage and avoids await in loops, 0.7 if demonstrates good async patterns, 0.4 if basic async/await usage, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "clustering_strategy",
+            "description": "Implements appropriate clustering or worker thread patterns",
+            "weight": 0.25,
+            "measurement": "1.0 if specifies cluster module usage or worker threads for CPU-intensive tasks, 0.7 if mentions scaling strategies, 0.4 if basic concurrency awareness, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Monitors event loop lag <10ms threshold, uses Promise.all for parallel queries, implements cluster module with CPU core count"
+      ],
+      "fail_examples": [
+        "Shows blocking operations or inefficient async patterns without optimization awareness"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Node.js Foundation best practices and performance guidelines for production applications with database interactions"
+    },
+    {
+      "id": "memory_leak_profiling",
+      "category": "Node.js Production Practices",
+      "description": "Assesses methodology for detecting and preventing memory leaks related to connection pooling and async operations using named tools and identifiable patterns.",
+      "pass_condition": "Must demonstrate at least 3 leak detection approaches: named heap profiling tools (heapdump, clinic.js, Chrome DevTools), connection pool memory monitoring techniques, and identifiable async patterns that cause leaks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "heap_profiling_methodology",
+            "description": "Uses specific tools for heap analysis and memory leak detection",
+            "weight": 0.4,
+            "measurement": "1.0 if specifies heapdump, clinic.js doctor, or Chrome DevTools usage for heap analysis, 0.7 if mentions profiling tools, 0.4 if basic memory monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_memory_tracking",
+            "description": "Monitors memory usage patterns related to connection pooling",
+            "weight": 0.35,
+            "measurement": "1.0 if tracks connection object lifecycle and pool memory growth patterns, 0.7 if mentions connection-related memory monitoring, 0.4 if basic memory tracking, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "async_leak_patterns",
+            "description": "Identifies specific async patterns that cause memory leaks",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies unclosed event handlers, circular references, or timer cleanup issues, 0.7 if mentions async leak concepts, 0.4 if basic leak awareness, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses heapdump for snapshot comparison, monitors pg-pool memory growth, identifies unclosed query event listeners"
+      ],
+      "fail_examples": [
+        "Mentions memory leaks without specific detection methodology or profiling tools"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Node.js memory management documentation and production debugging practices for long-running applications"
+    },
+    {
+      "id": "sre_golden_signals_alignment",
+      "category": "SRE Framework Compliance",
+      "description": "Evaluates understanding of Google SRE Golden Signals framework applied to database connection monitoring concepts.",
+      "pass_condition": "Must address all 4 Golden Signals with monitoring concepts: latency measurement approaches for database queries, error rate tracking for connection failures, saturation monitoring for pool utilization, and traffic measurement for request volume",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "latency_sli_definition",
+            "description": "Defines specific latency SLIs for database operations",
+            "weight": 0.3,
+            "measurement": "1.0 if specifies P95 latency <200ms SLI with measurement methodology, 0.7 if mentions latency SLI without specifics, 0.4 if basic latency monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "error_rate_sli",
+            "description": "Defines error rate SLI for connection pool failures",
+            "weight": 0.25,
+            "measurement": "1.0 if specifies <0.1% connection error rate SLI, 0.7 if mentions error rate SLI, 0.4 if basic error monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "saturation_monitoring",
+            "description": "Monitors connection pool saturation as resource utilization metric",
+            "weight": 0.25,
+            "measurement": "1.0 if monitors pool utilization <80% with alerting threshold, 0.7 if mentions saturation monitoring, 0.4 if basic resource monitoring, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "traffic_measurement",
+            "description": "Tracks request volume and database query traffic patterns",
+            "weight": 0.2,
+            "measurement": "1.0 if measures requests/second and queries/second with capacity planning, 0.7 if mentions traffic monitoring, 0.4 if basic volume tracking, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Defines P95 latency <200ms SLI, <0.1% connection error rate SLI, pool utilization <80% saturation target, tracks QPS for capacity planning"
+      ],
+      "fail_examples": [
+        "Mentions SRE concepts without specific Golden Signals implementation or measurable SLIs"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "SRE teams focus on four key metrics for monitoring system health: latency (time to serve requests), traffic (total requests), errors (failed requests), and saturation (system load)"
+    },
+    {
+      "id": "production_debugging_safety",
+      "category": "Production Safety",
+      "description": "Evaluates safe debugging practices in production environments, including performance impact assessment of debugging tools and proper sampling rates",
+      "pass_condition": "Must specify at least 3 production-safe debugging tools with documented performance overhead percentages (<5% CPU impact), sampling rates (1:1000 or lower), and memory footprint limits for heap profiling",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "tool_selection",
+            "description": "Uses Clinic.js or APM tools instead of --inspect in production",
+            "weight": 0.4,
+            "measurement": "binary",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "performance_impact",
+            "description": "Documents and accounts for debugging tool overhead",
+            "weight": 0.3,
+            "measurement": "scale_0_to_1",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sampling_strategy",
+            "description": "Implements proper sampling rates to minimize production impact",
+            "weight": 0.3,
+            "measurement": "scale_0_to_1",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Uses Clinic.js to inspect running code and provide detailed CPU usage reports with 1% sampling rate",
+        "Implements APM with configurable sampling (e.g., 0.1% for high-traffic endpoints)"
+      ],
+      "fail_examples": [
+        "Uses --inspect flag directly in production without performance considerations",
+        "No mention of debugging tool overhead or sampling strategies"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "The --inspect flag adds 5-15% latency to requests, and --inspect-brk has higher initial overhead. Uses Clinic.js to inspect running code and provide detailed CPU usage reports, identifying exact lines of JavaScript responsible for excessive synchronous processing"
+    },
+    {
+      "id": "postgresql_cancellation_handling",
+      "category": "Database Safety",
+      "description": "Identifies race conditions specific to PostgreSQL query cancellation in high-load scenarios and proper cancellation handling patterns",
+      "pass_condition": "Implements proper query cancellation handling with connection state management and cancellation safety patterns",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "cancellation_detection",
+            "description": "Identifies query cancellation race conditions in high-load scenarios",
+            "weight": 0.4,
+            "measurement": "binary",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "connection_isolation",
+            "description": "Implements connection-level cancellation isolation to prevent cross-query interference",
+            "weight": 0.3,
+            "measurement": "scale_0_to_1",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cancellation_patterns",
+            "description": "Uses proper cancellation handling patterns with timeout management",
+            "weight": 0.3,
+            "measurement": "scale_0_to_1",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Implements connection pooling with per-connection cancellation tracking to prevent canceling wrong queries",
+        "Uses AbortController with proper cleanup to handle query cancellation without affecting other connections"
+      ],
+      "fail_examples": [
+        "Uses global query cancellation without connection isolation",
+        "No handling of cancellation race conditions in concurrent scenarios"
+      ],
+      "domain": "Node.js Race Condition Debugging",
+      "research_basis": "Query cancellation can result in race conditions that 'might even result in canceling another query' due to timing issues in high-load, fast-query scenarios"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "connection_pool_engineering",
+      "name": "Connection Pool Engineering",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "race_condition_analysis",
+      "name": "Race Condition Analysis",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling_patterns",
+      "name": "Error Handling & Resilience Patterns",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "observability_monitoring",
+      "name": "Observability & Monitoring",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "debugging_methodology",
+      "name": "Debugging Methodology",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "postgresql_internals",
+      "name": "PostgreSQL Internals & Performance",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "nodejs_production_practices",
+      "name": "Node.js Production Practices",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "sre_compliance",
+      "name": "SRE Framework Compliance",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

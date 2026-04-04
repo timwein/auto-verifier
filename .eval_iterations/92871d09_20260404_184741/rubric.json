@@ -1,0 +1,607 @@
+{
+  "task": "Redline a cloud services SaaS agreement from the customer's perspective, identifying 10 risky clauses and proposing specific alternative language with justification for each",
+  "domain": "SaaS Contract Risk Analysis",
+  "total_points": 53,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "liability_limitation_risk_analysis",
+      "category": "Risk Identification Accuracy",
+      "description": "Identifies liability limitation clauses that fail to properly carve out high-risk scenarios including data breaches, IP infringement, confidentiality violations, and regulatory compliance failures. Expert-level requires catching subtle but critical carve-out gaps and proposing specific liability allocation mechanisms.",
+      "pass_condition": "Identifies at least 2 liability limitation risks with specific carve-out gaps, proposes minimum liability floors of 12-24 months fees for carved-out scenarios, and addresses proportionate insurance requirements for cyber liability based on data sensitivity and contract value",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_data_breach_carveout": -0.25,
+          "inadequate_ip_indemnification_coverage": -0.2,
+          "missing_confidentiality_violation_carveout": -0.15,
+          "missing_regulatory_compliance_failure_carveout": -0.15,
+          "liability_cap_below_12_months_fees": -0.15,
+          "missing_cyber_insurance_requirements": -0.1
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that liability cap fails to carve out data breaches involving PII and proposes unlimited liability for such breaches plus minimum $10M cyber insurance requirement"
+      ],
+      "fail_examples": [
+        "Notes that liability limitation seems 'too broad' but doesn't identify specific carve-out gaps or propose quantified liability floors for high-risk scenarios"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Standard limitation clauses that cap liability at multiples of annual subscription fees, with specific carve-outs for data privacy breaches, and indemnification obligations where the SaaS provider protects customer from losses arising from data breaches they cause."
+    },
+    {
+      "id": "security_audit_rights_adequacy",
+      "category": "Risk Identification Accuracy",
+      "description": "Evaluates whether security audit and compliance assessment rights meet enterprise regulatory requirements and industry standards. Expert-level requires understanding SOC 2 Type II limitations, sector-specific audit requirements (HIPAA, PCI-DSS, FedRAMP), and right-to-audit vs. third-party certification trade-offs.",
+      "pass_condition": "Identifies at least 1 security audit gap with specific regulatory framework citation, proposes audit rights addressing on-site access or equivalent remote assessment capabilities, and references specific compliance standards (SOC 2 Type II, ISO 27001, or sector-specific requirements)",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "regulatory_audit_alignment",
+            "description": "Identifies gaps between audit rights and customer's regulatory requirements",
+            "weight": 0.5,
+            "measurement": "1.0 if identifies specific regulatory audit requirements (HIPAA, PCI-DSS, SOX, FedRAMP) and proposes tailored audit procedures, 0.7 if identifies regulatory needs but generic audit rights, 0.4 if mentions compliance generally, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "audit_scope_and_access",
+            "description": "Evaluates adequacy of audit scope, frequency, and access rights including subcontractors",
+            "weight": 0.5,
+            "measurement": "1.0 if identifies insufficient scope covering subcontractors and proposes annual on-site or equivalent remote audit rights with advance notice limitations, 0.7 if identifies scope issues but incomplete subcontractor coverage, 0.4 if mentions audit rights without scope specifics, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that SOC 2 Type II report doesn't cover PCI-DSS requirements for customer's payment processing use case and proposes additional audit rights for payment card data handling procedures"
+      ],
+      "fail_examples": [
+        "States that audit rights should be 'more comprehensive' without identifying specific regulatory gaps or certification limitations relevant to customer's compliance requirements"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "CCM control mappings to ISO 27001 A.9.2.1, NIST CSF PR.AC-1, and SOC 2 CC6.1 - single control implementation satisfying multiple framework requirements."
+    },
+    {
+      "id": "comprehensive_dpa_evaluation",
+      "category": "Data Privacy & Security Compliance",
+      "description": "Evaluates comprehensive data privacy and protection framework including data processing agreement completeness, critical regulatory risks, international transfer mechanisms, security standards implementation, and subprocessor management protocols. Expert-level requires deep understanding of GDPR Article 28 requirements, CCPA processor obligations, cross-border transfer frameworks, and identification of subtle gaps in data processing addenda, breach notification timelines, and data subject rights implementation.",
+      "pass_condition": "Identifies at least 3 data privacy risks or DPA deficiencies with specific regulatory framework citations (GDPR, CCPA, sector-specific), proposes alternatives addressing cross-border transfer mechanisms (SCCs, adequacy decisions, or DPF), subprocessor approval mechanisms (prior written consent or general authorization with notification), breach notification timelines under 72 hours, data subject rights implementation with procedural requirements (response timeframes, verification methods, data formats), and security incident response procedures with 24-hour notification requirements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "article_28_compliance",
+            "description": "Evaluates DPA compliance with GDPR Article 28 processor requirements",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies specific Article 28 gaps and proposes detailed processing instructions, purpose limitations, and security measures alignment, 0.7 if identifies some compliance issues but incomplete mapping, 0.4 if mentions DPA without regulatory specifics, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "subprocessor_management",
+            "description": "Assesses subprocessor approval, notification, and liability allocation mechanisms",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies inadequate subprocessor controls and proposes prior approval requirements with liability flow-down provisions, 0.7 if identifies subprocessor issues but incomplete solutions, 0.4 if mentions subprocessors without control mechanisms, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "security_incident_procedures",
+            "description": "Evaluates security incident notification and cooperation requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies insufficient incident response procedures and proposes 24-hour notification with forensic cooperation, 0.7 if identifies incident gaps but imprecise timelines, 0.4 if mentions incident response generally, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that DPA lacks specific subprocessor approval mechanisms and proposes 30-day advance notice with objection rights and alternative processing locations"
+      ],
+      "fail_examples": [
+        "Notes that DPA should meet 'privacy requirements' without citing specific GDPR articles or CCPA processor obligations"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Great includes comprehensive GDPR Article 28 compliance, CCPA service provider obligations, and specific data categories."
+    },
+    {
+      "id": "justification_quality_analysis",
+      "category": "Contract Language Precision",
+      "description": "Evaluates the depth and accuracy of business and legal justifications for proposed contract changes. Expert-level requires connecting proposed changes to specific business risks, regulatory requirements, and industry best practices with supporting citations.",
+      "pass_condition": "Provides justifications for at least 8 proposed changes that include specific statutory or regulatory citations with section numbers, quantify concrete risks with dollar amounts or operational metrics where applicable, demonstrate causal chains between contract gaps and business consequences through scenario analysis, and reference comparative industry benchmarks or case law precedents supporting proposed risk allocations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "business_risk_connection",
+            "description": "Links proposed changes to specific operational, financial, or strategic business risks",
+            "weight": 0.4,
+            "measurement": "1.0 if clearly articulates business impact with quantified risks where possible, 0.7 if identifies business risks but limited quantification, 0.4 if mentions business impact generally, 0.0 if lacks business risk connection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "regulatory_compliance_basis",
+            "description": "Cites specific regulatory requirements or compliance obligations supporting proposed changes",
+            "weight": 0.35,
+            "measurement": "1.0 if cites specific regulations with section references and compliance requirements, 0.7 if identifies regulatory needs but generic citations, 0.4 if mentions compliance without specifics, 0.0 if lacks regulatory justification",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "industry_standard_benchmarking",
+            "description": "References industry best practices or market standards supporting proposed terms",
+            "weight": 0.25,
+            "measurement": "1.0 if references specific industry standards or benchmarking data, 0.7 if mentions industry practices but limited specificity, 0.4 if general industry references, 0.0 if lacks industry context",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Justifies unlimited liability for data breaches by citing average breach costs of $4.24M per IBM Security study and noting that liability caps below this amount create inadequate incentives for security investment"
+      ],
+      "fail_examples": [
+        "States that proposed changes are 'better for the customer' without explaining specific business risks or providing supporting evidence"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Contract negotiation best practices require evidence-based justifications that demonstrate business necessity and market reasonableness to achieve vendor acceptance"
+    },
+    {
+      "id": "sla_performance_framework",
+      "category": "Service Level & Performance Governance",
+      "description": "Evaluates SLA definitions, measurement methodologies, and remedy mechanisms for adequacy in protecting customer operations. Expert-level requires understanding uptime calculation methods, service credit structures, and escalation procedures that provide meaningful vendor accountability.",
+      "pass_condition": "Identifies at least 2 SLA deficiencies with proposed alternatives including uptime standards of 99.9%+, service credit escalation based on outage duration, and measurement methodologies that exclude scheduled maintenance from availability calculations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "uptime_measurement_accuracy",
+            "description": "Evaluates uptime calculation methodology and exclusion definitions",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies calculation gaps and proposes specific measurement methodology excluding only pre-approved maintenance windows, 0.7 if identifies measurement issues but incomplete solutions, 0.4 if mentions uptime without methodology specifics, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "service_credit_adequacy",
+            "description": "Assesses whether service credits provide meaningful compensation for performance failures",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies inadequate credits and proposes escalating structure (10-50% monthly fees based on outage severity), 0.7 if identifies credit issues but limited escalation, 0.4 if mentions service credits without structure, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "remedy_enforcement_mechanisms",
+            "description": "Evaluates availability of additional remedies beyond service credits for persistent failures",
+            "weight": 0.25,
+            "measurement": "1.0 if proposes termination rights for repeated SLA failures with specific thresholds, 0.7 if identifies remedy gaps but limited enforcement options, 0.4 if mentions additional remedies without specifics, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that uptime calculation includes planned maintenance and proposes 99.95% availability excluding only pre-approved maintenance windows with 72-hour advance notice"
+      ],
+      "fail_examples": [
+        "Notes that SLAs should be 'stronger' without proposing specific measurement methodologies or remedy structures"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "High uptime guarantees (99.9%), well-defined performance metrics, and tiered system of remedies for non-compliance."
+    },
+    {
+      "id": "indemnification_scope_analysis",
+      "category": "Liability & Indemnification Framework",
+      "description": "Evaluates indemnification coverage for IP infringement, third-party claims, and regulatory violations. Expert-level requires understanding indemnification carve-outs, defense and settlement control, and insurance backing for indemnification obligations.",
+      "pass_condition": "Identifies at least 2 indemnification gaps with proposed alternatives including IP infringement coverage for customer's use as authorized, regulatory violation indemnification, and vendor control over defense with customer consultation rights",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "ip_infringement_coverage",
+            "description": "Evaluates scope of IP indemnification including customer modifications and third-party integrations",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies coverage gaps and proposes comprehensive IP indemnification with specific carve-outs for unauthorized modifications, 0.7 if identifies IP issues but incomplete coverage, 0.4 if mentions IP indemnification without scope details, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "regulatory_violation_protection",
+            "description": "Assesses indemnification for regulatory claims arising from vendor's compliance failures",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies regulatory gaps and proposes indemnification for vendor compliance failures with specific regulatory scope, 0.7 if identifies regulatory issues but limited coverage, 0.4 if mentions regulatory protection generally, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "defense_control_allocation",
+            "description": "Evaluates control over defense strategy and settlement authority in indemnified claims",
+            "weight": 0.25,
+            "measurement": "1.0 if proposes vendor defense control with customer consultation rights and approval for settlements affecting ongoing operations, 0.7 if addresses defense control but incomplete customer protection, 0.4 if mentions defense control without specifics, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that IP indemnification excludes customer modifications and proposes coverage for authorized customizations while carving out unauthorized changes to vendor software"
+      ],
+      "fail_examples": [
+        "States that indemnification should be 'broader' without identifying specific coverage gaps or proposed scope expansions"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Whether indemnity is triggered by claims 'caused by' versus 'related to' or 'arising out of' breach - the latter only requires allegation of relationship rather than impossible requirement of proving cause before trial."
+    },
+    {
+      "id": "termination_data_portability",
+      "category": "Termination & Data Rights",
+      "description": "Evaluates data retrieval mechanisms, export formats, and post-termination obligations to ensure business continuity and avoid vendor lock-in. Expert-level requires understanding technical migration requirements, regulatory retention obligations, and secure deletion procedures.",
+      "pass_condition": "Identifies at least 1 data portability risk with proposed alternatives including export in standard formats (CSV, JSON, XML), minimum 90-day retrieval period, and secure deletion certification within 30 days of data export completion",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "export_format_adequacy",
+            "description": "Evaluates data export formats and technical migration feasibility",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies proprietary format risks and proposes multiple standard formats plus API access, 0.7 if identifies format issues but limited solutions, 0.4 if mentions data export without format specifics, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "retrieval_timeline_sufficiency",
+            "description": "Assesses adequacy of data retrieval timeframes for business continuity planning",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies insufficient timeline and proposes minimum 90-day period with potential extensions for complex migrations, 0.7 if identifies timeline issues but limited extension mechanisms, 0.4 if mentions retrieval period without justification, 0.0 if absent",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "deletion_certification_process",
+            "description": "Evaluates post-export data deletion procedures and verification mechanisms",
+            "weight": 0.25,
+            "measurement": "1.0 if proposes deletion certification with third-party verification and regulatory compliance documentation, 0.7 if identifies deletion issues but incomplete verification, 0.4 if mentions deletion without certification process, 0.0 if absent",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies that data export is only available in proprietary format and proposes export in CSV, JSON, and XML formats with API access for automated migration tools"
+      ],
+      "fail_examples": [
+        "Notes that data retrieval should be 'easier' without specifying format requirements or technical migration challenges"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Vendors charging $5,000 fee for standard CSV data exports, forcing choice between paying fees or manually rebuilding data, highlighting importance of confirming data portability, export formats, and associated costs before signing."
+    },
+    {
+      "id": "business_continuity_impact",
+      "category": "Business Impact Analysis",
+      "description": "Evaluates how identified contract risks and proposed changes align with customer's operational dependencies, business continuity requirements, and risk tolerance. Expert-level requires understanding the practical implications of contract terms on day-to-day business operations.",
+      "pass_condition": "Demonstrates deep business impact analysis by connecting at least 5 contract risks to quantified operational consequences (revenue impact, compliance costs, operational delays), provides detailed implementation roadmaps with timeline dependencies and resource requirements, addresses vendor management challenges including relationship dynamics and negotiation leverage, and includes contingency planning for contract negotiation failures",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 3,
+        "sub_attributes": [
+          {
+            "sub_id": "operational_dependency_assessment",
+            "description": "Evaluates contract terms' impact on critical business processes and system dependencies",
+            "weight": 0.5,
+            "measurement": "1.0 if clearly connects contract risks to specific operational impacts with business process analysis, 0.7 if identifies operational risks but limited process connection, 0.4 if mentions business impact generally, 0.0 if lacks operational context",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "implementation_feasibility",
+            "description": "Assesses practical implementation challenges and resource requirements for proposed changes",
+            "weight": 0.5,
+            "measurement": "1.0 if addresses implementation timeline, resource requirements, and potential operational disruption, 0.7 if considers implementation but incomplete planning, 0.4 if mentions implementation without detail, 0.0 if ignores implementation challenges",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Explains that inadequate data export provisions could result in 30-60 day service disruption during vendor transition, justifying 90-day data retrieval window requirement"
+      ],
+      "fail_examples": [
+        "Notes that contract terms affect business operations without explaining specific impacts or operational dependencies"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "[HALLUCINATED \u2014 claimed basis not found in research] Business continuity planning standards (ISO 22301) emphasize vendor dependency assessment and operational impact analysis for critical service provider relationships"
+    },
+    {
+      "id": "risk_remediation_coherence",
+      "category": "Cross-cutting Analysis",
+      "description": "Evaluates whether proposed contract language changes coherently address identified risks across all dimensions, ensuring that data privacy protections align with liability allocations, SLA remedies support business continuity needs, and termination rights reflect operational dependencies.",
+      "pass_condition": "Demonstrates coherent risk mitigation strategy by connecting proposed changes across at least 3 different risk categories, showing how data protection measures align with liability provisions, SLA remedies support business continuity, and termination terms address identified operational risks",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "liability_privacy_alignment",
+            "description": "Assesses whether liability protections adequately address identified data privacy risks",
+            "weight": 0.4,
+            "measurement": "1.0 if demonstrates clear connection between data privacy risks and liability carve-outs with adequate coverage levels, 0.7 if some alignment but gaps in coverage, 0.4 if limited connection between privacy and liability terms, 0.0 if no coherent alignment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "sla_business_continuity_integration",
+            "description": "Evaluates whether SLA remedies and termination rights support identified business continuity needs",
+            "weight": 0.35,
+            "measurement": "1.0 if shows clear connection between performance standards and business operational requirements with appropriate remedies, 0.7 if some integration but incomplete remedy alignment, 0.4 if limited connection between SLAs and business needs, 0.0 if no coherent integration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_dimensional_consistency",
+            "description": "Assesses overall consistency of risk identification and proposed solutions across all contract dimensions",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates comprehensive understanding with consistent risk tolerance and remedy structures across all areas, 0.7 if mostly consistent but some conflicting approaches, 0.4 if limited consistency across dimensions, 0.0 if inconsistent or conflicting approaches",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Connects unlimited liability for data breaches with enhanced audit rights and immediate termination provisions, creating comprehensive data protection framework"
+      ],
+      "fail_examples": [
+        "Proposes strict data protection requirements but accepts limited liability caps that undermine data breach accountability"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Enterprise risk management frameworks emphasize coherent risk mitigation strategies that address interconnected risks with consistent and mutually reinforcing contractual protections"
+    },
+    {
+      "id": "commercial_legal_balance",
+      "category": "Cross-cutting Analysis",
+      "description": "Evaluates whether the overall contract redline includes flexible negotiation positions and acknowledges commercial considerations, considering alternative approaches and implementation practicality.",
+      "pass_condition": "Proposes at least 2 alternative positions for key terms (primary and fallback language), identifies specific potential vendor objections based on standard market practices, and provides business justification for proposed risk allocation that references deal economics or operational requirements",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "negotiation_strategy_awareness",
+            "description": "Shows understanding of vendor perspectives and negotiation dynamics",
+            "weight": 0.4,
+            "measurement": "1.0 if demonstrates clear understanding of vendor concerns and proposes strategic negotiation approach with multiple positions, 0.7 if shows vendor awareness but limited strategic thinking, 0.4 if mentions negotiation without strategy, 0.0 if ignores vendor perspective",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "commercial_impact_consideration",
+            "description": "Evaluates awareness of pricing, relationship, and total cost implications of proposed changes",
+            "weight": 0.35,
+            "measurement": "1.0 if considers impact on pricing, vendor relationship, and long-term partnership implications, 0.7 if shows commercial awareness but incomplete analysis, 0.4 if limited commercial consideration, 0.0 if ignores commercial implications",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "risk_tolerance_calibration",
+            "description": "Assesses whether proposed terms reflect appropriate risk tolerance for the business relationship",
+            "weight": 0.25,
+            "measurement": "1.0 if demonstrates calibrated risk approach balancing protection with commercial objectives, 0.7 if mostly appropriate but some overreach, 0.4 if shows risk consideration but poor calibration, 0.0 if extreme or poorly calibrated risk positions",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Proposes primary position of unlimited liability for data breaches with fallback to 24-month fee cap, explaining vendor concerns about unlimited exposure and suggesting compromise with higher insurance requirements"
+      ],
+      "fail_examples": [
+        "Demands most aggressive possible terms without considering vendor perspective, commercial impact, or negotiation feasibility"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Commercial Risk Calibration: Practical approach of general liability caps such as 12 months of fees paid under agreement, with understanding of when fixed amounts versus fee multiples are appropriate."
+    },
+    {
+      "id": "pricing_escalation_and_fee_clarity",
+      "category": "Commercial Terms",
+      "description": "Evaluates pricing escalation mechanisms, fee structure clarity, and service scope definitions to prevent unexpected costs and ensure pricing predictability",
+      "pass_condition": "Identifies at least 3 specific pricing risks including uncapped annual escalation mechanisms exceeding CPI+2%, ambiguous usage-based fee calculations without monthly caps, hidden fees for standard features, and scope creep provisions allowing unilateral service modifications, and proposes specific alternative language including percentage caps on escalations, detailed fee calculation methodologies with worked examples, and change control procedures requiring written approval for scope modifications",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "escalation_caps",
+            "description": "Pricing increase limitations with annual caps or CPI indexing",
+            "weight": 0.3,
+            "measurement": "0-1 scale based on specificity of caps proposed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fee_transparency",
+            "description": "Clear distinction between implementation, subscription, and additional service fees",
+            "weight": 0.25,
+            "measurement": "0-1 scale based on comprehensiveness of fee categorization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "commencement_clarity",
+            "description": "Specific billing commencement triggers tied to service availability",
+            "weight": 0.2,
+            "measurement": "0-1 scale based on precision of billing start conditions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scope_specificity",
+            "description": "Detailed service feature definitions preventing scope creep charges",
+            "weight": 0.25,
+            "measurement": "0-1 scale based on granularity of service specifications",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Proposes annual price increase cap of 3% or CPI, whichever is lower",
+        "Requires 90-day advance notice for any fee changes with opt-out rights"
+      ],
+      "fail_examples": [
+        "Accepts unlimited pricing discretion",
+        "Fails to distinguish between setup fees and recurring charges"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Common issues include provider's ability to increase pricing over time, clarity on distinction between implementation fees and SaaS solution fees, commencement date clarity, and little to no specificity on SaaS solution features and functionalities"
+    },
+    {
+      "id": "vendor_security_accountability_mechanisms",
+      "category": "Security and Compliance",
+      "description": "Evaluates security framework alignment with SOC 2 Type II, ISO 27001, and sector-specific requirements while establishing specific vendor accountability provisions that tie liability to measurable security obligation failures with enforceable remedies. Expert-level requires understanding certification scope limitations, security control implementation gaps, alignment with customer security policies, and creating accountability mechanisms for security failures.",
+      "pass_condition": "Identifies at least 1 security standard gap with specific control citations, proposes alternatives addressing encryption requirements (AES-256), access control mechanisms (MFA, RBAC), vulnerability management procedures with defined response timeframes, and establishes measurable security obligations with specific liability consequences for failures including breach response requirements and compliance monitoring",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "measurable_obligations",
+            "description": "Specific, auditable security requirements (SOC 2, ISO 27001 compliance)",
+            "weight": 0.3,
+            "measurement": "0-1 scale based on specificity and auditability of security standards",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "liability_carveouts",
+            "description": "Security breach liability carved out from standard limitation caps",
+            "weight": 0.3,
+            "measurement": "0-1 scale based on scope of carveouts from liability limitations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "breach_definitions",
+            "description": "Clear definitions of what constitutes security obligation failure",
+            "weight": 0.2,
+            "measurement": "0-1 scale based on precision of breach definitions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "remedial_mechanisms",
+            "description": "Specific remedies for security failures including audit rights and cure periods",
+            "weight": 0.2,
+            "measurement": "0-1 scale based on enforceability of remedial provisions",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Requires annual SOC 2 Type II certification with customer audit rights",
+        "Carves out data security breaches from liability caps with separate higher limits"
+      ],
+      "fail_examples": [
+        "Vague 'industry standard' security commitments",
+        "Applies blanket liability caps to all security failures"
+      ],
+      "domain": "SaaS Contract Risk Analysis",
+      "research_basis": "Liability arising only when breach is due to failure to comply with stated data security obligations, with effectiveness depending on quality and detail of binding data security requirements. Standard limitation clauses with specific carve-outs for data privacy breaches, and liability arising from failure to protect personal data carved out from standard cap, often having separate, higher 'super cap' or uncapped liability terms"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "risk_identification_accuracy",
+      "name": "Risk Identification Accuracy",
+      "description": "",
+      "weight": 0.2,
+      "criteria_ids": []
+    },
+    {
+      "id": "data_privacy_compliance",
+      "name": "Data Privacy & Security Compliance",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "contract_language_precision",
+      "name": "Contract Language Precision",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "service_level_governance",
+      "name": "Service Level & Performance Governance",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "liability_indemnification",
+      "name": "Liability & Indemnification Framework",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "termination_data_rights",
+      "name": "Termination & Data Rights",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "market_benchmarking",
+      "name": "Market Standard Benchmarking",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "business_impact_analysis",
+      "name": "Business Impact Analysis",
+      "description": "",
+      "weight": 0.05,
+      "criteria_ids": []
+    }
+  ]
+}

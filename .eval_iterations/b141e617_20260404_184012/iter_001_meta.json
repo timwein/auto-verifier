@@ -1,0 +1,72 @@
+{
+  "run_id": "b141e617_20260404_184012",
+  "iteration": 1,
+  "total_score": 25.480000000000004,
+  "max_score": 50,
+  "percentage": 0.5096,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/b141e617_20260404_184012/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "memory_ordering_correctness",
+      "points_earned": 0.97,
+      "max_points": 6,
+      "percentage": 0.16249999999999998
+    },
+    {
+      "criterion_id": "deadlock_prevention_design",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "lru_ordering_correctness",
+      "points_earned": 2.1,
+      "max_points": 6,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "ttl_expiry_system",
+      "points_earned": 3.15,
+      "max_points": 6,
+      "percentage": 0.5249999999999999
+    },
+    {
+      "criterion_id": "memory_bounds_enforcement",
+      "points_earned": 2.31,
+      "max_points": 5,
+      "percentage": 0.46249999999999997
+    },
+    {
+      "criterion_id": "rust_api_guidelines_compliance",
+      "points_earned": 5.0,
+      "max_points": 5,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "async_runtime_integration",
+      "points_earned": 1.75,
+      "max_points": 4,
+      "percentage": 0.4375
+    },
+    {
+      "criterion_id": "concurrency_correctness_integration",
+      "points_earned": 3.0,
+      "max_points": 5,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "error_handling_system_coherence",
+      "points_earned": 1.1,
+      "max_points": 4,
+      "percentage": 0.275
+    },
+    {
+      "criterion_id": "performance_safety_tradeoff_analysis",
+      "points_earned": 1.1,
+      "max_points": 4,
+      "percentage": 0.275
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "run_id": "604a2b2a_20260404_184830",
+  "iteration": 1,
+  "total_score": 26.74,
+  "max_score": 86,
+  "percentage": 0.3109302325581395,
+  "delta_from_prior": null,
+  "focus_areas": [],
+  "content_path": ".eval_iterations/604a2b2a_20260404_184830/iter_001_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "latency_flow_state_impact",
+      "points_earned": 0.6,
+      "max_points": 6,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "enterprise_security_compliance",
+      "points_earned": 8.0,
+      "max_points": 8,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "code_telemetry_data_governance",
+      "points_earned": 1.14,
+      "max_points": 7,
+      "percentage": 0.16249999999999998
+    },
+    {
+      "criterion_id": "developer_productivity_quantification",
+      "points_earned": 0.0,
+      "max_points": 8,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "learning_curve_adoption_analysis",
+      "points_earned": 0.52,
+      "max_points": 6,
+      "percentage": 0.0875
+    },
+    {
+      "criterion_id": "integration_ecosystem_compatibility",
+      "points_earned": 7.0,
+      "max_points": 7,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "offline_capability_assessment",
+      "points_earned": 0.5,
+      "max_points": 5,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "total_cost_ownership_analysis",
+      "points_earned": 2.0,
+      "max_points": 8,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "pilot_program_rollout_strategy",
+      "points_earned": 1.58,
+      "max_points": 6,
+      "percentage": 0.2625
+    },
+    {
+      "criterion_id": "technical_security_alignment_coherence",
+      "points_earned": 0.0,
+      "max_points": 5,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "productivity_cost_roi_coherence",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "scalability_adoption_risk_coherence",
+      "points_earned": 0.4,
+      "max_points": 4,
+      "percentage": 0.1
+    },
+    {
+      "criterion_id": "ai_code_quality_rework_rate",
+      "points_earned": 0.3,
+      "max_points": 4,
+      "percentage": 0.075
+    },
+    {
+      "criterion_id": "dora_ai_capabilities_model",
+      "points_earned": 0.6,
+      "max_points": 4,
+      "percentage": 0.15
+    },
+    {
+      "criterion_id": "context_window_architectural_understanding",
+      "points_earned": 1.1,
+      "max_points": 4,
+      "percentage": 0.275
+    }
+  ]
+}
