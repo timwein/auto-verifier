@@ -5825,7 +5825,7 @@ EVALUATION PRINCIPLES:
         if len(history) >= 2:
             recent_scores = [h.percentage for h in history[-2:]] + [percentage]
             max_delta = max(recent_scores) - min(recent_scores)
-            if max_delta < 0.02:
+            if max_delta < 0.05:
                 result["convergence"] = True
                 self._log(f"Convergence detected: scores plateaued within {max_delta:.1%}")
 
@@ -7984,6 +7984,7 @@ class RubricLoop:
 
         consecutive_regressions = 0
         stall_count = 0  # consecutive iterations without score improvement
+        consecutive_convergence = 0  # consecutive plateau detections
         regression_note = ""
         last_feedback_text = ""  # Structured feedback from FeedbackAgent for next iteration
         last_path_text = ""  # Alternative strategies from PathAgent for stuck criteria
@@ -8170,9 +8171,13 @@ class RubricLoop:
                 self._post_run(result)
                 return result
 
-            # Convergence stop: if scores have plateaued, further iterations won't help
-            if eval_result.get("convergence") and i >= 3:
-                self._log(f"\nConverged at iteration {i} — scores plateaued. Stopping.")
+            # Convergence stop: require 2 consecutive plateau detections before stopping
+            if eval_result.get("convergence"):
+                consecutive_convergence += 1
+            else:
+                consecutive_convergence = 0
+            if consecutive_convergence >= 2 and i >= 3:
+                self._log(f"\nConverged at iteration {i} — scores plateaued for 2 consecutive windows. Stopping.")
                 break
 
             # Stall detection: stop if score hasn't improved for stall_threshold consecutive iterations
