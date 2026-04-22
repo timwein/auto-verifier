@@ -42,6 +42,8 @@ from rubric_system.models import (
     ScoredRubricRecord,
     PairSource,
     ReferencePair,
+    CriterionTier,
+    infer_tier,
 )
 from rubric_system.reference_pairs import (
     ReferencePairResolver,
@@ -56,6 +58,13 @@ from rubric_system.consistency import (
     CONSISTENCY_THRESHOLD_DEFAULT,
     MIN_PAIRS_DEFAULT,
     MAX_RETRIES_DEFAULT,
+)
+from rubric_system.tier_gate import (
+    evaluate_tier_coverage,
+    backfill_tiers,
+    build_regeneration_feedback,
+    HARD_RULE_MIN,
+    PRINCIPLE_MIN,
 )
 from rubric_system.scoring_engine import compute_dimension_scores
 
@@ -3214,6 +3223,20 @@ INSTRUCTIONS:
 
 {examples_section}
 
+TWO-TIER CRITERION TAXONOMY (Phase 2 — OpenRubrics):
+Every criterion MUST declare a `tier` field. Two tiers only:
+  - "hard_rule":  explicit violated-or-not constraint (format, length, required entity,
+                  no-hallucination, forbidden phrase). Use scoring_method "binary" or
+                  "penalty_based". The pass_condition must be unambiguous — a reader can
+                  answer yes/no with no judgment.
+  - "principle":  implicit quality dimension (nuance, calibration, reasoning depth,
+                  trade-off analysis). Use scoring_method "weighted_components",
+                  "threshold_tiers", "percentage", or "count_based". Produces a graded
+                  score, not a binary.
+MINIMUMS (mandatory): ≥2 hard_rule criteria AND ≥3 principle criteria. Rubrics that are
+all one tier will be rejected. Do not pad either tier with trivial criteria to meet the
+minimum — if you cannot produce 2 genuine hard rules, decompose the task further.
+
 OUTPUT FORMAT — valid JSON only, no markdown fences:
 {{
   "domain": "<short domain label for this task type>",
@@ -3221,6 +3244,7 @@ OUTPUT FORMAT — valid JSON only, no markdown fences:
   "criteria": [
     {{
       "id": "<short_snake_case>",
+      "tier": "hard_rule|principle",
       "category": "<category>",
       "description": "<what this criterion evaluates — be specific about what expert-level looks like>",
       "pass_condition": "<concrete threshold with NUMBERS: minimum counts (e.g. '3+ sources'), specific percentages (e.g. '80% accuracy'), named techniques (e.g. 'uses Monte Carlo simulation'), measurable standards — NO vague adjectives>",
@@ -4900,6 +4924,17 @@ RUBRIC DESIGN PRINCIPLES:
             cited_raw = c_spec.get("cited_discriminators", []) or []
             cited = [d for d in cited_raw if isinstance(d, str) and d.strip()]
 
+            # Phase 2: read declared tier; fall back to default mapping by scoring method.
+            tier_raw = c_spec.get("tier")
+            tier: Optional[CriterionTier] = None
+            if isinstance(tier_raw, str):
+                try:
+                    tier = CriterionTier(tier_raw.strip().lower())
+                except ValueError:
+                    tier = None
+            if tier is None:
+                tier = infer_tier(scoring.method)
+
             criterion = Criterion(
                 id=c_spec["id"],
                 category=c_spec.get("category", "general"),
@@ -4912,6 +4947,7 @@ RUBRIC DESIGN PRINCIPLES:
                 domain=spec.get("domain", "generated"),
                 research_basis=c_spec.get("research_basis", ""),
                 cited_discriminators=cited,
+                tier=tier,
             )
             criteria.append(criterion)
 
@@ -7874,6 +7910,54 @@ class RubricLoop:
             self.checkpoint_policy.record_outcome(checkpoint, "continue")
             return "continue", ""
 
+    async def _apply_tier_gate(
+        self,
+        rubric: Rubric,
+        task: str,
+        generator,
+        context: str,
+        resolved_pairs: Optional[list[ReferencePair]] = None,
+    ) -> Rubric:
+        """Phase 2 — enforce hard-rule / principle minimums.
+
+        1. Lazy-fill ``tier`` on any legacy criteria using the default mapping.
+        2. Count tiers; if below minimums, regenerate once with targeted feedback.
+        3. On second failure, log a warning and proceed (the rubric passes through
+           but carries the tier counts so self_improve can flag it).
+        """
+        rubric = backfill_tiers(rubric)
+        report = evaluate_tier_coverage(rubric)
+        self._log(
+            f"[Phase2] Tier coverage: hard_rules={report.hard_rules} "
+            f"principles={report.principles} (min {HARD_RULE_MIN}/{PRINCIPLE_MIN}) — "
+            f"{'passed' if report.passed else report.reason}"
+        )
+        if report.passed:
+            return rubric
+
+        # Regenerate once with tier-specific feedback appended to the context.
+        augmented_context = context + "\n" + build_regeneration_feedback(report)
+        try:
+            new_rubric = generator.generate(
+                task,
+                context=augmented_context,
+                reference_pairs=resolved_pairs or None,
+            )
+        except Exception as e:
+            self._log(f"[Phase2] Tier regeneration failed ({e}); keeping prior rubric")
+            return rubric
+
+        new_rubric = backfill_tiers(new_rubric)
+        new_report = evaluate_tier_coverage(new_rubric)
+        self._log(
+            f"[Phase2] Post-retry tier coverage: hard_rules={new_report.hard_rules} "
+            f"principles={new_report.principles} — "
+            f"{'passed' if new_report.passed else new_report.reason}"
+        )
+        if not new_report.passed:
+            self._log("[Phase2] Tier minimums still unmet after 1 retry — accepting rubric with warning")
+        return new_rubric
+
     async def _resolve_held_out_pairs(
         self,
         task: str,
@@ -8194,6 +8278,22 @@ class RubricLoop:
         # Skip on resume — the rubric was already filtered in the prior run.
         if not _resuming and self.enable_quality_gate:
             rubric = self._apply_quality_gate(rubric, task)
+
+        # Phase 2: tier-coverage gate — after QG so measurability/discrimination
+        # tweaks are finalized before we count tiers.
+        if (not _resuming
+                and getattr(self, "enable_phase2", True)
+                and getattr(self, "_phase_generator", None) is not None):
+            try:
+                rubric = await self._apply_tier_gate(
+                    rubric=rubric,
+                    task=task,
+                    generator=self._phase_generator,
+                    context=self._phase_context,
+                    resolved_pairs=self._phase_resolved_pairs,
+                )
+            except Exception as e:
+                self._log(f"[Phase2] Tier gate errored (non-fatal): {e}")
 
         domain = rubric.domain
 

@@ -26,6 +26,28 @@ class ScoringMethod(Enum):
     COUNT_BASED = "count_based"
 
 
+class CriterionTier(Enum):
+    """Phase 2 — two-tier criterion taxonomy (OpenRubrics).
+
+    HARD_RULE: explicit pass/fail constraint (format, length, required entities,
+               no-hallucination). Binary or penalty-based scoring.
+    PRINCIPLE: implicit quality dimension (nuance, calibration, reasoning depth).
+               Graded scoring (weighted_components, threshold_tiers, percentage, count_based).
+    """
+    HARD_RULE = "hard_rule"
+    PRINCIPLE = "principle"
+
+
+def infer_tier(method: ScoringMethod) -> CriterionTier:
+    """Default mapping when a criterion doesn't declare its tier explicitly.
+
+    Mapping: BINARY, PENALTY_BASED -> HARD_RULE; everything else -> PRINCIPLE.
+    """
+    if method in (ScoringMethod.BINARY, ScoringMethod.PENALTY_BASED):
+        return CriterionTier.HARD_RULE
+    return CriterionTier.PRINCIPLE
+
+
 @dataclass
 class SubAttribute:
     """A measurable component within a criterion."""
@@ -96,6 +118,7 @@ class Criterion:
     domain: str = ""
     research_basis: str = ""  # Research finding that grounds this criterion (e.g., "AICPA SSFS No. 1 requires...")
     cited_discriminators: list[str] = field(default_factory=list)  # Phase 1: slugs into Rubric.discriminators
+    tier: Optional[CriterionTier] = None  # Phase 2: hard_rule vs principle (nullable; lazy-filled via infer_tier)
 
 
 @dataclass
