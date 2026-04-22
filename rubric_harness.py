@@ -72,6 +72,7 @@ from rubric_system.aggregation import (
     BudgetTracker,
     rankings_disagree,
 )
+from rubric_system.telemetry import write_run_telemetry
 from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
@@ -8884,17 +8885,18 @@ class RubricLoop:
         self._post_run(result)
         return result
 
-    def _collect_dataset_record(self, result: LoopResult, rubric_id: str) -> None:
+    def _collect_dataset_record(self, result: LoopResult, rubric_id: str) -> bool:
         """Phase 5 — write one (task, preferred, rejected, validated_rubric) row.
 
         Only fires when --collect-dataset is on. Skips when no reference pairs
         were resolved. All text fields are scrubbed through
-        ``rubric_system.privacy.scrub`` before persistence.
+        ``rubric_system.privacy.scrub`` before persistence. Returns True when
+        a row was written; False otherwise.
         """
         pairs = getattr(self, "_phase_resolved_pairs", None) or []
         if not pairs:
             self._log("[Phase5] No reference pairs available — skipping dataset record")
-            return
+            return False
 
         from rubric_system.privacy import scrub
         from rubric_system.tier_gate import evaluate_tier_coverage
@@ -8947,8 +8949,56 @@ class RubricLoop:
             )
             total_count = self.rubric_store.count_dataset_records()
             self._log(f"[Phase5] Dataset record saved (row={row_id}); total collected: {total_count}")
+            return True
         except Exception as e:
             self._log(f"[Phase5] Dataset save failed (non-fatal): {e}")
+            return False
+
+    def _emit_run_telemetry(self, result: LoopResult, rubric_id: str, dataset_saved: bool) -> None:
+        """Assemble and append a per-run telemetry record (JSONL)."""
+        from rubric_system.tier_gate import evaluate_tier_coverage
+        import hashlib
+
+        pairs = getattr(self, "_phase_resolved_pairs", None) or []
+        tier_report = evaluate_tier_coverage(result.rubric)
+        budget: Optional[BudgetTracker] = getattr(self, "_implicit_budget", None)
+        record = {
+            "run_id": rubric_id,
+            "task_hash": hashlib.sha256(result.rubric.task.encode("utf-8")).hexdigest(),
+            "phase_flags": {
+                "phase1": getattr(self, "enable_phase1", True),
+                "phase2": getattr(self, "enable_phase2", True),
+                "phase3": getattr(self, "enable_phase3", False),
+                "phase4_implicit": getattr(self, "enable_implicit_aggregator", False),
+                "phase5_dataset": getattr(self, "collect_dataset", False),
+            },
+            "pairs_used": len(pairs),
+            "pairs_source": sorted({
+                (p.source.value if hasattr(p.source, "value") else str(p.source))
+                for p in pairs
+            }),
+            "discriminators_count": len(result.rubric.discriminators or []),
+            "tier_counts": {
+                "hard_rule": tier_report.hard_rules,
+                "principle": tier_report.principles,
+                "untyped": tier_report.untyped,
+            },
+            "consistency_hit_rate": result.rubric.consistency_hit_rate,
+            "consistency_n_pairs": result.rubric.consistency_n_pairs,
+            "consistency_status": result.rubric.consistency_status,
+            "voting_k": getattr(self, "voting_k", 1),
+            "extra_calls": budget.used if budget else 0,
+            "extra_calls_budget_exceeded": (budget.used > budget.limit) if budget else False,
+            "dataset_record_saved": dataset_saved,
+            "dataset_total_records": (
+                self.rubric_store.count_dataset_records()
+                if hasattr(self, "rubric_store") and self.rubric_store is not None
+                else None
+            ),
+            "rubric_id": rubric_id,
+            "final_percentage": float(result.final_percentage) if result.final_percentage is not None else None,
+        }
+        write_run_telemetry(record)
 
     def _post_run(self, result: LoopResult):
         """Post-run hook: persist scored rubric, scan outcomes, improve generation, auto-edit."""
@@ -8989,11 +9039,18 @@ class RubricLoop:
             self._log(f"[Loop3] Saved scored rubric: {rubric_id}")
 
             # Phase 5 — dataset collection (opt-in via --collect-dataset).
+            dataset_saved = False
             if getattr(self, "collect_dataset", False):
                 try:
-                    self._collect_dataset_record(result, rubric_id)
+                    dataset_saved = bool(self._collect_dataset_record(result, rubric_id))
                 except Exception as _e:
                     self._log(f"[Phase5] Dataset collection failed (non-fatal): {_e}")
+
+            # Cross-cutting — per-run telemetry (always on).
+            try:
+                self._emit_run_telemetry(result, rubric_id, dataset_saved)
+            except Exception as _e:
+                self._log(f"[Telemetry] Failed to write telemetry (non-fatal): {_e}")
 
             # RubricRAG: persist rubric for future retrieval-augmented generation
             if self.enable_rubric_store and self.rag_store is not None:
