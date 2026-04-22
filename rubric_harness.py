@@ -66,6 +66,12 @@ from rubric_system.tier_gate import (
     HARD_RULE_MIN,
     PRINCIPLE_MIN,
 )
+from rubric_system.aggregation import (
+    ImplicitAggregator,
+    AggregatedScore,
+    BudgetTracker,
+    rankings_disagree,
+)
 from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
@@ -7910,6 +7916,87 @@ class RubricLoop:
             self.checkpoint_policy.record_outcome(checkpoint, "continue")
             return "continue", ""
 
+    def _apply_implicit_aggregator(
+        self,
+        rubric: Rubric,
+        attempt: str,
+        explicit_total: float,
+        explicit_max: float,
+        explicit_per_crit: dict,
+        iteration: int,
+    ) -> None:
+        """Run the implicit LLM judge and log divergence from the explicit path.
+
+        Explicit scoring remains authoritative; this hook only records an
+        additional signal for self_improve / observability. Cost is bounded by
+        a shared BudgetTracker (default limit 10 extra calls/run).
+        """
+        # Lazy init.
+        if not getattr(self, "_implicit_budget", None):
+            self._implicit_budget = BudgetTracker(limit=10)
+        if not getattr(self, "_implicit_aggregator", None):
+            judge_model = getattr(self, "judge_model", self.model)
+            voting_k = getattr(self, "voting_k", 1)
+            self._implicit_aggregator = ImplicitAggregator(
+                client=Anthropic(timeout=_API_TIMEOUT) if Anthropic is not None else None,
+                model=judge_model,
+                voting_k=voting_k,
+            )
+        if self._implicit_aggregator.client is None:
+            return
+
+        # Respect the budget — cap voting_k at remaining.
+        if self._implicit_budget.remaining() <= 0:
+            if not self._implicit_budget.exceeded_logged:
+                self._log("  [Phase4] Extra-call budget exceeded; skipping implicit judge")
+                self._implicit_budget.exceeded_logged = True
+            return
+
+        implicit = self._implicit_aggregator.score(rubric, attempt, budget=self._implicit_budget)
+        explicit = AggregatedScore(
+            total=float(explicit_total),
+            max_points=float(explicit_max) if explicit_max else float(rubric.total_points),
+            per_criterion=explicit_per_crit,
+        )
+
+        prev_exp = getattr(self, "_prev_explicit_score", None)
+        prev_imp = getattr(self, "_prev_implicit_score", None)
+        disagree = rankings_disagree(explicit, implicit, prev_exp, prev_imp)
+
+        self._log(
+            f"  [Phase4] implicit: {implicit.total:.1f}/{implicit.max_points:.0f} "
+            f"({implicit.percentage:.1%}) "
+            f"| explicit: {explicit.total:.1f}/{explicit.max_points:.0f} "
+            f"({explicit.percentage:.1%}) "
+            f"| disagree={disagree}"
+        )
+
+        self._prev_explicit_score = explicit
+        self._prev_implicit_score = implicit
+
+        if disagree:
+            try:
+                log_dir = Path.home() / ".auto-verifier-data" / "phase4_disagreements"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                record = {
+                    "run_id": getattr(self, "_run_id", ""),
+                    "iteration": iteration,
+                    "task": rubric.task[:200],
+                    "explicit_total": explicit.total,
+                    "explicit_pct": explicit.percentage,
+                    "implicit_total": implicit.total,
+                    "implicit_pct": implicit.percentage,
+                    "implicit_voting_k": implicit.voting_k,
+                    "rationale": implicit.rationale[:500],
+                }
+                path = log_dir / "disagreements.jsonl"
+                with path.open("a", encoding="utf-8") as f:
+                    import json as _json
+                    f.write(_json.dumps(record) + "\n")
+            except Exception:
+                # Observability must never break the scoring path.
+                pass
+
     async def _apply_tier_gate(
         self,
         rubric: Rubric,
@@ -8439,6 +8526,20 @@ class RubricLoop:
                 self._log(f"  [ERROR] Scoring failed after retries: {e}")
                 break  # Exit loop — return best so far
             percentage = total / max_total if max_total > 0 else 0
+
+            # Phase 4 — implicit LLM-judge cross-check. Off by default.
+            if getattr(self, "enable_implicit_aggregator", False):
+                try:
+                    self._apply_implicit_aggregator(
+                        rubric=rubric,
+                        attempt=content,
+                        explicit_total=total,
+                        explicit_max=max_total,
+                        explicit_per_crit={cs.criterion_id: cs.points_earned for cs in criterion_scores},
+                        iteration=i,
+                    )
+                except Exception as e:
+                    self._log(f"  [Phase4] Implicit aggregator errored (non-fatal): {e}")
 
             # Record verification steps
             self.tracker.add_steps_from_criterion_scores(criterion_scores)
