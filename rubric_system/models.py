@@ -95,6 +95,7 @@ class Criterion:
     fail_examples: list[str] = field(default_factory=list)
     domain: str = ""
     research_basis: str = ""  # Research finding that grounds this criterion (e.g., "AICPA SSFS No. 1 requires...")
+    cited_discriminators: list[str] = field(default_factory=list)  # Phase 1: slugs into Rubric.discriminators
 
 
 @dataclass
@@ -115,6 +116,34 @@ class Rubric:
     total_points: int = 0
     pass_threshold: float = 0.85
     dimensions: Optional[list[RubricDimension]] = None  # None for legacy flat rubrics
+    discriminators: list[str] = field(default_factory=list)  # Phase 1: distinguishing features extracted from reference pairs
+    # Phase 3 consistency-filter outcome (nullable; populated when a consistency check ran).
+    consistency_hit_rate: Optional[float] = None
+    consistency_n_pairs: Optional[int] = None
+    consistency_status: Optional[str] = None  # "passed" | "failed_accepted" | "insufficient_pairs" | "skipped" | "errored"
+    consistency_pair_sources: Optional[str] = None  # comma-joined PairSource names used
+
+
+# ============================================================================
+# Reference Pair Models (Phase 1 — Contrastive Rubric Generation)
+# ============================================================================
+
+class PairSource(Enum):
+    """Origin of a (preferred, rejected) reference pair."""
+    CALLER = "caller"
+    STORE = "store"
+    SELF_CONTRAST = "self_contrast"
+    SYNTHETIC = "synthetic"
+
+
+@dataclass
+class ReferencePair:
+    """A (preferred, rejected) response pair used to ground rubric generation."""
+    preferred: str
+    rejected: str
+    source: PairSource
+    task_hash: str = ""
+    provenance: dict = field(default_factory=dict)  # run_id, created_at, outcome labels, etc.
 
 
 # ============================================================================
