@@ -8884,6 +8884,72 @@ class RubricLoop:
         self._post_run(result)
         return result
 
+    def _collect_dataset_record(self, result: LoopResult, rubric_id: str) -> None:
+        """Phase 5 — write one (task, preferred, rejected, validated_rubric) row.
+
+        Only fires when --collect-dataset is on. Skips when no reference pairs
+        were resolved. All text fields are scrubbed through
+        ``rubric_system.privacy.scrub`` before persistence.
+        """
+        pairs = getattr(self, "_phase_resolved_pairs", None) or []
+        if not pairs:
+            self._log("[Phase5] No reference pairs available — skipping dataset record")
+            return
+
+        from rubric_system.privacy import scrub
+        from rubric_system.tier_gate import evaluate_tier_coverage
+        import json as _json
+
+        preferred = scrub(pairs[0].preferred)
+        rejected = scrub(pairs[0].rejected)
+        task = scrub(result.rubric.task)
+
+        # Serialize the rubric minimally — full Criterion fields plus Phase 1/2/3 extras.
+        rubric_payload = {
+            "task": result.rubric.task,
+            "domain": result.rubric.domain,
+            "pass_threshold": result.rubric.pass_threshold,
+            "total_points": result.rubric.total_points,
+            "discriminators": result.rubric.discriminators,
+            "criteria": [
+                {
+                    "id": c.id,
+                    "category": c.category,
+                    "description": c.description,
+                    "pass_condition": c.pass_condition,
+                    "scoring_method": c.scoring.method.value,
+                    "max_points": c.scoring.max_points,
+                    "tier": c.tier.value if c.tier is not None else None,
+                    "cited_discriminators": c.cited_discriminators,
+                }
+                for c in result.rubric.criteria
+            ],
+        }
+
+        tier_report = evaluate_tier_coverage(result.rubric)
+        tier_counts = _json.dumps({"hard_rule": tier_report.hard_rules, "principle": tier_report.principles})
+
+        sources = sorted({(p.source.value if hasattr(p.source, "value") else str(p.source)) for p in pairs})
+        synthetic_used = any((p.source.value if hasattr(p.source, "value") else str(p.source)) == "synthetic"
+                             for p in pairs)
+
+        try:
+            row_id = self.rubric_store.save_dataset_record(
+                task_text=task,
+                preferred=preferred,
+                rejected=rejected,
+                rubric_json=_json.dumps(rubric_payload),
+                rubric_consistency_hit_rate=result.rubric.consistency_hit_rate,
+                rubric_tier_counts=tier_counts,
+                pair_sources=",".join(sources),
+                synthetic_fallback_used=synthetic_used,
+                source_run_id=rubric_id,
+            )
+            total_count = self.rubric_store.count_dataset_records()
+            self._log(f"[Phase5] Dataset record saved (row={row_id}); total collected: {total_count}")
+        except Exception as e:
+            self._log(f"[Phase5] Dataset save failed (non-fatal): {e}")
+
     def _post_run(self, result: LoopResult):
         """Post-run hook: persist scored rubric, scan outcomes, improve generation, auto-edit."""
         try:
@@ -8921,6 +8987,13 @@ class RubricLoop:
             )
             self.rubric_store.save_rubric(record)
             self._log(f"[Loop3] Saved scored rubric: {rubric_id}")
+
+            # Phase 5 — dataset collection (opt-in via --collect-dataset).
+            if getattr(self, "collect_dataset", False):
+                try:
+                    self._collect_dataset_record(result, rubric_id)
+                except Exception as _e:
+                    self._log(f"[Phase5] Dataset collection failed (non-fatal): {_e}")
 
             # RubricRAG: persist rubric for future retrieval-augmented generation
             if self.enable_rubric_store and self.rag_store is not None:

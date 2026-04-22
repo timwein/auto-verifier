@@ -79,6 +79,25 @@ class RubricStore:
                     keywords TEXT,  -- JSON array
                     template_ids TEXT  -- JSON array of templates used
                 );
+
+                -- Phase 5: OpenRubrics-style dataset. Populated only when
+                -- --collect-dataset is on and the rubric passed QualityGate.
+                CREATE TABLE IF NOT EXISTS rubric_dataset (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    created_at TEXT NOT NULL,
+                    task_hash TEXT NOT NULL,
+                    task_text TEXT NOT NULL,
+                    preferred TEXT NOT NULL,
+                    rejected TEXT NOT NULL,
+                    rubric_json TEXT NOT NULL,
+                    rubric_consistency_hit_rate REAL,
+                    rubric_tier_counts TEXT,
+                    pair_sources TEXT,
+                    synthetic_fallback_used INTEGER NOT NULL DEFAULT 0,
+                    source_run_id TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_rubric_dataset_task_hash
+                    ON rubric_dataset(task_hash);
             """)
     
     def save_rubric(self, record: ScoredRubricRecord):
@@ -232,6 +251,61 @@ class RubricStore:
         """Return the total number of scored rubrics in the store."""
         with sqlite3.connect(self.db_path) as conn:
             return conn.execute("SELECT COUNT(*) FROM scored_rubrics").fetchone()[0]
+
+    # ------------------------------------------------------------------ #
+    # Phase 5 — dataset scaffolding                                        #
+    # ------------------------------------------------------------------ #
+
+    def save_dataset_record(
+        self,
+        task_text: str,
+        preferred: str,
+        rejected: str,
+        rubric_json: str,
+        rubric_consistency_hit_rate: Optional[float] = None,
+        rubric_tier_counts: Optional[str] = None,
+        pair_sources: Optional[str] = None,
+        synthetic_fallback_used: bool = False,
+        source_run_id: Optional[str] = None,
+    ) -> int:
+        """Persist one (task, preferred, rejected, validated_rubric) record.
+
+        Callers are expected to scrub `task_text` / `preferred` / `rejected`
+        via `rubric_system.privacy.scrub` before calling this method.
+        Returns the new row id.
+        """
+        import hashlib
+        task_hash = hashlib.sha256(task_text.strip().encode("utf-8")).hexdigest()
+        with sqlite3.connect(self.db_path) as conn:
+            cur = conn.execute(
+                """
+                INSERT INTO rubric_dataset
+                    (created_at, task_hash, task_text, preferred, rejected,
+                     rubric_json, rubric_consistency_hit_rate,
+                     rubric_tier_counts, pair_sources, synthetic_fallback_used,
+                     source_run_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    datetime.now().isoformat(),
+                    task_hash,
+                    task_text,
+                    preferred,
+                    rejected,
+                    rubric_json,
+                    rubric_consistency_hit_rate,
+                    rubric_tier_counts,
+                    pair_sources,
+                    1 if synthetic_fallback_used else 0,
+                    source_run_id,
+                ),
+            )
+            return int(cur.lastrowid or 0)
+
+    def count_dataset_records(self) -> int:
+        """Return the total number of dataset records accumulated."""
+        with sqlite3.connect(self.db_path) as conn:
+            return conn.execute("SELECT COUNT(*) FROM rubric_dataset").fetchone()[0]
 
     def get_criterion_stats(self, min_uses: int = 5) -> list[CriterionStats]:
         """Get statistics for all criteria with minimum usage."""
