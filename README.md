@@ -4,12 +4,12 @@ A dual adversarial loop harness for high-quality task generation. Two feedback c
 
 **Eval results (4 hardest tasks, re-run on the aligned pipeline):** mean harness delta **+40.5pp** over the aligned-rubric baseline, with every prior regression converted to a strong positive delta. See [openrubrics-alignment-plan.md](openrubrics-alignment-plan.md) for the plan that drove the work and [EVAL.md](EVAL.md) for cross-run history.
 
-task	baseline	harness	delta	vs Run 12
-ml_experiment_report	22.9%	93.1%	+70.3pp	Run 12: −5.7pp
-graphql_schema_federation	57.2%	95.6%	+38.4pp	Run 12: −6.1pp
-regulatory_gap_analysis	38.3%	67.1%	+28.9pp	Run 12: −8.7pp
-security_threat_model	54.7%	78.8%	+24.2pp	Run 12: −16.1pp
-
+| Task                         | Baseline     | w/ harness    | Delta|
+|------------------------------|-------------:|--------------:|------------------:|
+| `ml_experiment_report`       | 22.9%        | 93.1%         | +70.3pp           |
+| `graphql_schema_federation`  | 57.2%        | 95.6%         | +38.4pp           |
+| `regulatory_gap_analysis`    | 38.3%        | 67.1%         | +28.9pp           |
+| `security_threat_model`      | 54.7%        | 78.8%         | +24.2pp           |
 
 ## Architecture
 
