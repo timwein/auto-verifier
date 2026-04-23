@@ -40,7 +40,39 @@ from rubric_system.models import (
     Iteration,
     LoopResult,
     ScoredRubricRecord,
+    PairSource,
+    ReferencePair,
+    CriterionTier,
+    infer_tier,
 )
+from rubric_system.reference_pairs import (
+    ReferencePairResolver,
+    SYNTHETIC_PAIR_PROMPT,
+    render_pair_block,
+    task_hash as _pair_task_hash,
+)
+from rubric_system.consistency import (
+    RubricConsistencyValidator,
+    ConsistencyResult,
+    apply_consistency_outcome,
+    CONSISTENCY_THRESHOLD_DEFAULT,
+    MIN_PAIRS_DEFAULT,
+    MAX_RETRIES_DEFAULT,
+)
+from rubric_system.tier_gate import (
+    evaluate_tier_coverage,
+    backfill_tiers,
+    build_regeneration_feedback,
+    HARD_RULE_MIN,
+    PRINCIPLE_MIN,
+)
+from rubric_system.aggregation import (
+    ImplicitAggregator,
+    AggregatedScore,
+    BudgetTracker,
+    rankings_disagree,
+)
+from rubric_system.telemetry import write_run_telemetry
 from rubric_system.scoring_engine import compute_dimension_scores
 
 try:
@@ -3198,6 +3230,20 @@ INSTRUCTIONS:
 
 {examples_section}
 
+TWO-TIER CRITERION TAXONOMY (Phase 2 — OpenRubrics):
+Every criterion MUST declare a `tier` field. Two tiers only:
+  - "hard_rule":  explicit violated-or-not constraint (format, length, required entity,
+                  no-hallucination, forbidden phrase). Use scoring_method "binary" or
+                  "penalty_based". The pass_condition must be unambiguous — a reader can
+                  answer yes/no with no judgment.
+  - "principle":  implicit quality dimension (nuance, calibration, reasoning depth,
+                  trade-off analysis). Use scoring_method "weighted_components",
+                  "threshold_tiers", "percentage", or "count_based". Produces a graded
+                  score, not a binary.
+MINIMUMS (mandatory): ≥2 hard_rule criteria AND ≥3 principle criteria. Rubrics that are
+all one tier will be rejected. Do not pad either tier with trivial criteria to meet the
+minimum — if you cannot produce 2 genuine hard rules, decompose the task further.
+
 OUTPUT FORMAT — valid JSON only, no markdown fences:
 {{
   "domain": "<short domain label for this task type>",
@@ -3205,6 +3251,7 @@ OUTPUT FORMAT — valid JSON only, no markdown fences:
   "criteria": [
     {{
       "id": "<short_snake_case>",
+      "tier": "hard_rule|principle",
       "category": "<category>",
       "description": "<what this criterion evaluates — be specific about what expert-level looks like>",
       "pass_condition": "<concrete threshold with NUMBERS: minimum counts (e.g. '3+ sources'), specific percentages (e.g. '80% accuracy'), named techniques (e.g. 'uses Monte Carlo simulation'), measurable standards — NO vague adjectives>",
@@ -4494,7 +4541,13 @@ RUBRIC DESIGN PRINCIPLES:
 
         return rubric
 
-    def generate(self, task: str, context: str = "", seed_rubrics: list[Rubric] = None) -> Rubric:
+    def generate(
+        self,
+        task: str,
+        context: str = "",
+        seed_rubrics: list[Rubric] = None,
+        reference_pairs: Optional[list[ReferencePair]] = None,
+    ) -> Rubric:
         """Generate a bespoke rubric for the given task.
 
         Args:
@@ -4502,6 +4555,10 @@ RUBRIC DESIGN PRINCIPLES:
             context: optional additional context
             seed_rubrics: optional list of existing Rubrics to use as few-shot seeds.
                           If not provided, pulls the closest matches from the registry.
+            reference_pairs: optional contrastive (preferred, rejected) pairs.
+                          When present, the generator is instructed to extract
+                          discriminators from them and every emitted criterion must
+                          cite at least one discriminator in `cited_discriminators`.
 
         Returns:
             A fully hydrated Rubric with Criterion objects and ScoringRubrics
@@ -4692,6 +4749,11 @@ RUBRIC DESIGN PRINCIPLES:
         if learning_section:
             prompt += "\n" + learning_section
 
+        # Phase 1: contrastive rubric generation — append reference-pair block if provided.
+        pair_block = render_pair_block(reference_pairs or [])
+        if pair_block:
+            prompt += "\n" + pair_block
+
         # Build system prompt — inject expert persona if available so the rubric
         # architect adopts the perspective of the domain's ideal evaluator
         system_prompt = self.RUBRIC_AGENT_SYSTEM_PROMPT
@@ -4860,8 +4922,25 @@ RUBRIC DESIGN PRINCIPLES:
         """Convert a JSON spec into canonical Rubric/Criterion objects."""
         criteria = []
 
+        discriminators_raw = spec.get("discriminators", []) or []
+        discriminators = [d for d in discriminators_raw if isinstance(d, str) and d.strip()]
+
         for c_spec in spec["criteria"]:
             scoring = self._build_scoring(c_spec)
+
+            cited_raw = c_spec.get("cited_discriminators", []) or []
+            cited = [d for d in cited_raw if isinstance(d, str) and d.strip()]
+
+            # Phase 2: read declared tier; fall back to default mapping by scoring method.
+            tier_raw = c_spec.get("tier")
+            tier: Optional[CriterionTier] = None
+            if isinstance(tier_raw, str):
+                try:
+                    tier = CriterionTier(tier_raw.strip().lower())
+                except ValueError:
+                    tier = None
+            if tier is None:
+                tier = infer_tier(scoring.method)
 
             criterion = Criterion(
                 id=c_spec["id"],
@@ -4874,6 +4953,8 @@ RUBRIC DESIGN PRINCIPLES:
                 fail_examples=c_spec.get("fail_examples", []),
                 domain=spec.get("domain", "generated"),
                 research_basis=c_spec.get("research_basis", ""),
+                cited_discriminators=cited,
+                tier=tier,
             )
             criteria.append(criterion)
 
@@ -4885,6 +4966,7 @@ RUBRIC DESIGN PRINCIPLES:
             criteria=criteria,
             total_points=total_points,
             pass_threshold=spec.get("pass_threshold", 0.85),
+            discriminators=discriminators,
         )
 
     def _build_scoring(self, c_spec: dict) -> ScoringRubric:
@@ -6910,6 +6992,15 @@ class RubricLoop:
         enable_quality_gate: bool = True,
         skip_negotiation: bool = False,
         persist_feedback: bool = False,
+        # OpenRubrics alignment phases (all default-on after validation on 5 hardest tasks)
+        enable_phase1: bool = True,              # contrastive rubric generation
+        enable_phase2: bool = True,              # hard-rule / principle taxonomy
+        enable_phase3: bool = True,              # preference-label consistency filter
+        consistency_threshold: float = 0.8,
+        enable_implicit_aggregator: bool = True, # Phase 4 implicit LLM-judge
+        judge_model: str = "claude-sonnet-4-20250514",
+        voting_k: int = 1,
+        collect_dataset: bool = True,            # Phase 5 dataset scaffolding
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -6941,6 +7032,15 @@ class RubricLoop:
         self.repo_path = repo_path
         self.enable_self_improve = enable_self_improve
         self.persist_feedback = persist_feedback
+        # OpenRubrics alignment phase flags — see openrubrics-alignment-plan.md
+        self.enable_phase1 = enable_phase1
+        self.enable_phase2 = enable_phase2
+        self.enable_phase3 = enable_phase3
+        self.consistency_threshold = consistency_threshold
+        self.enable_implicit_aggregator = enable_implicit_aggregator
+        self.judge_model = judge_model
+        self.voting_k = voting_k
+        self.collect_dataset = collect_dataset
         self.rubric_store = RubricStore()
         self.outcome_tracker = OutcomeTracker(self.rubric_store, verbose=verbose)
         self.learning_integrator = LearningIntegrator(
@@ -7835,6 +7935,305 @@ class RubricLoop:
             self.checkpoint_policy.record_outcome(checkpoint, "continue")
             return "continue", ""
 
+    def _apply_implicit_aggregator(
+        self,
+        rubric: Rubric,
+        attempt: str,
+        explicit_total: float,
+        explicit_max: float,
+        explicit_per_crit: dict,
+        iteration: int,
+    ) -> None:
+        """Run the implicit LLM judge and log divergence from the explicit path.
+
+        Explicit scoring remains authoritative; this hook only records an
+        additional signal for self_improve / observability. Cost is bounded by
+        a shared BudgetTracker (default limit 10 extra calls/run).
+        """
+        # Lazy init.
+        if not getattr(self, "_implicit_budget", None):
+            self._implicit_budget = BudgetTracker(limit=10)
+        if not getattr(self, "_implicit_aggregator", None):
+            judge_model = getattr(self, "judge_model", self.model)
+            voting_k = getattr(self, "voting_k", 1)
+            self._implicit_aggregator = ImplicitAggregator(
+                client=Anthropic(timeout=_API_TIMEOUT) if Anthropic is not None else None,
+                model=judge_model,
+                voting_k=voting_k,
+            )
+        if self._implicit_aggregator.client is None:
+            return
+
+        # Respect the budget — cap voting_k at remaining.
+        if self._implicit_budget.remaining() <= 0:
+            if not self._implicit_budget.exceeded_logged:
+                self._log("  [Phase4] Extra-call budget exceeded; skipping implicit judge")
+                self._implicit_budget.exceeded_logged = True
+            return
+
+        implicit = self._implicit_aggregator.score(rubric, attempt, budget=self._implicit_budget)
+        explicit = AggregatedScore(
+            total=float(explicit_total),
+            max_points=float(explicit_max) if explicit_max else float(rubric.total_points),
+            per_criterion=explicit_per_crit,
+        )
+
+        prev_exp = getattr(self, "_prev_explicit_score", None)
+        prev_imp = getattr(self, "_prev_implicit_score", None)
+        disagree = rankings_disagree(explicit, implicit, prev_exp, prev_imp)
+
+        self._log(
+            f"  [Phase4] implicit: {implicit.total:.1f}/{implicit.max_points:.0f} "
+            f"({implicit.percentage:.1%}) "
+            f"| explicit: {explicit.total:.1f}/{explicit.max_points:.0f} "
+            f"({explicit.percentage:.1%}) "
+            f"| disagree={disagree}"
+        )
+
+        self._prev_explicit_score = explicit
+        self._prev_implicit_score = implicit
+
+        if disagree:
+            try:
+                log_dir = Path.home() / ".auto-verifier-data" / "phase4_disagreements"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                record = {
+                    "run_id": getattr(self, "_run_id", ""),
+                    "iteration": iteration,
+                    "task": rubric.task[:200],
+                    "explicit_total": explicit.total,
+                    "explicit_pct": explicit.percentage,
+                    "implicit_total": implicit.total,
+                    "implicit_pct": implicit.percentage,
+                    "implicit_voting_k": implicit.voting_k,
+                    "rationale": implicit.rationale[:500],
+                }
+                path = log_dir / "disagreements.jsonl"
+                with path.open("a", encoding="utf-8") as f:
+                    import json as _json
+                    f.write(_json.dumps(record) + "\n")
+            except Exception:
+                # Observability must never break the scoring path.
+                pass
+
+    async def _apply_tier_gate(
+        self,
+        rubric: Rubric,
+        task: str,
+        generator,
+        context: str,
+        resolved_pairs: Optional[list[ReferencePair]] = None,
+    ) -> Rubric:
+        """Phase 2 — enforce hard-rule / principle minimums.
+
+        1. Lazy-fill ``tier`` on any legacy criteria using the default mapping.
+        2. Count tiers; if below minimums, regenerate once with targeted feedback.
+        3. On second failure, log a warning and proceed (the rubric passes through
+           but carries the tier counts so self_improve can flag it).
+        """
+        rubric = backfill_tiers(rubric)
+        report = evaluate_tier_coverage(rubric)
+        self._log(
+            f"[Phase2] Tier coverage: hard_rules={report.hard_rules} "
+            f"principles={report.principles} (min {HARD_RULE_MIN}/{PRINCIPLE_MIN}) — "
+            f"{'passed' if report.passed else report.reason}"
+        )
+        if report.passed:
+            return rubric
+
+        # Regenerate once with tier-specific feedback appended to the context.
+        augmented_context = context + "\n" + build_regeneration_feedback(report)
+        try:
+            new_rubric = generator.generate(
+                task,
+                context=augmented_context,
+                reference_pairs=resolved_pairs or None,
+            )
+        except Exception as e:
+            self._log(f"[Phase2] Tier regeneration failed ({e}); keeping prior rubric")
+            return rubric
+
+        new_rubric = backfill_tiers(new_rubric)
+        new_report = evaluate_tier_coverage(new_rubric)
+        self._log(
+            f"[Phase2] Post-retry tier coverage: hard_rules={new_report.hard_rules} "
+            f"principles={new_report.principles} — "
+            f"{'passed' if new_report.passed else new_report.reason}"
+        )
+        if not new_report.passed:
+            self._log("[Phase2] Tier minimums still unmet after 1 retry — accepting rubric with warning")
+        return new_rubric
+
+    async def _resolve_held_out_pairs(
+        self,
+        task: str,
+        generator_client,
+        generator_model: str,
+        exclude: Optional[list[ReferencePair]] = None,
+        desired: int = MIN_PAIRS_DEFAULT,
+    ) -> list[ReferencePair]:
+        """Resolve a held-out pair pool for the Phase 3 consistency filter.
+
+        Mines from RubricStore first, then tops up with synthetic pairs when short.
+        Pairs matching an ``exclude`` entry (by preferred+rejected text) are skipped
+        so the filter isn't evaluating the same pairs that shaped the rubric.
+        """
+        exclude_set = set()
+        if exclude:
+            exclude_set = {(p.preferred, p.rejected) for p in exclude}
+
+        async def _synthetic_fn(task_text: str) -> str:
+            prompt = SYNTHETIC_PAIR_PROMPT.format(task=task_text)
+            try:
+                resp = generator_client.messages.create(
+                    model=generator_model,
+                    max_tokens=4000,
+                    system="You synthesize contrastive response pairs for rubric validation. Output strict JSON only.",
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return resp.content[0].text if resp.content else ""
+            except Exception:
+                return ""
+
+        store_db_path = None
+        learner_store = getattr(self, "rubric_store", None) or getattr(self, "store", None)
+        if learner_store is not None and hasattr(learner_store, "db_path"):
+            store_db_path = Path(learner_store.db_path)
+
+        resolver = ReferencePairResolver(
+            store_db_path=store_db_path,
+            attempt_fn=None,
+            score_fn=None,
+            synthetic_fn=_synthetic_fn,
+            min_desired=desired,
+            max_pairs=desired,
+        )
+        pool = await resolver.resolve(task, caller_pairs=None)
+
+        # Top up with a fresh synthetic call if short and exclude pruned us further.
+        pool = [p for p in pool if (p.preferred, p.rejected) not in exclude_set]
+        if len(pool) < desired:
+            raw = await _synthetic_fn(task)
+            if raw:
+                from rubric_system.reference_pairs import parse_synthetic_pairs, task_hash as _th
+                extras = parse_synthetic_pairs(raw, _th(task))
+                for e in extras:
+                    if (e.preferred, e.rejected) in exclude_set:
+                        continue
+                    pool.append(e)
+                    if len(pool) >= desired:
+                        break
+        return pool[:desired]
+
+    async def _apply_consistency_filter(
+        self,
+        rubric: Rubric,
+        task: str,
+        generator,
+        context: str,
+        initial_pairs: list[ReferencePair],
+    ) -> Rubric:
+        """Run Phase 3's consistency filter with bounded retry.
+
+        Flow:
+          1. Resolve up to 5 held-out pairs (store + synthetic fallback).
+          2. Score preferred vs rejected via ``self.score_content``.
+          3. If hit_rate < threshold, feed misranked pairs back into generation
+             (up to ``MAX_RETRIES_DEFAULT`` retries).
+          4. On final failure, mark ``failed_accepted`` and proceed.
+        """
+        threshold = getattr(self, "consistency_threshold", CONSISTENCY_THRESHOLD_DEFAULT)
+
+        held_out = await self._resolve_held_out_pairs(
+            task=task,
+            generator_client=generator.client,
+            generator_model=self.model,
+            exclude=initial_pairs,
+            desired=MIN_PAIRS_DEFAULT,
+        )
+
+        async def _score_fn(r: Rubric, response: str) -> tuple[float, dict[str, float]]:
+            total, _max, criterion_scores, _crit = await self.score_content(response, r)
+            per_crit = {cs.criterion_id: cs.points_earned for cs in criterion_scores}
+            return total, per_crit
+
+        validator = RubricConsistencyValidator(
+            score_fn=_score_fn,
+            threshold=threshold,
+            min_pairs=MIN_PAIRS_DEFAULT,
+        )
+
+        attempt = 0
+        result: Optional[ConsistencyResult] = None
+        while attempt <= MAX_RETRIES_DEFAULT:
+            per_criterion = attempt > 0  # collect deltas only on retry to save tokens
+            result = await validator.validate(rubric, held_out, per_criterion=per_criterion)
+            self._log(
+                f"[Phase3] Consistency check: status={result.status} "
+                f"hit_rate={result.hit_rate:.2f} n_pairs={result.n_pairs} attempt={attempt}"
+            )
+            if result.status in ("passed", "insufficient_pairs", "skipped", "errored"):
+                break
+            # status == "failed" → retry or accept
+            if attempt >= MAX_RETRIES_DEFAULT:
+                result.status = "failed_accepted"
+                self._log("[Phase3] Max retries reached — accepting rubric as low-confidence")
+                break
+
+            failing = [held_out[p.pair_index] for p in result.per_pair if not p.ranked_correctly]
+            retry_pairs = (failing + list(initial_pairs))[:3]
+            self._log(f"[Phase3] Regenerating rubric with {len(retry_pairs)} contrast pair(s) (retry {attempt + 1})")
+            try:
+                rubric = generator.generate(task, context=context, reference_pairs=retry_pairs)
+            except Exception as e:
+                self._log(f"[Phase3] Retry generation failed ({e}); accepting prior rubric as low-confidence")
+                result.status = "failed_accepted"
+                break
+            attempt += 1
+
+        if result is not None:
+            apply_consistency_outcome(rubric, result)
+        return rubric
+
+    async def _resolve_reference_pairs(
+        self,
+        task: str,
+        caller_pairs: Optional[list[ReferencePair]],
+        generator_client,
+        generator_model: str,
+    ) -> list[ReferencePair]:
+        """Resolve up to 3 reference pairs for contrastive rubric generation.
+
+        Priority: caller > RubricStore-mined > self-contrast > synthetic.
+        Self-contrast is not yet wired to an attempt generator, so the resolver
+        falls through to synthetic generation when the first two sources are dry.
+        """
+        store_db_path = None
+        learner_store = getattr(self, "rubric_store", None) or getattr(self, "store", None)
+        if learner_store is not None and hasattr(learner_store, "db_path"):
+            store_db_path = Path(learner_store.db_path)
+
+        async def _synthetic_fn(task_text: str) -> str:
+            prompt = SYNTHETIC_PAIR_PROMPT.format(task=task_text)
+            try:
+                resp = generator_client.messages.create(
+                    model=generator_model,
+                    max_tokens=4000,
+                    system="You synthesize contrastive response pairs for rubric training data. Output strict JSON only.",
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return resp.content[0].text if resp.content else ""
+            except Exception:
+                return ""
+
+        resolver = ReferencePairResolver(
+            store_db_path=store_db_path,
+            attempt_fn=None,       # self-contrast disabled in v1 wiring
+            score_fn=None,
+            synthetic_fn=_synthetic_fn,
+        )
+        return await resolver.resolve(task, caller_pairs=caller_pairs)
+
     async def run(
         self,
         task: str,
@@ -7844,6 +8243,8 @@ class RubricLoop:
         generate_rubric: bool = True,
         seed_content: Optional[str] = None,
         resume_run_id: Optional[str] = None,
+        reference_pairs: Optional[list[ReferencePair]] = None,
+        enable_phase1: bool = True,
     ) -> LoopResult:
         """Run the generation-verification loop with granular scoring,
         feedback injection, verification tracking, and checkpoints.
@@ -7907,10 +8308,43 @@ class RubricLoop:
                 enable_rubric_store=self.enable_rubric_store,
                 rag_store=self.rag_store,
             )
-            rubric = generator.generate(task, context=context)
+
+            # Phase 1 — Contrastive Rubric Generation: resolve reference pairs.
+            resolved_pairs: list[ReferencePair] = []
+            if enable_phase1:
+                try:
+                    resolved_pairs = await self._resolve_reference_pairs(
+                        task=task,
+                        caller_pairs=reference_pairs,
+                        generator_client=generator.client,
+                        generator_model=self.model,
+                    )
+                    if resolved_pairs:
+                        sources = [p.source.value for p in resolved_pairs]
+                        self._log(f"[Phase1] Reference pairs: {len(resolved_pairs)} (sources: {','.join(sources)})")
+                except Exception as e:
+                    self._log(f"[Phase1] Pair resolution failed (non-fatal): {e}")
+                    resolved_pairs = []
+
+            rubric = generator.generate(task, context=context, reference_pairs=resolved_pairs or None)
             matched_name = f"generated:{rubric.domain}"
             self._log(f"Rubric: {matched_name}")
             self._log(f"  {len(rubric.criteria)} criteria, {rubric.total_points} max points")
+
+            # Enforce the contrastive-generation contract: every criterion must cite ≥1
+            # discriminator when reference pairs were supplied. Missing citations are
+            # filled in with an empty list; the rubric passes through but is logged so
+            # QualityGate / self_improve can consume the signal.
+            if resolved_pairs and not rubric.discriminators:
+                self._log(
+                    "[Phase1] Generator did not emit discriminators despite reference pairs — "
+                    "continuing, but rubric will be flagged low-confidence."
+                )
+
+            # Stash the generator + resolved pairs so downstream phases can access them.
+            self._phase_generator = generator
+            self._phase_resolved_pairs = resolved_pairs
+            self._phase_context = context
         else:
             # Legacy path: registry matching
             rubric, matched_name, confidence = resolve_rubric(task)
@@ -7921,6 +8355,22 @@ class RubricLoop:
         # Skip on resume — the rubric was already negotiated and saved in the prior run.
         if not _resuming:
             rubric = self._negotiate_rubric(rubric, task)
+
+        # Phase 3: preference-label consistency filter — between negotiation and QG.
+        # Off by default (opt-in via --phase3) because it spends ~10 scoring calls.
+        if (not _resuming
+                and getattr(self, "enable_phase3", False)
+                and getattr(self, "_phase_generator", None) is not None):
+            try:
+                rubric = await self._apply_consistency_filter(
+                    rubric=rubric,
+                    task=task,
+                    generator=self._phase_generator,
+                    context=self._phase_context,
+                    initial_pairs=self._phase_resolved_pairs or [],
+                )
+            except Exception as e:
+                self._log(f"[Phase3] Consistency filter errored (non-fatal): {e}")
 
         # Trade-off detection: resolve inversely correlated criteria before the loop
         # starts so that feedback never ping-pongs between opposing objectives.
@@ -7934,6 +8384,22 @@ class RubricLoop:
         # Skip on resume — the rubric was already filtered in the prior run.
         if not _resuming and self.enable_quality_gate:
             rubric = self._apply_quality_gate(rubric, task)
+
+        # Phase 2: tier-coverage gate — after QG so measurability/discrimination
+        # tweaks are finalized before we count tiers.
+        if (not _resuming
+                and getattr(self, "enable_phase2", True)
+                and getattr(self, "_phase_generator", None) is not None):
+            try:
+                rubric = await self._apply_tier_gate(
+                    rubric=rubric,
+                    task=task,
+                    generator=self._phase_generator,
+                    context=self._phase_context,
+                    resolved_pairs=self._phase_resolved_pairs,
+                )
+            except Exception as e:
+                self._log(f"[Phase2] Tier gate errored (non-fatal): {e}")
 
         domain = rubric.domain
 
@@ -8079,6 +8545,20 @@ class RubricLoop:
                 self._log(f"  [ERROR] Scoring failed after retries: {e}")
                 break  # Exit loop — return best so far
             percentage = total / max_total if max_total > 0 else 0
+
+            # Phase 4 — implicit LLM-judge cross-check. Off by default.
+            if getattr(self, "enable_implicit_aggregator", False):
+                try:
+                    self._apply_implicit_aggregator(
+                        rubric=rubric,
+                        attempt=content,
+                        explicit_total=total,
+                        explicit_max=max_total,
+                        explicit_per_crit={cs.criterion_id: cs.points_earned for cs in criterion_scores},
+                        iteration=i,
+                    )
+                except Exception as e:
+                    self._log(f"  [Phase4] Implicit aggregator errored (non-fatal): {e}")
 
             # Record verification steps
             self.tracker.add_steps_from_criterion_scores(criterion_scores)
@@ -8423,6 +8903,121 @@ class RubricLoop:
         self._post_run(result)
         return result
 
+    def _collect_dataset_record(self, result: LoopResult, rubric_id: str) -> bool:
+        """Phase 5 — write one (task, preferred, rejected, validated_rubric) row.
+
+        Only fires when --collect-dataset is on. Skips when no reference pairs
+        were resolved. All text fields are scrubbed through
+        ``rubric_system.privacy.scrub`` before persistence. Returns True when
+        a row was written; False otherwise.
+        """
+        pairs = getattr(self, "_phase_resolved_pairs", None) or []
+        if not pairs:
+            self._log("[Phase5] No reference pairs available — skipping dataset record")
+            return False
+
+        from rubric_system.privacy import scrub
+        from rubric_system.tier_gate import evaluate_tier_coverage
+        import json as _json
+
+        preferred = scrub(pairs[0].preferred)
+        rejected = scrub(pairs[0].rejected)
+        task = scrub(result.rubric.task)
+
+        # Serialize the rubric minimally — full Criterion fields plus Phase 1/2/3 extras.
+        rubric_payload = {
+            "task": result.rubric.task,
+            "domain": result.rubric.domain,
+            "pass_threshold": result.rubric.pass_threshold,
+            "total_points": result.rubric.total_points,
+            "discriminators": result.rubric.discriminators,
+            "criteria": [
+                {
+                    "id": c.id,
+                    "category": c.category,
+                    "description": c.description,
+                    "pass_condition": c.pass_condition,
+                    "scoring_method": c.scoring.method.value,
+                    "max_points": c.scoring.max_points,
+                    "tier": c.tier.value if c.tier is not None else None,
+                    "cited_discriminators": c.cited_discriminators,
+                }
+                for c in result.rubric.criteria
+            ],
+        }
+
+        tier_report = evaluate_tier_coverage(result.rubric)
+        tier_counts = _json.dumps({"hard_rule": tier_report.hard_rules, "principle": tier_report.principles})
+
+        sources = sorted({(p.source.value if hasattr(p.source, "value") else str(p.source)) for p in pairs})
+        synthetic_used = any((p.source.value if hasattr(p.source, "value") else str(p.source)) == "synthetic"
+                             for p in pairs)
+
+        try:
+            row_id = self.rubric_store.save_dataset_record(
+                task_text=task,
+                preferred=preferred,
+                rejected=rejected,
+                rubric_json=_json.dumps(rubric_payload),
+                rubric_consistency_hit_rate=result.rubric.consistency_hit_rate,
+                rubric_tier_counts=tier_counts,
+                pair_sources=",".join(sources),
+                synthetic_fallback_used=synthetic_used,
+                source_run_id=rubric_id,
+            )
+            total_count = self.rubric_store.count_dataset_records()
+            self._log(f"[Phase5] Dataset record saved (row={row_id}); total collected: {total_count}")
+            return True
+        except Exception as e:
+            self._log(f"[Phase5] Dataset save failed (non-fatal): {e}")
+            return False
+
+    def _emit_run_telemetry(self, result: LoopResult, rubric_id: str, dataset_saved: bool) -> None:
+        """Assemble and append a per-run telemetry record (JSONL)."""
+        from rubric_system.tier_gate import evaluate_tier_coverage
+        import hashlib
+
+        pairs = getattr(self, "_phase_resolved_pairs", None) or []
+        tier_report = evaluate_tier_coverage(result.rubric)
+        budget: Optional[BudgetTracker] = getattr(self, "_implicit_budget", None)
+        record = {
+            "run_id": rubric_id,
+            "task_hash": hashlib.sha256(result.rubric.task.encode("utf-8")).hexdigest(),
+            "phase_flags": {
+                "phase1": getattr(self, "enable_phase1", True),
+                "phase2": getattr(self, "enable_phase2", True),
+                "phase3": getattr(self, "enable_phase3", False),
+                "phase4_implicit": getattr(self, "enable_implicit_aggregator", False),
+                "phase5_dataset": getattr(self, "collect_dataset", False),
+            },
+            "pairs_used": len(pairs),
+            "pairs_source": sorted({
+                (p.source.value if hasattr(p.source, "value") else str(p.source))
+                for p in pairs
+            }),
+            "discriminators_count": len(result.rubric.discriminators or []),
+            "tier_counts": {
+                "hard_rule": tier_report.hard_rules,
+                "principle": tier_report.principles,
+                "untyped": tier_report.untyped,
+            },
+            "consistency_hit_rate": result.rubric.consistency_hit_rate,
+            "consistency_n_pairs": result.rubric.consistency_n_pairs,
+            "consistency_status": result.rubric.consistency_status,
+            "voting_k": getattr(self, "voting_k", 1),
+            "extra_calls": budget.used if budget else 0,
+            "extra_calls_budget_exceeded": (budget.used > budget.limit) if budget else False,
+            "dataset_record_saved": dataset_saved,
+            "dataset_total_records": (
+                self.rubric_store.count_dataset_records()
+                if hasattr(self, "rubric_store") and self.rubric_store is not None
+                else None
+            ),
+            "rubric_id": rubric_id,
+            "final_percentage": float(result.final_percentage) if result.final_percentage is not None else None,
+        }
+        write_run_telemetry(record)
+
     def _post_run(self, result: LoopResult):
         """Post-run hook: persist scored rubric, scan outcomes, improve generation, auto-edit."""
         try:
@@ -8460,6 +9055,20 @@ class RubricLoop:
             )
             self.rubric_store.save_rubric(record)
             self._log(f"[Loop3] Saved scored rubric: {rubric_id}")
+
+            # Phase 5 — dataset collection (opt-in via --collect-dataset).
+            dataset_saved = False
+            if getattr(self, "collect_dataset", False):
+                try:
+                    dataset_saved = bool(self._collect_dataset_record(result, rubric_id))
+                except Exception as _e:
+                    self._log(f"[Phase5] Dataset collection failed (non-fatal): {_e}")
+
+            # Cross-cutting — per-run telemetry (always on).
+            try:
+                self._emit_run_telemetry(result, rubric_id, dataset_saved)
+            except Exception as _e:
+                self._log(f"[Telemetry] Failed to write telemetry (non-fatal): {_e}")
 
             # RubricRAG: persist rubric for future retrieval-augmented generation
             if self.enable_rubric_store and self.rag_store is not None:
@@ -8820,6 +9429,29 @@ async def main():
                              "for tracker display but the rubric and history are loaded from disk.")
     parser.add_argument("--skip-negotiation", action="store_true",
                         help="Skip the sprint contract negotiation step (generator/scorer rubric review)")
+    # ------------------------------------------------------------------ #
+    # Phase 1–5 flags — OpenRubrics alignment (see openrubrics-alignment-plan.md) #
+    # ------------------------------------------------------------------ #
+    parser.add_argument("--no-phase1", action="store_true",
+                        help="Disable Phase 1 (contrastive rubric generation from reference pairs)")
+    parser.add_argument("--reference-pairs", metavar="FILE",
+                        help="Path to a JSON file with reference pairs. Format: "
+                             "[{\"preferred\": \"...\", \"rejected\": \"...\"}, ...]")
+    parser.add_argument("--no-phase2", action="store_true",
+                        help="Disable Phase 2 (hard-rule / principle taxonomy enforcement)")
+    parser.add_argument("--no-phase3", action="store_true",
+                        help="Disable Phase 3 (preference-label consistency filter, ~10 extra scoring calls)")
+    parser.add_argument("--consistency-threshold", type=float, default=0.8,
+                        help="Minimum hit_rate required for the Phase 3 consistency filter (default 0.8)")
+    parser.add_argument("--no-implicit", action="store_true",
+                        help="Disable Phase 4 implicit LLM-judge aggregator (cross-check on explicit scoring)")
+    parser.add_argument("--judge-model", default="claude-sonnet-4-20250514",
+                        help="Model id for the implicit judge (Phase 4)")
+    parser.add_argument("--voting-k", type=int, default=1, choices=[1, 3, 5],
+                        help="Voting@K samples for the implicit judge (Phase 4; 1 = no voting)")
+    parser.add_argument("--no-collect-dataset", action="store_true",
+                        help="Disable Phase 5 dataset collection "
+                             "(task, preferred, rejected, validated_rubric) rows into rubric_dataset")
 
     args = parser.parse_args()
 
@@ -8892,12 +9524,49 @@ async def main():
         skip_negotiation=args.skip_negotiation,
     )
 
+    # Load caller-supplied reference pairs (Phase 1)
+    caller_pairs = None
+    if args.reference_pairs:
+        try:
+            import json as _json
+            p = Path(args.reference_pairs)
+            raw_pairs = _json.loads(p.read_text())
+            caller_pairs = []
+            for entry in raw_pairs:
+                if not isinstance(entry, dict):
+                    continue
+                pref = entry.get("preferred")
+                rej = entry.get("rejected")
+                if isinstance(pref, str) and isinstance(rej, str) and pref.strip() and rej.strip():
+                    caller_pairs.append(ReferencePair(
+                        preferred=pref,
+                        rejected=rej,
+                        source=PairSource.CALLER,
+                        task_hash=_pair_task_hash(args.task),
+                        provenance={"origin": "cli_file", "path": str(p)},
+                    ))
+            print(f"Loaded {len(caller_pairs)} caller-supplied reference pair(s) from {p}")
+        except Exception as e:
+            print(f"Warning: failed to load --reference-pairs file: {e}")
+            caller_pairs = None
+
+    # Propagate Phase-level flags onto the loop instance (consumed inside run()).
+    loop.enable_phase2 = not args.no_phase2
+    loop.enable_phase3 = not args.no_phase3
+    loop.consistency_threshold = args.consistency_threshold
+    loop.enable_implicit_aggregator = not args.no_implicit
+    loop.judge_model = args.judge_model
+    loop.voting_k = args.voting_k
+    loop.collect_dataset = not args.no_collect_dataset
+
     result = await loop.run(
         args.task, context,
         rubric_name=args.rubric,
         generate_rubric=not args.no_generate,
         seed_content=seed_content,
         resume_run_id=args.resume,
+        reference_pairs=caller_pairs,
+        enable_phase1=not args.no_phase1,
     )
 
     # ACON paired trajectories (runs automatically after every main loop)

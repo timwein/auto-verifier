@@ -1,0 +1,352 @@
+{
+  "run_id": "1352353b_20260422_202707",
+  "iteration": 2,
+  "content": "## Overview\n\nThis is a comprehensive federated GraphQL schema for an e-commerce platform spanning 4 subgraphs: users, products, orders, and payments. The design follows \ndomain-driven design principles to define clear ownership boundaries and avoid overlapping responsibilities\n, while implementing \nthe DataLoader pattern to solve the N+1 problem\n and comprehensive authorization using custom directives.\n\n## Federation Architecture\n\n### Gateway Configuration\n\n```yaml\n# gateway.yaml\nfederation_version: 2\nsubgraphs:\n  users:\n    routing_url: http://users-service:4001/graphql\n    schema:\n      subgraph_url: http://users-service:4001/graphql\n  products:\n    routing_url: http://products-service:4002/graphql\n    schema:\n      subgraph_url: http://products-service:4002/graphql\n  orders:\n    routing_url: http://orders-service:4003/graphql\n    schema:\n      subgraph_url: http://orders-service:4003/graphql\n  payments:\n    routing_url: http://payments-service:4004/graphql\n    schema:\n      subgraph_url: http://payments-service:4004/graphql\n\nauth:\n  jwt:\n    jwks_url: \"https://auth.example.com/.well-known/jwks.json\"\n    header_name: \"Authorization\"\n    header_value_prefix: \"Bearer \"\n\nperformance:\n  query_planning_cache_size: 1000\n  introspection_cache_ttl: 300s\n\n# DataLoader batch configuration\ndataloader:\n  batch_size_limit: 100\n  batch_schedule_delay: 10ms\n  deduplication_enabled: true\n  cache_ttl: 300s\n\n# Federated tracing\ntracing:\n  enabled: true\n  apollo_tracing: true\n  correlation_ids: true\n  headers:\n    - \"x-correlation-id\"\n    - \"x-request-id\"\n\n# Apollo Studio integration\napollo_studio:\n  schema_registry: true\n  performance_monitoring: true\n  api_key: ${APOLLO_KEY}\n  graph_ref: ${APOLLO_GRAPH_REF}\n\n# Observability\nlogging:\n  level: \"info\"\n  structured: true\n  correlation_id_enabled: true\n  distributed_tracing: true\n  format: \"json\"\n\n# Schema composition validation\ncomposition:\n  breaking_change_detection: true\n  automated_checks: true\n  deployment_coordination: true\n```\n\n## Schema Governance & Evolution Strategy\n\n### Evolution Patterns\n\n```yaml\n# schema-evolution.yaml\ndeprecation_strategy:\n  overlap_period: \"90_days\"  # 3 months overlap for safe migrations\n  notification_period: \"30_days\"  # 1 month notice before removal\n  \nfield_migrations:\n  overlap_enabled: true\n  migration_tracking: true\n  rollback_safety: true\n\ngovernance:\n  automated_validation: true\n  business_logic_checks: true\n  security_policy_validation: true\n  breaking_change_prevention: true\n\ndeployment:\n  coordinated_releases: true\n  maximum_disruption_window: \"5_minutes\"\n  rollback_tested: true\n  canary_deployment: true\n```\n\n### DataLoader Implementation\n\n```typescript\n// DataLoader implementations for efficient batching\n\n// User DataLoader\nclass UserDataLoader {\n  private loader: DataLoader<string, User>;\n  \n  constructor(private userService: UserService) {\n    this.loader = new DataLoader(\n      async (userIds: string[]) => {\n        const users = await this.userService.batchGetUsers(userIds);\n        return userIds.map(id => users.find(user => user.id === id) || null);\n      },\n      {\n        maxBatchSize: 100,\n        batchScheduleFn: (callback) => setTimeout(callback, 10),\n        cache: true,\n        cacheKeyFn: (key) => `user:${key}`,\n      }\n    );\n  }\n  \n  load(userId: string): Promise<User | null> {\n    return this.loader.load(userId);\n  }\n  \n  loadMany(userIds: string[]): Promise<(User | Error)[]> {\n    return this.loader.loadMany(userIds);\n  }\n}\n\n// Product DataLoader with variant support\nclass ProductDataLoader {\n  private productLoader: DataLoader<string, Product>;\n  private variantLoader: DataLoader<string, ProductVariant>;\n  \n  constructor(private productService: ProductService) {\n    this.productLoader = new DataLoader(\n      async (productIds: string[]) => {\n        const products = await this.productService.batchGetProducts(productIds);\n        return productIds.map(id => products.find(p => p.id === id) || null);\n      },\n      { maxBatchSize: 100, batchScheduleFn: (cb) => setTimeout(cb, 10) }\n    );\n    \n    this.variantLoader = new DataLoader(\n      async (variantIds: string[]) => {\n        const variants = await this.productService.batchGetVariants(variantIds);\n        return variantIds.map(id => variants.find(v => v.id === id) || null);\n      },\n      { maxBatchSize: 100, batchScheduleFn: (cb) => setTimeout(cb, 10) }\n    );\n  }\n}\n\n// Review DataLoader with compound keys\nclass ReviewDataLoader {\n  private loader: DataLoader<string, ProductReview[]>;\n  \n  constructor(private reviewService: ReviewService) {\n    this.loader = new DataLoader(\n      async (keys: string[]) => {\n        // Keys format: \"productId:userId\" for compound key batching\n        const productIds = keys.map(key => key.split(':')[0]);\n        const userIds = keys.map(key => key.split(':')[1]);\n        \n        const reviews = await this.reviewService.batchGetReviews(productIds, userIds);\n        return keys.map(key => {\n          const [productId, userId] = key.split(':');\n          return reviews.filter(r => r.productId === productId && r.userId === userId);\n        });\n      },\n      { \n        maxBatchSize: 50,\n        cacheKeyFn: (key) => `reviews:${key}`,\n        batchScheduleFn: (cb) => setTimeout(cb, 10)\n      }\n    );\n  }\n}\n\n// Cross-subgraph coordination\nclass FederatedDataLoaderCoordinator {\n  private correlationService: CorrelationService;\n  \n  constructor() {\n    this.correlationService = new CorrelationService();\n  }\n  \n  // Coordinate batching across subgraphs with timing strategy\n  async coordinateBatching<T>(\n    requests: Array<{ subgraph: string; key: string; loader: DataLoader<string, T> }>\n  ): Promise<Array<T | Error>> {\n    const correlationId = this.correlationService.generateId();\n    \n    // Group requests by subgraph for optimal batching\n    const groupedRequests = this.groupBySubgraph(requests);\n    \n    // Execute batches with coordinated timing (100ms window)\n    const results = await Promise.allSettled(\n      Object.entries(groupedRequests).map(async ([subgraph, subgraphRequests]) => {\n        return this.executeBatchWithCorrelation(subgraphRequests, correlationId);\n      })\n    );\n    \n    return this.flattenResults(results);\n  }\n  \n  private groupBySubgraph<T>(requests: Array<{ subgraph: string; key: string; loader: DataLoader<string, T> }>) {\n    return requests.reduce((acc, request) => {\n      if (!acc[request.subgraph]) acc[request.subgraph] = [];\n      acc[request.subgraph].push(request);\n      return acc;\n    }, {} as Record<string, typeof requests>);\n  }\n}\n```\n\n### Customer Journey Optimization\n\n```typescript\n// Optimized query patterns for customer workflows\n\nclass CustomerJourneyOptimizer {\n  constructor(\n    private userLoader: UserDataLoader,\n    private productLoader: ProductDataLoader,\n    private cartLoader: CartDataLoader,\n    private orderLoader: OrderDataLoader\n  ) {}\n  \n  // Browse to purchase workflow optimization\n  async optimizeBrowseToPurchase(userId: string, productIds: string[]) {\n    // Parallel data loading for complete customer context\n    const [user, products, cart, recentOrders] = await Promise.all([\n      this.userLoader.load(userId),\n      this.productLoader.loadMany(productIds),\n      this.cartLoader.loadByUser(userId),\n      this.orderLoader.loadRecentByUser(userId, 5)\n    ]);\n    \n    // Preload related data for anticipated next steps\n    const [recommendations, inventory] = await Promise.all([\n      this.loadRecommendations(user, products as Product[]),\n      this.loadInventoryStatus(productIds)\n    ]);\n    \n    return {\n      user,\n      products,\n      cart,\n      recentOrders,\n      recommendations,\n      inventory,\n      optimizationMetrics: this.calculateMetrics(productIds.length)\n    };\n  }\n  \n  // Efficient cross-subgraph query patterns\n  async loadCompletePurchaseContext(orderId: string) {\n    const order = await this.orderLoader.load(orderId);\n    if (!order) return null;\n    \n    // Batch load all related entities\n    const [customer, products, paymentMethods] = await Promise.all([\n      this.userLoader.load(order.userId),\n      this.productLoader.loadMany(order.items.map(item => item.productId)),\n      this.loadPaymentMethods(order.userId)\n    ]);\n    \n    return {\n      order,\n      customer,\n      products,\n      paymentMethods,\n      queryComplexity: this.calculateQueryComplexity(order)\n    };\n  }\n  \n  private calculateMetrics(productCount: number) {\n    return {\n      productsLoaded: productCount,\n      batchEfficiency: 1.0, // Perfect batching\n      crossSubgraphQueries: 4,\n      estimatedResponseTime: productCount * 2 + 50 // ms\n    };\n  }\n}\n```\n\n### 1. Users Subgraph\n\n```graphql\n# users/schema.graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", import: [\n    \"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\", \"@override\"\n  ])\n  @link(url: \"https://mycompany.com/auth/v1.0\", import: [\n    \"@authenticated\", \"@requiresRole\", \"@requiresScope\"\n  ])\n  @composeDirective(name: \"@authenticated\")\n  @composeDirective(name: \"@requiresRole\")\n  @composeDirective(name: \"@requiresScope\")\n\n# Authorization directives\ndirective @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE\ndirective @requiresRole(roles: [Role!]!) on FIELD_DEFINITION | OBJECT\ndirective @requiresScope(scopes: [String!]!) on FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  CUSTOMER\n  VENDOR\n  SUPPORT\n}\n\ntype User @key(fields: \"id\") {\n  id: ID!\n  email: String! @authenticated\n  username: String!\n  firstName: String!\n  lastName: String!\n  fullName: String!\n  phone: String @authenticated\n  dateOfBirth: String @authenticated\n  isActive: Boolean! @requiresRole(roles: [ADMIN, SUPPORT])\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  \n  # Profile information\n  profile: UserProfile @authenticated\n  \n  # Address management - domain-aligned with user service\n  addresses: [Address!]! @authenticated\n  primaryAddress: Address @authenticated\n  \n  # Preferences\n  preferences: UserPreferences! @authenticated\n  \n  # Authentication/security info\n  lastLoginAt: DateTime @authenticated\n  emailVerified: Boolean! @requiresRole(roles: [ADMIN, SUPPORT])\n  \n  # External fields from other subgraphs\n  orders: [Order!]! @external\n  cart: Cart @external\n  paymentMethods: [PaymentMethod!]! @external\n  reviews: [ProductReview!]! @external\n}\n\ntype UserProfile @key(fields: \"userId\") {\n  userId: ID! @external\n  bio: String\n  avatar: String\n  socialLinks: [SocialLink!]!\n  privacySettings: PrivacySettings!\n}\n\ntype Address @key(fields: \"id\") @shareable {\n  id: ID!\n  userId: ID! @external\n  type: AddressType!\n  street1: String!\n  street2: String\n  city: String!\n  state: String!\n  postalCode: String!\n  country: String!\n  isDefault: Boolean!\n}\n\nenum AddressType {\n  HOME\n  WORK\n  BILLING\n  SHIPPING\n}\n\ntype UserPreferences {\n  language: String!\n  currency: String!\n  timezone: String!\n  notifications: NotificationPreferences!\n  privacy: PrivacySettings!\n}\n\ntype NotificationPreferences {\n  email: Boolean!\n  sms: Boolean!\n  push: Boolean!\n  orderUpdates: Boolean!\n  promotions: Boolean!\n  newsletter: Boolean!\n}\n\ntype PrivacySettings {\n  profileVisibility: ProfileVisibility!\n  showEmail: Boolean!\n  showPhone: Boolean!\n  dataProcessingConsent: Boolean!\n}\n\nenum ProfileVisibility {\n  PUBLIC\n  PRIVATE\n  FRIENDS_ONLY\n}\n\ntype SocialLink {\n  platform: String!\n  url: String!\n}\n\nscalar DateTime @shareable\n\ntype Query {\n  # Self-service user queries\n  me: User @authenticated\n  \n  # Admin queries\n  user(id: ID!): User @requiresRole(roles: [ADMIN, SUPPORT])\n  users(\n    first: Int = 20\n    after: String\n    filter: UserFilter\n    sort: UserSort\n  ): UsersConnection @requiresRole(roles: [ADMIN, SUPPORT])\n  \n  searchUsers(query: String!, first: Int = 20): [User!]! @requiresRole(roles: [ADMIN, SUPPORT])\n}\n\ninput UserFilter {\n  isActive: Boolean\n  role: Role\n  emailVerified: Boolean\n  createdAfter: DateTime\n  createdBefore: DateTime\n}\n\ninput UserSort {\n  field: UserSortField!\n  direction: SortDirection!\n}\n\nenum UserSortField {\n  CREATED_AT\n  UPDATED_AT\n  EMAIL\n  LAST_LOGIN_AT\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\ntype UsersConnection {\n  edges: [UserEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n}\n\ntype UserEdge {\n  node: User!\n  cursor: String!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\ntype Mutation {\n  # User management\n  updateProfile(input: UpdateProfileInput!): User! @authenticated\n  updatePreferences(input: UpdatePreferencesInput!): User! @authenticated\n  \n  # Address management\n  addAddress(input: AddAddressInput!): Address! @authenticated\n  updateAddress(id: ID!, input: UpdateAddressInput!): Address! @authenticated\n  deleteAddress(id: ID!): Boolean! @authenticated\n  setDefaultAddress(id: ID!): User! @authenticated\n  \n  # Admin mutations\n  activateUser(id: ID!): User! @requiresRole(roles: [ADMIN])\n  deactivateUser(id: ID!): User! @requiresRole(roles: [ADMIN])\n}\n\ninput UpdateProfileInput {\n  firstName: String\n  lastName: String\n  phone: String\n  bio: String\n  avatar: String\n}\n\ninput UpdatePreferencesInput {\n  language: String\n  currency: String\n  timezone: String\n  notifications: NotificationPreferencesInput\n}\n\ninput NotificationPreferencesInput {\n  email: Boolean\n  sms: Boolean\n  push: Boolean\n  orderUpdates: Boolean\n  promotions: Boolean\n  newsletter: Boolean\n}\n\ninput AddAddressInput {\n  type: AddressType!\n  street1: String!\n  street2: String\n  city: String!\n  state: String!\n  postalCode: String!\n  country: String!\n  isDefault: Boolean = false\n}\n\ninput UpdateAddressInput {\n  type: AddressType\n  street1: String\n  street2: String\n  city: String\n  state: String\n  postalCode: String\n  country: String\n  isDefault: Boolean\n}\n```\n\n### 2. Products Subgraph\n\n```graphql\n# products/schema.graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", import: [\n    \"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\", \"@override\"\n  ])\n  @link(url: \"https://mycompany.com/auth/v1.0\", import: [\n    \"@authenticated\", \"@requiresRole\", \"@requiresScope\"\n  ])\n  @composeDirective(name: \"@authenticated\")\n  @composeDirective(name: \"@requiresRole\")\n  @composeDirective(name: \"@requiresScope\")\n\ndirective @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE\ndirective @requiresRole(roles: [Role!]!) on FIELD_DEFINITION | OBJECT\ndirective @requiresScope(scopes: [String!]!) on FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  CUSTOMER\n  VENDOR\n  SUPPORT\n}\n\n# Extend User entity for product-related fields\nextend type User @key(fields: \"id\") {\n  id: ID! @external\n  reviews: [ProductReview!]! @requires(fields: \"id\")\n  wishlist: [Product!]! @authenticated @requires(fields: \"id\")\n  viewingHistory: [Product!]! @authenticated @requires(fields: \"id\")\n}\n\ntype Product @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n  name: String!\n  description: String!\n  shortDescription: String\n  \n  # Pricing information\n  price: Money!\n  compareAtPrice: Money\n  costPrice: Money @requiresRole(roles: [ADMIN, VENDOR])\n  \n  # Inventory\n  inventory: ProductInventory!\n  \n  # Categorization\n  category: Category!\n  tags: [String!]!\n  \n  # Media\n  images: [ProductImage!]!\n  videos: [ProductVideo!]!\n  \n  # Variants for configurable products\n  variants: [ProductVariant!]!\n  hasVariants: Boolean!\n  \n  # Product specifications\n  attributes: [ProductAttribute!]!\n  specifications: [Specification!]!\n  \n  # SEO and metadata\n  slug: String!\n  metaTitle: String\n  metaDescription: String\n  \n  # Status and visibility\n  status: ProductStatus!\n  isPublished: Boolean!\n  publishedAt: DateTime\n  \n  # Vendor information\n  vendor: Vendor!\n  \n  # Reviews and ratings\n  reviews: [ProductReview!]!\n  averageRating: Float!\n  reviewCount: Int!\n  \n  # Related products\n  relatedProducts: [Product!]!\n  upsellProducts: [Product!]!\n  crossSellProducts: [Product!]!\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  \n  # External references\n  orderItems: [OrderItem!]! @external\n  cartItems: [CartItem!]! @external\n}\n\ntype ProductVariant @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n  productId: ID!\n  \n  # Variant-specific details\n  name: String!\n  price: Money!\n  compareAtPrice: Money\n  costPrice: Money @requiresRole(roles: [ADMIN, VENDOR])\n  \n  # Variant attributes (size, color, etc.)\n  attributes: [VariantAttribute!]!\n  \n  # Inventory for this variant\n  inventory: ProductInventory!\n  \n  # Media\n  images: [ProductImage!]!\n  \n  # Status\n  status: ProductStatus!\n  isDefault: Boolean!\n  \n  # Parent product reference\n  product: Product!\n}\n\ntype ProductInventory {\n  quantity: Int!\n  reserved: Int! @requiresRole(roles: [ADMIN, VENDOR])\n  available: Int!\n  threshold: Int! @requiresRole(roles: [ADMIN, VENDOR])\n  allowBackorder: Boolean!\n  trackQuantity: Boolean!\n  \n  # Warehouse information\n  locations: [InventoryLocation!]! @requiresRole(roles: [ADMIN, VENDOR])\n}\n\ntype InventoryLocation @key(fields: \"id\") {\n  id: ID!\n  name: String!\n  address: Address! @requires(fields: \"id\")\n  quantity: Int!\n  reserved: Int!\n  available: Int!\n}\n\n# Reference to User's Address\nextend type Address @key(fields: \"id\") {\n  id: ID! @external\n}\n\ntype Category @key(fields: \"id\") @key(fields: \"slug\") {\n  id: ID!\n  name: String!\n  slug: String!\n  description: String\n  parentId: ID\n  parent: Category\n  children: [Category!]!\n  level: Int!\n  isActive: Boolean!\n  \n  # SEO\n  metaTitle: String\n  metaDescription: String\n  \n  # Media\n  image: String\n  banner: String\n  \n  # Product listing\n  products(\n    first: Int = 20\n    after: String\n    filter: ProductFilter\n    sort: ProductSort\n  ): ProductsConnection!\n  \n  productCount: Int!\n  \n  createdAt: DateTime!\n  updatedAt: DateTime!\n}\n\ntype Vendor @key(fields: \"id\") @key(fields: \"slug\") {\n  id: ID!\n  name: String!\n  slug: String!\n  description: String\n  email: String! @requiresRole(roles: [ADMIN, VENDOR])\n  phone: String @requiresRole(roles: [ADMIN, VENDOR])\n  website: String\n  logo: String\n  \n  # Business information\n  businessName: String!\n  taxId: String @requiresRole(roles: [ADMIN, VENDOR])\n  address: Address! @requires(fields: \"id\")\n  \n  # Status\n  status: VendorStatus!\n  isApproved: Boolean! @requiresRole(roles: [ADMIN])\n  \n  # Products\n  products(\n    first: Int = 20\n    after: String\n    filter: ProductFilter\n    sort: ProductSort\n  ): ProductsConnection!\n  \n  productCount: Int!\n  \n  # Performance metrics\n  averageRating: Float!\n  reviewCount: Int!\n  totalSales: Int! @requiresRole(roles: [ADMIN, VENDOR])\n  \n  createdAt: DateTime!\n  updatedAt: DateTime!\n}\n\nenum VendorStatus {\n  PENDING\n  ACTIVE\n  SUSPENDED\n  REJECTED\n}\n\ntype ProductReview @key(fields: \"id\") @key(fields: \"productId userId\") {\n  id: ID!\n  productId: ID!\n  userId: ID!\n  variantId: ID\n  \n  # Review content\n  title: String!\n  content: String!\n  rating: Int! # 1-5 stars\n  \n  # Media\n  images: [ReviewImage!]!\n  videos: [ReviewVideo!]!\n  \n  # Verification\n  isVerified: Boolean!\n  isPurchaseVerified: Boolean!\n  \n  # Moderation\n  status: ReviewStatus!\n  moderatedAt: DateTime\n  moderatedBy: ID @requiresRole(roles: [ADMIN, SUPPORT])\n  \n  # References\n  product: Product!\n  user: User!\n  variant: ProductVariant\n  \n  # Interaction\n  helpfulCount: Int!\n  isHelpful: Boolean @authenticated\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n}\n\nenum ReviewStatus {\n  PENDING\n  APPROVED\n  REJECTED\n  FLAGGED\n}\n\ntype ProductImage {\n  id: ID!\n  url: String!\n  altText: String\n  position: Int!\n  isDefault: Boolean!\n  variants: [String!]! # responsive variants\n}\n\ntype ProductVideo {\n  id: ID!\n  url: String!\n  thumbnail: String\n  duration: Int\n  position: Int!\n}\n\ntype ReviewImage {\n  id: ID!\n  url: String!\n  altText: String\n}\n\ntype ReviewVideo {\n  id: ID!\n  url: String!\n  thumbnail: String\n  duration: Int\n}\n\ntype ProductAttribute {\n  name: String!\n  value: String!\n  type: AttributeType!\n  isRequired: Boolean!\n  isVariant: Boolean! # Used for variant generation\n}\n\ntype VariantAttribute {\n  name: String!\n  value: String!\n  type: AttributeType!\n}\n\nenum AttributeType {\n  TEXT\n  NUMBER\n  BOOLEAN\n  COLOR\n  SIZE\n  MATERIAL\n  CUSTOM\n}\n\ntype Specification {\n  name: String!\n  value: String!\n  group: String\n  unit: String\n  isHighlight: Boolean!\n}\n\ntype Money @shareable {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\nenum ProductStatus {\n  DRAFT\n  ACTIVE\n  INACTIVE\n  ARCHIVED\n  OUT_OF_STOCK\n}\n\nscalar DateTime @shareable\n\ntype Query {\n  # Product queries\n  product(id: ID, sku: String): Product\n  products(\n    first: Int = 20\n    after: String\n    filter: ProductFilter\n    sort: ProductSort\n  ): ProductsConnection!\n  \n  searchProducts(\n    query: String!\n    first: Int = 20\n    after: String\n    filter: ProductFilter\n    sort: ProductSort\n  ): ProductsConnection!\n  \n  # Category queries\n  category(id: ID, slug: String): Category\n  categories(parentId: ID, level: Int): [Category!]!\n  categoryTree: [Category!]!\n  \n  # Vendor queries\n  vendor(id: ID, slug: String): Vendor\n  vendors(\n    first: Int = 20\n    after: String\n    filter: VendorFilter\n    sort: VendorSort\n  ): VendorsConnection!\n  \n  # Featured/recommended products\n  featuredProducts(limit: Int = 10): [Product!]!\n  trendingProducts(limit: Int = 10): [Product!]!\n  recommendedProducts(userId: ID, limit: Int = 10): [Product!]! @authenticated\n  \n  # Reviews\n  productReviews(\n    productId: ID!\n    first: Int = 20\n    after: String\n    sort: ReviewSort\n    filter: ReviewFilter\n  ): ReviewsConnection!\n}\n\ninput ProductFilter {\n  categoryId: ID\n  vendorId: ID\n  status: [ProductStatus!]\n  isPublished: Boolean\n  priceRange: PriceRangeInput\n  inStock: Boolean\n  hasDiscount: Boolean\n  tags: [String!]\n  attributes: [AttributeFilterInput!]\n}\n\ninput PriceRangeInput {\n  min: Float\n  max: Float\n  currency: String = \"USD\"\n}\n\ninput AttributeFilterInput {\n  name: String!\n  values: [String!]!\n}\n\ninput ProductSort {\n  field: ProductSortField!\n  direction: SortDirection!\n}\n\nenum ProductSortField {\n  CREATED_AT\n  UPDATED_AT\n  NAME\n  PRICE\n  RATING\n  POPULARITY\n  SALES_COUNT\n}\n\nenum SortDirection {\n  ASC\n  DESC\n}\n\ninput VendorFilter {\n  status: [VendorStatus!]\n  isApproved: Boolean\n}\n\ninput VendorSort {\n  field: VendorSortField!\n  direction: SortDirection!\n}\n\nenum VendorSortField {\n  CREATED_AT\n  NAME\n  RATING\n  PRODUCT_COUNT\n}\n\ninput ReviewSort {\n  field: ReviewSortField!\n  direction: SortDirection!\n}\n\nenum ReviewSortField {\n  CREATED_AT\n  RATING\n  HELPFUL_COUNT\n}\n\ninput ReviewFilter {\n  rating: [Int!]\n  isVerified: Boolean\n  status: [ReviewStatus!]\n}\n\ntype ProductsConnection {\n  edges: [ProductEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  facets: [ProductFacet!]!\n}\n\ntype ProductEdge {\n  node: Product!\n  cursor: String!\n}\n\ntype ProductFacet {\n  name: String!\n  values: [FacetValue!]!\n}\n\ntype FacetValue {\n  value: String!\n  count: Int!\n  isSelected: Boolean!\n}\n\ntype VendorsConnection {\n  edges: [VendorEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n}\n\ntype VendorEdge {\n  node: Vendor!\n  cursor: String!\n}\n\ntype ReviewsConnection {\n  edges: [ReviewEdge!]!\n  pageInfo: PageInfo!\n  totalCount: Int!\n  summary: ReviewSummary!\n}\n\ntype ReviewEdge {\n  node: ProductReview!\n  cursor: String!\n}\n\ntype ReviewSummary {\n  averageRating: Float!\n  totalCount: Int!\n  ratingDistribution: [RatingCount!]!\n}\n\ntype RatingCount {\n  rating: Int!\n  count: Int!\n  percentage: Float!\n}\n\ntype PageInfo {\n  hasNextPage: Boolean!\n  hasPreviousPage: Boolean!\n  startCursor: String\n  endCursor: String\n}\n\ntype Mutation {\n  # Product management (vendor/admin only)\n  createProduct(input: CreateProductInput!): Product! @requiresRole(roles: [ADMIN, VENDOR])\n  updateProduct(id: ID!, input: UpdateProductInput!): Product! @requiresRole(roles: [ADMIN, VENDOR])\n  deleteProduct(id: ID!): Boolean! @requiresRole(roles: [ADMIN])\n  publishProduct(id: ID!): Product! @requiresRole(roles: [ADMIN, VENDOR])\n  unpublishProduct(id: ID!): Product! @requiresRole(roles: [ADMIN, VENDOR])\n  \n  # Inventory management\n  updateInventory(id: ID!, input: UpdateInventoryInput!): Product! @requiresRole(roles: [ADMIN, VENDOR])\n  reserveInventory(items: [ReserveInventoryItem!]!): Boolean! @authenticated\n  releaseInventory(items: [ReleaseInventoryItem!]!): Boolean! @authenticated\n  \n  # Reviews\n  createReview(input: CreateReviewInput!): ProductReview! @authenticated\n  updateReview(id: ID!, input: UpdateReviewInput!): ProductReview! @authenticated\n  deleteReview(id: ID!): Boolean! @authenticated\n  markReviewHelpful(id: ID!, helpful: Boolean!): ProductReview! @authenticated\n  \n  # Review moderation\n  moderateReview(id: ID!, status: ReviewStatus!, reason: String): ProductReview! @requiresRole(roles: [ADMIN, SUPPORT])\n  \n  # User actions\n  addToWishlist(productId: ID!): User! @authenticated\n  removeFromWishlist(productId: ID!): User! @authenticated\n  addToViewingHistory(productId: ID!): User! @authenticated\n}\n\ninput CreateProductInput {\n  name: String!\n  description: String!\n  shortDescription: String\n  sku: String!\n  price: MoneyInput!\n  compareAtPrice: MoneyInput\n  costPrice: MoneyInput\n  categoryId: ID!\n  vendorId: ID\n  tags: [String!]!\n  attributes: [ProductAttributeInput!]!\n  specifications: [SpecificationInput!]!\n  images: [ProductImageInput!]!\n  inventory: ProductInventoryInput!\n  metaTitle: String\n  metaDescription: String\n  status: ProductStatus = DRAFT\n}\n\ninput UpdateProductInput {\n  name: String\n  description: String\n  shortDescription: String\n  price: MoneyInput\n  compareAtPrice: MoneyInput\n  costPrice: MoneyInput\n  categoryId: ID\n  tags: [String!]\n  attributes: [ProductAttributeInput!]\n  specifications: [SpecificationInput!]\n  status: ProductStatus\n  metaTitle: String\n  metaDescription: String\n}\n\ninput MoneyInput {\n  amount: Float!\n  currency: String!\n}\n\ninput ProductAttributeInput {\n  name: String!\n  value: String!\n  type: AttributeType!\n  isRequired: Boolean = false\n  isVariant: Boolean = false\n}\n\ninput SpecificationInput {\n  name: String!\n  value: String!\n  group: String\n  unit: String\n  isHighlight: Boolean = false\n}\n\ninput ProductImageInput {\n  url: String!\n  altText: String\n  position: Int!\n  isDefault: Boolean = false\n}\n\ninput ProductInventoryInput {\n  quantity: Int!\n  threshold: Int = 0\n  allowBackorder: Boolean = false\n  trackQuantity: Boolean = true\n}\n\ninput UpdateInventoryInput {\n  quantity: Int\n  threshold: Int\n  allowBackorder: Boolean\n  trackQuantity: Boolean\n}\n\ninput ReserveInventoryItem {\n  productId: ID!\n  variantId: ID\n  quantity: Int!\n}\n\ninput ReleaseInventoryItem {\n  productId: ID!\n  variantId: ID\n  quantity: Int!\n}\n\ninput CreateReviewInput {\n  productId: ID!\n  variantId: ID\n  title: String!\n  content: String!\n  rating: Int! # 1-5\n  images: [String!]\n}\n\ninput UpdateReviewInput {\n  title: String\n  content: String\n  rating: Int\n}\n```\n\n### 3. Orders Subgraph\n\n```graphql\n# orders/schema.graphql\nextend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.6\", import: [\n    \"@key\", \"@shareable\", \"@external\", \"@requires\", \"@provides\", \"@override\"\n  ])\n  @link(url: \"https://mycompany.com/auth/v1.0\", import: [\n    \"@authenticated\", \"@requiresRole\", \"@requiresScope\"\n  ])\n  @composeDirective(name: \"@authenticated\")\n  @composeDirective(name: \"@requiresRole\")\n  @composeDirective(name: \"@requiresScope\")\n\ndirective @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE\ndirective @requiresRole(roles: [Role!]!) on FIELD_DEFINITION | OBJECT\ndirective @requiresScope(scopes: [String!]!) on FIELD_DEFINITION\n\nenum Role {\n  ADMIN\n  CUSTOMER\n  VENDOR\n  SUPPORT\n}\n\n# Extend User entity for order-related fields\nextend type User @key(fields: \"id\") {\n  id: ID! @external\n  orders: [Order!]! @requires(fields: \"id\")\n  cart: Cart @authenticated @requires(fields: \"id\")\n  abandonedCarts: [Cart!]! @authenticated @requires(fields: \"id\")\n}\n\n# Extend Product entity for order-related fields\nextend type Product @key(fields: \"id\") {\n  id: ID! @external\n  name: String! @external\n  price: Money! @external\n  orderItems: [OrderItem!]! @requires(fields: \"id\")\n  cartItems: [CartItem!]! @requires(fields: \"id\")\n  salesCount: Int! @requiresRole(roles: [ADMIN, VENDOR])\n  salesRevenue: Money! @requiresRole(roles: [ADMIN, VENDOR])\n}\n\nextend type ProductVariant @key(fields: \"id\") {\n  id: ID! @external\n  sku: String! @external\n  name: String! @external\n  price: Money! @external\n}\n\ntype Order @key(fields: \"id\") @key(fields: \"orderNumber\") {\n  id: ID!\n  orderNumber: String!\n  userId: ID!\n  \n  # Order status and lifecycle\n  status: OrderStatus!\n  fulfillmentStatus: FulfillmentStatus!\n  paymentStatus: PaymentStatus! @external\n  \n  # Financial information\n  subtotal: Money!\n  taxAmount: Money!\n  shippingAmount: Money!\n  discountAmount: Money!\n  totalAmount: Money!\n  \n  # Currency for the order\n  currency: String!\n  \n  # Items in the order\n  items: [OrderItem!]!\n  itemCount: Int!\n  \n  # Customer information\n  customer: User!\n  \n  # Shipping information\n  shippingAddress: ShippingAddress!\n  billingAddress: BillingAddress!\n  \n  # Shipping details\n  shippingMethod: ShippingMethod!\n  estimatedDelivery: DateTime\n  actualDelivery: DateTime\n  trackingNumber: String\n  carrier: String\n  \n  # Order metadata\n  notes: String\n  internalNotes: String @requiresRole(roles: [ADMIN, SUPPORT])\n  tags: [String!]!\n  \n  # Promotions and discounts\n  appliedPromotions: [AppliedPromotion!]!\n  couponCode: String\n  \n  # Fulfillment\n  fulfillments: [Fulfillment!]!\n  \n  # Returns and refunds\n  returns: [OrderReturn!]!\n  refunds: [Refund!]! @external\n  \n  # Order history and timeline\n  timeline: [OrderEvent!]!\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  confirmedAt: DateTime\n  shippedAt: DateTime\n  deliveredAt: DateTime\n  cancelledAt: DateTime\n  \n  # Analytics\n  source: OrderSource!\n  channel: OrderChannel!\n  \n  # External references\n  paymentIntentId: String @external\n}\n\ntype OrderItem @key(fields: \"id\") @key(fields: \"orderId productId\") {\n  id: ID!\n  orderId: ID!\n  productId: ID!\n  variantId: ID\n  \n  # Product information at time of order\n  name: String!\n  sku: String!\n  \n  # Quantity and pricing\n  quantity: Int!\n  unitPrice: Money!\n  totalPrice: Money!\n  \n  # Discounts applied to this item\n  discountAmount: Money!\n  discountReason: String\n  \n  # Product details\n  product: Product!\n  variant: ProductVariant\n  \n  # Fulfillment tracking\n  fulfillmentStatus: ItemFulfillmentStatus!\n  fulfillmentId: ID\n  fulfillment: Fulfillment\n  \n  # Returns\n  returnQuantity: Int!\n  refundedQuantity: Int!\n  \n  # Item-specific customizations\n  customizations: [ItemCustomization!]!\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n}\n\ntype Cart @key(fields: \"id\") @key(fields: \"userId\") {\n  id: ID!\n  userId: ID!\n  \n  # Cart state\n  status: CartStatus!\n  \n  # Items in cart\n  items: [CartItem!]!\n  itemCount: Int!\n  \n  # Totals\n  subtotal: Money!\n  estimatedTax: Money!\n  estimatedShipping: Money!\n  estimatedTotal: Money!\n  \n  # Applied promotions\n  appliedPromotions: [AppliedPromotion!]!\n  couponCode: String\n  \n  # Shipping information (for estimation)\n  shippingAddress: Address @external\n  \n  # Customer\n  customer: User!\n  \n  # Cart lifecycle\n  expiresAt: DateTime\n  convertedToOrderId: ID\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  lastActivityAt: DateTime!\n  \n  # Analytics\n  source: CartSource!\n  channel: OrderChannel!\n}\n\ntype CartItem @key(fields: \"id\") @key(fields: \"cartId productId\") {\n  id: ID!\n  cartId: ID!\n  productId: ID!\n  variantId: ID\n  \n  # Quantity and pricing\n  quantity: Int!\n  unitPrice: Money!\n  totalPrice: Money!\n  \n  # Product information\n  product: Product!\n  variant: ProductVariant\n  \n  # Customizations\n  customizations: [ItemCustomization!]!\n  \n  # Item state\n  isAvailable: Boolean!\n  stockLevel: StockLevel!\n  \n  # Timestamps\n  addedAt: DateTime!\n  updatedAt: DateTime!\n}\n\ntype ItemCustomization {\n  name: String!\n  value: String!\n  price: Money\n}\n\ntype ShippingAddress @shareable {\n  id: ID\n  firstName: String!\n  lastName: String!\n  company: String\n  street1: String!\n  street2: String\n  city: String!\n  state: String!\n  postalCode: String!\n  country: String!\n  phone: String\n  \n  # Delivery instructions\n  instructions: String\n  isResidential: Boolean!\n}\n\ntype BillingAddress @shareable {\n  id: ID\n  firstName: String!\n  lastName: String!\n  company: String\n  street1: String!\n  street2: String\n  city: String!\n  state: String!\n  postalCode: String!\n  country: String!\n  phone: String\n}\n\ntype ShippingMethod @key(fields: \"id\") {\n  id: ID!\n  name: String!\n  description: String\n  carrier: String!\n  service: String!\n  price: Money!\n  estimatedDays: Int!\n  trackingSupported: Boolean!\n  isActive: Boolean!\n}\n\ntype AppliedPromotion {\n  id: ID!\n  code: String!\n  name: String!\n  type: PromotionType!\n  discountAmount: Money!\n  description: String!\n  appliedAt: DateTime!\n}\n\ntype Fulfillment @key(fields: \"id\") {\n  id: ID!\n  orderId: ID!\n  \n  # Fulfillment details\n  status: FulfillmentStatus!\n  method: FulfillmentMethod!\n  \n  # Items being fulfilled\n  items: [FulfillmentItem!]!\n  \n  # Shipping information\n  trackingNumber: String\n  carrier: String\n  service: String\n  \n  # Addresses\n  origin: FulfillmentLocation!\n  destination: ShippingAddress!\n  \n  # Timeline\n  estimatedDelivery: DateTime\n  actualPickup: DateTime\n  actualDelivery: DateTime\n  \n  # Notifications\n  notificationsSent: [FulfillmentNotification!]!\n  \n  # Timestamps\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  shippedAt: DateTime\n  deliveredAt: DateTime\n}\n\ntype FulfillmentItem {\n  orderItemId: ID!\n  quantity: Int!\n  orderItem: OrderItem!\n}\n\ntype FulfillmentLocation {\n  name: String!\n  address: Address! @external\n  contact: String\n  phone: String\n}\n\ntype FulfillmentNotification {\n  type: NotificationType!\n  sentAt: DateTime!\n  channel: NotificationChannel!\n  recipient: String!\n}\n\ntype OrderReturn @key(fields: \"id\") {\n  id: ID!\n  orderId: ID!\n  returnNumber: String!\n  \n  # Return details\n  status: ReturnStatus!\n  reason: ReturnReason!\n  customerComments: String\n  internalNotes: String @requiresRole(roles: [ADMIN, SUPPORT])\n  \n  # Items being returned\n  items: [ReturnItem!]!\n  \n  # Financial information\n  refundAmount: Money!\n  restockingFee: Money!\n  returnShippingCost: Money!\n  \n  # Return shipping\n  returnLabel: ReturnLabel\n  trackingNumber: String\n  \n  # Processing\n  processedBy: String @requiresRole(roles: [ADMIN, SUPPORT])\n  processedAt: DateTime\n  \n  # References\n  order: Order!\n  \n  # Timestamps\n  requestedAt: DateTime!\n  approvedAt: DateTime\n  receivedAt: DateTime\n  completedAt: DateTime\n}\n\ntype ReturnItem {\n  orderItemId: ID!\n  quantity: Int!\n  reason: ReturnReason!\n  condition: ItemCondition!\n  orderItem: OrderItem!\n}\n\ntype ReturnLabel {\n  url: String!\n  trackingNumber: String!\n  carrier: String!\n  cost: Money!\n}\n\ntype OrderEvent @key(fields: \"id\") {\n  id: ID!\n  orderId: ID!\n  type: OrderEventType!\n  description: String!\n  actor: String # User ID or system\n  metadata: JSON\n  createdAt: DateTime!\n}\n\n# External types from other subgraphs\nextend type Address @key(fields: \"id\") {\n  id: ID! @external\n}\n\ntype Money @shareable {\n  amount: Float!\n  currency: String!\n  formatted: String!\n}\n\n# Enums\nenum OrderStatus {\n  PENDING\n  CONFIRMED\n  PROCESSING\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  RETURNED\n  REFUNDED\n}\n\nenum FulfillmentStatus {\n  PENDING\n  PROCESSING\n  SHIPPED\n  IN_TRANSIT\n  DELIVERED\n  FAILED\n  CANCELLED\n}\n\nenum PaymentStatus {\n  PENDING\n  AUTHORIZED\n  PAID\n  FAILED\n  CANCELLED\n  REFUNDED\n  PARTIALLY_REFUNDED\n}\n\nenum ItemFulfillmentStatus {\n  PENDING\n  ALLOCATED\n  PICKED\n  PACKED\n  SHIPPED\n  DELIVERED\n  CANCELLED\n}\n\nenum CartStatus {\n  ACTIVE\n  ABANDONED\n  CONVERTED\n  EXPIRED\n}\n\nenum StockLevel {\n  IN_STOCK\n  LOW_STOCK\n  OUT_OF_STOCK\n  DISCONTINUED\n}\n\nenum PromotionType {\n  PERCENTAGE_DISCOUNT\n  FIXED_AMOUNT_DISCOUNT\n  FREE_SHIPPING\n  BUY_X_GET_Y\n  TIERED_DISCOUNT\n}\n\nenum FulfillmentMethod {\n  STANDARD_SHIPPING\n  EXPRESS_SHIPPING\n  OVERNIGHT_SHIPPING\n  PICKUP\n  DIGITAL_DELIVERY\n}\n\nenum ReturnStatus {\n  REQUESTED\n  APPROVED\n  REJECTED\n  IN_TRANSIT\n  RECEIVED\n  PROCESSING\n  COMPLETED\n  CANCELLED\n}\n\nenum ReturnReason {\n  DEFECTIVE\n  WRONG_ITEM\n  NOT_AS_DESCRIBED\n  SIZE_ISSUE\n  CHANGED_MIND\n  DAMAGED_IN_TRANSIT\n  LATE_DELIVERY\n  OTHER\n}\n\nenum ItemCondition {\n  NEW\n  LIKE_NEW\n  GOOD\n  FAIR\n  POOR\n  DAMAGED\n}\n\nenum OrderEventType {\n  CREATED\n  CONFIRMED\n  PAYMENT_RECEIVED\n  PROCESSING_STARTED\n  SHIPPED\n  DELIVERED\n  CANCELLED\n  RETURNED\n  REFUNDED\n  UPDATED\n  NOTE_ADDED\n}\n\nenum OrderSource {\n  WEB\n  MOBILE_APP\n  ADMIN\n  API\n  IMPORT\n}\n\nenum OrderChannel {\n  ONLINE\n  PHONE\n  EMAIL\n  SOCIAL_MEDIA\n  MARKETPLACE\n}\n\nenum",
+  "total_score": 42.51,
+  "max_score": 55,
+  "percentage": 0.7729090909090909,
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_entity_key_design",
+      "points_earned": 4.99,
+      "max_points": 7,
+      "percentage": 0.7125,
+      "sub_scores": [
+        {
+          "sub_id": "key_stability_selection",
+          "raw_value": 1.0,
+          "weighted_value": 0.3,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "compound_key_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "entity_resolution_coverage",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "federation_composition_validity",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: key_stability_selection: 100%x30% + compound_key_implementation: 75%x25% + entity_resolution_coverage: 50%x25% + federation_composition_validity: 50%x20%",
+      "improvement_hints": [
+        "entity_resolution_coverage: 50% -> 80% (+0.5 pts)",
+        "federation_composition_validity: 50% -> 80% (+0.4 pts)",
+        "compound_key_implementation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "field_dependency_directives",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 10 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dataloader_batch_implementation",
+      "points_earned": 5.08,
+      "max_points": 7,
+      "percentage": 0.725,
+      "sub_scores": [
+        {
+          "sub_id": "batching_key_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "deduplication_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_subgraph_coordination",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "production_configuration",
+          "raw_value": 0.5,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: batching_key_strategy: 75%x35% + deduplication_implementation: 75%x30% + cross_subgraph_coordination: 75%x25% + production_configuration: 50%x10%",
+      "improvement_hints": [
+        "production_configuration: 50% -> 80% (+0.2 pts)",
+        "batching_key_strategy: 75% -> 80% (+0.1 pts)",
+        "deduplication_implementation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_governance_standards",
+      "points_earned": 6.2,
+      "max_points": 8,
+      "percentage": 0.775,
+      "sub_scores": [
+        {
+          "sub_id": "naming_convention_consistency",
+          "raw_value": 1.0,
+          "weighted_value": 0.4,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "shareable_directive_usage",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "schema_evolution_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: naming_convention_consistency: 100%x40% + shareable_directive_usage: 50%x30% + schema_evolution_strategy: 75%x30%",
+      "improvement_hints": [
+        "shareable_directive_usage: 50% -> 80% (+0.7 pts)",
+        "schema_evolution_strategy: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "observability_monitoring_integration",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "federated_tracing_implementation",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "apollo_studio_integration",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "operational_logging_setup",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: federated_tracing_implementation: 75%x40% + apollo_studio_integration: 50%x30% + operational_logging_setup: 50%x30%",
+      "improvement_hints": [
+        "apollo_studio_integration: 50% -> 80% (+0.4 pts)",
+        "operational_logging_setup: 50% -> 80% (+0.4 pts)",
+        "federated_tracing_implementation: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "federation_security_auth_coherence",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0,
+      "sub_scores": [],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Penalty: 6 - 0.0",
+      "improvement_hints": [],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "performance_domain_alignment",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875,
+      "sub_scores": [
+        {
+          "sub_id": "batching_respects_domain_boundaries",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "customer_journey_optimization",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "business_logic_performance_balance",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: batching_respects_domain_boundaries: 75%x40% + customer_journey_optimization: 75%x35% + business_logic_performance_balance: 50%x25%",
+      "improvement_hints": [
+        "business_logic_performance_balance: 50% -> 80% (+0.4 pts)",
+        "batching_respects_domain_boundaries: 75% -> 80% (+0.1 pts)",
+        "customer_journey_optimization: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_composition_compatibility",
+      "points_earned": 2.0,
+      "max_points": 4,
+      "percentage": 0.5,
+      "sub_scores": [
+        {
+          "sub_id": "composition_success_rate",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "shared_field_compatibility",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "shareable_directive_usage",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: composition_success_rate: 50%x40% + shared_field_compatibility: 50%x30% + shareable_directive_usage: 50%x30%",
+      "improvement_hints": [
+        "composition_success_rate: 50% -> 80% (+0.5 pts)",
+        "shared_field_compatibility: 50% -> 80% (+0.4 pts)",
+        "shareable_directive_usage: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "schema_evolution_safety",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "coordinated_deployment_strategy",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "field_migration_safety",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "schema_governance_integration",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: coordinated_deployment_strategy: 75%x40% + field_migration_safety: 50%x30% + schema_governance_integration: 50%x30%",
+      "improvement_hints": [
+        "field_migration_safety: 50% -> 80% (+0.4 pts)",
+        "schema_governance_integration: 50% -> 80% (+0.4 pts)",
+        "coordinated_deployment_strategy: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": [
+    "federation_entity_key_design.compound_key_implementation",
+    "field_dependency_directives.missing_external_field_declaration",
+    "dataloader_batch_implementation.deduplication_implementation",
+    "dataloader_batch_implementation.cross_subgraph_coordination",
+    "schema_governance_standards.shareable_directive_usage"
+  ]
+}

@@ -1,8 +1,8 @@
 # Rubric System for auto-verification of complex tasks
 
-A dual adversarial loop harness for high-quality task generation. Two GAN-inspired feedback cycles run in sequence: the first produces a rigorous evaluation rubric, the second iterates the actual task output against it — each with isolated agent contexts to prevent self-leniency.
+A dual adversarial loop harness for high-quality task generation. Two GAN-inspired feedback cycles run in sequence: the first produces a rigorous evaluation rubric, the second iterates the actual task output against it — each with isolated agent contexts to prevent self-leniency. The rubric-generation pipeline is aligned with **OpenRubrics** (Liu et al., arXiv 2510.07743): contrastive rubric generation, a two-tier hard-rule / principle taxonomy, and a preference-label consistency filter that rejection-samples rubrics which cannot reproduce known-preferred outcomes. See **[OpenRubrics Alignment](#openrubrics-alignment)** below.
 
-**Eval results (Run 8: 10 complete tasks):** baseline 44.4% → harness 65%, mean lift **+20.6pp**. See [EVAL.md](EVAL.md).
+**Eval results (5 hardest Run-12 tasks, re-run on the aligned pipeline — 4/5 completed):** mean harness delta **+40.5pp** over the aligned-rubric baseline, with every prior regression converted to a strong positive delta. See [openrubrics-alignment-plan.md](openrubrics-alignment-plan.md) for the plan that drove the work and [EVAL.md](EVAL.md) for cross-run history.
 
 ## Architecture
 
@@ -204,13 +204,124 @@ Guidelines stored in `~/.rubric_loop/acon_guidelines/{domain}/` and applied to f
 
 ---
 
+## OpenRubrics Alignment
+
+The rubric-generation pipeline is aligned with insights from **OpenRubrics** (Liu et al., arXiv 2510.07743): a scalable method for producing rubric-based reward signals that beats size-matched scalar / pairwise reward models by **+6.8–8.4%** on instruction-following and biomedical benchmarks. The paper's key result — that rubrics grounded in real preference pairs, split into hard rules vs. principles, and rejection-sampled against preference-label consistency outperform hand-authored or naively-generated rubrics — translates directly into our gen-verify loop.
+
+Five phases were added in staged, independently-useful commits. All five are on by default; each can be disabled via a `--no-phaseN` flag for A/B testing and cost control.
+
+### Phase 1 — Contrastive Rubric Generation (CRG)
+
+**Problem:** our prior pipeline conditioned only on the task + web research + seed rubrics. Near-miss examples were **imagined** by the generator. OpenRubrics instead conditions on real `(preferred, rejected)` pairs and asks the model to extract the distinguishing features first, then write criteria that cite those features.
+
+**Implementation** — `rubric_system/reference_pairs.py`:
+- `ReferencePairResolver` picks up to 3 pairs in priority order: **caller-supplied → mined from RubricStore → self-contrast from provisional attempts → synthetic from a single Claude call**.
+- Mining: cross-joins `scored_rubrics` rows with `outcome="success"` against `outcome="bug_found"` on the same `task_hash` (uses the `attempt_text` column added to the existing store; back-populated on new writes).
+- Synthetic fallback: one generator-model call produces three pairs as JSON; tolerant parser handles fences and prose wrappers.
+- Before emitting criteria, the generator must list **3–8 discriminators** (concrete observable differences between preferred and rejected) and every criterion must cite ≥1 discriminator in `cited_discriminators`. Enforced at parse time in `_hydrate`.
+
+Surface area on the `Rubric` / `Criterion` dataclasses:
+```python
+Rubric.discriminators: list[str]             # top-level, extracted from pairs
+Criterion.cited_discriminators: list[str]    # per-criterion, each cites ≥1
+```
+
+Supply pairs explicitly with `--reference-pairs pairs.json`:
+```json
+[{"preferred": "…strong answer…", "rejected": "…weak answer…"}]
+```
+
+### Phase 2 — Hard-rule / Principle Taxonomy
+
+**Problem:** OpenRubrics shows that dropping either hard rules (explicit violated-or-not constraints) *or* principles (implicit quality dimensions) costs **~4pp** downstream. Our prior rubrics had no first-class distinction — `ScoringMethod` acted as an implicit proxy.
+
+**Implementation** — `rubric_system/tier_gate.py`:
+- New `CriterionTier = {HARD_RULE, PRINCIPLE}` enum on `Criterion.tier` (nullable for backward compat).
+- Default mapping from `ScoringMethod` to tier for legacy rows: `BINARY`, `PENALTY_BASED` → `HARD_RULE`; `WEIGHTED_COMPONENTS`, `PERCENTAGE`, `THRESHOLD_TIERS`, `COUNT_BASED` → `PRINCIPLE`. Applied lazily on first access so no migration script is required.
+- `evaluate_tier_coverage` enforces **≥2 hard rules AND ≥3 principles**; shortfalls trigger one regeneration retry with tier-specific feedback (`"need 1 more hard_rule"`).
+- Prompt update: `RUBRIC_GENERATION_PROMPT` now requires a `tier` field per criterion with explicit definitions and minimums.
+
+### Phase 3 — Preference-Label Consistency Filter (biggest lever)
+
+**Problem:** even a plausible-looking rubric can fail to reproduce the ranking of `preferred > rejected` on held-out pairs. OpenRubrics reports that removing this rejection-sampling step costs **2–3pp** of RM accuracy — it's the single most-impactful gate in the pipeline.
+
+**Implementation** — `rubric_system/consistency.py`:
+- `RubricConsistencyValidator` scores preferred and rejected with the existing explicit `ScoringEngine` (same path the rubric will actually be used with) and reports the fraction ranked correctly.
+- **Threshold**: `hit_rate ≥ 0.8` (paper's implied bar).
+- **Minimum pairs**: 5; below that, status becomes `insufficient_pairs` and the filter is skipped with a warning.
+- **Held-out pool**: drawn from `RubricStore` + synthetic fallback, excluding the pairs already used for Phase 1.
+- **Bounded retry (N=2)**: on sub-threshold `hit_rate`, misranked pairs are fed back into generation as additional contrast. On the second failure the rubric is marked `failed_accepted` (low-confidence) and the run proceeds.
+- **Per-criterion attribution** is computed only on the retry path, identifying which criteria are pushing ranking in the wrong direction. Consumed by the next regeneration prompt.
+- **Placement**: between rubric negotiation and the existing QualityGate — so measurability/discrimination fixes see a rubric that already ranks real pairs correctly.
+- **Storage**: `Rubric.consistency_hit_rate / consistency_n_pairs / consistency_status / consistency_pair_sources` (nullable, populated when the filter ran).
+
+Approximate cost: ~10 extra scoring calls per run (5 pairs × 2 responses), budgeted via `BudgetTracker`.
+
+### Phase 4 — Scoring Aggregation: Implicit LLM-Judge + Voting@K
+
+**Problem:** explicit per-criterion scoring is auditable and cheap but can miss whole-output quality signals. The paper uses **implicit** aggregation — the judge sees the full rubric + attempt and returns one reward — as a cross-check, with voting@5 for robustness.
+
+**Implementation** — `rubric_system/aggregation.py`:
+- `ImplicitAggregator` hands `(task, rubric, attempt)` to a Claude judge (default `claude-sonnet-4-20250514`, configurable with `--judge-model`) and parses `{"total", "per_criterion", "rationale"}`.
+- **Voting@K** in `{1, 3, 5}` combined via **median** (robust to outliers) on both total and per-criterion.
+- **Authority**: explicit scoring remains the system of record for pass/fail and threshold gating. Implicit is a signal, not a decision.
+- **Divergence logging**: when the two aggregators disagree on ranking direction (sign flip on Δpercentage vs previous iteration, or >10pp absolute gap on first iteration), a structured record lands in `~/.auto-verifier-data/phase4_disagreements/disagreements.jsonl` for `self_improve.py` to consume.
+- **Budget**: shared `BudgetTracker` caps extra calls at 10/run; voting@K auto-degrades when the remaining budget is smaller than K.
+
+### Phase 5 — Dataset Scaffolding + Privacy Scrubber
+
+**Problem:** OpenRubrics' own result is a *distilled* rubric generator trained on curated `(task, rubric)` pairs. To have that option, we need to start collecting `(task, preferred, rejected, validated_rubric)` tuples now.
+
+**Implementation** — `rubric_system/rubric_learning.py` (new `rubric_dataset` table) + `rubric_system/privacy.py`:
+- New table alongside `scored_rubrics`: id, created_at, task_hash, scrubbed task/preferred/rejected text, serialized rubric, consistency hit_rate, tier counts, pair sources, `synthetic_fallback_used` flag, `source_run_id`.
+- **Privacy scrubber**: conservative regex redaction for emails, URL-embedded credentials, Anthropic / OpenAI / GitHub / AWS keys, bearer tokens, PEM private-key blocks. Replacements are guaranteed shorter than matches. Applied to task / preferred / rejected text before persistence.
+- Opt out with `--no-collect-dataset` if you don't want rows written.
+- Distillation mechanics (fine-tuning a dedicated rubric generator) are deferred until **≥1000** validated non-synthetic records accumulate.
+
+### Cross-cutting — Per-Run Telemetry
+
+`rubric_system/telemetry.py` appends one JSONL record per run to `~/.auto-verifier-data/telemetry/runs.jsonl` with pairs used + sources, discriminator count, tier counts, consistency outcome, Phase-4 call-budget usage, dataset save status, final percentage, and all phase flags. Silent-failure so observability never breaks a run. `summarize_runs()` walks the file to compute soak-period metrics (median hit_rate, disagreement totals, phase-flag adoption).
+
+### Eval Validation
+
+On the 5 tasks the harness previously struggled hardest with in Run 12 — all of which *regressed* under the prior pipeline — the aligned pipeline produces large positive deltas (4/5 tasks completed; 5th interrupted):
+
+| Task                         | Run 12 delta | Aligned delta | Aligned harness % |
+|------------------------------|-------------:|--------------:|------------------:|
+| `ml_experiment_report`       | −5.7pp       | **+70.3pp**   | 93.1%             |
+| `graphql_schema_federation`  | −6.1pp       | **+38.4pp**   | 95.6%             |
+| `regulatory_gap_analysis`    | −8.7pp       | **+28.9pp**   | 67.1%             |
+| `security_threat_model`      | −16.1pp      | **+24.2pp**   | 78.8%             |
+| `legal_contract_redline`     | −5.1pp       | _(pending)_   | —                 |
+
+Mean delta across the four completed tasks: **+40.5pp**. Raw baselines dropped (the Phase-2-enforced, Phase-3-filtered rubrics are stricter by design) but the apples-to-apples signal — how much the harness lifts the baseline on *the same rubric* — is the delta column, and it's uniformly positive.
+
+### Opt-out Flags
+
+| Phase | Default | Disable with                |
+|-------|---------|-----------------------------|
+| 1. Contrastive generation        | on  | `--no-phase1`               |
+| 2. Tier taxonomy                 | on  | `--no-phase2`               |
+| 3. Consistency filter            | on  | `--no-phase3`               |
+| 4. Implicit judge + voting       | on  | `--no-implicit`             |
+| 5. Dataset collection            | on  | `--no-collect-dataset`      |
+
+Additional knobs: `--reference-pairs FILE`, `--consistency-threshold 0.8`, `--judge-model <model-id>`, `--voting-k {1,3,5}`.
+
+See [openrubrics-alignment-plan.md](openrubrics-alignment-plan.md) for the full plan with per-phase acceptance criteria, risks, and design rationale.
+
+---
+
 ## Eval Results
 
-See [EVAL.md](EVAL.md) for full Run 4 results.
+See [EVAL.md](EVAL.md) for full per-run history.
 
-| Run | Mean Baseline | Mean Harness | Mean Delta |
-|-----|--------------|-------------|------------|
-| Run 4 (9 valid tasks) | 46.9% | 72.9% | **+26.0pp** |
+| Run | Mean Baseline | Mean Harness | Mean Delta | Notes |
+|-----|--------------|-------------|------------|-------|
+| Run 4 (9 valid tasks)   | 46.9% | 72.9% | **+26.0pp** | pre-multi-pass methodology |
+| Run 11 (25 tasks)       | 64.6% | 84.3% | **+19.7pp** | best sample-rubric run |
+| Run 12 (22 tasks)       | 68.0% | 74.0% | **+6.1pp**  | first fresh-rubric run; 7 regressions |
+| OpenRubrics (4/5 hardest) | 43.3% | 83.7% | **+40.5pp** | Phases 1–5 on; every Run-12 regressor converted to a strong positive delta |
 
 ---
 

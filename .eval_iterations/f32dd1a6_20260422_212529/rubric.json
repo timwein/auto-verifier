@@ -1,0 +1,872 @@
+{
+  "task": "Perform a SOC 2 Type II readiness gap analysis for a 50-person B2B SaaS startup, identifying control gaps across all 5 trust service criteria with remediation priorities and estimated timelines",
+  "domain": "SOC 2 Type II Readiness Assessment",
+  "total_points": 94,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "tsc_mapping_precision",
+      "category": "Trust Services Criteria Mapping",
+      "description": "Evaluates the granular precision of control mappings to the 2017 Trust Services Criteria framework, testing whether the analyst correctly identifies the specific points of focus within each criterion and maps existing controls to the appropriate TSC reference numbers rather than high-level categories.",
+      "pass_condition": "Maps controls to at least 85% of the 64 specific Common Criteria points of focus (CC1.1-CC9.1), correctly identifies gaps in at least 15 granular criterion-level requirements, and demonstrates understanding of AICPA's hierarchical structure by mapping to specific sub-criteria rather than broad categories.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "granular_mapping_accuracy",
+            "description": "Accuracy of control mappings to specific TSC points of focus with correct reference numbers",
+            "weight": 0.4,
+            "measurement": "1.0 if maps to 85%+ of applicable points of focus with <5% mapping errors, 0.7 if maps to 70-84% with <10% errors, 0.4 if maps to 50-69% or has 10-20% mapping errors, 0.0 if <50% coverage or >20% errors",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "common_criteria_completeness",
+            "description": "Coverage of all 9 Common Criteria categories with appropriate depth for 50-person organization",
+            "weight": 0.35,
+            "measurement": "1.0 if addresses all 64 CC points of focus with org-size appropriate detail, 0.7 if covers 55-63 points with minor gaps, 0.4 if covers 40-54 points with notable omissions, 0.0 if <40 points covered",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "additional_criteria_alignment",
+            "description": "Proper identification of applicable additional criteria (Security, Availability, etc.) based on business model",
+            "weight": 0.25,
+            "measurement": "1.0 if correctly identifies all applicable additional criteria with justification and maps 80%+ of points of focus, 0.7 if identifies criteria but incomplete mapping (60-79%), 0.4 if partial identification or surface-level mapping, 0.0 if incorrect criteria selection",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis maps incident response procedures to CC7.4 (System Incidents) with specific reference to points of focus 12-15, identifies gap in CC6.7 (System Monitoring) point of focus 3 regarding automated log analysis, and correctly selects Security and Availability criteria based on customer data processing and 99.9% SLA commitments"
+      ],
+      "fail_examples": [
+        "Analysis maps controls to broad 'Security' category without specific TSC references, identifies gaps only at the high-level Trust Service Category level without granular criterion breakdown, or incorrectly includes Processing Integrity criteria for a basic SaaS platform without complex data transformation"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] The 2017 Trust Services Criteria include over 200 points of focus just under the Security (or Common Criteria) category. When expanded to cover all five criteria\u2014Security, Availability, Processing Integrity, Confidentiality, and Privacy\u2014the list grows to 61 criteria with nearly 300 points of focus in total."
+    },
+    {
+      "id": "control_gap_prioritization",
+      "category": "Trust Services Criteria Mapping",
+      "description": "Assesses the sophistication of gap prioritization methodology, testing whether the analyst applies risk-based prioritization considering SOC 2 examination timeline constraints, Big Four auditor expectations, and startup-specific risk factors rather than generic compliance checklists.",
+      "pass_condition": "Identifies at least 12 high-priority control gaps with risk scores based on minimum 4 weighted factors, provides remediation sequences that account for 3-6 month description period requirements, and demonstrates understanding of auditor focus areas specific to 50-person B2B SaaS environments.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "risk_based_prioritization",
+            "description": "Application of quantitative risk scoring methodology with startup-relevant factors",
+            "weight": 0.4,
+            "measurement": "1.0 if uses 4+ weighted risk factors (audit materiality, implementation complexity, timeline constraints, business impact) with numerical scoring, 0.7 if uses 3 factors with some quantification, 0.4 if basic prioritization with limited factors, 0.0 if no systematic prioritization approach",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "timeline_realism",
+            "description": "Accuracy of remediation timelines considering SOC 2 Type II examination requirements and resource constraints",
+            "weight": 0.35,
+            "measurement": "1.0 if timeline accounts for 3-6 month description period, 6-12 month testing period, auditor availability constraints, and realistic resource allocation for 50-person org, 0.7 if mostly realistic with minor timing issues, 0.4 if unrealistic expectations or missing key timeline factors, 0.0 if fundamentally flawed timeline assumptions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "startup_context_awareness",
+            "description": "Recognition of B2B SaaS startup-specific control challenges and auditor focus areas",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies 5+ startup-specific challenges (rapid hiring, immature processes, vendor dependencies, limited segregation, growth scaling), 0.7 if identifies 3-4 key challenges, 0.4 if acknowledges some startup context, 0.0 if generic enterprise approach without startup considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Prioritizes vendor risk assessment framework as high-priority (risk score 8.5/10) due to critical SaaS dependencies and typical auditor focus, with 4-month remediation timeline accounting for vendor cooperation delays and documentation requirements"
+      ],
+      "fail_examples": [
+        "Lists control gaps alphabetically without risk prioritization, proposes 18-month remediation timeline that exceeds typical SOC 2 preparation windows, or applies enterprise-level segregation of duties requirements without considering 50-person organization constraints"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] For most organizations completing a SOC 2 audit for the first time, the typical gap rate is 40\u201360%."
+    },
+    {
+      "id": "control_design_sod_matrix",
+      "category": "Control Design Assessment",
+      "description": "Evaluates the adequacy of segregation of duties (SoD) analysis and authorization matrix design for a 50-person organization, ensuring controls prevent single points of failure across critical business processes and align with TSC framework requirements.",
+      "pass_condition": "Must identify minimum 15 critical SoD conflicts across security administration, change management, and data processing functions; provide remediation for conflicts affecting \u22653 of the 5 TSC criteria; and demonstrate authorization matrices cover all privileged access with role-based constraints appropriate for org size",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "sod_conflict_identification",
+            "description": "Comprehensive mapping of segregation of duties conflicts across critical functions",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies \u226515 specific SoD conflicts with impact analysis, 0.7 if identifies 10-14 conflicts with good analysis, 0.4 if identifies 5-9 conflicts with basic analysis, 0.0 if <5 conflicts identified",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "authorization_matrix_design",
+            "description": "Design of role-based authorization matrices appropriate for 50-person organization structure",
+            "weight": 0.35,
+            "measurement": "1.0 if provides detailed authorization matrices for all privileged functions with appropriate role segregation for org size, 0.7 if covers most functions with minor gaps, 0.4 if basic matrices with significant gaps, 0.0 if inadequate or missing authorization structure",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "remediation_feasibility",
+            "description": "Realistic remediation approaches considering organizational size constraints",
+            "weight": 0.25,
+            "measurement": "1.0 if provides practical remediation considering 50-person constraints (compensating controls, automated solutions, third-party services), 0.7 if mostly practical with minor issues, 0.4 if some unrealistic expectations, 0.0 if fundamentally impractical recommendations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies SoD conflict where database administrators can both deploy code changes and modify production data, recommends automated deployment pipeline with manager approval workflow as compensating control suitable for 50-person team structure"
+      ],
+      "fail_examples": [
+        "Recommends strict 3-person approval chains for routine changes without considering organizational size, or fails to identify critical conflicts like security administrators having unrestricted data access without monitoring"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Organizations should have an internal control structure designed to specifically address the segregation of duties (SoD) between change developers and deployers. When it comes to managing IT systems and processes, implementing controls to address SoD is crucial to prevent conflicts, reduce errors, and enhance security."
+    },
+    {
+      "id": "control_operational_effectiveness",
+      "category": "Control Design Assessment",
+      "description": "Assessment of control design for operational effectiveness over the testing period, focusing on automation capabilities, exception handling procedures, and continuous monitoring requirements that will satisfy Type II examination testing.",
+      "pass_condition": "Evaluates operational design for at least 25 key controls, identifies automation opportunities for minimum 60% of manual processes, and designs exception handling procedures that maintain control effectiveness during business growth phases.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "automation_identification",
+            "description": "Identification of automation opportunities to improve control reliability and scalability",
+            "weight": 0.4,
+            "measurement": "1.0 if identifies automation for 60%+ of manual controls with specific tooling recommendations, 0.7 if identifies 40-59% with good recommendations, 0.4 if identifies 20-39% with basic recommendations, 0.0 if <20% automation coverage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "exception_handling_design",
+            "description": "Design of exception handling procedures that maintain control effectiveness during operational variations",
+            "weight": 0.35,
+            "measurement": "1.0 if provides comprehensive exception procedures for all critical controls with escalation paths, 0.7 if covers most controls with minor gaps, 0.4 if basic exception handling with some gaps, 0.0 if inadequate exception procedures",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scalability_considerations",
+            "description": "Control design considerations for business growth and scaling during examination period",
+            "weight": 0.25,
+            "measurement": "1.0 if control design explicitly addresses growth scenarios with scalable solutions, 0.7 if some scalability considerations, 0.4 if limited growth planning, 0.0 if no scalability considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Recommends automated user access reviews using HRIS integration with exception workflows for terminated employees, designed to scale from 50 to 100+ employees during testing period"
+      ],
+      "fail_examples": [
+        "Relies entirely on manual processes without considering automation potential, or designs controls that will break during typical startup growth phases"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] Timeline includes 3, 6, or 12-month period, depending on your chosen audit window. The longer the period, the stronger the assurance in your SOC 2 report, but also the longer it takes to reach the finish line."
+    },
+    {
+      "id": "evidence_documentation_framework",
+      "category": "Evidence and Documentation Framework",
+      "description": "Assessment of evidence collection procedures, documentation standards, and audit trail requirements for continuous monitoring that meet AICPA attestation standards and support both description period requirements and ongoing Type II examination needs.",
+      "pass_condition": "Defines specific evidence collection procedures for at least 20 mapped controls, includes minimum sampling sizes aligned with AT-C 205 standards, and demonstrates understanding of continuous vs. discrete control testing requirements with appropriate evidence retention periods.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "generic_evidence_descriptions": -0.5,
+          "missing_sampling_methodology": -0.8,
+          "incorrect_retention_periods": -0.6,
+          "inadequate_continuous_monitoring_procedures": -0.7,
+          "missing_population_definitions": -0.4,
+          "no_exception_handling_procedures": -0.3,
+          "insufficient_audit_trail_specifications": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "For CC6.1 (Logical Access Controls), specifies quarterly sampling of 25 user access reviews from population of all active users, with evidence including timestamped approval emails, system screenshots, and manager attestations retained for 7 years per AT-C 205 requirements"
+      ],
+      "fail_examples": [
+        "Generically states 'collect access control documentation' without specifying sampling approach, population definition, or evidence types that will satisfy auditor testing requirements for logical access control effectiveness"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Evidence organization: Maintain a clear evidence repository organized by control and time period. When audit comes, you'll need to quickly produce evidence from any point in the observation period. Companies that organize evidence weekly save days during the audit phase."
+    },
+    {
+      "id": "risk_impact_prioritization",
+      "category": "Remediation Prioritization",
+      "description": "Risk-based prioritization of control gaps considering business impact, regulatory requirements, customer expectations, and SOC 2 examination materiality thresholds specific to B2B SaaS operations.",
+      "pass_condition": "Applies quantitative risk scoring to minimum 20 identified gaps using at least 5 weighted factors, creates remediation roadmap with dependencies and resource allocation, and demonstrates understanding of SOC 2 materiality concepts for startup environments.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "quantitative_risk_methodology",
+            "description": "Application of structured risk scoring methodology with appropriate weighting factors",
+            "weight": 0.4,
+            "measurement": "1.0 if uses 5+ weighted factors (business impact, implementation complexity, auditor focus, customer requirements, regulatory impact) with numerical scoring model, 0.7 if uses 3-4 factors with quantification, 0.4 if basic scoring with 2 factors, 0.0 if qualitative-only or no systematic approach",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "remediation_sequencing",
+            "description": "Logical sequencing of remediation activities considering dependencies and resource constraints",
+            "weight": 0.35,
+            "measurement": "1.0 if provides detailed remediation roadmap with dependency mapping and resource allocation for 50-person org, 0.7 if good sequencing with minor gaps, 0.4 if basic sequencing without dependencies, 0.0 if no logical sequencing approach",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "materiality_understanding",
+            "description": "Demonstration of SOC 2 materiality concepts and their application to startup risk assessment",
+            "weight": 0.25,
+            "measurement": "1.0 if explicitly addresses materiality thresholds for startup scale with auditor perspective considerations, 0.7 if some materiality awareness, 0.4 if basic understanding, 0.0 if no materiality considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Assigns highest priority (risk score 9.2/10) to vendor management gaps affecting customer data processing, with 6-month remediation timeline including vendor SOC 2 collection, risk assessment procedures, and contract amendments, recognizing high auditor materiality for third-party data processors"
+      ],
+      "fail_examples": [
+        "Uses simple high/medium/low categorization without quantitative scoring, sequences remediation alphabetically rather than by risk/dependency logic, or applies enterprise materiality thresholds inappropriate for 50-person startup"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] For most organizations completing a SOC 2 audit for the first time, the typical gap rate is 40\u201360%."
+    },
+    {
+      "id": "timeline_resource_feasibility",
+      "category": "Timeline and Resource Feasibility",
+      "description": "Realistic timeline estimation accounting for 3-6 month description period, 6-12 month review period, auditor availability during busy season, and organizational capacity constraints specific to 50-person startup environments.",
+      "pass_condition": "Provides month-by-month timeline for SOC 2 preparation spanning 12-18 months total, accounts for auditor busy season constraints (Jan-Apr), includes buffer time for remediation delays, and aligns resource allocation with startup cash flow considerations.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "phase_timeline_accuracy",
+            "description": "Accuracy of timeline phases including description period, testing period, and auditor availability constraints",
+            "weight": 0.4,
+            "measurement": "1.0 if provides detailed month-by-month timeline accounting for 3-6 month description period, 6-12 month testing period, and auditor busy season constraints, 0.7 if good timeline with minor gaps, 0.4 if basic timeline missing key phases, 0.0 if unrealistic or incomplete timeline",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_cashflow_alignment",
+            "description": "Alignment of resource requirements with typical startup cash flow and budget constraints",
+            "weight": 0.35,
+            "measurement": "1.0 if explicitly addresses startup cash flow timing with phased cost structure and budget optimization, 0.7 if some budget considerations, 0.4 if basic cost awareness, 0.0 if no cash flow considerations",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "contingency_buffer_planning",
+            "description": "Inclusion of appropriate buffer time for typical implementation delays and remediation challenges",
+            "weight": 0.25,
+            "measurement": "1.0 if includes 15-25% buffer time with specific contingency scenarios for common delays, 0.7 if includes some buffer with basic planning, 0.4 if minimal buffer considerations, 0.0 if no contingency planning",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Timeline shows 4-month description period starting July 2024 (avoiding auditor busy season), 8-month testing period through March 2025, with 20% buffer time allocated for vendor remediation delays and phased $150K budget spread across 12 months to align with Series A funding"
+      ],
+      "fail_examples": [
+        "Proposes 18-month timeline that delays market readiness unnecessarily, schedules description period during auditor busy season without considering availability constraints, or proposes front-loaded costs exceeding typical startup quarterly budgets"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Starting observation period prematurely (adds 6+ months) Companies eager to 'start the clock' begin the observation period before controls are truly operational. When auditors discover controls weren't working properly from day one, the observation period must restart."
+    },
+    {
+      "id": "auditor_selection_timing",
+      "category": "Timeline and Resource Feasibility",
+      "description": "Strategic approach to auditor selection considering Big Four vs. regional firm trade-offs, customer requirements, and engagement timing to optimize cost and market credibility for B2B SaaS startup positioning.",
+      "pass_condition": "Evaluates minimum 3 auditor categories (Big Four, national, regional) with cost-benefit analysis, addresses customer acceptance requirements, and provides engagement timing strategy that balances cost optimization with market credibility needs.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "auditor_category_analysis",
+            "description": "Comprehensive analysis of auditor options with cost-benefit considerations for startup market positioning",
+            "weight": 0.4,
+            "measurement": "1.0 if analyzes Big Four, national, and regional firms with specific cost ranges and market credibility implications, 0.7 if analyzes 2 categories with good detail, 0.4 if basic auditor comparison, 0.0 if inadequate auditor analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_acceptance_requirements",
+            "description": "Assessment of customer requirements and market expectations for auditor credibility in B2B SaaS sector",
+            "weight": 0.35,
+            "measurement": "1.0 if explicitly addresses enterprise customer requirements and provides market research on auditor acceptance, 0.7 if some customer requirement considerations, 0.4 if basic market awareness, 0.0 if no customer perspective analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "engagement_timing_strategy",
+            "description": "Strategic timing of auditor engagement to optimize availability and cost while meeting business timeline requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if provides specific engagement timing strategy with seasonal cost optimization and availability planning, 0.7 if good timing considerations, 0.4 if basic timing awareness, 0.0 if no strategic timing approach",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Recommends regional firm with strong SaaS practice for initial SOC 2 ($45-65K vs. $85-120K Big Four) while noting 15% of enterprise prospects may require Big Four upgrade within 18 months, suggests May engagement start to avoid busy season premium pricing"
+      ],
+      "fail_examples": [
+        "Automatically recommends Big Four without cost-benefit analysis for 50-person startup, or selects lowest-cost regional firm without considering customer acceptance implications for enterprise B2B sales"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] Understanding that auditor availability during busy season (January-April) impacts timeline feasibility, with scheduling implications for report delivery."
+    },
+    {
+      "id": "vendor_risk_mapping",
+      "category": "Vendor and Third-Party Risk Assessment",
+      "description": "Comprehensive mapping of vendor dependencies with risk categorization, SOC 2 report collection procedures, and subservice organization considerations critical for B2B SaaS startup operations.",
+      "pass_condition": "Maps minimum 25 vendors across technology, business, and administrative functions; categorizes vendors by risk level with at least 10 high-risk vendors requiring SOC 2 reports; and addresses subservice organization carve-out vs. inclusive reporting decisions.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "vendor_inventory_comprehensiveness",
+            "description": "Complete inventory of vendor relationships with appropriate risk categorization methodology",
+            "weight": 0.4,
+            "measurement": "1.0 if maps 25+ vendors with detailed risk categorization across technology/business/admin functions, 0.7 if maps 20-24 vendors with good categorization, 0.4 if maps 15-19 vendors with basic categorization, 0.0 if <15 vendors or inadequate categorization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "soc_report_collection_strategy",
+            "description": "Strategic approach to collecting SOC 2 reports and alternative risk assessments for high-risk vendors",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies 10+ high-risk vendors requiring SOC 2 reports with alternative assessment procedures for non-SOC vendors, 0.7 if identifies 7-9 high-risk vendors with collection strategy, 0.4 if identifies 4-6 vendors with basic strategy, 0.0 if <4 vendors or no collection strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "subservice_organization_decisions",
+            "description": "Analysis of subservice organization carve-out vs. inclusive reporting implications for audit scope and cost",
+            "weight": 0.25,
+            "measurement": "1.0 if provides detailed analysis of carve-out vs. inclusive decisions with cost/risk implications for major vendors, 0.7 if analyzes some subservice decisions, 0.4 if basic subservice awareness, 0.0 if no subservice organization analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Maps 32 vendors including AWS (inclusive approach for infrastructure), Salesforce (carve-out with SOC 2 report collection), and 8 other high-risk vendors requiring annual SOC 2 reports, with quarterly risk assessments for 15 medium-risk vendors lacking SOC 2 reports"
+      ],
+      "fail_examples": [
+        "Generic vendor list without risk-based categorization, focuses only on technology vendors while ignoring business process vendors (payroll, legal, accounting), or fails to address subservice organization implications for audit scope"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Inadequate third party risk management: Many companies struggle with proper assessment, ongoing monitoring, and documentation of vendor security practices"
+    },
+    {
+      "id": "due_diligence_procedures",
+      "category": "Vendor and Third-Party Risk Assessment",
+      "description": "Design of ongoing due diligence procedures for vendor risk management including contract review requirements, security assessment protocols, and continuous monitoring procedures appropriate for startup resource constraints.",
+      "pass_condition": "Designs risk-based due diligence procedures covering contract terms, security assessments, and ongoing monitoring for minimum 3 risk tiers; includes specific procedures for vendors without SOC 2 reports; and addresses resource-efficient monitoring approaches for 50-person organization.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "risk_tiered_procedures",
+            "description": "Development of risk-tiered due diligence procedures appropriate for different vendor risk categories",
+            "weight": 0.4,
+            "measurement": "1.0 if designs comprehensive procedures for 3+ risk tiers with specific requirements for each tier, 0.7 if designs procedures for 2-3 tiers with good detail, 0.4 if basic tiered approach, 0.0 if single-tier or no tiered procedures",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "alternative_assessment_methods",
+            "description": "Procedures for assessing vendors that do not provide SOC 2 reports or equivalent certifications",
+            "weight": 0.35,
+            "measurement": "1.0 if provides detailed alternative assessment procedures including questionnaires, penetration testing, on-site reviews for non-SOC vendors, 0.7 if some alternative procedures, 0.4 if basic alternative assessment, 0.0 if no alternative procedures",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_efficient_monitoring",
+            "description": "Design of ongoing monitoring procedures that are practical for 50-person organization resource constraints",
+            "weight": 0.25,
+            "measurement": "1.0 if designs automated/efficient monitoring procedures appropriate for startup resources with specific tooling recommendations, 0.7 if practical monitoring approach, 0.4 if somewhat practical procedures, 0.0 if unrealistic resource requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "High-risk vendors require annual SOC 2 reports, quarterly security questionnaires, and contract reviews; medium-risk vendors require annual questionnaires and biannual contract reviews; low-risk vendors require biennial assessments, with automated monitoring via vendor management platform to track compliance status"
+      ],
+      "fail_examples": [
+        "Single due diligence approach for all vendors regardless of risk level, no procedures for vendors lacking SOC 2 reports, or enterprise-level procedures requiring dedicated vendor management staff inappropriate for 50-person organization"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] Inadequate third party risk management: Many companies struggle with proper assessment, ongoing monitoring, and documentation of vendor security practices"
+    },
+    {
+      "id": "governance_maturity_assessment",
+      "category": "Organizational Readiness",
+      "description": "Assessment of organizational maturity including governance structures, policy frameworks, and change management capabilities required to implement and maintain SOC 2 compliance in a rapidly scaling startup environment.",
+      "pass_condition": "Evaluates governance maturity across minimum 8 domains (risk management, change control, incident response, data governance, HR processes, vendor management, security governance, compliance monitoring), identifies maturity gaps requiring remediation before SOC 2 examination, and provides organizational structure recommendations appropriate for 50-person scale.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "governance_domain_coverage",
+            "description": "Comprehensive assessment across critical governance domains with maturity gap identification",
+            "weight": 0.4,
+            "measurement": "1.0 if assesses 8+ governance domains with specific maturity gaps and remediation requirements, 0.7 if assesses 6-7 domains with good analysis, 0.4 if assesses 4-5 domains with basic analysis, 0.0 if <4 domains or inadequate analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "policy_framework_design",
+            "description": "Design of policy framework appropriate for 50-person organization with scalability considerations",
+            "weight": 0.35,
+            "measurement": "1.0 if designs comprehensive policy framework with 15+ policies appropriate for startup scale and growth trajectory, 0.7 if designs 10-14 policies with good startup considerations, 0.4 if designs 5-9 policies with basic framework, 0.0 if <5 policies or inappropriate scope",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "change_management_capability",
+            "description": "Assessment of organizational change management capabilities and readiness for SOC 2 implementation",
+            "weight": 0.25,
+            "measurement": "1.0 if provides detailed change management assessment with implementation roadmap and training requirements, 0.7 if good change management analysis, 0.4 if basic change readiness assessment, 0.0 if inadequate change management considerations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Identifies immature incident response governance (currently ad-hoc Slack notifications) requiring formal incident management policy, response team structure, and quarterly tabletop exercises; recommends Security Committee establishment with monthly meetings and executive reporting"
+      ],
+      "fail_examples": [
+        "Generic governance assessment without startup-specific considerations, recommends enterprise-level governance structures inappropriate for 50-person organization, or fails to identify critical governance gaps like lack of formal change control procedures"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "[Partial] Inadequate risk assessment processes: Organizations often lack formal, documented methodologies for identifying, assessing, and managing risks on a regular basis"
+    },
+    {
+      "id": "regulatory_attestation_compliance",
+      "category": "Regulatory and Standards Compliance",
+      "description": "Adherence to AICPA AT-C Section 105 and 205 standards, TSP Section 100 requirements, and industry-specific regulations affecting B2B SaaS operations, ensuring gap analysis methodology meets professional attestation standards.",
+      "pass_condition": "Demonstrates compliance with AT-C 105/205 examination standards, addresses TSP Section 100 service organization requirements, identifies minimum 3 industry-specific regulatory requirements (GDPR, CCPA, HIPAA, etc.) affecting control design, and ensures gap analysis methodology supports management assertion development.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "missing_management_assertions": -0.8,
+          "inadequate_description_criteria": -0.7,
+          "non_compliant_sampling_methodology": -0.9,
+          "missing_regulatory_requirements": -0.6,
+          "incorrect_tsp_application": -0.5,
+          "inadequate_risk_assessment_documentation": -0.4,
+          "missing_subsequent_events_procedures": -0.3
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Gap analysis explicitly addresses management assertion development per AT-C 205.35, includes description criteria that meet TSP Section 100.73 requirements, and identifies GDPR Article 28 processor requirements affecting vendor management controls"
+      ],
+      "fail_examples": [
+        "Gap analysis focuses solely on control identification without addressing management assertion requirements, ignores TSP Section 100 service organization description requirements, or fails to identify applicable regulatory requirements affecting control design"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "SSAE No. 18, Attestation Standards: Clarification and Recodification, which includes AT-C section 105, Concepts Common to All Attestation Engagements, and AT-C section 205, Examination Engagements (AICPA, Professional Standards)."
+    },
+    {
+      "id": "control_remediation_coherence",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluates the internal consistency between identified control gaps, proposed remediation priorities, and timeline feasibility, ensuring the gap analysis provides a coherent and executable implementation roadmap.",
+      "pass_condition": "Demonstrates logical alignment between risk-based gap prioritization and remediation timeline allocation, ensures high-priority gaps receive appropriate resource allocation within feasible timeframes, and validates that remediation dependencies are properly sequenced across all trust service criteria.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "priority_timeline_alignment",
+            "description": "Consistency between gap risk prioritization and timeline allocation showing highest risks receive earliest attention",
+            "weight": 0.4,
+            "measurement": "1.0 if timeline clearly prioritizes highest-risk gaps with logical resource allocation and realistic sequencing, 0.7 if mostly consistent with minor misalignment, 0.4 if some priority-timeline inconsistencies, 0.0 if significant misalignment between priorities and timeline",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_gap_consistency",
+            "description": "Alignment between identified resource requirements and organizational capacity assessment for remediation execution",
+            "weight": 0.35,
+            "measurement": "1.0 if resource requirements clearly align with organizational capacity analysis and budget constraints, 0.7 if mostly consistent resource planning, 0.4 if some resource-capacity misalignment, 0.0 if significant inconsistency between resource needs and organizational capacity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_criteria_dependencies",
+            "description": "Recognition and proper sequencing of control dependencies that span multiple trust service criteria",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies and properly sequences dependencies across TSC categories (e.g., vendor management affecting security and availability), 0.7 if recognizes most cross-criteria dependencies, 0.4 if limited dependency recognition, 0.0 if fails to address cross-criteria dependencies",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis prioritizes vendor risk management (Risk Score 9.2) for Month 2-5 implementation with $45K budget allocation, recognizing this foundational control enables subsequent security monitoring and availability controls scheduled for Months 6-8"
+      ],
+      "fail_examples": [
+        "High-priority access control gaps scheduled for Month 12 while low-priority documentation gaps receive Month 2 attention, or vendor management remediation scheduled independently without recognizing dependency for security and availability control implementation"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Effective SOC 2 preparation requires coherent remediation planning where risk prioritization, timeline sequencing, and resource allocation align to create executable implementation roadmaps rather than disconnected control checklists"
+    },
+    {
+      "id": "evidence_control_integration",
+      "category": "Cross-Cutting Analysis",
+      "description": "Assesses the integration between control design recommendations and evidence collection framework, ensuring proposed controls generate appropriate evidence for continuous monitoring and Type II examination testing requirements.",
+      "pass_condition": "Validates that control design produces measurable evidence aligned with proposed monitoring systems, ensures evidence collection procedures match control testing requirements across all TSC criteria, and demonstrates understanding of how control automation affects evidence generation and auditor testing approaches.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "control_evidence_alignment",
+            "description": "Consistency between proposed control designs and specified evidence collection procedures",
+            "weight": 0.4,
+            "measurement": "1.0 if control designs explicitly address evidence generation requirements with clear linkage to collection procedures, 0.7 if good alignment with minor gaps, 0.4 if some misalignment between controls and evidence, 0.0 if significant disconnect between control design and evidence requirements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "automation_evidence_impact",
+            "description": "Recognition of how control automation affects evidence types and auditor testing methodologies",
+            "weight": 0.35,
+            "measurement": "1.0 if clearly addresses how automated controls change evidence requirements and auditor testing approaches with specific examples, 0.7 if good automation-evidence analysis, 0.4 if basic understanding of automation impact, 0.0 if no consideration of automation effects on evidence",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "monitoring_testing_consistency",
+            "description": "Alignment between continuous monitoring design and Type II examination testing requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if monitoring systems explicitly designed to support auditor testing requirements with appropriate sampling and exception tracking, 0.7 if good monitoring-testing alignment, 0.4 if basic alignment considerations, 0.0 if monitoring design disconnected from testing requirements",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Proposed automated user access review control generates timestamped approval logs and exception reports that directly support quarterly auditor sampling requirements, with continuous monitoring alerts designed to provide real-time control effectiveness validation"
+      ],
+      "fail_examples": [
+        "Recommends manual controls without considering evidence collection burden, designs automated monitoring that doesn't produce auditor-suitable evidence formats, or proposes evidence procedures that don't align with recommended control implementations"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Successful SOC 2 implementations require integrated thinking where control design, evidence generation, and auditor testing requirements are aligned from the initial gap analysis phase rather than addressed as separate workstreams"
+    },
+    {
+      "id": "organizational_vendor_alignment",
+      "category": "Cross-Cutting Analysis",
+      "description": "Evaluates the coherence between organizational readiness assessment and vendor risk management approach, ensuring vendor management capabilities align with identified organizational maturity and resource constraints.",
+      "pass_condition": "Demonstrates alignment between organizational governance maturity and vendor risk management complexity, ensures vendor due diligence procedures match identified organizational capabilities, and validates that vendor remediation timelines account for organizational change management capacity.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "governance_vendor_complexity_match",
+            "description": "Alignment between organizational governance maturity level and proposed vendor management program complexity",
+            "weight": 0.4,
+            "measurement": "1.0 if vendor management program complexity appropriately matches organizational governance maturity with scalable implementation approach, 0.7 if mostly appropriate complexity matching, 0.4 if some misalignment between maturity and vendor program complexity, 0.0 if significant mismatch between organizational capability and vendor management requirements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "resource_vendor_procedure_consistency",
+            "description": "Consistency between identified organizational resources and proposed vendor due diligence procedure complexity",
+            "weight": 0.35,
+            "measurement": "1.0 if vendor procedures clearly match identified organizational resources with realistic implementation requirements, 0.7 if mostly realistic vendor procedures, 0.4 if some resource-procedure misalignment, 0.0 if vendor procedures exceed organizational capacity",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "change_capacity_vendor_timeline",
+            "description": "Alignment between organizational change management capacity and vendor remediation timeline requirements",
+            "weight": 0.25,
+            "measurement": "1.0 if vendor remediation timelines explicitly consider organizational change capacity with appropriate pacing, 0.7 if reasonable change capacity considerations, 0.4 if limited change capacity alignment, 0.0 if vendor timelines ignore organizational change limitations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analysis recognizes immature governance structure and recommends phased vendor management implementation starting with top 10 critical vendors in Months 1-3, expanding to medium-risk vendors in Months 4-6 as governance processes mature and staff gain experience"
+      ],
+      "fail_examples": [
+        "Proposes comprehensive vendor management program requiring dedicated staff while organizational assessment identifies resource constraints, or schedules aggressive vendor due diligence timeline without considering identified change management capacity limitations"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Vendor management programs must scale appropriately with organizational maturity and resources; misaligned complexity creates implementation failures that compromise SOC 2 readiness timelines"
+    },
+    {
+      "id": "soc2_scope_precision",
+      "category": "Scope Definition",
+      "description": "Evaluates the precision and completeness of SOC 2 scope definition, ensuring all relevant systems, processes, and business units are properly identified and scoped to avoid delays during examination",
+      "pass_condition": "Complete scope documentation with clear boundaries, system inventory, and data flow mapping that covers all in-scope trust service criteria",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "system_inventory",
+            "description": "Complete inventory of all systems, applications, and infrastructure components within scope",
+            "weight": 0.3,
+            "measurement": "4-point scale: comprehensive/mostly complete/partial/inadequate",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "boundary_definition",
+            "description": "Clear definition of scope boundaries including what is included and excluded with rationale",
+            "weight": 0.3,
+            "measurement": "4-point scale: precise/clear/somewhat clear/vague",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "process_mapping",
+            "description": "Documentation of all business processes and data flows relevant to selected trust service criteria",
+            "weight": 0.4,
+            "measurement": "4-point scale: complete mapping/mostly mapped/partially mapped/incomplete",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Detailed system architecture diagram with all components labeled and scope boundaries clearly marked",
+        "Complete data flow documentation showing how customer data moves through all in-scope systems"
+      ],
+      "fail_examples": [
+        "High-level system list without architectural context",
+        "Vague scope statement like 'all customer-facing systems' without specific identification"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Scoping the Environment \u2013 Identify the systems, processes and business units in audit scope... Starting observation period prematurely (adds 6+ months) Companies eager to 'start the clock' begin the observation period before controls are truly operational."
+    },
+    {
+      "id": "vulnerability_management_completeness",
+      "category": "Security Operations",
+      "description": "Assesses the completeness of vulnerability management processes including scanning frequency, remediation procedures, and security patching documentation",
+      "pass_condition": "Documented vulnerability management program with regular scanning, defined remediation timelines, and complete patching records",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "scanning_frequency",
+            "description": "Regular vulnerability scanning schedule for all in-scope systems with documented results",
+            "weight": 0.3,
+            "measurement": "4-point scale: weekly/monthly/quarterly/irregular or none",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "remediation_process",
+            "description": "Formal remediation procedures with defined timelines based on vulnerability severity",
+            "weight": 0.4,
+            "measurement": "4-point scale: comprehensive SLA-based process/defined timelines/informal process/no process",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "patch_documentation",
+            "description": "Complete documentation of security patches applied including approval and testing records",
+            "weight": 0.3,
+            "measurement": "4-point scale: complete records/mostly complete/partial records/poor documentation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Weekly automated vulnerability scans with documented remediation within 30 days for high-severity findings",
+        "Patch management policy with testing procedures and complete deployment logs"
+      ],
+      "fail_examples": [
+        "Ad-hoc vulnerability scanning with no documented remediation timeline",
+        "Security patches applied without testing or approval documentation"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "The 2017 Trust Services Criteria include over 200 points of focus just under the Security (or Common Criteria) category... Insufficient vulnerability management: Irregular scanning, incomplete remediation processes, and poor documentation of security patching often create significant gaps"
+    },
+    {
+      "id": "change_management_formality",
+      "category": "Change Control",
+      "description": "Assesses the formality and consistency of change management processes including testing procedures, approval workflows, and documentation requirements for production systems",
+      "pass_condition": "Formal change management process with documented testing, approval workflows, and segregation of duties between developers and deployers",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "approval_workflow",
+            "description": "Formal approval process for all production changes with documented authorization",
+            "weight": 0.3,
+            "measurement": "4-point scale: formal CAB process/defined approvers/informal approval/no approval process",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "testing_procedures",
+            "description": "Mandatory testing requirements for all changes before production deployment",
+            "weight": 0.3,
+            "measurement": "4-point scale: comprehensive testing/basic testing/minimal testing/no testing requirements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "segregation_duties",
+            "description": "Clear separation between change developers and production deployers with documented roles",
+            "weight": 0.4,
+            "measurement": "4-point scale: complete separation/mostly separate/some overlap with controls/same person develops and deploys",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Change Advisory Board approval required for all production changes with documented testing results",
+        "Separate development and operations teams with formal handoff procedures"
+      ],
+      "fail_examples": [
+        "Developers deploying their own changes directly to production",
+        "Production changes made without formal approval or testing documentation"
+      ],
+      "domain": "SOC 2 Type II Readiness Assessment",
+      "research_basis": "Organizations should have an internal control structure designed to specifically address the segregation of duties (SoD) between change developers and deployers... implementing controls to address SoD is crucial to prevent conflicts, reduce errors, and enhance security."
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "trust_criteria_mapping",
+      "name": "Trust Services Criteria Mapping",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "control_design_assessment",
+      "name": "Control Design Assessment",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "evidence_documentation",
+      "name": "Evidence and Documentation Framework",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "remediation_prioritization",
+      "name": "Remediation Prioritization",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "timeline_feasibility",
+      "name": "Timeline and Resource Feasibility",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "vendor_risk_assessment",
+      "name": "Vendor and Third-Party Risk Assessment",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "organizational_readiness",
+      "name": "Organizational Readiness",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "regulatory_compliance",
+      "name": "Regulatory and Standards Compliance",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    }
+  ]
+}

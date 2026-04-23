@@ -1,0 +1,126 @@
+{
+  "run_id": "f32dd1a6_20260422_212529",
+  "iteration": 4,
+  "total_score": 44.059999999999995,
+  "max_score": 94,
+  "percentage": 0.4687234042553191,
+  "delta_from_prior": 0.0391,
+  "focus_areas": [
+    "evidence_documentation_framework.inadequate_continuous_monitoring_procedures",
+    "auditor_selection_timing.auditor_category_analysis",
+    "auditor_selection_timing.customer_acceptance_requirements",
+    "auditor_selection_timing.engagement_timing_strategy",
+    "regulatory_attestation_compliance.missing_management_assertions"
+  ],
+  "content_path": ".eval_iterations/f32dd1a6_20260422_212529/iter_004_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "tsc_mapping_precision",
+      "points_earned": 4.55,
+      "max_points": 7,
+      "percentage": 0.6499999999999999
+    },
+    {
+      "criterion_id": "control_gap_prioritization",
+      "points_earned": 3.98,
+      "max_points": 6,
+      "percentage": 0.6625000000000001
+    },
+    {
+      "criterion_id": "control_design_sod_matrix",
+      "points_earned": 1.88,
+      "max_points": 6,
+      "percentage": 0.3125
+    },
+    {
+      "criterion_id": "control_operational_effectiveness",
+      "points_earned": 2.38,
+      "max_points": 5,
+      "percentage": 0.475
+    },
+    {
+      "criterion_id": "evidence_documentation_framework",
+      "points_earned": 5.5,
+      "max_points": 6,
+      "percentage": 0.9166666666666666
+    },
+    {
+      "criterion_id": "risk_impact_prioritization",
+      "points_earned": 3.6,
+      "max_points": 6,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "timeline_resource_feasibility",
+      "points_earned": 4.5,
+      "max_points": 6,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "auditor_selection_timing",
+      "points_earned": 3.0,
+      "max_points": 4,
+      "percentage": 0.75
+    },
+    {
+      "criterion_id": "vendor_risk_mapping",
+      "points_earned": 2.1,
+      "max_points": 6,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "due_diligence_procedures",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "governance_maturity_assessment",
+      "points_earned": 1.75,
+      "max_points": 5,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "regulatory_attestation_compliance",
+      "points_earned": 4.3,
+      "max_points": 5,
+      "percentage": 0.86
+    },
+    {
+      "criterion_id": "control_remediation_coherence",
+      "points_earned": 2.62,
+      "max_points": 6,
+      "percentage": 0.4375
+    },
+    {
+      "criterion_id": "evidence_control_integration",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25
+    },
+    {
+      "criterion_id": "organizational_vendor_alignment",
+      "points_earned": 1.4,
+      "max_points": 4,
+      "percentage": 0.35
+    },
+    {
+      "criterion_id": "soc2_scope_precision",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "vulnerability_management_completeness",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    },
+    {
+      "criterion_id": "change_management_formality",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0
+    }
+  ]
+}

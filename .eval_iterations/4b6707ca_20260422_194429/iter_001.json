@@ -1,0 +1,697 @@
+{
+  "run_id": "4b6707ca_20260422_194429",
+  "iteration": 1,
+  "content": "# Reproducible ML Experiment Report: Fine-Tuning Language Models on Domain-Specific Data\n\n## Executive Summary\n\nThis report presents a comprehensive framework for conducting reproducible machine learning experiments when fine-tuning language models on domain-specific data. \nFine-tuning enhances the model's ability to generalise to specific tasks or domains, capturing general language features and customising them for domain-specific performance\n. The report addresses critical methodological requirements including dataset construction, systematic training approaches, rigorous evaluation protocols, ablation studies, and failure analysis while ensuring statistical rigor through multi-seed validation.\n\n## 1. Introduction and Motivation\n\n\nFine-tuning is a process in which a pretrained model, such as an LLM, is further trained on a custom data set to adapt it for specialized tasks or domains. This process outlines the general steps required for carrying out LLM fine-tuning\n. The rapid advancement of large language models has created unprecedented opportunities for domain adaptation, yet \nconsistently checking the statistical significance of experimental results is one of the mandatory methodological steps to address the so-called \"reproducibility crisis\" in deep reinforcement learning\n and extends to language model fine-tuning.\n\n### Key Challenges Addressed\n\n1. **Reproducibility Crisis**: \nEstimators may suffer from \"random seed dependence\": running the same estimator on the same data yields a different result each time\n\n2. **Statistical Rigor**: \nPrepare a minimum of ~1,000 examples, prioritizing quality over quantity with an 80/20 train/validation split\n\n3. **Evaluation Consistency**: \nWhether you're fine-tuning for accuracy, enhancing contextual relevance in a RAG pipeline, or increasing task completion rate in an AI agent, choosing the right evaluation metrics is critical. Yet, LLM evaluation remains notoriously difficult\n\n\n## 2. Dataset Construction Methodology\n\n### 2.1 Data Collection and Curation\n\n\nData set preparation for LLM model fine-tuning is entirely task-specific. For custom data sets, depending on the task, the data set preparation may include data cleaning, normalizing for missing values, and formatting the text to align with the model's input requirements\n.\n\n**Best Practices for Dataset Construction:**\n\n1. **Quality Over Quantity**: \nBest practices for fine-tuning involve clearly defining the target task, choosing the most suitable pre-trained model, preparing a high-quality, diverse, and relevant dataset for both training and evaluation\n\n\n2. **Domain Relevance**: \nThe model is fine-tuned on a dataset composed of text from the target domain to improve its context and knowledge of domain-specific tasks. For instance, to generate a chatbot for a medical app, the model would be trained with medical records\n\n\n3. **Data Versioning**: Implement comprehensive dataset versioning using tools like Hugging Face Datasets or DVC to ensure reproducibility across experiments\n\n### 2.2 Data Preprocessing Pipeline\n\n```\n1. Raw Data Collection\n   \u251c\u2500\u2500 Domain-specific corpus gathering\n   \u251c\u2500\u2500 Quality assessment and filtering\n   \u2514\u2500\u2500 Legal and ethical compliance checks\n\n2. Text Preprocessing\n   \u251c\u2500\u2500 Format standardization\n   \u251c\u2500\u2500 Encoding validation (UTF-8)\n   \u251c\u2500\u2500 Length distribution analysis\n   \u2514\u2500\u2500 Duplicate detection and removal\n\n3. Train/Validation/Test Split\n   \u251c\u2500\u2500 Stratified splitting (80/15/5)\n   \u251c\u2500\u2500 Temporal consistency checks\n   \u2514\u2500\u2500 Distribution validation\n```\n\n### 2.3 Quality Assurance Metrics\n\n- **Coverage**: Measure vocabulary overlap with target domain\n- **Diversity**: Calculate lexical diversity and topic distribution\n- **Balance**: Ensure representative sampling across domain subcategories\n- **Contamination**: Verify no test set leakage into training data\n\n## 3. Training Methodology\n\n### 3.1 Base Model Selection\n\n\nThe choice of base model lays the foundation for your fine-tuned model's capabilities. Licensing and deployment restrictions: Ensure the base model's license allows for your intended use and deployment scenario\n.\n\n**Selection Criteria:**\n- **Model Size vs. Resources**: \nLarger models may offer more potential, but also require more computational power for fine-tuning and inference. For example, fine-tuning GPT-3 175B can require significant GPU resources, while a smaller model like BERT or RoBERTa may be more practical\n\n- **Domain Alignment**: \nSome models are pre-trained on specific types of data (e.g., scientific papers, code) that may align more closely with your target domain\n\n- **Architectural Considerations**: \nDifferent model architectures (e.g., encoder-only, decoder-only, encoder-decoder) excel at different types of tasks\n\n\n### 3.2 Parameter-Efficient Fine-Tuning (PEFT)\n\n\nParameter-efficient methods like Low-Rank Adaptation (LoRA) and Half Fine-Tuning are explored for balancing computational efficiency with performance\n.\n\n**LoRA Implementation:**\n- \nInstead of changing all 70B numbers, we instead add thin matrices A and B to each weight, and optimize those. This means we only optimize 1% of weights. LoRA is when the original model is 16-bit unquantized while QLoRA quantizes to 4-bit to save 75% memory\n\n\n**Decision Framework:**\n- \nUse LoRA when you need zero inference latency and moderate GPU resources (16\u201324 GB). Use QLoRA for extreme memory constraints (consumer GPUs, Google Colab) or very large models (30B+). Use Spectrum when working with large models in distributed settings\n\n\n### 3.3 Training Configuration\n\n**Hyperparameter Optimization Strategy:**\n\nVarious automatic hyperparameter optimization (HPO) methods\u2014for example, based on resampling error estimation for supervised machine learning\u2014can be employed. Important HPO methods, from simple techniques such as grid or random search to more advanced methods like evolution strategies, Bayesian optimization, Hyperband, and racing\n.\n\n**Key Hyperparameters:**\n- Learning Rate: Implement learning rate scheduling with warm-up\n- Batch Size: Optimize for hardware constraints and gradient stability\n- Training Steps: Monitor convergence patterns\n- Weight Decay: Apply L2 regularization to prevent overfitting\n\n### 3.4 Multi-Seed Training Protocol\n\n\nWe explain how the number of random seeds relates to the probabilities of statistical errors. For both the t-test and the bootstrap confidence interval test, we recall theoretical guidelines to determine the number of random seeds one should use to provide a statistically significant comparison\n.\n\n**Minimum Requirements:**\n- **Statistical Power**: Run minimum 5 seeds for large models, 10 seeds for smaller models\n- **Seed Selection**: Use systematically different seeds (e.g., 42, 123, 456, 789, 999)\n- **Resource Management**: \nN should be chosen systematically larger than what the power analysis prescribes\n\n\n## 4. Evaluation Metrics and Protocols\n\n### 4.1 Core Evaluation Framework\n\n\nChoose one to two custom evaluation metrics and two to three system-level metrics (maximum five total)\n to maintain focus while ensuring comprehensive assessment.\n\n### 4.2 Multi-Layered Evaluation Approach\n\n**1. Foundational Metrics:**\n- \nCross-entropy loss is a widely used metric to assess the dissimilarity between the predicted probability distribution and the actual distribution of words in the training data. By minimizing cross-entropy loss, the model learns to make more accurate and contextually relevant predictions\n\n- \nPerplexity loss measures how well the model can predict the next word in a sequence of text, with lower values indicating a better understanding of the language and context\n\n\n**2. Domain-Specific Metrics:**\n- Task-relevant accuracy measures (F1, precision, recall for classification tasks)\n- \nROUGE measures are designed to assess various aspects of text similarity, including the precision and recall of n-grams. The goal is to assess how well a model captures the information present in the reference text\n\n\n**3. Qualitative Assessment:**\n- \nQualitative evaluation involves human-in-the-loop judgment or larger models assessing aspects like relevance, coherence, creativity, and appropriateness of the content. Human Review: Having domain experts or general users review the generated content to assess its quality\n\n\n### 4.3 LLM-as-a-Judge Evaluation\n\n\nThe LLM-as-a-Judge template uses a strong LLM to evaluate the outputs of another LLM, leveraging AI to assess the quality of responses. The model acts as a judge, comparing predicted outputs against ideal responses, and scores them using methods like LangChain's CriteriaEvalChain\n.\n\n**Implementation Protocol:**\n```python\ndef llm_as_judge_evaluation(model_output, reference, criteria):\n    \"\"\"\n    Evaluate model output using GPT-4 as judge\n    \"\"\"\n    prompt = f\"\"\"\n    Evaluate the following model output against the reference:\n    \n    Criteria: {criteria}\n    Model Output: {model_output}\n    Reference: {reference}\n    \n    Rate on a scale of 1-5 and provide justification.\n    \"\"\"\n    return gpt4_evaluation(prompt)\n```\n\n### 4.4 Statistical Significance Testing\n\n\nHypothesis testing within a dataset is considered stable when this measure is zero or one, indicating that all 150 analyses of the dataset led to the same hypothesis testing conclusion. Discordant point estimates indicate the extreme scenario where two analyses of the same dataset both reject the null but draw opposite scientific conclusions\n.\n\n**Testing Protocol:**\n- Welch's t-test for comparing model performance across seeds\n- Bootstrap confidence intervals for robust uncertainty estimation\n- Bonferroni correction for multiple comparison adjustments\n\n## 5. Systematic Ablation Analysis\n\n### 5.1 Ablation Study Design\n\n\nAblation studies play a pivotal role in this process by systematically dissecting machine learning models and evaluating the impact of individual components. By selectively removing or disabling specific features, layers, or modules within the model and observing the resulting changes in performance\n.\n\n### 5.2 Component Analysis Framework\n\n**1. Training Data Ablations:**\n- Dataset size variations (25%, 50%, 75%, 100%)\n- Domain composition analysis\n- Data quality impact assessment\n\n**2. Architecture Ablations:**\n- \nIt costs nothing to just remove some layers of a neural network and run the same experiment without these layers to investigate their contribution to the model performance\n\n- Attention mechanism components\n- Layer depth variations\n\n**3. Hyperparameter Ablations:**\n- Learning rate schedules\n- Batch size impact\n- Regularization techniques\n\n### 5.3 Ablation Methodology\n\n\nAn ablation study aims to determine the contribution of a component to an AI system by removing the component, and then analyzing the resultant performance of the system\n.\n\n**Systematic Approach:**\n```\n1. Establish Baseline Performance\n2. Define Component Hierarchy\n3. Single-Component Ablations\n4. Interaction Effect Analysis\n5. Cumulative Impact Assessment\n```\n\n### 5.4 Statistical Rigor in Ablations\n\n\nBased on our observations, experimental results, and the current literature, we provide recommendations on best practices to prevent errors. Our actionable analysis artifacts are automatically produced by the experiment state and reduce the time to evaluate a hypothesis\n.\n\n## 6. Comprehensive Failure Analysis\n\n### 6.1 Failure Mode Classification\n\n\nPerformance bias failures, model failures, and robustness failures are the three failure modes. The first failure is performance bias failures, which data scientists seldom evaluate during their review workflow\n.\n\n**1. Performance Bias Failures:**\n- \nCertain subgroups have hidden long-term implications. If a system model performs poorly for a fraction of newly gained users, the underperformance will stack over time, potentially resulting in lower long-term engagement and retention\n\n\n**2. Model Failures:**\n- \nDiscovering whether the model is missing any features. When an input feature violates validity restrictions, machine learning tools both display inconsistent behavior and fail to warn the user\n\n\n**3. Robustness Failures:**\n- \nGenerally speaking, they refer to an absence of toughness in the model. There are areas in the input area where your model does not produce the intended output; if you are lucky, this can result in a disappointing experience and a loss of faith in the system\n\n\n### 6.2 Diagnostic Framework\n\n**Error Analysis Protocol:**\n1. **Quantitative Analysis**: Confusion matrix analysis, error rate by category\n2. **Qualitative Analysis**: Manual review of failure cases\n3. **Pattern Recognition**: Clustering of failure modes\n4. **Root Cause Analysis**: Trace failures to data, model, or training issues\n\n**Failure Case Documentation:**\n```python\nclass FailureAnalysis:\n    def __init__(self):\n        self.failure_categories = {\n            'hallucination': [],\n            'factual_errors': [],\n            'formatting_issues': [],\n            'domain_misalignment': []\n        }\n    \n    def analyze_failure(self, input_text, model_output, expected_output):\n        # Categorize and log failure\n        failure_type = self.classify_failure(model_output, expected_output)\n        self.failure_categories[failure_type].append({\n            'input': input_text,\n            'output': model_output,\n            'expected': expected_output,\n            'timestamp': datetime.now()\n        })\n```\n\n### 6.3 Mitigation Strategies\n\n\nIn failure cause diagnosis, AI integrates data from multiple sources to uncover complex failure factors and potential causal relationships, improving diagnostic reliability. In failure prediction, machine learning can accurately forecast material lifespan and strength, reducing experimental time and costs. In failure prevention, AI offers new approaches to effectively reduce the risk of failure\n.\n\n## 7. Computational Efficiency Analysis\n\n### 7.1 Resource Utilization Metrics\n\n**Training Efficiency:**\n- GPU memory utilization patterns\n- Training time per epoch analysis\n- Convergence rate comparisons across configurations\n\n**Memory Optimization:**\n- \nQLoRA enabling 13B models on 16 GB GPUs and free platforms like Google Colab with Unsloth optimization\n\n- Gradient checkpointing impact assessment\n- Mixed precision training benefits\n\n### 7.2 Scalability Analysis\n\n**Model Size vs. Performance Trade-offs:**\n- Performance per parameter efficiency\n- Inference latency measurements\n- Memory footprint optimization\n\n**Deployment Considerations:**\n- \nConsider strategies like model parallelism or using smaller models for initial filtering before passing to the larger fine-tuned model. Monitoring: Implement robust monitoring to track model performance, detect drift, and alert on unexpected behaviors\n\n\n## 8. Reproducibility Framework\n\n### 8.1 Experimental Setup\n\n**Environment Management:**\n```yaml\n# requirements.yml\ndependencies:\n  - python=3.9\n  - pytorch=1.13.0\n  - transformers=4.21.0\n  - datasets=2.4.0\n  - wandb=0.13.0\n  - numpy=1.23.0\n  - pandas=1.4.3\n```\n\n**Seed Management Protocol:**\n```python\nimport random\nimport numpy as np\nimport torch\n\ndef set_seed(seed):\n    random.seed(seed)\n    np.random.seed(seed)\n    torch.manual_seed(seed)\n    torch.cuda.manual_seed_all(seed)\n    torch.backends.cudnn.deterministic = True\n    torch.backends.cudnn.benchmark = False\n```\n\n### 8.2 Experiment Tracking\n\n**Comprehensive Logging:**\n- Hyperparameter configurations\n- Training metrics per epoch\n- Model checkpoints with metadata\n- Evaluation results across all metrics\n- System resource utilization\n\n**Version Control:**\n- Code versioning with Git\n- Data versioning with DVC or Hugging Face Datasets\n- Model versioning with MLflow or Weights & Biases\n\n### 8.3 Documentation Standards\n\n**Experiment Metadata:**\n```json\n{\n    \"experiment_id\": \"exp_001\",\n    \"model_config\": {\n        \"base_model\": \"microsoft/DialoGPT-medium\",\n        \"peft_method\": \"LoRA\",\n        \"rank\": 8,\n        \"alpha\": 16\n    },\n    \"training_config\": {\n        \"learning_rate\": 5e-5,\n        \"batch_size\": 16,\n        \"epochs\": 3,\n        \"warmup_steps\": 500\n    },\n    \"dataset\": {\n        \"name\": \"domain_specific_v1.2\",\n        \"size\": 10000,\n        \"split_ratio\": [0.8, 0.1, 0.1]\n    },\n    \"hardware\": {\n        \"gpu\": \"NVIDIA A100\",\n        \"memory\": \"40GB\",\n        \"cuda_version\": \"11.7\"\n    }\n}\n```\n\n## 9. Statistical Significance and Multi-Seed Validation\n\n### 9.1 Statistical Power Analysis\n\n\nWe defined type-I, type-II errors and proposed appropriate statistical tests to test for performance difference. Finally and most importantly, we detailed how to pick the right number of random seeds (the sample size) so as to reach the requirements in both error types\n.\n\n**Minimum Seed Requirements:**\n- Large models (>30B parameters): Minimum 2 seeds due to computational constraints\n- Medium models (1B-30B): Minimum 5 seeds for statistical validity\n- Small models (<1B): Minimum 10 seeds for robust conclusions\n\n### 9.2 Error Bound Calculations\n\n**Confidence Interval Estimation:**\n```python\ndef calculate_confidence_intervals(results, confidence_level=0.95):\n    \"\"\"\n    Calculate bootstrap confidence intervals for model performance\n    \"\"\"\n    n_bootstrap = 1000\n    bootstrap_means = []\n    \n    for _ in range(n_bootstrap):\n        sample = np.random.choice(results, size=len(results), replace=True)\n        bootstrap_means.append(np.mean(sample))\n    \n    alpha = 1 - confidence_level\n    lower = np.percentile(bootstrap_means, 100 * alpha / 2)\n    upper = np.percentile(bootstrap_means, 100 * (1 - alpha / 2))\n    \n    return lower, upper\n```\n\n### 9.3 Result Stability Assessment\n\n\nMachine learning models with stochastic initialization were particularly susceptible to variations in reproducibility, predictive accuracy, and feature importance due to random seed selection. Changes in random seeds altered weight initialization, optimization paths, and feature rankings\n.\n\n**Stability Metrics:**\n- Coefficient of variation across seeds\n- Range of performance metrics\n- Statistical significance of mean differences\n\n## 10. Implementation Checklist\n\n### 10.1 Pre-Experiment Setup\n- [ ] Define clear research objectives and hypotheses\n- [ ] Select appropriate base model and dataset\n- [ ] Establish baseline performance metrics\n- [ ] Configure experimental environment with version control\n- [ ] Implement comprehensive logging system\n\n### 10.2 Training Phase\n- [ ] Execute multi-seed training runs (minimum requirements met)\n- [ ] Monitor convergence patterns and detect anomalies\n- [ ] Save intermediate checkpoints for analysis\n- [ ] Log hardware utilization metrics\n- [ ] Document any training interruptions or issues\n\n### 10.3 Evaluation Phase\n- [ ] Run evaluation on all random seeds\n- [ ] Calculate statistical significance of results\n- [ ] Perform qualitative analysis with domain experts\n- [ ] Execute LLM-as-a-judge evaluation\n- [ ] Document evaluation methodology and results\n\n### 10.4 Analysis Phase\n- [ ] Conduct systematic ablation studies\n- [ ] Perform comprehensive failure analysis\n- [ ] Calculate confidence intervals and error bounds\n- [ ] Compare computational efficiency metrics\n- [ ] Validate reproducibility with independent runs\n\n### 10.5 Documentation and Reporting\n- [ ] Generate comprehensive experiment report\n- [ ] Document all hyperparameter configurations\n- [ ] Create reproducible code and data packages\n- [ ] Share results with statistical significance tests\n- [ ] Provide clear methodology for replication\n\n## 11. Best Practices Summary\n\n### 11.1 Critical Success Factors\n\n1. **Statistical Rigor**: \nSet up your evaluation framework before training begins. Start fine-tuning using PEFT methods with proven hyperparameters\n\n\n2. **Comprehensive Evaluation**: \nThe choice of metrics depend on your use case and implementation of your LLM application, where RAG and fine-tuning metrics are a great starting point to evaluating LLM outputs. For more use case specific metrics, you can use G-Eval with few-shot prompting for the most accurate results\n\n\n3. **Systematic Ablation**: \nAblation studies offer invaluable insights into the inner workings of complex models, shedding light on which elements are essential for model performance and which may be redundant or less influential. This rigorous approach not only validates the effectiveness of the model architecture but also provides guidance for model refinement and optimization\n\n\n### 11.2 Common Pitfalls to Avoid\n\n1. **Single-Seed Experiments**: Leads to non-reproducible results\n2. **Insufficient Evaluation**: Missing critical failure modes\n3. **Poor Documentation**: Hinders reproducibility efforts\n4. **Ignoring Statistical Significance**: Drawing conclusions without proper validation\n\n### 11.3 Resource Optimization\n\n\nOverfitting occurs when models memorize training data instead of learning generalizable patterns. It's the most common fine-tuning failure\n. Address this through:\n\n- Early stopping based on validation performance\n- Regularization techniques (dropout, weight decay)\n- Cross-validation with multiple data splits\n- Monitoring training and validation loss curves\n\n## 12. Conclusion\n\nThis comprehensive framework provides the methodological foundation for conducting reproducible and statistically rigorous language model fine-tuning experiments. By implementing systematic approaches to dataset construction, training methodology, evaluation protocols, ablation studies, and failure analysis, researchers can ensure their experiments contribute meaningfully to the field while maintaining the highest standards of scientific rigor.\n\nThe framework prioritizes statistical significance through multi-seed validation while balancing computational efficiency considerations. \nThese tools will guarantee that new published advances are reproducible and thus unequivocally contribute to the field. Along with the experimental set-up, we argue that researchers would need to publish the HPO algorithm they used, the amount of resources it was allowed to consume, and the hyperparameter search space that was considered\n.\n\nFuture work should focus on developing automated tools for implementing this framework, standardizing reporting practices across the community, and extending these methodologies to emerging fine-tuning techniques and model architectures.\n\n---\n\n*This framework serves as a template for reproducible ML experiments in language model fine-tuning. Researchers should adapt specific components based on their domain requirements while maintaining the core principles of statistical rigor, comprehensive evaluation, and systematic analysis.*",
+  "total_score": 34.26,
+  "max_score": 89,
+  "percentage": 0.38494382022471907,
+  "criterion_scores": [
+    {
+      "criterion_id": "statistical_rigor_multi_seed",
+      "points_earned": 2.7,
+      "max_points": 6,
+      "percentage": 0.45,
+      "sub_scores": [
+        {
+          "sub_id": "seed_count_rigor",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "confidence_interval_reporting",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "significance_testing",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "power_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.05,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: seed_count_rigor: 50%x30% + confidence_interval_reporting: 50%x25% + significance_testing: 50%x25% + power_analysis: 25%x20%",
+      "improvement_hints": [
+        "power_analysis: 25% -> 80% (+0.7 pts)",
+        "seed_count_rigor: 50% -> 80% (+0.5 pts)",
+        "confidence_interval_reporting: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "data_splitting_integrity",
+      "points_earned": 4.5,
+      "max_points": 5,
+      "percentage": 0.9,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "insufficient_split_documentation",
+          "penalty": -0.5
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 5 - -0.5",
+      "improvement_hints": [
+        "Fix insufficient_split_documentation (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "data_contamination_validation",
+      "points_earned": 1.5,
+      "max_points": 6,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "ngram_overlap_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "temporal_leak_detection",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "deduplication_methodology",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: ngram_overlap_analysis: 25%x35% + temporal_leak_detection: 25%x25% + deduplication_methodology: 25%x40%",
+      "improvement_hints": [
+        "ngram_overlap_analysis: 25% -> 80% (+1.2 pts)",
+        "temporal_leak_detection: 25% -> 80% (+0.8 pts)",
+        "deduplication_methodology: 25% -> 80% (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "hyperparameter_optimization_rigor",
+      "points_earned": 2.62,
+      "max_points": 6,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "search_methodology",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "search_space_definition",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "early_stopping_protocol",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "reproducibility_documentation",
+          "raw_value": 0.5,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: search_methodology: 50%x30% + search_space_definition: 50%x25% + early_stopping_protocol: 25%x25% + reproducibility_documentation: 50%x20%",
+      "improvement_hints": [
+        "early_stopping_protocol: 25% -> 80% (+0.8 pts)",
+        "search_methodology: 50% -> 80% (+0.5 pts)",
+        "search_space_definition: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "computational_efficiency_analysis",
+      "points_earned": 2.62,
+      "max_points": 5,
+      "percentage": 0.5249999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "resource_measurement",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "optimization_techniques",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "scalability_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: resource_measurement: 50%x40% + optimization_techniques: 75%x35% + scalability_analysis: 25%x25%",
+      "improvement_hints": [
+        "scalability_analysis: 25% -> 80% (+0.7 pts)",
+        "resource_measurement: 50% -> 80% (+0.6 pts)",
+        "optimization_techniques: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "comprehensive_metrics_framework",
+      "points_earned": 2.55,
+      "max_points": 6,
+      "percentage": 0.425,
+      "sub_scores": [
+        {
+          "sub_id": "metric_diversity",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "granular_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "task_specificity",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: metric_diversity: 50%x35% + granular_analysis: 25%x30% + task_specificity: 50%x35%",
+      "improvement_hints": [
+        "granular_analysis: 25% -> 80% (+1.0 pts)",
+        "metric_diversity: 50% -> 80% (+0.6 pts)",
+        "task_specificity: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "benchmark_evaluation_rigor",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "benchmark_coverage",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "baseline_comparison",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "evaluation_protocol",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: benchmark_coverage: 25%x40% + baseline_comparison: 25%x35% + evaluation_protocol: 25%x25%",
+      "improvement_hints": [
+        "benchmark_coverage: 25% -> 80% (+1.1 pts)",
+        "baseline_comparison: 25% -> 80% (+1.0 pts)",
+        "evaluation_protocol: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "systematic_ablation_analysis",
+      "points_earned": 2.45,
+      "max_points": 7,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "component_isolation",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "statistical_significance",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "interaction_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: component_isolation: 50%x40% + statistical_significance: 25%x35% + interaction_analysis: 25%x25%",
+      "improvement_hints": [
+        "statistical_significance: 25% -> 80% (+1.3 pts)",
+        "interaction_analysis: 25% -> 80% (+1.0 pts)",
+        "component_isolation: 50% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "baseline_comparison_rigor",
+      "points_earned": 1.5,
+      "max_points": 6,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "baseline_diversity",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "fair_comparison",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "computational_normalization",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: baseline_diversity: 25%x40% + fair_comparison: 25%x35% + computational_normalization: 25%x25%",
+      "improvement_hints": [
+        "baseline_diversity: 25% -> 80% (+1.3 pts)",
+        "fair_comparison: 25% -> 80% (+1.2 pts)",
+        "computational_normalization: 25% -> 80% (+0.8 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "error_analysis_taxonomy",
+      "points_earned": 2.92,
+      "max_points": 6,
+      "percentage": 0.4875,
+      "sub_scores": [
+        {
+          "sub_id": "error_taxonomy",
+          "raw_value": 0.75,
+          "weighted_value": 0.22499999999999998,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "quantitative_analysis",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "systematic_patterns",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: error_taxonomy: 75%x30% + quantitative_analysis: 25%x35% + systematic_patterns: 50%x35%",
+      "improvement_hints": [
+        "quantitative_analysis: 25% -> 80% (+1.2 pts)",
+        "systematic_patterns: 50% -> 80% (+0.6 pts)",
+        "error_taxonomy: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "robustness_evaluation",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "robustness_methods",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "quantitative_metrics",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "failure_thresholds",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: robustness_methods: 25%x40% + quantitative_metrics: 25%x35% + failure_thresholds: 25%x25%",
+      "improvement_hints": [
+        "robustness_methods: 25% -> 80% (+1.1 pts)",
+        "quantitative_metrics: 25% -> 80% (+1.0 pts)",
+        "failure_thresholds: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "bias_fairness_evaluation",
+      "points_earned": 0.0,
+      "max_points": 6,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "demographic_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "fairness_metrics",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "mitigation_strategies",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: demographic_analysis: 0%x35% + fairness_metrics: 0%x40% + mitigation_strategies: 0%x25%",
+      "improvement_hints": [
+        "demographic_analysis: 0% -> 80% (+1.7 pts)",
+        "fairness_metrics: 0% -> 80% (+1.9 pts)",
+        "mitigation_strategies: 0% -> 80% (+1.2 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "reproducibility_documentation",
+      "points_earned": 4.7,
+      "max_points": 6,
+      "percentage": 0.7833333333333333,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "missing_environment_specification",
+          "penalty": -1.3
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -1.3",
+      "improvement_hints": [
+        "Fix missing_environment_specification (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "dataset_analysis_coherence",
+      "points_earned": 1.0,
+      "max_points": 4,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "annotation_statistical_alignment",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "contamination_evaluation_consistency",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "data_quality_experimental_design",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: annotation_statistical_alignment: 25%x40% + contamination_evaluation_consistency: 25%x35% + data_quality_experimental_design: 25%x25%",
+      "improvement_hints": [
+        "annotation_statistical_alignment: 25% -> 80% (+0.9 pts)",
+        "contamination_evaluation_consistency: 25% -> 80% (+0.8 pts)",
+        "data_quality_experimental_design: 25% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "failure_improvement_coherence",
+      "points_earned": 1.4,
+      "max_points": 4,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "error_improvement_alignment",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "robustness_design_integration",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "limitation_claim_consistency",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: error_improvement_alignment: 50%x40% + robustness_design_integration: 25%x35% + limitation_claim_consistency: 25%x25%",
+      "improvement_hints": [
+        "robustness_design_integration: 25% -> 80% (+0.8 pts)",
+        "limitation_claim_consistency: 25% -> 80% (+0.6 pts)",
+        "error_improvement_alignment: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "multi_stage_training_documentation",
+      "points_earned": 1.3,
+      "max_points": 4,
+      "percentage": 0.32499999999999996,
+      "sub_scores": [
+        {
+          "sub_id": "intermediate_steps",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "transfer_protocols",
+          "raw_value": 0.25,
+          "weighted_value": 0.075,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "adaptation_strategies",
+          "raw_value": 0.5,
+          "weighted_value": 0.15,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: intermediate_steps: 25%x40% + transfer_protocols: 25%x30% + adaptation_strategies: 50%x30%",
+      "improvement_hints": [
+        "intermediate_steps: 25% -> 80% (+0.9 pts)",
+        "transfer_protocols: 25% -> 80% (+0.7 pts)",
+        "adaptation_strategies: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "cross_dataset_generalization",
+      "points_earned": 0.0,
+      "max_points": 2,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "dataset_diversity",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "consistent_ablations",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "generalization_analysis",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: dataset_diversity: 0%x40% + consistent_ablations: 0%x35% + generalization_analysis: 0%x25%",
+      "improvement_hints": [
+        "dataset_diversity: 0% -> 80% (+0.6 pts)",
+        "consistent_ablations: 0% -> 80% (+0.6 pts)",
+        "generalization_analysis: 0% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

@@ -1,0 +1,72 @@
+{
+  "run_id": "1352353b_20260422_202707",
+  "iteration": 2,
+  "total_score": 42.51,
+  "max_score": 55,
+  "percentage": 0.7729090909090909,
+  "delta_from_prior": 0.3038,
+  "focus_areas": [
+    "federation_entity_key_design.compound_key_implementation",
+    "field_dependency_directives.missing_external_field_declaration",
+    "dataloader_batch_implementation.deduplication_implementation",
+    "dataloader_batch_implementation.cross_subgraph_coordination",
+    "schema_governance_standards.shareable_directive_usage"
+  ],
+  "content_path": ".eval_iterations/1352353b_20260422_202707/iter_002_content.md",
+  "criterion_scores": [
+    {
+      "criterion_id": "federation_entity_key_design",
+      "points_earned": 4.99,
+      "max_points": 7,
+      "percentage": 0.7125
+    },
+    {
+      "criterion_id": "field_dependency_directives",
+      "points_earned": 10.0,
+      "max_points": 10,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "dataloader_batch_implementation",
+      "points_earned": 5.08,
+      "max_points": 7,
+      "percentage": 0.725
+    },
+    {
+      "criterion_id": "schema_governance_standards",
+      "points_earned": 6.2,
+      "max_points": 8,
+      "percentage": 0.775
+    },
+    {
+      "criterion_id": "observability_monitoring_integration",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001
+    },
+    {
+      "criterion_id": "federation_security_auth_coherence",
+      "points_earned": 6.0,
+      "max_points": 6,
+      "percentage": 1.0
+    },
+    {
+      "criterion_id": "performance_domain_alignment",
+      "points_earned": 3.44,
+      "max_points": 5,
+      "percentage": 0.6875
+    },
+    {
+      "criterion_id": "schema_composition_compatibility",
+      "points_earned": 2.0,
+      "max_points": 4,
+      "percentage": 0.5
+    },
+    {
+      "criterion_id": "schema_evolution_safety",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001
+    }
+  ]
+}
