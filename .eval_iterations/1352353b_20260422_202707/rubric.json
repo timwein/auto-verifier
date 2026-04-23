@@ -1,0 +1,466 @@
+{
+  "task": "Design a federated GraphQL schema for an e-commerce platform spanning 4 subgraphs (users, products, orders, payments) with proper entity resolution, auth directives, and N+1 prevention",
+  "domain": "GraphQL Federation Architecture",
+  "total_points": 55,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "federation_entity_key_design",
+      "category": "Federation Composition & Schema Design",
+      "description": "Evaluates proper @key directive implementation for entity definition across subgraphs, including stable key selection, compound key usage where appropriate, and correct entity resolution patterns that prevent orphaned references and enable efficient query planning.",
+      "pass_condition": "Minimum 8 total @key directives across 4 subgraphs with at least 2 compound keys, 100% of entity keys using stable non-nullable fields, and zero composition errors in Apollo Federation validation.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "key_stability_selection",
+            "description": "Choice of stable, immutable fields for entity keys that won't change over entity lifecycle",
+            "weight": 0.3,
+            "measurement": "1.0 if all keys use immutable fields (ID, UUID, SKU), 0.7 if mostly stable with 1-2 questionable choices, 0.4 if using mutable fields like email/username, 0.0 if using unstable fields like timestamps",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "compound_key_implementation",
+            "description": "Proper use of compound keys for complex entity relationships and cross-subgraph references",
+            "weight": 0.25,
+            "measurement": "1.0 if 2+ compound keys properly implemented (e.g., @key(fields: \"userId productId\")), 0.7 if 1 compound key correctly used, 0.4 if compound keys attempted but incorrectly structured, 0.0 if only single-field keys used",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "entity_resolution_coverage",
+            "description": "Complete entity resolution patterns ensuring all referenced entities can be resolved across subgraph boundaries",
+            "weight": 0.25,
+            "measurement": "1.0 if 100% entity references resolvable with proper __resolveReference implementations, 0.7 if 90%+ coverage with minor gaps, 0.4 if 70-89% coverage, 0.0 if <70% or missing reference resolvers",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "federation_composition_validity",
+            "description": "Zero composition errors when validating schema against Apollo Federation v2.0+ specification",
+            "weight": 0.2,
+            "measurement": "1.0 if zero composition errors, 0.7 if 1-2 warnings but no errors, 0.4 if 1 composition error, 0.0 if 2+ composition errors",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User entity with @key(fields: \"id\") in users subgraph and @key(fields: \"id\") as external in orders subgraph, Order entity with compound @key(fields: \"userId productId\") enabling cross-subgraph resolution"
+      ],
+      "fail_examples": [
+        "Using email field as primary entity key (mutable), missing @key directive on Product entity referenced in orders subgraph causing orphaned references"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Apollo Federation v2.0+ specifications compliance, particularly proper @key directive usage for entity definition and field dependencies... Incomplete Entity Key Design: @key directives missing required subfield specifications leading to orphaned entity references"
+    },
+    {
+      "id": "field_dependency_directives",
+      "category": "Federation Composition & Schema Design",
+      "description": "Assesses correct implementation of @requires and @provides directives for managing field dependencies across subgraphs without creating circular references, following Apollo's demand-oriented schema design principles.; also: Assesses prevention of circular dependencies between subgraphs that would prevent independent deployment and operation",
+      "pass_condition": "Minimum 4 @requires/@provides directive pairs across subgraphs with zero circular dependencies, proper external field declarations, and dependency graph depth not exceeding 3 levels.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 10,
+        "sub_attributes": [],
+        "penalties": {
+          "circular_dependency_violation": -2.0,
+          "missing_external_field_declaration": -1.0,
+          "incorrect_provides_field_ownership": -1.5,
+          "requires_nonexistent_field": -1.0,
+          "dependency_graph_too_deep": -0.5
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Product subgraph @provides(fields: \"category { name }\") on product field, Orders subgraph @requires(fields: \"category { name }\") for calculating shipping, with proper @external category declaration"
+      ],
+      "fail_examples": [
+        "User subgraph @requires field from Orders subgraph that also @requires field from User subgraph creating circular dependency, @provides directive referencing field not owned by current subgraph"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Apollo Federation v2.0+ specifications compliance, particularly proper @key directive usage for entity definition and @requires/@provides directives for field dependencies... All @key, @requires, and @provides directive fields having corresponding @external fields with original field definition verification"
+    },
+    {
+      "id": "dataloader_batch_implementation",
+      "category": "Query Performance & N+1 Prevention",
+      "description": "Evaluates schema design patterns that enable efficient DataLoader implementation, including proper entity key design for batching, field structure that supports deduplication, and federation patterns that facilitate cross-subgraph batching coordination.",
+      "pass_condition": "All entity keys use single scalar ID fields (no compound keys for primary entities), minimum 3 documented batching strategies with specific field grouping patterns, and concrete DataLoader coordination mechanisms implemented between subgraphs with request coalescing proof-of-concept.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "batching_key_strategy",
+            "description": "Proper batching key design for efficient database queries and cache utilization",
+            "weight": 0.35,
+            "measurement": "1.0 if optimal batching keys for all entity types with composite keys where needed, 0.7 if good batching with minor inefficiencies, 0.4 if basic batching implemented, 0.0 if no batching strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "deduplication_implementation",
+            "description": "Request deduplication within batch windows to prevent redundant database queries",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensive deduplication with cache awareness, 0.7 if basic deduplication implemented, 0.4 if partial deduplication, 0.0 if no deduplication strategy",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "cross_subgraph_coordination",
+            "description": "DataLoader coordination across subgraph boundaries for federated entity resolution",
+            "weight": 0.25,
+            "measurement": "1.0 if seamless cross-subgraph batching with proper timing, 0.7 if good coordination with minor gaps, 0.4 if basic cross-subgraph batching, 0.0 if isolated subgraph batching only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "production_configuration",
+            "description": "Production-ready batch size limits, timeout configuration, and error handling",
+            "weight": 0.1,
+            "measurement": "1.0 if complete production config with monitoring, 0.7 if basic production settings, 0.4 if development configuration, 0.0 if no configuration specified",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "UserDataLoader batching user queries by ID array with 100ms batch window, ProductDataLoader with deduplication for cross-subgraph product references"
+      ],
+      "fail_examples": [
+        "Individual database queries for each user in order list, no batching strategy for product lookups in order items"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "DataLoader implementation at entity resolution boundaries with proper deduplication and batching... O(1) concurrency with breadth-first data loading reducing N+1 queries by 5x... Entity resolution becomes an N+1 avalanche without DataLoader implementation"
+    },
+    {
+      "id": "schema_governance_standards",
+      "category": "Schema Governance & Standards",
+      "description": "Assesses adherence to Apollo Studio governance standards including consistent naming conventions, proper @shareable directive usage, schema evolution strategies, and enterprise-grade schema management practices.; also: Evaluates schema governance practices that support operational requirements, including consistent naming conventions, clear field documentation, and schema structure that facilitates monitoring and maintenance workflows.",
+      "pass_condition": "Schema passes Apollo Studio governance linting at 95%+ score, uses organization-specific naming convention ruleset with zero violations, implements @shareable with explicit conflict resolution strategies, and includes automated schema change impact analysis.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 8,
+        "sub_attributes": [
+          {
+            "sub_id": "naming_convention_consistency",
+            "description": "Consistent naming patterns for types, fields, and arguments across all subgraphs",
+            "weight": 0.4,
+            "measurement": "1.0 if perfectly consistent naming (camelCase fields, PascalCase types), 0.7 if mostly consistent with minor deviations, 0.4 if some inconsistency but functional, 0.0 if chaotic naming patterns",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "shareable_directive_usage",
+            "description": "Proper use of @shareable directive on value types that appear in multiple subgraphs",
+            "weight": 0.3,
+            "measurement": "1.0 if all shared value types properly marked @shareable, 0.7 if mostly correct with 1-2 missing, 0.4 if some @shareable usage but gaps, 0.0 if no @shareable or incorrect usage",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "schema_evolution_strategy",
+            "description": "Clear strategy for schema evolution that maintains backward compatibility",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensive evolution strategy with deprecation handling, 0.7 if basic evolution approach defined, 0.4 if minimal evolution consideration, 0.0 if no evolution strategy",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Consistent camelCase field naming across all subgraphs, Address type marked @shareable in users and orders subgraphs, defined deprecation strategy for field evolution"
+      ],
+      "fail_examples": [
+        "Mixed naming conventions (some snake_case, some camelCase), shared types without @shareable directive causing composition errors, no consideration for schema evolution"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Apollo Studio Schema Governance Standards: Built-in schema governance tools including schema checks that catch breaking changes and schema linting that enforces consistency and best practices... Missing @shareable Directives: Multiple subgraphs defining same field without proper @shareable directive, causing composition errors"
+    },
+    {
+      "id": "observability_monitoring_integration",
+      "category": "Operational Observability & Monitoring",
+      "description": "Evaluates schema design elements that support observability, including proper field naming for monitoring, schema annotations for tracing, and federation patterns that enable effective performance analysis.",
+      "pass_condition": "Schema includes custom @monitoring directives on minimum 80% of resolver fields, implements distributed tracing correlation IDs in entity keys, and provides quantified performance budgets for cross-subgraph operations with SLA definitions.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "federated_tracing_implementation",
+            "description": "Proper federated tracing setup for distributed query performance analysis",
+            "weight": 0.4,
+            "measurement": "1.0 if comprehensive federated tracing with timing and performance data, 0.7 if basic tracing implemented, 0.4 if minimal tracing setup, 0.0 if no federated tracing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "apollo_studio_integration",
+            "description": "Complete Apollo Studio integration for schema registry and performance monitoring",
+            "weight": 0.3,
+            "measurement": "1.0 if full Apollo Studio integration with schema publishing and metrics, 0.7 if basic integration setup, 0.4 if partial integration, 0.0 if no Apollo Studio integration",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "operational_logging_setup",
+            "description": "Structured logging and monitoring for production troubleshooting of federated queries",
+            "weight": 0.3,
+            "measurement": "1.0 if comprehensive logging with correlation IDs and distributed tracing, 0.7 if good logging setup, 0.4 if basic logging, 0.0 if inadequate operational logging",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Apollo tracing headers configured across all subgraphs, schema versions tracked in Apollo Studio, correlation IDs for distributed query debugging"
+      ],
+      "fail_examples": [
+        "No tracing setup for federated queries, missing Apollo Studio integration, inadequate logging for production troubleshooting"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Federated tracing with timing and error information for each resolved schema field displayed in query plan shape... Accurate field usage, operation latency, and error rates for 100% of requests with selective ftv1 tracing on 1% for detailed diagnostics"
+    },
+    {
+      "id": "federation_security_auth_coherence",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates proper implementation of authentication and authorization directives within federation architecture, ensuring auth requirements are consistently applied across entity boundaries and subgraph references without creating security gaps or ambiguous authorization contexts.",
+      "pass_condition": "Authentication directives (@auth, @authenticated, @requiresScopes) properly placed on entity types and sensitive fields, authorization requirements clearly defined for all cross-subgraph entity references, and no entity fields accessible without proper auth context from their defining subgraph.",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "auth_breaks_entity_resolution": -1.6,
+          "security_bypass_through_federation": -2.5,
+          "auth_prevents_batching_optimization": -1.2,
+          "inconsistent_auth_across_entity_boundaries": -0.8,
+          "auth_directives_break_composition": -1.6
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "User entity resolution respects @authenticated directives across subgraphs, DataLoader batching works with scope-based filtering, entity references maintain security context"
+      ],
+      "fail_examples": [
+        "Entity resolution bypasses authentication by accessing through different subgraph, auth directives break federated composition, security checks prevent efficient batching"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "[Partial] Proper placement of @authenticated and @requiresScopes directives only on accessible elements... Federation v2.9+ compliance preventing @authenticated on interfaces that would cause composition errors"
+    },
+    {
+      "id": "performance_domain_alignment",
+      "category": "Cross-Cutting Integration",
+      "description": "Evaluates schema design alignment with e-commerce domain boundaries, ensuring entity relationships support efficient query patterns while maintaining clear separation of concerns between user, product, order, and payment domains.",
+      "pass_condition": "Maximum 2 cross-subgraph hops required for any of the 5 core e-commerce query patterns (user profile + orders, product details + inventory, checkout flow, order history, payment status), with documented query complexity scores under 100 for each pattern.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "batching_respects_domain_boundaries",
+            "description": "DataLoader implementations respect e-commerce domain separation without leaking business logic",
+            "weight": 0.4,
+            "measurement": "1.0 if batching perfectly respects domain boundaries with clean interfaces, 0.7 if mostly clean with minor boundary crossings, 0.4 if some domain leakage in batching, 0.0 if batching breaks domain encapsulation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "customer_journey_optimization",
+            "description": "End-to-end customer workflow queries optimized without sacrificing domain integrity",
+            "weight": 0.35,
+            "measurement": "1.0 if complete customer journey optimized (browse->purchase) with proper domain separation, 0.7 if most workflows optimized, 0.4 if basic optimization with some gaps, 0.0 if poor customer journey performance",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "business_logic_performance_balance",
+            "description": "Performance optimizations that enhance rather than compromise e-commerce business logic implementation",
+            "weight": 0.25,
+            "measurement": "1.0 if performance enhancements support business logic, 0.7 if mostly aligned with minor trade-offs, 0.4 if some performance/logic conflicts, 0.0 if performance optimizations undermine business logic",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Product DataLoader batches by category while maintaining product domain integrity, order-to-payment workflow optimized without breaking payment processing encapsulation"
+      ],
+      "fail_examples": [
+        "DataLoader implementation that requires products subgraph to understand order business logic, performance optimizations that bypass important e-commerce validation rules"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Domain-Driven Design performance patterns and microservices optimization strategies that maintain bounded context integrity"
+    },
+    {
+      "id": "schema_composition_compatibility",
+      "category": "Federation Compliance",
+      "description": "Evaluates schema composition success with zero breaking changes and proper shared field compatibility across subgraphs",
+      "pass_condition": "100% composition success with zero breaking changes and all shared fields properly compatible across defining subgraphs",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "composition_success_rate",
+            "description": "Schema composition passes without errors in CI/CD",
+            "weight": 0.4,
+            "measurement": "binary_pass_fail",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "shared_field_compatibility",
+            "description": "Return types and argument types match across all defining subgraphs",
+            "weight": 0.3,
+            "measurement": "percentage_compatible",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "shareable_directive_usage",
+            "description": "Proper @shareable directives on fields defined in multiple subgraphs",
+            "weight": 0.3,
+            "measurement": "compliance_percentage",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "All 4 subgraphs compose successfully with matching User.id field types",
+        "Product.price field properly marked @shareable across products and orders subgraphs"
+      ],
+      "fail_examples": [
+        "Composition fails due to User.email type mismatch between users and orders subgraphs",
+        "Product.name defined in multiple subgraphs without @shareable directive"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Schema composition success rate and compatibility of shared fields with both return types and argument types across defining subgraphs"
+    },
+    {
+      "id": "schema_evolution_safety",
+      "category": "Governance & Evolution",
+      "description": "Assesses safe schema evolution patterns including coordinated deployments and field migration strategies",
+      "pass_condition": "Schema implements automated breaking change detection with zero false positives, includes rollback mechanisms tested across all 4 subgraphs, and demonstrates coordinated deployment with maximum 30-second service disruption windows.",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "coordinated_deployment_strategy",
+            "description": "Clear strategy for coordinated deployments when breaking changes are required",
+            "weight": 0.4,
+            "measurement": "strategy_completeness",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "field_migration_safety",
+            "description": "Field migrations between subgraphs follow safe patterns with overlap periods",
+            "weight": 0.3,
+            "measurement": "migration_safety_score",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "schema_governance_integration",
+            "description": "Custom schema checks validate business logic, security policies, and governance rules",
+            "weight": 0.3,
+            "measurement": "governance_coverage_percentage",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Field migration from users to orders subgraph includes overlap period with @deprecated directive",
+        "Schema checks validate that new auth directives don't conflict with existing security policies"
+      ],
+      "fail_examples": [
+        "Field removed from one subgraph before being added to target subgraph",
+        "No validation of schema changes against business rules or security policies"
+      ],
+      "domain": "GraphQL Federation Architecture",
+      "research_basis": "Capability to handle dependent changes like field migration between subgraphs or introducing circular dependencies through coordinated deploys"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "federation_composition",
+      "name": "Federation Composition & Schema Design",
+      "description": "",
+      "weight": 0.18,
+      "criteria_ids": []
+    },
+    {
+      "id": "entity_resolution",
+      "name": "Entity Resolution & Reference Management",
+      "description": "",
+      "weight": 0.16,
+      "criteria_ids": []
+    },
+    {
+      "id": "query_performance",
+      "name": "Query Performance & N+1 Prevention",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "auth_security",
+      "name": "Authentication & Authorization Framework",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "schema_governance",
+      "name": "Schema Governance & Standards",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "ecommerce_domain",
+      "name": "E-commerce Domain Modeling",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "error_handling",
+      "name": "Error Handling & Resilience",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "operational_observability",
+      "name": "Operational Observability & Monitoring",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

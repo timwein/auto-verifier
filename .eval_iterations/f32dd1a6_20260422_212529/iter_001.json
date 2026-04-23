@@ -1,0 +1,723 @@
+{
+  "run_id": "f32dd1a6_20260422_212529",
+  "iteration": 1,
+  "content": "# SOC 2 Type II Readiness Gap Analysis for 50-Person B2B SaaS Startup\n\n## Executive Summary\n\nThis comprehensive readiness gap analysis evaluates a 50-person B2B SaaS startup's current security posture against SOC 2 Type II requirements. \n78% of enterprise clients now require SOC 2 Type II certification from their service providers\n, making this critical for competitive positioning. \nRecent industry data shows SOC 2 adoption surged 40% in 2024 as companies rushed to meet client demands\n.\n\nFor a 50-person startup, this analysis identifies common control gaps across all five Trust Service Criteria, provides startup-optimized remediation strategies, and establishes realistic timelines that balance resource constraints with compliance objectives.\n\n## Assessment Scope & Methodology\n\n### Trust Service Criteria Selection\n- **Security (CC1-CC9)**: Mandatory - All SOC 2 audits require security controls\n- **Availability**: Recommended for SaaS with uptime SLAs \u226599.5%\n- **Processing Integrity**: Essential for financial/transactional data processing\n- **Confidentiality**: Required for handling proprietary customer data\n- **Privacy**: Necessary for personal data processing under GDPR/CCPA\n\n\nThe availability, confidentiality, processing integrity, and privacy TSCs are optional. These additional criteria are not required to have a complete SOC 2 report, but can be useful additions\n.\n\n### Systems in Scope (Typical 50-Person Startup)\n- Production cloud infrastructure (AWS/GCP/Azure)\n- Customer-facing applications and databases\n- Identity and access management systems\n- CI/CD pipelines and code repositories\n- Monitoring and logging infrastructure\n- Key third-party integrations within trust boundary\n\n## Identified Control Gaps by Trust Service Criteria\n\n### 1. SECURITY (CC1-CC9) - MANDATORY\n\n#### **HIGH PRIORITY GAPS**\n\n**CC1.1 - Governance Structure**\n- **Gap**: Lack of formal information security governance committee\n- **Evidence Required**: Meeting minutes, charter document, quarterly reviews\n- **Startup-Optimized Solution**: Monthly security review with CEO, CTO, and compliance lead\n- **Timeline**: 2 weeks to establish and document\n- **Cost Impact**: $0 (internal resources only)\n\n**CC2.1 - Risk Assessment Process**\n- **Gap**: No formal annual risk assessment or risk register\n- **Evidence Required**: \nCompleted risk assessment, a treatment plan, assigned owners, remediation tracking, and periodic review\n\n- **Startup-Optimized Solution**: Simplified risk assessment template focusing on top 15-20 risks\n- **Timeline**: 3-4 weeks for initial completion\n- **Cost Impact**: $2,000-5,000 (consultant assistance recommended)\n\n**CC3.2 - Management Review of Access**\n- **Gap**: Quarterly access reviews not documented or automated\n- **Evidence Required**: \nQuarterly reviews remain time-intensive for most teams, and evidence typically includes reviewer comments and completed access changes\n\n- **Startup-Optimized Solution**: Automated access review tools with manager attestation\n- **Timeline**: 4-6 weeks implementation\n- **Cost Impact**: $3,000-8,000 annually (access management tools)\n\n**CC6.1 - Logical Access Controls**\n- **Gap**: Inconsistent MFA enforcement across all systems\n- **Evidence Required**: System configurations, user lists, authentication logs\n- **Startup-Optimized Solution**: Enforce MFA via SSO provider for all business applications\n- **Timeline**: 2-3 weeks\n- **Cost Impact**: $5-15 per user/month\n\n#### **MEDIUM PRIORITY GAPS**\n\n**CC7.1 - System Monitoring**\n- **Gap**: Security incident detection and response procedures not formalized\n- **Startup-Optimized Solution**: Security monitoring via cloud-native tools (CloudTrail, GuardDuty)\n- **Timeline**: 3-4 weeks\n- **Cost Impact**: $500-2,000/month\n\n**CC8.1 - Change Management**\n- **Gap**: \nOrganizations should have an internal control structure designed to specifically address the segregation of duties (SoD) between change developers and deployers. When it comes to managing IT systems and processes, implementing controls to address SoD is crucial to prevent conflicts, reduce errors, and enhance security\n\n- **Startup-Optimized Solution**: Automated deployment approvals with peer review requirements\n- **Timeline**: 4-6 weeks\n- **Cost Impact**: Built into existing CI/CD tools\n\n### 2. AVAILABILITY\n\n#### **HIGH PRIORITY GAPS**\n\n**A1.1 - Capacity Management**\n- **Gap**: No formal capacity planning or performance monitoring\n- **Startup-Optimized Solution**: Cloud auto-scaling with performance dashboards\n- **Timeline**: 3 weeks\n- **Cost Impact**: $200-1,000/month monitoring tools\n\n**A1.2 - Backup and Recovery**\n- **Gap**: Disaster recovery plan exists but not tested regularly\n- **Evidence Required**: Recovery test results, RTO/RPO documentation\n- **Startup-Optimized Solution**: Quarterly disaster recovery tabletop exercises\n- **Timeline**: 2 weeks to establish process\n- **Cost Impact**: Internal time only\n\n### 3. PROCESSING INTEGRITY\n\n#### **MEDIUM PRIORITY GAPS**\n\n**PI1.1 - Data Processing Controls**\n- **Gap**: No formal data validation and error handling procedures\n- **Startup-Optimized Solution**: Automated testing with data integrity checks\n- **Timeline**: 4-6 weeks\n- **Cost Impact**: Development time investment\n\n**PI1.2 - Transaction Processing**\n- **Gap**: Incomplete transaction logging and reconciliation\n- **Startup-Optimized Solution**: Enhanced application logging with automated reconciliation\n- **Timeline**: 6-8 weeks\n- **Cost Impact**: $1,000-3,000 logging infrastructure\n\n### 4. CONFIDENTIALITY\n\n#### **HIGH PRIORITY GAPS**\n\n**C1.1 - Data Classification**\n- **Gap**: No formal data classification scheme or handling procedures\n- **Evidence Required**: Classification policy, data inventory, handling procedures\n- **Startup-Optimized Solution**: Three-tier classification (Public, Internal, Confidential)\n- **Timeline**: 2-3 weeks\n- **Cost Impact**: Internal resources only\n\n**C1.2 - Encryption Controls**\n- **Gap**: Encryption at rest and in transit not consistently implemented\n- **Startup-Optimized Solution**: Enable cloud provider encryption services\n- **Timeline**: 2-4 weeks\n- **Cost Impact**: Minimal (often included in cloud services)\n\n### 5. PRIVACY\n\n#### **MEDIUM PRIORITY GAPS**\n\n**P1.1 - Privacy Notice**\n- **Gap**: Privacy policy not aligned with actual data practices\n- **Startup-Optimized Solution**: Legal review and update of privacy documentation\n- **Timeline**: 3-4 weeks\n- **Cost Impact**: $3,000-8,000 legal review\n\n**P2.1 - Data Subject Rights**\n- **Gap**: No formal process for handling data subject requests\n- **Startup-Optimized Solution**: Simple request tracking system and procedures\n- **Timeline**: 4 weeks\n- **Cost Impact**: $1,000-3,000 for basic tooling\n\n## Startup-Specific Considerations\n\n### Resource Optimization Strategies\n\n\nControls that work at five people may not work at 50. Build for growth and revisit policies regularly\n. For a 50-person startup:\n\n**People Resources**\n- Designate security champion (often DevOps lead or senior engineer)\n- \nSecurity lead: Implements technical controls (often CTO, VP Eng, or security engineer) IT/infrastructure: Manages infrastructure controls (often DevOps, SRE) People ops/HR: Implements HR controls (background checks, training, offboarding)\n\n- Leverage existing roles rather than new hires\n\n**Technology Investments**\n- Prioritize cloud-native security tools with built-in compliance features\n- \nCompliance tooling: $7,000-$12,000 annually (Vanta, Drata, or similar platforms optional). Compliance software and automation platforms help centralize compliance processes, automate checks, and streamline audits\n\n- Focus on automation to reduce manual effort\n\n**Process Simplification**\n- Start with essential controls, expand later\n- Use templates and automation where possible\n- \nThe best SOC 2 compliance software like Scytale help businesses of all sizes get audit-ready up to 90% faster, significantly reducing the overall time required to achieve SOC 2 compliance\n\n\n## Implementation Timeline & Priorities\n\n### Phase 1: Foundation (Weeks 1-6)\n**Critical for Audit Readiness**\n- Governance structure and risk assessment\n- MFA enforcement across all systems\n- Basic access review procedures\n- Data classification framework\n\n### Phase 2: Core Controls (Weeks 7-12)\n**Essential for Type II Observation Period**\n- Change management procedures\n- Incident response formalization  \n- Backup and recovery testing\n- Vendor risk assessment process\n\n### Phase 3: Advanced Controls (Weeks 13-18)\n**Enhanced Security Posture**\n- Security monitoring implementation\n- Privacy process development\n- Processing integrity controls\n- Documentation refinement\n\n## Remediation Cost Estimates\n\n### Startup-Optimized Budget Breakdown\n- **Compliance Platform**: $8,000-15,000 annually\n- **Security Tools**: $10,000-20,000 annually\n- **Legal/Privacy Review**: $5,000-12,000 one-time\n- **Consultant Support**: $15,000-30,000 (gap remediation)\n- **Audit Fees**: \nType I audits tend to fall between $10,000 and $25,000. Type II audits usually land higher\u2014$25,000 to $50,000 is a common range\n\n\n**Total First-Year Investment**: $58,000-127,000\n\n**ROI Considerations**: \nMany enterprise buyers won't even consider vendors without SOC 2 (or equivalent) certification\n. A single enterprise deal often justifies this investment.\n\n## Timeline to Type II Report\n\n\nThe standard timeline for SOC 2 Type 2 is 6 to 12 months. The accelerated path, made possible by modern compliance automation tools, compresses this to around 4 to 6 months. The observation period, the phase where you demonstrate continuous operation of controls, has a minimum of 3 months and can't be shortened regardless of how automated your tooling is\n.\n\n### Accelerated Timeline (6 Months Total)\n- **Month 1**: Gap analysis and scoping\n- **Month 2**: Remediation and policy implementation \n- **Months 3-5**: \nObservation period with continuous evidence collection, penetration test, and operational rituals\n\n- **Month 6**: \nAuditor fieldwork, evidence review, report issuance\n\n\n### Conservative Timeline (9-12 Months)\n- **Months 1-2**: Comprehensive gap remediation\n- **Months 3-8**: Extended observation period for evidence collection\n- **Months 9-10**: Audit fieldwork and report finalization\n\n## Risk Mitigation & Critical Success Factors\n\n### High-Risk Areas Requiring Immediate Attention\n1. **Access Management**: Most audit findings relate to access controls\n2. **Change Management**: \nYou will find gaps, usually in access reviews, vendor oversight, and change management. Document them, assign owners, set deadlines\n\n3. **Vendor Risk Management**: \nAccording to Verizon's 2025 Data Breach Investigations Report, 30% of breaches involved a vendor or 3rd party\n\n\n### Success Factors for 50-Person Startups\n- **Executive Commitment**: \nIf you're planning a Series A raise, model this in. Sophisticated investors understand that SOC 2 is a cost of enterprise sales, and they've seen companies that tried to shortcut it\n\n- **Automation-First Approach**: Reduce manual workload through tooling\n- **Incremental Implementation**: Build controls gradually rather than attempting everything simultaneously\n- **Documentation Discipline**: \nSOC 2 is heavily documentation-driven. You'll need policies for areas like change management, access control, data retention, and more. Many startups lean on templates or GRC tools, but customization is critical\u2014auditors look for relevance to your actual operations\n\n\n## Next Steps & Recommendations\n\n### Immediate Actions (Next 30 Days)\n1. **Secure Executive Buy-in**: Present business case with ROI projections\n2. **Select Compliance Platform**: Evaluate automation tools for continuous monitoring\n3. **Engage Auditor**: \nA startup with strong existing security hygiene might need 2 weeks of remediation before it's audit-ready. One starting from scratch might need 6 or more. Without a gap analysis, any timeline you're given is an educated guess at best\n\n4. **Begin High-Priority Remediation**: Start with governance and access management\n\n### Strategic Recommendations\n- **Prioritize Security + Availability**: Most relevant for SaaS startups\n- **Invest in Automation**: \nManual approach: 3 to 6 months of preparation, plus the audit. Automated approach, with evidence collected continuously from your cloud and identity systems: 2 to 4 weeks of preparation, plus the audit. The delta is where compliance automation earns its keep\n\n- **Plan for Growth**: Design controls that scale beyond 50 employees\n- **Continuous Improvement**: \nCommon mistake: Startups get SOC 2, then stop operating controls (fail next audit). Time commitment: 5-10 hours/week ongoing (vs. 20-30 hours/week during initial audit)\n\n\nThis gap analysis provides a realistic, resource-conscious path to SOC 2 Type II compliance that balances startup constraints with audit requirements, enabling enterprise sales acceleration while building a sustainable security foundation.",
+  "total_score": 37.279999999999994,
+  "max_score": 94,
+  "percentage": 0.396595744680851,
+  "criterion_scores": [
+    {
+      "criterion_id": "tsc_mapping_precision",
+      "points_earned": 3.24,
+      "max_points": 7,
+      "percentage": 0.4625,
+      "sub_scores": [
+        {
+          "sub_id": "granular_mapping_accuracy",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "common_criteria_completeness",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "additional_criteria_alignment",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: granular_mapping_accuracy: 25%x40% + common_criteria_completeness: 50%x35% + additional_criteria_alignment: 75%x25%",
+      "improvement_hints": [
+        "granular_mapping_accuracy: 25% -> 80% (+1.5 pts)",
+        "common_criteria_completeness: 50% -> 80% (+0.7 pts)",
+        "additional_criteria_alignment: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "control_gap_prioritization",
+      "points_earned": 3.3,
+      "max_points": 6,
+      "percentage": 0.5499999999999999,
+      "sub_scores": [
+        {
+          "sub_id": "risk_based_prioritization",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "timeline_realism",
+          "raw_value": 0.75,
+          "weighted_value": 0.26249999999999996,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "startup_context_awareness",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: risk_based_prioritization: 25%x40% + timeline_realism: 75%x35% + startup_context_awareness: 75%x25%",
+      "improvement_hints": [
+        "risk_based_prioritization: 25% -> 80% (+1.3 pts)",
+        "timeline_realism: 75% -> 80% (+0.1 pts)",
+        "startup_context_awareness: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "control_design_sod_matrix",
+      "points_earned": 1.35,
+      "max_points": 6,
+      "percentage": 0.225,
+      "sub_scores": [
+        {
+          "sub_id": "sod_conflict_identification",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "authorization_matrix_design",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "remediation_feasibility",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: sod_conflict_identification: 25%x40% + authorization_matrix_design: 0%x35% + remediation_feasibility: 50%x25%",
+      "improvement_hints": [
+        "authorization_matrix_design: 0% -> 80% (+1.7 pts)",
+        "sod_conflict_identification: 25% -> 80% (+1.3 pts)",
+        "remediation_feasibility: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "control_operational_effectiveness",
+      "points_earned": 2.38,
+      "max_points": 5,
+      "percentage": 0.475,
+      "sub_scores": [
+        {
+          "sub_id": "automation_identification",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "exception_handling_design",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "scalability_considerations",
+          "raw_value": 0.75,
+          "weighted_value": 0.1875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: automation_identification: 50%x40% + exception_handling_design: 25%x35% + scalability_considerations: 75%x25%",
+      "improvement_hints": [
+        "exception_handling_design: 25% -> 80% (+1.0 pts)",
+        "automation_identification: 50% -> 80% (+0.6 pts)",
+        "scalability_considerations: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "evidence_documentation_framework",
+      "points_earned": 5.5,
+      "max_points": 6,
+      "percentage": 0.9166666666666666,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "generic_evidence_descriptions",
+          "penalty": -0.5
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 6 - -0.5",
+      "improvement_hints": [
+        "Fix generic_evidence_descriptions (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "risk_impact_prioritization",
+      "points_earned": 1.42,
+      "max_points": 6,
+      "percentage": 0.2375,
+      "sub_scores": [
+        {
+          "sub_id": "quantitative_risk_methodology",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "remediation_sequencing",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "materiality_understanding",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: quantitative_risk_methodology: 0%x40% + remediation_sequencing: 50%x35% + materiality_understanding: 25%x25%",
+      "improvement_hints": [
+        "quantitative_risk_methodology: 0% -> 80% (+1.9 pts)",
+        "materiality_understanding: 25% -> 80% (+0.8 pts)",
+        "remediation_sequencing: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "timeline_resource_feasibility",
+      "points_earned": 3.23,
+      "max_points": 6,
+      "percentage": 0.5375000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "phase_timeline_accuracy",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resource_cashflow_alignment",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "contingency_buffer_planning",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: phase_timeline_accuracy: 75%x40% + resource_cashflow_alignment: 50%x35% + contingency_buffer_planning: 25%x25%",
+      "improvement_hints": [
+        "contingency_buffer_planning: 25% -> 80% (+0.8 pts)",
+        "resource_cashflow_alignment: 50% -> 80% (+0.6 pts)",
+        "phase_timeline_accuracy: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "auditor_selection_timing",
+      "points_earned": 2.4,
+      "max_points": 4,
+      "percentage": 0.6000000000000001,
+      "sub_scores": [
+        {
+          "sub_id": "auditor_category_analysis",
+          "raw_value": 0.75,
+          "weighted_value": 0.30000000000000004,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "customer_acceptance_requirements",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "engagement_timing_strategy",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: auditor_category_analysis: 75%x40% + customer_acceptance_requirements: 50%x35% + engagement_timing_strategy: 50%x25%",
+      "improvement_hints": [
+        "customer_acceptance_requirements: 50% -> 80% (+0.4 pts)",
+        "engagement_timing_strategy: 50% -> 80% (+0.3 pts)",
+        "auditor_category_analysis: 75% -> 80% (+0.1 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "vendor_risk_mapping",
+      "points_earned": 1.88,
+      "max_points": 6,
+      "percentage": 0.3125,
+      "sub_scores": [
+        {
+          "sub_id": "vendor_inventory_comprehensiveness",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "soc_report_collection_strategy",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "subservice_organization_decisions",
+          "raw_value": 0.5,
+          "weighted_value": 0.125,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: vendor_inventory_comprehensiveness: 25%x40% + soc_report_collection_strategy: 25%x35% + subservice_organization_decisions: 50%x25%",
+      "improvement_hints": [
+        "vendor_inventory_comprehensiveness: 25% -> 80% (+1.3 pts)",
+        "soc_report_collection_strategy: 25% -> 80% (+1.2 pts)",
+        "subservice_organization_decisions: 50% -> 80% (+0.5 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "due_diligence_procedures",
+      "points_earned": 0.81,
+      "max_points": 5,
+      "percentage": 0.1625,
+      "sub_scores": [
+        {
+          "sub_id": "risk_tiered_procedures",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "alternative_assessment_methods",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resource_efficient_monitoring",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: risk_tiered_procedures: 25%x40% + alternative_assessment_methods: 0%x35% + resource_efficient_monitoring: 25%x25%",
+      "improvement_hints": [
+        "alternative_assessment_methods: 0% -> 80% (+1.4 pts)",
+        "risk_tiered_procedures: 25% -> 80% (+1.1 pts)",
+        "resource_efficient_monitoring: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "governance_maturity_assessment",
+      "points_earned": 1.75,
+      "max_points": 5,
+      "percentage": 0.35,
+      "sub_scores": [
+        {
+          "sub_id": "governance_domain_coverage",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "policy_framework_design",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "change_management_capability",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: governance_domain_coverage: 50%x40% + policy_framework_design: 25%x35% + change_management_capability: 25%x25%",
+      "improvement_hints": [
+        "policy_framework_design: 25% -> 80% (+1.0 pts)",
+        "change_management_capability: 25% -> 80% (+0.7 pts)",
+        "governance_domain_coverage: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "regulatory_attestation_compliance",
+      "points_earned": 4.4,
+      "max_points": 5,
+      "percentage": 0.8800000000000001,
+      "sub_scores": [],
+      "penalties_applied": [
+        {
+          "violation": "missing_regulatory_requirements",
+          "penalty": -0.6
+        }
+      ],
+      "evidence": "",
+      "methodology": "Penalty: 5 - -0.6",
+      "improvement_hints": [
+        "Fix missing_regulatory_requirements (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "control_remediation_coherence",
+      "points_earned": 2.62,
+      "max_points": 6,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "priority_timeline_alignment",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resource_gap_consistency",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "cross_criteria_dependencies",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: priority_timeline_alignment: 50%x40% + resource_gap_consistency: 50%x35% + cross_criteria_dependencies: 25%x25%",
+      "improvement_hints": [
+        "cross_criteria_dependencies: 25% -> 80% (+0.8 pts)",
+        "priority_timeline_alignment: 50% -> 80% (+0.7 pts)",
+        "resource_gap_consistency: 50% -> 80% (+0.6 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "evidence_control_integration",
+      "points_earned": 1.25,
+      "max_points": 5,
+      "percentage": 0.25,
+      "sub_scores": [
+        {
+          "sub_id": "control_evidence_alignment",
+          "raw_value": 0.25,
+          "weighted_value": 0.1,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "automation_evidence_impact",
+          "raw_value": 0.25,
+          "weighted_value": 0.0875,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "monitoring_testing_consistency",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: control_evidence_alignment: 25%x40% + automation_evidence_impact: 25%x35% + monitoring_testing_consistency: 25%x25%",
+      "improvement_hints": [
+        "control_evidence_alignment: 25% -> 80% (+1.1 pts)",
+        "automation_evidence_impact: 25% -> 80% (+1.0 pts)",
+        "monitoring_testing_consistency: 25% -> 80% (+0.7 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "organizational_vendor_alignment",
+      "points_earned": 1.75,
+      "max_points": 4,
+      "percentage": 0.4375,
+      "sub_scores": [
+        {
+          "sub_id": "governance_vendor_complexity_match",
+          "raw_value": 0.5,
+          "weighted_value": 0.2,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "resource_vendor_procedure_consistency",
+          "raw_value": 0.5,
+          "weighted_value": 0.175,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "change_capacity_vendor_timeline",
+          "raw_value": 0.25,
+          "weighted_value": 0.0625,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: governance_vendor_complexity_match: 50%x40% + resource_vendor_procedure_consistency: 50%x35% + change_capacity_vendor_timeline: 25%x25%",
+      "improvement_hints": [
+        "change_capacity_vendor_timeline: 25% -> 80% (+0.6 pts)",
+        "governance_vendor_complexity_match: 50% -> 80% (+0.5 pts)",
+        "resource_vendor_procedure_consistency: 50% -> 80% (+0.4 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "soc2_scope_precision",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "system_inventory",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "boundary_definition",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "process_mapping",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: system_inventory: 0%x30% + boundary_definition: 0%x30% + process_mapping: 0%x40%",
+      "improvement_hints": [
+        "system_inventory: 0% -> 80% (+1.0 pts)",
+        "boundary_definition: 0% -> 80% (+1.0 pts)",
+        "process_mapping: 0% -> 80% (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "vulnerability_management_completeness",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "scanning_frequency",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "remediation_process",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "patch_documentation",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: scanning_frequency: 0%x30% + remediation_process: 0%x40% + patch_documentation: 0%x30%",
+      "improvement_hints": [
+        "scanning_frequency: 0% -> 80% (+1.0 pts)",
+        "remediation_process: 0% -> 80% (+1.3 pts)",
+        "patch_documentation: 0% -> 80% (+1.0 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    },
+    {
+      "criterion_id": "change_management_formality",
+      "points_earned": 0.0,
+      "max_points": 4,
+      "percentage": 0.0,
+      "sub_scores": [
+        {
+          "sub_id": "approval_workflow",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "testing_procedures",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        },
+        {
+          "sub_id": "segregation_duties",
+          "raw_value": 0.0,
+          "weighted_value": 0.0,
+          "evidence": "",
+          "target": 0.8,
+          "details": {}
+        }
+      ],
+      "penalties_applied": [],
+      "evidence": "",
+      "methodology": "Weighted: approval_workflow: 0%x30% + testing_procedures: 0%x30% + segregation_duties: 0%x40%",
+      "improvement_hints": [
+        "approval_workflow: 0% -> 80% (+1.0 pts)",
+        "testing_procedures: 0% -> 80% (+1.0 pts)",
+        "segregation_duties: 0% -> 80% (+1.3 pts)"
+      ],
+      "priority": 1,
+      "critique": ""
+    }
+  ],
+  "focus_areas": []
+}

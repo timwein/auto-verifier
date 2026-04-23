@@ -1,0 +1,844 @@
+{
+  "task": "Write a reproducible ML experiment report for fine-tuning a language model on domain-specific data, covering dataset construction, training methodology, evaluation metrics, ablation results, and failure analysis",
+  "domain": "ml_experiment_report",
+  "total_points": 89,
+  "pass_threshold": 0.72,
+  "criteria": [
+    {
+      "id": "statistical_rigor_multi_seed",
+      "category": "Experimental Design & Statistical Rigor",
+      "description": "Evaluates the statistical robustness of experimental design through multiple random seed experiments with proper confidence interval reporting, with computational budget considerations for large models",
+      "pass_condition": "Minimum 3 random seeds with 95% confidence intervals reported for all key metrics, plus statistical significance testing (t-test or bootstrap) comparing methods. For models >1B parameters with documented computational constraints, minimum 2 seeds with bootstrap confidence intervals and explicit acknowledgment of statistical limitations",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "seed_count_rigor",
+            "description": "Number of random seeds used for statistical validation",
+            "weight": 0.3,
+            "measurement": "1.0 if \u22655 seeds, 0.7 if 3-4 seeds, 0.4 if 2 seeds, 0.0 if single seed",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "confidence_interval_reporting",
+            "description": "Proper confidence interval calculation and reporting methodology",
+            "weight": 0.25,
+            "measurement": "1.0 if 95% CIs with bootstrap or t-distribution, 0.7 if standard error bars, 0.4 if only standard deviation, 0.0 if no uncertainty quantification",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "significance_testing",
+            "description": "Statistical significance testing between experimental conditions",
+            "weight": 0.25,
+            "measurement": "1.0 if paired t-test or Wilcoxon signed-rank with p-values, 0.7 if unpaired t-test, 0.4 if only effect size reported, 0.0 if no significance testing",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "power_analysis",
+            "description": "Sample size justification through power analysis or effect size calculation",
+            "weight": 0.2,
+            "measurement": "1.0 if prospective power analysis with Cohen's d, 0.7 if post-hoc effect size calculation, 0.4 if qualitative justification, 0.0 if no sample size justification",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Reports results across 7 random seeds with 95% bootstrap confidence intervals, uses paired t-test (p<0.01) to compare fine-tuned model vs baseline, includes prospective power analysis showing 80% power to detect 0.5 Cohen's d effect"
+      ],
+      "fail_examples": [
+        "Uses 3 random seeds with standard error bars but no statistical significance testing, or reports confidence intervals but uses inappropriate independence assumptions"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Multiple random seeds with \"error bars (e.g., with respect to the random seed after running experiments multiple times)\" and \"new proposed methods are often not better than previous implementations when a more thorough search of hyper-parameters is performed...or even when using different random parameter initializations\""
+    },
+    {
+      "id": "data_splitting_integrity",
+      "category": "Experimental Design & Statistical Rigor",
+      "description": "Assesses proper train/validation/test splitting methodology to prevent data leakage and ensure valid evaluation, focusing on temporal splits, entity-level deduplication, and contamination detection that junior practitioners commonly miss",
+      "pass_condition": "Explicit train/validation/test splits with documented contamination analysis methodology, entity-level deduplication verified through automated tooling with deduplication statistics reported, temporal ordering preserved with documented timestamp validation, and cross-split leakage detection using identifier overlap analysis",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 5,
+        "sub_attributes": [],
+        "penalties": {
+          "no_explicit_test_set": -1.1,
+          "validation_test_contamination": -1.4,
+          "missing_entity_deduplication": -0.8,
+          "temporal_leakage": -1.1,
+          "insufficient_split_documentation": -0.5,
+          "cross_validation_on_test": -1.6
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "70/15/15 train/val/test split with SHA-256 hashing to detect duplicates across splits, temporal ordering maintained for time-series data, explicit contamination analysis showing 0% overlap"
+      ],
+      "fail_examples": [
+        "Uses validation set for final model selection without separate test set, or has entity leakage where same users appear in train and test sets for user-generated content"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"The details of train / validation / test splits\" and \"preprocessing step had caused data leakage, unintentionally allowing the model to learn patterns from the test set during training...turned what appeared to be a highly effective solution into a complete failure\""
+    },
+    {
+      "id": "data_contamination_validation",
+      "category": "Dataset Construction & Quality",
+      "description": "Evaluates implementation of rigorous data contamination detection protocols including n-gram overlap analysis with benchmark datasets, temporal leak detection for time-sensitive domains, and validation against known evaluation sets using multiple deduplication strategies",
+      "pass_condition": "Must implement at least 3 contamination detection methods (n-gram overlap analysis using 8-grams and above, exact substring matching, fuzzy deduplication with similarity threshold \u22650.8), report contamination rates as percentages with specific threshold values documented, and document removal of contaminated examples",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "ngram_overlap_analysis",
+            "description": "Implementation of n-gram overlap detection against benchmark datasets with statistical significance testing",
+            "weight": 0.35,
+            "measurement": "1.0 if implements n\u22658 gram analysis with statistical significance testing and reports contamination percentages, 0.7 if implements n-gram analysis but lacks statistical validation, 0.4 if only basic substring matching, 0.0 if no overlap analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "temporal_leak_detection",
+            "description": "Detection and documentation of temporal data leakage for time-sensitive domains",
+            "weight": 0.25,
+            "measurement": "1.0 if implements temporal validation with specific date cutoffs and leak quantification, 0.7 if documents temporal splits but lacks leak analysis, 0.4 if mentions temporal considerations without validation, 0.0 if no temporal leak detection",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "deduplication_methodology",
+            "description": "Multi-strategy deduplication with fuzzy matching and semantic similarity thresholds",
+            "weight": 0.4,
+            "measurement": "1.0 if implements exact + fuzzy + semantic deduplication with documented thresholds (e.g., >0.8 cosine similarity), 0.7 if implements 2 deduplication strategies, 0.4 if only exact deduplication, 0.0 if no systematic deduplication",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Implements 8-gram overlap analysis against GLUE/SuperGLUE with p<0.05 significance testing, removes 2.3% contaminated examples using >70% overlap threshold, applies MinHash LSH deduplication with 0.8 Jaccard similarity cutoff"
+      ],
+      "fail_examples": [
+        "Uses only exact string matching for contamination detection without statistical validation, mentions deduplication but doesn't specify thresholds or methodology"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Proper data splits ensuring \"no data leakage\" with \"multiple data points for a single subject...kept together within the same fold\""
+    },
+    {
+      "id": "hyperparameter_optimization_rigor",
+      "category": "Training Methodology & Implementation",
+      "description": "Evaluates systematic hyperparameter optimization methodology including search space definition, optimization algorithms, early stopping criteria, and computational budget allocation with full reproducibility documentation, accounting for computational constraints in large model training",
+      "pass_condition": "Documents complete search space with ranges/distributions, uses systematic optimization (grid/random/Bayesian) with computational budget-appropriate trial count (minimum 10 trials for small models, 5 for large models >1B parameters), implements proper early stopping with patience \u22653 epochs, and reports best hyperparameters with validation performance",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "search_methodology",
+            "description": "Systematic hyperparameter search algorithm with appropriate trial budget",
+            "weight": 0.3,
+            "measurement": "1.0 if Bayesian optimization or systematic grid/random search with \u226550 trials, 0.7 if grid/random search with 20-49 trials, 0.4 if limited search <20 trials, 0.0 if manual tuning only",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "search_space_definition",
+            "description": "Complete documentation of hyperparameter ranges and distributions",
+            "weight": 0.25,
+            "measurement": "1.0 if documents all hyperparameters with ranges/distributions and search justification, 0.7 if documents most hyperparameters with ranges, 0.4 if limited hyperparameter documentation, 0.0 if minimal search space documentation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "early_stopping_protocol",
+            "description": "Proper early stopping implementation to prevent overfitting",
+            "weight": 0.25,
+            "measurement": "1.0 if implements early stopping with patience \u22653 and validation metric monitoring, 0.7 if early stopping with patience 1-2, 0.4 if basic early stopping without clear criteria, 0.0 if no early stopping or only training loss monitoring",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "reproducibility_documentation",
+            "description": "Documentation enabling exact hyperparameter search reproduction",
+            "weight": 0.2,
+            "measurement": "1.0 if includes random seeds, search algorithm parameters, and complete hyperparameter logs, 0.7 if includes most reproducibility details, 0.4 if includes basic reproducibility information, 0.0 if insufficient reproducibility documentation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Uses Optuna Bayesian optimization across 100 trials with learning rate \u2208 [1e-6, 1e-3], batch size \u2208 {8,16,32}, implements early stopping with patience=5 epochs on validation F1, reports best hyperparameters: lr=2.3e-5, batch_size=16"
+      ],
+      "fail_examples": [
+        "Uses manual hyperparameter tuning based on 'experience', implements early stopping but only monitors training loss leading to overfitting, or reports hyperparameters without search methodology"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "[Partial] \"Insufficient exploration of the variables (experimental conditions, hyperparameters) that might affect the conclusions of a study\""
+    },
+    {
+      "id": "computational_efficiency_analysis",
+      "category": "Training Methodology & Implementation",
+      "description": "Analyzes computational resource utilization including training time, memory usage, energy consumption, and cost analysis with optimization strategies and scalability considerations",
+      "pass_condition": "Reports training time per epoch, peak memory usage in GB, total computational cost (GPU-hours or cloud cost), and includes at least 2 efficiency optimization techniques with measured impact",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "resource_measurement",
+            "description": "Comprehensive measurement and reporting of computational resource utilization",
+            "weight": 0.4,
+            "measurement": "1.0 if reports training time, memory usage, GPU utilization, and cost with specific units, 0.7 if reports most resource metrics, 0.4 if reports basic timing information, 0.0 if minimal resource reporting",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "optimization_techniques",
+            "description": "Implementation and evaluation of computational efficiency optimization strategies",
+            "weight": 0.35,
+            "measurement": "1.0 if implements \u22653 techniques (gradient accumulation, mixed precision, gradient checkpointing) with measured impact, 0.7 if implements 2 techniques, 0.4 if implements 1 technique, 0.0 if no optimization techniques",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "scalability_analysis",
+            "description": "Analysis of computational scaling properties and bottleneck identification",
+            "weight": 0.25,
+            "measurement": "1.0 if analyzes scaling with data size/model size and identifies bottlenecks, 0.7 if includes basic scalability discussion, 0.4 if mentions scalability without analysis, 0.0 if no scalability consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Training: 2.3h/epoch on V100, 15.2GB peak memory, $127 total cost; implements gradient accumulation (2x speedup), mixed precision (1.4x speedup, 30% memory reduction), analyzes linear scaling to 8 GPUs"
+      ],
+      "fail_examples": [
+        "Reports only total training time without per-epoch breakdowns, mentions using mixed precision without measuring impact, or lacks cost analysis for resource planning"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Professional reports include carbon footprint: \"CO2 emissions tracker...experiment impact tracker...ML CO2 impact calculator...and CodeCarbon\" and \"An analysis of the complexity (time, space, sample size) of any algorithm\""
+    },
+    {
+      "id": "comprehensive_metrics_framework",
+      "category": "Evaluation Framework & Metrics",
+      "description": "Evaluates the comprehensiveness and appropriateness of evaluation metrics beyond accuracy, including task-specific metrics, statistical significance testing, and multi-dimensional performance analysis across different data subsets",
+      "pass_condition": "Reports \u22656 complementary metrics including domain-specific metrics beyond standard classification/generation metrics, includes statistical confidence intervals for all metrics, evaluates on \u22653 different test conditions or data subsets with demographic/difficulty stratification, and provides metric correlation analysis",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "metric_diversity",
+            "description": "Range and appropriateness of evaluation metrics for comprehensive assessment",
+            "weight": 0.35,
+            "measurement": "1.0 if reports \u22655 complementary metrics with statistical significance, 0.7 if reports 3-4 appropriate metrics, 0.4 if reports 2-3 basic metrics, 0.0 if only accuracy or single metric",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "granular_analysis",
+            "description": "Per-class, per-subset, or other granular performance breakdowns",
+            "weight": 0.3,
+            "measurement": "1.0 if includes per-class metrics and confidence intervals with subset analysis, 0.7 if includes per-class or subset analysis, 0.4 if includes basic breakdown, 0.0 if only aggregate metrics",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "task_specificity",
+            "description": "Use of domain-specific evaluation metrics relevant to the application context",
+            "weight": 0.35,
+            "measurement": "1.0 if includes domain-specific metrics with expert validation or established benchmarks, 0.7 if includes relevant domain metrics, 0.4 if mentions domain considerations, 0.0 if only generic metrics",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Reports macro-F1=0.847, micro-F1=0.851, AUC=0.923, precision@k=0.789, per-class F1 scores with 95% CIs, separate evaluation on clinical notes vs. research abstracts showing domain transfer analysis"
+      ],
+      "fail_examples": [
+        "Reports only overall accuracy without class-wise breakdown, uses inappropriate metrics for imbalanced data (accuracy instead of F1), or lacks domain-specific evaluation relevant to application"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"measured using task-specific metrics (e.g., Accuracy for classification, F1 score, Matthews correlation coefficient for CoLA, Pearson/Spearman correlation for STS-B)\" and \"Choosing the right metrics aligns evaluation with the model's intended purpose\""
+    },
+    {
+      "id": "benchmark_evaluation_rigor",
+      "category": "Evaluation Framework & Metrics",
+      "description": "Assesses evaluation against established benchmarks and standardized test suites with proper comparison protocols and significance testing against published baselines",
+      "pass_condition": "Evaluates on \u22652 relevant benchmarks (established community benchmarks where available, or well-documented evaluation protocols for novel domains), compares against \u22653 published baseline results with statistical significance testing, and uses standardized evaluation protocols with documented methodology",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "benchmark_coverage",
+            "description": "Evaluation against multiple established benchmarks in the domain",
+            "weight": 0.4,
+            "measurement": "1.0 if evaluates on \u22653 established benchmarks with official metrics, 0.7 if evaluates on 2 benchmarks, 0.4 if evaluates on 1 benchmark, 0.0 if no established benchmarks",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "baseline_comparison",
+            "description": "Comparison against published baseline results with appropriate statistical testing",
+            "weight": 0.35,
+            "measurement": "1.0 if compares against \u22653 published baselines with significance testing, 0.7 if compares against 2-3 baselines, 0.4 if compares against 1 baseline, 0.0 if no published baseline comparison",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "evaluation_protocol",
+            "description": "Use of official evaluation scripts and protocols for reproducible assessment",
+            "weight": 0.25,
+            "measurement": "1.0 if uses official evaluation scripts with documented protocols, 0.7 if follows established protocols but custom implementation, 0.4 if follows protocols with minor deviations, 0.0 if non-standard evaluation",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Evaluates on CoLA, SST-2, and MRPC from GLUE using official evaluation script, compares against BERT-base, RoBERTa-large, and DeBERTa with paired t-test showing p<0.01 significance"
+      ],
+      "fail_examples": [
+        "Creates custom evaluation without comparing to established benchmarks, compares only against weak baselines while ignoring stronger published results, or modifies standard evaluation protocols without justification"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Benchmark coverage including established suites: \"GLUE Wang et al. (2019), and SuperGLUE Wang et al. (2020) benchmarks\" and \"Single benchmarks may reach saturation where they're \"not challenging enough to differentiate state-of-the-art models effectively\""
+    },
+    {
+      "id": "systematic_ablation_analysis",
+      "category": "Ablation Studies & Component Analysis",
+      "description": "Evaluates systematic isolation and analysis of individual model components, architectural choices, and training decisions to quantify their individual contributions with statistical significance testing",
+      "pass_condition": "Performs ablation study isolating \u22653 key components individually, measures statistical significance of each component's contribution using appropriate tests, and provides quantitative analysis of component interactions",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 7,
+        "sub_attributes": [
+          {
+            "sub_id": "component_isolation",
+            "description": "Systematic isolation of individual model components and design decisions",
+            "weight": 0.4,
+            "measurement": "1.0 if isolates \u22654 components individually with full factorial design, 0.7 if isolates 3 components systematically, 0.4 if isolates 2 components, 0.0 if removes multiple components simultaneously",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "statistical_significance",
+            "description": "Statistical testing of ablation results to determine component significance",
+            "weight": 0.35,
+            "measurement": "1.0 if includes statistical significance testing with p-values and effect sizes for each ablated component, 0.7 if includes confidence intervals for ablation results, 0.4 if includes error bars but no significance testing, 0.0 if no statistical validation",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "interaction_analysis",
+            "description": "Analysis of component interactions and synergistic effects",
+            "weight": 0.25,
+            "measurement": "1.0 if analyzes component interactions with factorial design or correlation analysis, 0.7 if discusses component interactions qualitatively, 0.4 if mentions interactions without analysis, 0.0 if no interaction consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Ablates domain pretraining (-2.3% F1, p<0.01), data augmentation (-1.7% F1, p<0.05), and learning rate schedule (-0.9% F1, p<0.1) individually, includes 2\u00d72 factorial analysis showing synergy between pretraining and augmentation (+0.5% additional F1)"
+      ],
+      "fail_examples": [
+        "Removes multiple components simultaneously making attribution unclear, reports ablation results without statistical testing, or performs ablation study but lacks component interaction analysis"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"Ablation studies offer invaluable insights into the inner workings of complex models, shedding light on which elements are essential for model performance and which may be redundant\" and \"statistical significance tests...to determine whether the observed performance differences are statistically significant\""
+    },
+    {
+      "id": "baseline_comparison_rigor",
+      "category": "Baseline Comparison & Benchmarking",
+      "description": "Evaluates the selection, implementation, and fair comparison of baseline methods including appropriate baseline diversity, hyperparameter optimization fairness, and computational cost normalization",
+      "pass_condition": "Compares against \u22654 baselines including random/majority class, domain-adapted pretrained model, prior SOTA, and ablated version, with equal hyperparameter search budget allocation and computational cost reporting",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "baseline_diversity",
+            "description": "Range and appropriateness of baseline methods representing different approach categories",
+            "weight": 0.4,
+            "measurement": "1.0 if includes \u22654 baselines spanning random, classical ML, pretrained, and SOTA methods, 0.7 if includes 3 diverse baselines, 0.4 if includes 2 baselines, 0.0 if \u22641 baseline",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fair_comparison",
+            "description": "Equal optimization effort and hyperparameter search budget across all compared methods",
+            "weight": 0.35,
+            "measurement": "1.0 if documents equal hyperparameter search trials and optimization time for all methods, 0.7 if similar effort with justified differences, 0.4 if unequal effort but acknowledged, 0.0 if clearly unfair comparison",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "computational_normalization",
+            "description": "Normalization and reporting of computational costs across different baseline architectures",
+            "weight": 0.25,
+            "measurement": "1.0 if reports training time and inference cost for all baselines with FLOPs or parameter count, 0.7 if reports computational costs for most baselines, 0.4 if reports basic timing information, 0.0 if no computational cost comparison",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Compares against random baseline, logistic regression, BERT-base, RoBERTa-large, and prior SOTA with 50 hyperparameter trials each, reports training time and inference latency for all methods, normalizes by parameter count"
+      ],
+      "fail_examples": [
+        "Only compares against weak baselines while ignoring stronger published methods, extensively optimizes proposed method but uses default hyperparameters for baselines, or compares methods without considering computational cost differences"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"failure to carry out the same amount of hyperparameter optimization when comparing models\" and \"freshly implement all the models you are comparing, optimize each one to the same degree\""
+    },
+    {
+      "id": "error_analysis_taxonomy",
+      "category": "Failure Analysis & Error Characterization",
+      "description": "Evaluates systematic categorization and quantitative analysis of model errors including error type taxonomy, frequency analysis, and identification of systematic failure patterns with concrete examples",
+      "pass_condition": "Develops error taxonomy with \u22654 categories, provides quantitative frequency analysis for each error type, analyzes representative failure cases (minimum 20 for classification tasks, 10 for generation tasks), and identifies systematic patterns with statistical analysis where applicable",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "error_taxonomy",
+            "description": "Development of systematic error categorization framework",
+            "weight": 0.3,
+            "measurement": "1.0 if develops \u22655 error categories with clear definitions and examples, 0.7 if develops 3-4 error categories, 0.4 if develops 2 categories, 0.0 if no systematic error categorization",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quantitative_analysis",
+            "description": "Statistical analysis of error frequencies and patterns",
+            "weight": 0.35,
+            "measurement": "1.0 if provides frequency analysis with statistical tests for error patterns and analyzes \u2265100 examples, 0.7 if analyzes 50-99 examples with frequencies, 0.4 if analyzes <50 examples, 0.0 if only qualitative error analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "systematic_patterns",
+            "description": "Identification of systematic failure modes and their root causes",
+            "weight": 0.35,
+            "measurement": "1.0 if identifies systematic patterns with statistical significance and root cause analysis, 0.7 if identifies patterns with qualitative analysis, 0.4 if mentions patterns without systematic analysis, 0.0 if no pattern identification",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Develops 6-category error taxonomy (lexical, syntactic, semantic, pragmatic, domain, other), analyzes 150 errors showing 34% semantic errors (p<0.01 vs uniform), identifies systematic failures on negation (18% of semantic errors) with linguistic analysis"
+      ],
+      "fail_examples": [
+        "Provides anecdotal error examples without systematic categorization, analyzes <20 errors making statistical analysis impossible, or identifies error types but lacks frequency quantification"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "[Partial] Coverage of \"performance bias failures, model failures, and robustness failures\" with systematic investigation"
+    },
+    {
+      "id": "robustness_evaluation",
+      "category": "Failure Analysis & Error Characterization",
+      "description": "Assesses model robustness across different conditions including adversarial examples, out-of-distribution data, and stress testing with quantitative robustness metrics and failure threshold identification",
+      "pass_condition": "Evaluates robustness using \u22653 methods (adversarial examples, OOD data, stress tests), reports quantitative robustness metrics, and identifies failure thresholds with confidence intervals",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 5,
+        "sub_attributes": [
+          {
+            "sub_id": "robustness_methods",
+            "description": "Diversity of robustness evaluation techniques applied",
+            "weight": 0.4,
+            "measurement": "1.0 if applies \u22654 robustness methods (adversarial, OOD, noise injection, stress testing), 0.7 if applies 3 methods, 0.4 if applies 2 methods, 0.0 if \u22641 method",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "quantitative_metrics",
+            "description": "Use of quantitative robustness metrics with statistical validation",
+            "weight": 0.35,
+            "measurement": "1.0 if reports robustness metrics with confidence intervals and statistical testing, 0.7 if reports quantitative metrics without statistical validation, 0.4 if reports basic robustness scores, 0.0 if only qualitative robustness assessment",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "failure_thresholds",
+            "description": "Identification and characterization of model failure boundaries",
+            "weight": 0.25,
+            "measurement": "1.0 if identifies specific failure thresholds with confidence intervals, 0.7 if identifies approximate failure boundaries, 0.4 if discusses failure conditions qualitatively, 0.0 if no failure threshold analysis",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Evaluates using adversarial examples (FGSM, PGD), OOD data from different domains, Gaussian noise injection, and stress testing with 3\u03c3 confidence intervals, identifies 15% performance degradation threshold at 0.1 noise standard deviation"
+      ],
+      "fail_examples": [
+        "Tests only on clean data without robustness evaluation, applies single robustness method without quantitative analysis, or discusses robustness qualitatively without systematic testing"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Coverage of \"performance bias failures, model failures, and robustness failures\" and \"ML models that fail to work as expected when applied to data not seen during training\""
+    },
+    {
+      "id": "bias_fairness_evaluation",
+      "category": "Bias Analysis & Responsible AI",
+      "description": "Evaluates systematic bias analysis where applicable demographic data exists, including fairness metrics and bias measurement with mitigation strategies documented",
+      "pass_condition": "Where demographic data is available: analyzes bias across available demographic dimensions, reports \u22652 relevant fairness metrics, and documents bias mitigation attempts. Where demographic data is unavailable: documents bias considerations relevant to the domain and task, and analyzes potential sources of systematic bias",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 6,
+        "sub_attributes": [
+          {
+            "sub_id": "demographic_analysis",
+            "description": "Comprehensive bias analysis across multiple demographic dimensions",
+            "weight": 0.35,
+            "measurement": "1.0 if analyzes \u22654 demographic dimensions with intersectional analysis, 0.7 if analyzes 3 dimensions, 0.4 if analyzes 2 dimensions, 0.0 if \u22641 dimension or no demographic analysis",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "fairness_metrics",
+            "description": "Use of appropriate quantitative fairness metrics with statistical significance testing",
+            "weight": 0.4,
+            "measurement": "1.0 if reports \u22653 fairness metrics with statistical significance testing, 0.7 if reports 2 metrics with some statistical analysis, 0.4 if reports 1-2 basic metrics, 0.0 if no quantitative fairness metrics",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "mitigation_strategies",
+            "description": "Implementation and evaluation of bias mitigation techniques",
+            "weight": 0.25,
+            "measurement": "1.0 if implements mitigation strategies with measured effectiveness and fairness-accuracy tradeoff analysis, 0.7 if implements mitigation with basic effectiveness measurement, 0.4 if discusses mitigation without implementation, 0.0 if no mitigation consideration",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Analyzes bias across gender, race, age, and intersections, reports statistical parity (0.23 difference), equalized odds (0.18 difference), and individual fairness metrics, implements adversarial debiasing reducing bias by 45% with 2% accuracy cost"
+      ],
+      "fail_examples": [
+        "Mentions bias concerns without quantitative analysis, analyzes only single demographic dimension without intersectionality, or discusses fairness metrics without implementing bias measurement"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"potential negative societal impacts\" assessment and \"fairness metrics are becoming necessary to meet legal and ethical standards...help you ensure that your models don't violate anti-discrimination laws\""
+    },
+    {
+      "id": "reproducibility_documentation",
+      "category": "Reproducibility & Documentation",
+      "description": "Evaluates completeness of reproducibility documentation including code availability, environment specifications, hyperparameter logging, and adherence to ML reproducibility checklists with containerization and dependency management",
+      "pass_condition": "Provides public code repository with complete dependency management (requirements.txt/environment.yml with exact versions), documents all hyperparameters with random seeds in structured config files, includes containerization with verified reproducibility testing, follows established reproducibility checklist with compliance verification, and provides automated reproduction scripts with expected runtime documentation",
+      "scoring": {
+        "method": "penalty_based",
+        "max_points": 6,
+        "sub_attributes": [],
+        "penalties": {
+          "no_code_repository": -2.6,
+          "missing_environment_specification": -1.3,
+          "no_hyperparameter_logging": -0.9,
+          "missing_random_seed_documentation": -0.9,
+          "no_containerization": -0.9,
+          "incomplete_dependency_specification": -0.4,
+          "missing_reproducibility_checklist_adherence": -0.9
+        },
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Provides GitHub repository with Docker container, conda environment.yml, logs all hyperparameters with Weights&Biases, documents random seeds for numpy/torch/transformers, follows NeurIPS reproducibility checklist"
+      ],
+      "fail_examples": [
+        "Code repository missing or incomplete, no environment specification making reproduction difficult, hyperparameters mentioned but not systematically logged, or missing containerization for environment consistency"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "\"the exact command and environment needed to run to reproduce the results\" and \"a README about how to reproduce the results in the paper using the provided code\" and \"Full code, data, environment specs, exact hyperparameters, dependency versions\""
+    },
+    {
+      "id": "dataset_analysis_coherence",
+      "category": "Cross-Cutting Coherence",
+      "description": "Assesses coherence between dataset construction decisions and subsequent experimental design, ensuring that data quality measures, contamination protocols, and annotation procedures align with the statistical rigor and evaluation framework employed",
+      "pass_condition": "Dataset construction methodology must be reflected in experimental design (e.g., annotation reliability informs confidence intervals, contamination detection protocols align with evaluation benchmarks), and data quality measures should justify statistical testing approaches",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "annotation_statistical_alignment",
+            "description": "Alignment between annotation quality measures and statistical confidence in results",
+            "weight": 0.4,
+            "measurement": "1.0 if annotation reliability metrics inform statistical power calculations and confidence intervals, 0.7 if annotation quality considered in statistical analysis, 0.4 if basic acknowledgment of annotation impact, 0.0 if no connection between annotation quality and statistical inference",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "contamination_evaluation_consistency",
+            "description": "Consistency between contamination detection protocols and benchmark evaluation choices",
+            "weight": 0.35,
+            "measurement": "1.0 if contamination protocols specifically address benchmark datasets used in evaluation, 0.7 if general contamination detection with some benchmark consideration, 0.4 if basic contamination detection, 0.0 if contamination protocols don't align with evaluation benchmarks",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "data_quality_experimental_design",
+            "description": "Reflection of data quality considerations in experimental design decisions",
+            "weight": 0.25,
+            "measurement": "1.0 if data quality metrics inform sample size calculations and experimental power, 0.7 if data quality considered in experimental design, 0.4 if basic acknowledgment, 0.0 if no connection between data quality and experimental design",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Inter-annotator agreement of \u03b1=0.82 used to calculate effective sample size for statistical power analysis, contamination detection specifically targets GLUE benchmark datasets used in evaluation, data quality audit results inform confidence interval calculations"
+      ],
+      "fail_examples": [
+        "Reports annotation reliability but doesn't consider impact on result confidence, performs contamination detection but doesn't address specific evaluation benchmarks used, or treats data quality and experimental design as independent considerations"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Measurement error theory requires propagation of annotation uncertainty into statistical inference; contamination detection protocols should be specific to evaluation frameworks used"
+    },
+    {
+      "id": "failure_improvement_coherence",
+      "category": "Cross-Cutting Coherence",
+      "description": "Evaluates coherence between failure analysis findings and proposed improvements or limitations, ensuring that identified error patterns, robustness issues, and bias concerns are systematically addressed in model development decisions and future work recommendations",
+      "pass_condition": "Failure analysis results must inform concrete improvement strategies or design decisions, error taxonomy should guide ablation studies or architectural choices, and identified limitations should be reflected in appropriate evaluation scope and claims",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "error_improvement_alignment",
+            "description": "Alignment between identified error patterns and proposed improvement strategies",
+            "weight": 0.4,
+            "measurement": "1.0 if error taxonomy directly informs specific improvement strategies with measurable targets, 0.7 if error analysis leads to general improvement directions, 0.4 if basic connection between errors and improvements, 0.0 if error analysis disconnected from improvements",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "robustness_design_integration",
+            "description": "Integration of robustness findings into model design and evaluation scope decisions",
+            "weight": 0.35,
+            "measurement": "1.0 if robustness limitations directly inform model architecture or training decisions, 0.7 if robustness findings influence evaluation design, 0.4 if basic acknowledgment of robustness implications, 0.0 if robustness analysis isolated from design decisions",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "limitation_claim_consistency",
+            "description": "Consistency between identified limitations and scope of performance claims",
+            "weight": 0.25,
+            "measurement": "1.0 if performance claims explicitly bounded by identified limitations with quantified scope, 0.7 if limitations appropriately qualify claims, 0.4 if basic limitation acknowledgment, 0.0 if claims not bounded by identified limitations",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "generated",
+      "pass_examples": [
+        "Semantic error analysis (34% of failures) leads to semantic augmentation strategy improving performance by 1.2% F1, robustness evaluation showing 15% degradation at 0.1 noise leads to noise-aware training protocol, bias findings limit performance claims to specific demographic groups"
+      ],
+      "fail_examples": [
+        "Identifies systematic error patterns but doesn't propose targeted improvements, conducts robustness evaluation but doesn't integrate findings into model development, or makes broad performance claims despite identified limitations"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "Scientific method requires iterative improvement based on failure analysis; responsible AI practices require limitation-bounded claims and bias-aware model development"
+    },
+    {
+      "id": "multi_stage_training_documentation",
+      "category": "Training Methodology",
+      "description": "Evaluates documentation of multi-stage training procedures including intermediate fine-tuning steps, transfer learning protocols, and task-specific adaptation strategies",
+      "pass_condition": "Documents complete multi-stage training pipeline with intermediate checkpoints and adaptation strategies",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 4,
+        "sub_attributes": [
+          {
+            "sub_id": "intermediate_steps",
+            "description": "Documentation of intermediate fine-tuning stages and checkpoints",
+            "weight": 0.4,
+            "measurement": "Complete documentation (4), partial documentation (2-3), minimal documentation (1), missing (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "transfer_protocols",
+            "description": "Clear specification of transfer learning protocols and layer freezing strategies",
+            "weight": 0.3,
+            "measurement": "Detailed protocols (4), basic protocols (2-3), vague protocols (1), missing (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "adaptation_strategies",
+            "description": "Documentation of task-specific adaptation methods and hyperparameter schedules",
+            "weight": 0.3,
+            "measurement": "Comprehensive strategies (4), adequate strategies (2-3), limited strategies (1), missing (0)",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Report documents three-stage training: pre-training on general corpus, intermediate fine-tuning on MultiNLI, then task-specific fine-tuning with learning rate schedules and layer-wise adaptation rates",
+        "Clear description of progressive unfreezing strategy with specific layers unfrozen at each stage and corresponding hyperparameter adjustments"
+      ],
+      "fail_examples": [
+        "Only mentions 'multi-stage training' without specifying intermediate steps or protocols",
+        "Describes final fine-tuning stage but omits intermediate adaptation procedures"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "intermediate fine-tuning of pretrained language models...first using the above procedure on MultiNLI"
+    },
+    {
+      "id": "cross_dataset_generalization",
+      "category": "Evaluation",
+      "description": "Evaluates generalizability of findings across multiple datasets to ensure conclusions aren't dataset-specific",
+      "pass_condition": "Demonstrates model performance across primary dataset plus at least 1 additional related dataset with consistent methodology, OR provides comprehensive analysis of dataset-specific factors, detailed discussion of generalization limitations, and concrete validation protocol recommendations for broader evaluation",
+      "scoring": {
+        "method": "weighted_components",
+        "max_points": 2,
+        "sub_attributes": [
+          {
+            "sub_id": "dataset_diversity",
+            "description": "Evaluation across multiple diverse datasets representing different domains or task variations",
+            "weight": 0.4,
+            "measurement": "3+ diverse datasets (4), 2 diverse datasets (3), 2 similar datasets (2), single dataset (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "consistent_ablations",
+            "description": "Ablation studies replicated across datasets with consistent findings",
+            "weight": 0.35,
+            "measurement": "Consistent ablations across all datasets (4), most datasets (3), some datasets (2), single dataset (0)",
+            "thresholds": {}
+          },
+          {
+            "sub_id": "generalization_analysis",
+            "description": "Analysis of performance patterns and conclusion validity across datasets",
+            "weight": 0.25,
+            "measurement": "Thorough cross-dataset analysis (4), basic analysis (2-3), minimal analysis (1), missing (0)",
+            "thresholds": {}
+          }
+        ],
+        "penalties": {},
+        "tiers": {},
+        "points_per_instance": 1.0,
+        "max_instances": 10
+      },
+      "source": "research_tracer",
+      "pass_examples": [
+        "Evaluates fine-tuned model on GLUE, SuperGLUE, and domain-specific benchmarks with consistent ablation results showing attention mechanism contributes 15-20% improvement across all datasets",
+        "Tests on multiple medical text datasets (clinical notes, research papers, patient records) demonstrating robust performance gains from proposed training methodology"
+      ],
+      "fail_examples": [
+        "Only evaluates on single benchmark dataset without testing generalizability",
+        "Tests on multiple datasets but ablation studies only performed on one, limiting conclusion validity"
+      ],
+      "domain": "ml_experiment_report",
+      "research_basis": "The results of an ablation study are specific to the dataset used. It's important to evaluate the ablated models on multiple datasets"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "experimental_design",
+      "name": "Experimental Design & Statistical Rigor",
+      "description": "",
+      "weight": 0.15,
+      "criteria_ids": []
+    },
+    {
+      "id": "dataset_construction",
+      "name": "Dataset Construction & Quality",
+      "description": "",
+      "weight": 0.13,
+      "criteria_ids": []
+    },
+    {
+      "id": "training_methodology",
+      "name": "Training Methodology & Implementation",
+      "description": "",
+      "weight": 0.12,
+      "criteria_ids": []
+    },
+    {
+      "id": "evaluation_framework",
+      "name": "Evaluation Framework & Metrics",
+      "description": "",
+      "weight": 0.14,
+      "criteria_ids": []
+    },
+    {
+      "id": "ablation_analysis",
+      "name": "Ablation Studies & Component Analysis",
+      "description": "",
+      "weight": 0.11,
+      "criteria_ids": []
+    },
+    {
+      "id": "baseline_comparison",
+      "name": "Baseline Comparison & Benchmarking",
+      "description": "",
+      "weight": 0.1,
+      "criteria_ids": []
+    },
+    {
+      "id": "failure_analysis",
+      "name": "Failure Analysis & Error Characterization",
+      "description": "",
+      "weight": 0.09,
+      "criteria_ids": []
+    },
+    {
+      "id": "bias_fairness",
+      "name": "Bias Analysis & Responsible AI",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    },
+    {
+      "id": "reproducibility",
+      "name": "Reproducibility & Documentation",
+      "description": "",
+      "weight": 0.08,
+      "criteria_ids": []
+    }
+  ]
+}

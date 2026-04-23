@@ -1,0 +1,77 @@
+[
+  {
+    "current_approach_summary": "The generator is providing a comprehensive technical inventory of systems and infrastructure components but lacks precise business-driven scope boundaries and risk-based prioritization.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Start with customer commitments and service-level agreements to define scope boundaries, then map only the systems and processes that directly support those specific promises. Focus on what the business actually delivers to customers rather than cataloging all technical infrastructure.",
+        "why_it_might_work": "This approach ensures the scope directly aligns with business commitments and avoids including unnecessary systems that don't impact the trust service criteria being evaluated.",
+        "example_signal": "The scope would begin with 'Customer-facing SaaS platform supporting 99.9% uptime commitment' rather than listing every AWS service in the infrastructure."
+      },
+      {
+        "rank": 2,
+        "strategy": "Use a data flow mapping approach that traces sensitive customer data from ingestion to disposal, identifying only the systems, processes, and personnel that actually touch or control this data flow. Exclude systems that don't interact with customer data or impact security posture.",
+        "why_it_might_work": "This method ensures completeness by following the actual data path while maintaining precision by excluding irrelevant systems that don't affect the trust service criteria.",
+        "example_signal": "The scope would identify 'Customer PII processing workflow: API ingestion \u2192 validation service \u2192 encrypted database \u2192 backup system' with clear exclusions like 'HR systems and internal tools that don't access customer data.'"
+      },
+      {
+        "rank": 3,
+        "strategy": "Define scope through a risk-based lens by identifying the top 5-7 business-critical processes that, if compromised, would most impact customer trust, then scope only the systems and controls that protect these critical processes.",
+        "why_it_might_work": "This approach ensures the scope covers the most relevant systems for the trust service criteria while avoiding over-scoping by focusing on actual business risks rather than technical completeness.",
+        "example_signal": "The scope would prioritize 'Customer authentication and authorization system' and 'Payment processing integration' while explicitly excluding 'Development sandbox environments that don't contain production data.'"
+      }
+    ],
+    "recommendation": "Alternative 1 (customer commitment-driven scoping) because it directly addresses the measurement spec's emphasis on avoiding delays during examination by ensuring the scope is clearly tied to business deliverables that auditors can easily validate.",
+    "criterion_id": "soc2_scope_precision",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is producing a traditional SOC 2 gap analysis document with executive summary, scope definition, and detailed infrastructure descriptions but failing to address vulnerability management completeness requirements.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Create a vulnerability management maturity assessment matrix that maps current scanning frequency, remediation SLAs, and documentation practices against SOC 2 CC7.1/CC7.2 requirements. Include specific evidence requirements like scan schedules, remediation tracking tickets, and policy documentation that auditors expect to see.",
+        "why_it_might_work": "This directly addresses the measurement spec's focus on scanning frequency, remediation procedures, and security patching documentation by providing a structured assessment framework.",
+        "example_signal": "A matrix showing 'Current: Ad-hoc scanning' vs 'Required: Quarterly minimum with monthly for critical assets' with specific remediation timeline gaps identified."
+      },
+      {
+        "rank": 2,
+        "strategy": "Build a vulnerability management program implementation roadmap that defines specific scanning tools, frequencies (quarterly internal, monthly external), remediation SLAs (48 hours for critical, 30 days for high), and documentation requirements with sample templates for scan reports and remediation tracking.",
+        "why_it_might_work": "This provides the complete vulnerability management process framework that the measurement spec requires, including all three components: scanning frequency, remediation procedures, and documentation.",
+        "example_signal": "A detailed program outline specifying 'Nessus quarterly internal scans, Qualys monthly external scans, JIRA-based remediation tracking with 48-hour critical patch SLAs.'"
+      }
+    ],
+    "recommendation": "Alternative 1 because it directly assesses current state against specific SOC 2 vulnerability management requirements, making gaps immediately visible to auditors.",
+    "criterion_id": "vulnerability_management_completeness",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  },
+  {
+    "current_approach_summary": "The generator is creating a comprehensive SOC 2 gap analysis document with detailed scope definitions and infrastructure descriptions but lacks specific formal change management processes, workflows, and documentation requirements.",
+    "alternatives": [
+      {
+        "rank": 1,
+        "strategy": "Structure the entire analysis around a formal Change Advisory Board (CAB) framework with detailed approval workflows, testing procedures, and documentation templates. Present change management as a centralized governance process with specific roles, responsibilities, and decision matrices for different types of changes (emergency, standard, major).",
+        "why_it_might_work": "This directly addresses the formality requirement by establishing structured approval workflows and consistent processes that SOC 2 auditors specifically look for.",
+        "example_signal": "A section detailing 'Change Advisory Board charter with defined approval authority matrix, emergency change procedures requiring post-facto approval within 24 hours, and mandatory testing documentation templates for all production changes.'"
+      },
+      {
+        "rank": 2,
+        "strategy": "Focus on creating detailed procedural documentation with step-by-step workflows, approval checkpoints, and testing requirements for each type of system change. Include specific forms, checklists, and documentation templates that demonstrate consistent application of change management processes across the organization.",
+        "why_it_might_work": "SOC 2 change management assessment emphasizes consistency and documentation requirements, which procedural workflows with templates directly satisfy.",
+        "example_signal": "Detailed change request forms with mandatory fields for impact assessment, testing plans, rollback procedures, and approval signatures, plus evidence collection templates for audit trails."
+      },
+      {
+        "rank": 3,
+        "strategy": "Implement a risk-based change categorization system with different approval and testing requirements based on change impact levels. Define formal criteria for emergency changes, standard changes, and major changes, each with specific authorization requirements and documentation standards.",
+        "why_it_might_work": "This addresses the formality aspect by creating structured criteria and consistent processes while showing systematic risk management approach that SOC 2 requires.",
+        "example_signal": "A change impact matrix defining low/medium/high risk categories with corresponding approval authorities (individual manager vs. CAB vs. executive approval) and mandatory testing requirements for each level."
+      }
+    ],
+    "recommendation": "Alternative 1 (Change Advisory Board framework) because it most directly addresses the 'formality' aspect by establishing clear governance structures and approval workflows that SOC 2 auditors specifically evaluate for change management consistency.",
+    "criterion_id": "change_management_formality",
+    "current_score": 0.0,
+    "score_history": "0% \u2192 0% \u2192 0%"
+  }
+]
