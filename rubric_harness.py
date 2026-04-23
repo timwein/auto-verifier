@@ -6992,6 +6992,15 @@ class RubricLoop:
         enable_quality_gate: bool = True,
         skip_negotiation: bool = False,
         persist_feedback: bool = False,
+        # OpenRubrics alignment phases (all default-on after validation on 5 hardest tasks)
+        enable_phase1: bool = True,              # contrastive rubric generation
+        enable_phase2: bool = True,              # hard-rule / principle taxonomy
+        enable_phase3: bool = True,              # preference-label consistency filter
+        consistency_threshold: float = 0.8,
+        enable_implicit_aggregator: bool = True, # Phase 4 implicit LLM-judge
+        judge_model: str = "claude-sonnet-4-20250514",
+        voting_k: int = 1,
+        collect_dataset: bool = True,            # Phase 5 dataset scaffolding
     ):
         if Anthropic is None:
             raise ImportError("anthropic package is required: pip install anthropic")
@@ -7023,6 +7032,15 @@ class RubricLoop:
         self.repo_path = repo_path
         self.enable_self_improve = enable_self_improve
         self.persist_feedback = persist_feedback
+        # OpenRubrics alignment phase flags — see openrubrics-alignment-plan.md
+        self.enable_phase1 = enable_phase1
+        self.enable_phase2 = enable_phase2
+        self.enable_phase3 = enable_phase3
+        self.consistency_threshold = consistency_threshold
+        self.enable_implicit_aggregator = enable_implicit_aggregator
+        self.judge_model = judge_model
+        self.voting_k = voting_k
+        self.collect_dataset = collect_dataset
         self.rubric_store = RubricStore()
         self.outcome_tracker = OutcomeTracker(self.rubric_store, verbose=verbose)
         self.learning_integrator = LearningIntegrator(
@@ -9419,21 +9437,21 @@ async def main():
     parser.add_argument("--reference-pairs", metavar="FILE",
                         help="Path to a JSON file with reference pairs. Format: "
                              "[{\"preferred\": \"...\", \"rejected\": \"...\"}, ...]")
-    parser.add_argument("--phase3", action="store_true",
-                        help="Enable Phase 3 (preference-label consistency filter, ~10 extra scoring calls)")
+    parser.add_argument("--no-phase2", action="store_true",
+                        help="Disable Phase 2 (hard-rule / principle taxonomy enforcement)")
+    parser.add_argument("--no-phase3", action="store_true",
+                        help="Disable Phase 3 (preference-label consistency filter, ~10 extra scoring calls)")
     parser.add_argument("--consistency-threshold", type=float, default=0.8,
                         help="Minimum hit_rate required for the Phase 3 consistency filter (default 0.8)")
-    parser.add_argument("--no-phase2", action="store_true",
-                        help="Disable Phase 2 (hard-rule / principle taxonomy enforcement in QualityGate)")
-    parser.add_argument("--enable-implicit", action="store_true",
-                        help="Enable Phase 4 implicit LLM-judge aggregator as a cross-check on explicit scoring")
+    parser.add_argument("--no-implicit", action="store_true",
+                        help="Disable Phase 4 implicit LLM-judge aggregator (cross-check on explicit scoring)")
     parser.add_argument("--judge-model", default="claude-sonnet-4-20250514",
                         help="Model id for the implicit judge (Phase 4)")
     parser.add_argument("--voting-k", type=int, default=1, choices=[1, 3, 5],
                         help="Voting@K samples for the implicit judge (Phase 4; 1 = no voting)")
-    parser.add_argument("--collect-dataset", action="store_true",
-                        help="Phase 5 — collect (task, preferred, rejected, validated_rubric) rows "
-                             "into RubricStore.rubric_dataset for future distillation")
+    parser.add_argument("--no-collect-dataset", action="store_true",
+                        help="Disable Phase 5 dataset collection "
+                             "(task, preferred, rejected, validated_rubric) rows into rubric_dataset")
 
     args = parser.parse_args()
 
@@ -9533,13 +9551,13 @@ async def main():
             caller_pairs = None
 
     # Propagate Phase-level flags onto the loop instance (consumed inside run()).
-    loop.enable_phase3 = args.phase3
-    loop.consistency_threshold = args.consistency_threshold
     loop.enable_phase2 = not args.no_phase2
-    loop.enable_implicit_aggregator = args.enable_implicit
+    loop.enable_phase3 = not args.no_phase3
+    loop.consistency_threshold = args.consistency_threshold
+    loop.enable_implicit_aggregator = not args.no_implicit
     loop.judge_model = args.judge_model
     loop.voting_k = args.voting_k
-    loop.collect_dataset = args.collect_dataset
+    loop.collect_dataset = not args.no_collect_dataset
 
     result = await loop.run(
         args.task, context,
