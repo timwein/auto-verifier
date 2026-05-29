@@ -1,0 +1,6 @@
+# Regenerable run artifacts — produced by run_exp1.py
+results/.cache/
+results/exp1_raw.json
+results/REPORT.md
+results/*.png
+.env
