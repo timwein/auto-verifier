@@ -4,7 +4,7 @@
 
 **rho=0.459 (CI lower 0.153), AUROC=0.924 (CI lower 0.798): between kill and greenlight, or CIs cross the kill thresholds. Proceed to Experiment 2 with tempered expectations.**
 
-Primary variant: decomposed gate — rho **+0.459** (95% CI [+0.153, +0.703]), AUROC **0.924** (95% CI [0.798, 1.000]), n=41.
+Primary variant: decomposed gate — rho **+0.459** (95% CI [+0.153, +0.703]), AUROC **0.924** (95% CI [0.798, 1.000]), n=41 — 1/2000 bootstrap resamples were degenerate and skipped; read this CI with suspicion.
 Decision rule (SPEC.md section 0): greenlight iff rho >= 0.5 AND AUROC >= 0.75 with CIs excluding the kill thresholds (rho <= 0.2, AUROC <= 0.6).
 
 ## Headline numbers
@@ -26,12 +26,12 @@ A gate that tracks truth shows an upward trend; a guessing gate is a cloud. Oran
 ## Executable vs llm_judged proxies
 
 **holistic:**
-- executable: rho **+0.401** (95% CI [+0.013, +0.670]), AUROC **1.000** (95% CI [1.000, 1.000]), n=33
-- llm_judged: rho **+0.810** (95% CI [+0.263, +1.000]), AUROC **0.800** (95% CI [0.333, 1.000]), n=8
+- executable: rho **+0.401** (95% CI [+0.013, +0.670]), AUROC **1.000** (95% CI [1.000, 1.000]), n=33 — 5/2000 bootstrap resamples were degenerate and skipped; read this CI with suspicion
+- llm_judged: rho **+0.810** (95% CI [+0.263, +1.000]), AUROC **0.800** (95% CI [0.333, 1.000]), n=8 — 42/2000 bootstrap resamples were degenerate and skipped; read this CI with suspicion
 
 **decomposed:**
-- executable: rho **+0.352** (95% CI [-0.046, +0.642]), AUROC **1.000** (95% CI [1.000, 1.000]), n=33
-- llm_judged: rho **+0.690** (95% CI [-0.062, +1.000]), AUROC **0.800** (95% CI [0.333, 1.000]), n=8
+- executable: rho **+0.352** (95% CI [-0.046, +0.642]), AUROC **1.000** (95% CI [1.000, 1.000]), n=33 — 5/2000 bootstrap resamples were degenerate and skipped; read this CI with suspicion
+- llm_judged: rho **+0.690** (95% CI [-0.062, +1.000]), AUROC **0.800** (95% CI [0.333, 1.000]), n=8 — 42/2000 bootstrap resamples were degenerate and skipped; read this CI with suspicion
 
 ## Per-task breakdown
 
@@ -115,6 +115,6 @@ A gate that tracks truth shows an upward trend; a guessing gate is a cloud. Oran
 - Gold trustworthiness was spot-checked in code: reference outputs pass, every breaking mutation fails, every surface mutation passes (tests/test_exp1.py).
 - This was a MOCK run: gate scores are a deterministic keyword heuristic, present only to validate the pipeline end to end.
 
-Config: {"generated_at": "2026-07-19T02:19:17.900715+00:00", "mock": true, "smoke": false, "gate_model": "mock", "votes": 3, "variants": ["holistic", "decomposed"], "task_ids": ["sql_ltv_top10", "sql_revenue_by_tier", "billing_schema", "csv_parser"], "sampled_per_task": 0}
+Config: {"generated_at": "2026-07-19T18:12:32.383489+00:00", "mock": true, "smoke": false, "gate_model": "mock", "votes": 3, "variants": ["holistic", "decomposed"], "task_ids": ["sql_ltv_top10", "sql_revenue_by_tier", "billing_schema", "csv_parser"], "sampled_per_task": 0}
 
 Every number above is reconstructable from `exp1_raw.json`.

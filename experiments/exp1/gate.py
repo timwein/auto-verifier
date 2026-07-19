@@ -188,6 +188,19 @@ def _mock_component(task_prompt: str, proxy_definition: str, salt: str) -> float
 # ---------------------------------------------------------------------------
 
 
+def _gate_fingerprint() -> str:
+    """Hash of the gate's behavioral surface (prompt templates, vote
+    temperature, mock heuristic tables). Included in the cache key so editing
+    the gate's code invalidates stale cached scores instead of silently
+    serving numbers produced by code that no longer exists."""
+    material = json.dumps([
+        _HOLISTIC_PROMPT, _DECOMPOSED_PROMPT, _VOTE_TEMPERATURE,
+        list(_STRONG_SIGNALS), list(_EXECUTION_SIGNALS),
+        list(_SURFACE_SIGNALS), list(_IRRELEVANT_SIGNALS),
+    ])
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
+
+
 def gate_score(
     task_prompt: str,
     proxy_definition: str,
@@ -205,7 +218,8 @@ def gate_score(
         cache_key = hashlib.sha256(
             json.dumps(
                 {"v": variant, "m": model if not mock else "mock", "k": votes,
-                 "task": task_prompt, "proxy": proxy_definition, "mock": mock},
+                 "task": task_prompt, "proxy": proxy_definition, "mock": mock,
+                 "code": _gate_fingerprint()},
                 sort_keys=True,
             ).encode("utf-8")
         ).hexdigest()
@@ -332,10 +346,17 @@ def _cache_put(cache_dir: Path, key: str, score: GateScore) -> None:
 # ---------------------------------------------------------------------------
 
 
+def render_judge_prompt(judge_prompt: str, output_text: str) -> str:
+    """Literal {output} substitution. NOT str.format — judge prompts legally
+    contain literal braces (e.g. '{unit: ..., quantity: ...}' in the schema
+    contract), which str.format would treat as replacement fields and crash."""
+    return judge_prompt.replace("{output}", output_text)
+
+
 def make_proxy_judge(client, model: str = DEFAULT_MODEL):
     def judge(judge_prompt: str, output_text: str) -> bool:
         text = _call_model(
-            client, model, judge_prompt.format(output=output_text), 0.0
+            client, model, render_judge_prompt(judge_prompt, output_text), 0.0
         )
         return bool(re.search(r"\bPASS\b", text)) and not re.search(r"\bFAIL\b", text)
 

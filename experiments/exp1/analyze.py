@@ -93,6 +93,16 @@ def compute_metrics(rows: list[dict], variant: str) -> dict:
     gate_scores = [r["gate"][variant]["validity_score"] for r in rows]
     validities = [r["empirical_validity"] for r in rows]
     labels = [v >= VALID_THRESHOLD for v in validities]
+    # A constant gate vector (e.g. every judge reply unparseable -> all 0.5)
+    # or single-class labels make rho/AUROC undefined; the sentinel values
+    # the primitives return must not masquerade as measurements.
+    degenerate = []
+    if len(set(gate_scores)) < 2:
+        degenerate.append("gate scores are constant")
+    if len(set(validities)) < 2:
+        degenerate.append("empirical validities are constant")
+    if len(set(labels)) < 2:
+        degenerate.append("all proxies binarize to a single class")
     rho = spearman_rho(gate_scores, validities)
     rho_lo, rho_hi, rho_skip = bootstrap_ci(gate_scores, validities, spearman_rho)
     auc = auroc(gate_scores, labels)
@@ -100,6 +110,7 @@ def compute_metrics(rows: list[dict], variant: str) -> dict:
     recall, crux_n = confounded_recall(rows, variant)
     return {
         "n": len(rows),
+        "degenerate": degenerate,
         "spearman_rho": rho,
         "rho_ci": [rho_lo, rho_hi],
         "rho_bootstrap_skipped": rho_skip,
@@ -116,6 +127,12 @@ def compute_metrics(rows: list[dict], variant: str) -> dict:
 
 def verdict(metrics: dict) -> tuple[str, str]:
     """Apply the section-0 decision rule; returns (verdict, reason)."""
+    if metrics.get("degenerate"):
+        return "INVALID", (
+            "statistics undefined — " + "; ".join(metrics["degenerate"]) +
+            ". The run is broken (not a kill signal); inspect exp1_raw.json "
+            "before drawing any conclusion."
+        )
     rho, (rho_lo, _) = metrics["spearman_rho"], metrics["rho_ci"]
     auc, (auc_lo, _) = metrics["auroc"], metrics["auroc_ci"]
     if rho <= KILL_RHO or auc <= KILL_AUROC:
@@ -198,13 +215,21 @@ def calibration_plot(rows: list[dict], variant: str, path: Path) -> None:
 
 
 def _fmt(metrics: dict) -> str:
-    return (
+    text = (
         f"rho **{metrics['spearman_rho']:+.3f}** "
         f"(95% CI [{metrics['rho_ci'][0]:+.3f}, {metrics['rho_ci'][1]:+.3f}]), "
         f"AUROC **{metrics['auroc']:.3f}** "
         f"(95% CI [{metrics['auroc_ci'][0]:.3f}, {metrics['auroc_ci'][1]:.3f}]), "
         f"n={metrics['n']}"
     )
+    skipped = max(metrics.get("rho_bootstrap_skipped", 0),
+                  metrics.get("auroc_bootstrap_skipped", 0))
+    if skipped:
+        text += (f" — {skipped}/{BOOTSTRAP_ITERS} bootstrap resamples were "
+                 "degenerate and skipped; read this CI with suspicion")
+    if metrics.get("degenerate"):
+        text += f" — DEGENERATE: {'; '.join(metrics['degenerate'])}"
+    return text
 
 
 def write_report(

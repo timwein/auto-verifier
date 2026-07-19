@@ -59,32 +59,55 @@ def balanced_accuracy(proxy: list[bool], gold_v: list[bool]) -> float:
 # Local extractors (deliberately re-implemented; no imports from gold/).
 # ---------------------------------------------------------------------------
 
-_SQL_FENCE_RE = re.compile(r"```sql\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+_SQL_FENCE_RE = re.compile(r"```(?:sqlite|sql)?[^\S\n]*\n?(.*?)```", re.DOTALL | re.IGNORECASE)
 _JSON_FENCE_RE = re.compile(r"```json\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 _PY_FENCE_RE = re.compile(r"```python\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
+_LEADING_SQL_COMMENTS = re.compile(r"^\s*(?:--[^\n]*\n\s*)*")
+
 
 def _sql_of(text: str) -> str:
-    blocks = _SQL_FENCE_RE.findall(text)
-    if blocks:
-        return blocks[-1].strip()
-    return text.strip() if re.match(r"(?is)^\s*(with|select)\b", text.strip()) else ""
+    """Last fenced block that reads as a query (skips DDL echoes/examples)."""
+    picked = ""
+    for block in _SQL_FENCE_RE.findall(text):
+        head = _LEADING_SQL_COMMENTS.sub("", block.strip())
+        if re.match(r"(?i)^(select|with)\b", head):
+            picked = block.strip()
+    if picked:
+        return picked
+    if "```" not in text:
+        head = _LEADING_SQL_COMMENTS.sub("", text.strip())
+        if re.match(r"(?i)^(select|with)\b", head):
+            return text.strip()
+    return ""
 
 
 def _schema_of(text: str) -> Optional[dict]:
-    for block in _JSON_FENCE_RE.findall(text)[::-1]:
+    """Last fenced JSON object that looks like a schema (an appended example
+    instance must not shadow it)."""
+    dicts = []
+    for block in _JSON_FENCE_RE.findall(text):
         try:
             parsed = json.loads(block.strip())
         except json.JSONDecodeError:
             continue
         if isinstance(parsed, dict):
-            return parsed
-    return None
+            dicts.append(parsed)
+    schema_like = [d for d in dicts
+                   if "properties" in d or "$schema" in d or "$defs" in d]
+    if schema_like:
+        return schema_like[-1]
+    return dicts[-1] if dicts else None
 
 
 def _python_of(text: str) -> str:
-    blocks = _PY_FENCE_RE.findall(text)
-    return blocks[-1].strip() if blocks else ""
+    """Last block defining parse_csv (a trailing usage example must not
+    shadow the implementation)."""
+    blocks = [b.strip() for b in _PY_FENCE_RE.findall(text)]
+    defining = [b for b in blocks if "def parse_csv" in b]
+    if defining:
+        return defining[-1]
+    return blocks[-1] if blocks else ""
 
 
 # ---------------------------------------------------------------------------
@@ -306,16 +329,20 @@ _PROXY_CSV_FIXTURES: list[tuple[str, list[list[str]]]] = [
     ("k,l\n\nz,w\n", [["k", "l"], ["z", "w"]]),
 ]
 
+# Imports the candidate (so its __main__ demo blocks never run) and moves
+# data through files (so candidate prints cannot corrupt the channel).
 _PROXY_CSV_DRIVER = """
-import json, sys
-cases = json.loads(sys.stdin.read())
+import json
+import sys
+sys.path.insert(0, ".")
+import cand
 out = []
-for text in cases:
+for text in json.load(open("cases.json", encoding="utf-8")):
     try:
-        out.append(parse_csv(text))
+        out.append(cand.parse_csv(text))
     except Exception:
         out.append(None)
-print(json.dumps(out))
+json.dump(out, open("out.json", "w", encoding="utf-8"))
 """
 
 
@@ -323,12 +350,12 @@ def _run_csv_candidate(code: str, cases: list[str]) -> Optional[list]:
     if not code or "def parse_csv" not in code:
         return None
     with tempfile.TemporaryDirectory() as tmp:
-        script = Path(tmp) / "cand.py"
-        script.write_text(code + "\n" + _PROXY_CSV_DRIVER, encoding="utf-8")
+        (Path(tmp) / "cand.py").write_text(code, encoding="utf-8")
+        (Path(tmp) / "runner.py").write_text(_PROXY_CSV_DRIVER, encoding="utf-8")
+        (Path(tmp) / "cases.json").write_text(json.dumps(cases), encoding="utf-8")
         try:
             proc = subprocess.run(
-                [sys.executable, "-I", str(script)],
-                input=json.dumps(cases),
+                [sys.executable, "-I", "runner.py"],
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -336,12 +363,13 @@ def _run_csv_candidate(code: str, cases: list[str]) -> Optional[list]:
             )
         except subprocess.TimeoutExpired:
             return None
-    if proc.returncode != 0:
-        return None
-    try:
-        return json.loads(proc.stdout.strip().splitlines()[-1])
-    except (json.JSONDecodeError, IndexError):
-        return None
+        out_path = Path(tmp) / "out.json"
+        if proc.returncode != 0 or not out_path.exists():
+            return None
+        try:
+            return json.loads(out_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return None
 
 
 def _csv_own_fixtures(text: str) -> bool:
@@ -442,7 +470,10 @@ def build_proxy_bank() -> dict[str, list[ProxyCheck]]:
         _proxy(t, "text_uppercase_keywords", "Assert the query writes its SQL keywords in uppercase (SELECT rather than select).", E, I, impl=_sql_text_re(r"\bSELECT\b")),
         _proxy(t, "llm_net_revenue_semantics", "Ask an LLM judge: does this query correctly compute net revenue per signup tier as total charges minus total refunds in cents, returning exactly signup_tier and net_revenue_cents, one row per tier, ordered by net revenue descending?", L, V,
                judge="You are verifying a SQLite query for this task: return net revenue per signup tier, where net revenue = total 'charge' cents minus total 'refund' cents from payments (customer_id, amount_cents, type) joined to customers (customer_id, signup_tier). Columns must be signup_tier, net_revenue_cents, one row per tier, ordered by net_revenue_cents DESC. Answer strictly PASS or FAIL: does the following output's query satisfy ALL of that?\n\n{output}",
-               mock=lambda text: bool(re.search(r"refund", _sql_of(text), re.I)) and bool(re.search(r"signup_tier", _sql_of(text), re.I)) and bool(re.search(r"(DESC|desc)", _sql_of(text))) and not re.search(r"JOIN\s+customers\s+c2", _sql_of(text), re.I) and bool(re.search(r"-\s*(COALESCE|coalesce|SUM|sum)|WHEN\s+'refund'\s+THEN\s+-|when\s+'refund'\s+then\s+-", _sql_of(text)))),
+               # Contract-derived heuristic only (no population-specific
+               # tokens): joining customers ON signup_tier fans out rows and
+               # double-counts — a semantic flaw, whatever the alias.
+               mock=lambda text: bool(re.search(r"refund", _sql_of(text), re.I)) and bool(re.search(r"signup_tier", _sql_of(text), re.I)) and bool(re.search(r"(DESC|desc)", _sql_of(text))) and not re.search(r"join\s+customers\s+\w+\s+on\s+\w+\.signup_tier\s*=", _sql_of(text), re.I) and bool(re.search(r"-\s*(COALESCE|coalesce|SUM|sum)|WHEN\s+'refund'\s+THEN\s+-|when\s+'refund'\s+then\s+-", _sql_of(text)))),
         _proxy(t, "llm_readability", "Ask an LLM judge: is this SQL well-formatted and readable?", L, I,
                judge="Answer strictly PASS or FAIL: is the SQL in the following output well-formatted and readable, with clear aliases and a sensible multi-line layout?\n\n{output}",
                mock=lambda text: len(_sql_of(text).splitlines()) >= 5 and bool(re.search(r"\n(FROM|from)\b", _sql_of(text)))),

@@ -168,6 +168,43 @@ Outputs land in `experiments/exp1/results/`: `REPORT.md` (verdict first),
 `calibration_{holistic,decomposed}.png`. Gate calls are cached by content hash under
 `results/.cache/` so re-runs during debugging are free.
 
+## Adversarial review outcomes (post-implementation hardening)
+
+A multi-agent adversarial review of the implementation surfaced 17 candidate
+defects; each was reproduced or refuted, and the real ones fixed:
+
+- **Critical**: the billing_schema judge prompt contains literal braces, and
+  `str.format` rendering crashed every keyed run with `KeyError: 'unit'` —
+  invisible offline because mock predicates bypass rendering. Judge prompts
+  are now rendered by literal `{output}` substitution
+  (`gate.render_judge_prompt`), regression-tested over the whole bank.
+- **Gold hardening**: the schema battery had uncovered contract clauses
+  (a schema relaxing e.g. `status` required or price integer-ness still
+  passed); the battery now covers every clause in both directions
+  (33 instances, per-clause coverage test). The SQL semicolon pre-check
+  false-rejected legal queries with `;` in comments/strings (SQLite itself
+  enforces single-statement; check removed). Extractors preferred the *last*
+  code block, so trailing example/DDL-echo blocks shadowed the real
+  schema/query/code — extraction is now content-aware (schema-shaped block,
+  `def parse_csv` block, SELECT/WITH block; ```sqlite and one-line fences
+  accepted). The csv runner executed candidates as `__main__` (demo blocks
+  ran, stdout writes corrupted the protocol); candidates are now imported as
+  a module with file-based IO.
+- **Discipline**: one llm_judged mock predicate keyed on an alias (`c2`)
+  specific to a population stand-in — an authoring-independence violation;
+  replaced with a contract-derived fan-out heuristic. Note the general
+  caveat: mock predicates are deterministic stand-ins; their empirical
+  validity in mock runs says nothing about real LLM judges.
+- **Analysis honesty**: constant gate scores / single-class labels now yield
+  an INVALID verdict ("statistics undefined — run is broken") instead of a
+  sentinel-driven KILL; bootstrap CIs that skipped degenerate resamples say
+  so in the report. The gate cache key now includes a fingerprint of the
+  gate's prompts/heuristics, so editing gate code invalidates stale caches.
+- Assorted: duplicate sampled texts no longer collide on `output_id`;
+  `--sample` is rejected under `--mock`/`--smoke` instead of silently
+  dropped; empty `--tasks` fails fast; the smoke path no longer builds the
+  population twice.
+
 ## Known properties / honest caveats
 
 - ~40 (task, proxy) pairs and ~25 outputs per task: thin by design (spec §10);

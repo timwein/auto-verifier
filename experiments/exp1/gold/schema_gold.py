@@ -153,27 +153,82 @@ INSTANCES: dict[str, tuple[dict, bool]] = {
         False,
     ),
     "empty_tenant_id": (_sub(tenant_id=""), False),
+    # Coverage for every remaining contract clause/direction (a schema that
+    # relaxes any pinned constraint must fail at least one instance).
+    "missing_subscription_id": (_sub(subscription_id=_OMIT), False),
+    "missing_status": (_sub(status=_OMIT), False),
+    "missing_seats": (_sub(seats=_OMIT), False),
+    "empty_subscription_id": (_sub(subscription_id=""), False),
+    "fractional_seat_price": (
+        _sub(plan={"pricing_model": "seat", "price_per_seat_cents": 10.5,
+                   "included_usage_units": 0}),
+        False,
+    ),
+    "negative_included_units": (
+        _sub(plan={"pricing_model": "seat", "price_per_seat_cents": 900,
+                   "included_usage_units": -5}),
+        False,
+    ),
+    "fractional_included_units": (
+        _sub(plan={"pricing_model": "seat", "price_per_seat_cents": 900,
+                   "included_usage_units": 2.5}),
+        False,
+    ),
+    "plan_missing_pricing_model": (
+        _sub(plan={"price_per_seat_cents": 900, "included_usage_units": 0}),
+        False,
+    ),
+    "plan_missing_seat_price": (
+        _sub(plan={"pricing_model": "seat", "included_usage_units": 0}),
+        False,
+    ),
+    "usage_records_not_array": (_sub(usage_records="daily"), False),
+    "usage_record_missing_quantity": (
+        _sub(usage_records=[{"unit": "gb"}]),
+        False,
+    ),
+    "usage_record_empty_unit": (
+        _sub(usage_records=[{"unit": "", "quantity": 1}]),
+        False,
+    ),
 }
 
 _JSON_FENCE = re.compile(r"```json\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
 
+def _looks_like_schema(obj: dict) -> bool:
+    return "$schema" in obj or "properties" in obj or "$defs" in obj or (
+        isinstance(obj.get("type"), str) and obj.get("type") == "object"
+    )
+
+
 def extract_schema(text: str) -> Optional[dict]:
-    """Last ```json fenced block, else the largest parseable {...} span."""
-    blocks = _JSON_FENCE.findall(text)
-    candidates = [b.strip() for b in blocks[::-1]]
-    if not candidates:
-        brace = re.search(r"\{[\s\S]*\}", text)
-        if brace:
-            candidates = [brace.group(0)]
-    for cand in candidates:
+    """The last fenced JSON object that looks like a JSON Schema (falls back
+    to the last parseable object). Outputs commonly append an example
+    instance in a second ```json block — a bare last-block heuristic would
+    grab the example, which is itself a (vacuous) valid schema and would
+    corrupt the verdict."""
+    parsed_blocks = []
+    for block in _JSON_FENCE.findall(text):
         try:
-            parsed = json.loads(cand)
+            parsed = json.loads(block.strip())
         except json.JSONDecodeError:
             continue
         if isinstance(parsed, dict):
-            return parsed
-    return None
+            parsed_blocks.append(parsed)
+    if not parsed_blocks:
+        brace = re.search(r"\{[\s\S]*\}", text)
+        if brace:
+            try:
+                parsed = json.loads(brace.group(0))
+                if isinstance(parsed, dict):
+                    parsed_blocks.append(parsed)
+            except json.JSONDecodeError:
+                pass
+    schema_like = [b for b in parsed_blocks if _looks_like_schema(b)]
+    if schema_like:
+        return schema_like[-1]
+    return parsed_blocks[-1] if parsed_blocks else None
 
 
 def gold_verdict(task_id: str, output_text: str) -> tuple[bool, dict]:

@@ -49,13 +49,13 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 def build_smoke_population(task) -> list:
     """Spec section 8.2: 1 reference, 2 mutated-wrong, 2 sampled."""
-    outputs = [o for o in population.build_population(task)
-               if o.origin == Origin.REFERENCE
-               or (o.origin == Origin.MUTATED
-                   and o.gold_meta.get("mutation") in SMOKE_MUTATIONS)]
-    sampled = [o for o in population.build_population(task)
-               if o.origin == Origin.SAMPLED][:2]
-    return outputs + sampled
+    full = population.build_population(task)
+    kept = [o for o in full
+            if o.origin == Origin.REFERENCE
+            or (o.origin == Origin.MUTATED
+                and o.gold_meta.get("mutation") in SMOKE_MUTATIONS)]
+    kept += [o for o in full if o.origin == Origin.SAMPLED][:2]
+    return kept
 
 
 def main(argv=None) -> int:
@@ -64,6 +64,10 @@ def main(argv=None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     cache_dir = out_dir / ".cache"
     variants = ["holistic", "decomposed"] if args.gate == "both" else [args.gate]
+
+    if args.sample and (args.mock or args.smoke):
+        raise SystemExit("--sample requires a keyed run: it is incompatible "
+                         "with --mock and --smoke (real model sampling only)")
 
     client = None
     judge = None
@@ -83,6 +87,8 @@ def main(argv=None) -> int:
         unknown = [t for t in task_ids if t not in all_tasks]
         if unknown:
             raise SystemExit(f"unknown tasks: {unknown}; known: {list(all_tasks)}")
+    if not task_ids:
+        raise SystemExit("no tasks selected")
 
     # --- populations (gold-labeled) ---------------------------------------
     populations: dict[str, list] = {}
@@ -97,6 +103,7 @@ def main(argv=None) -> int:
             if args.sample and client is not None:
                 pop.extend(population.sample_real_outputs(
                     task, client, args.model, n=args.sample))
+                population.ensure_unique_ids(pop)
             balance[task_id] = population.check_balance(task_id, pop)
         populations[task_id] = pop
         print(f"[population] {task_id}: {balance[task_id]}")

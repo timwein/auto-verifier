@@ -144,17 +144,32 @@ Return exactly these columns, in this order: signup_tier, net_revenue_cents —
 one row per tier, ordered by net_revenue_cents descending.""",
 }
 
-_SQL_FENCE = re.compile(r"```sql\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+_SQL_FENCE = re.compile(r"```(?:sqlite|sql)?[ \t]*\n?(.*?)```", re.DOTALL | re.IGNORECASE)
+
+
+def _after_leading_comments(sql: str) -> str:
+    lines = sql.strip().splitlines()
+    while lines and (not lines[0].strip() or lines[0].strip().startswith("--")):
+        lines.pop(0)
+    return "\n".join(lines).strip()
 
 
 def extract_sql(text: str) -> Optional[str]:
-    """Last ```sql fenced block, else the raw text if it looks like a query."""
-    blocks = _SQL_FENCE.findall(text)
-    if blocks:
-        return blocks[-1].strip()
-    stripped = text.strip()
-    if re.match(r"(?is)^\s*(with|select)\b", stripped):
-        return stripped
+    """The last fenced block that reads as a query (SELECT/WITH after any
+    leading comments). Tolerates ```sqlite / untagged / one-line fences and
+    skips non-query blocks such as a re-echo of the DDL or example tables;
+    falls back to raw text when the whole output is an unfenced query."""
+    candidates = [
+        block.strip()
+        for block in _SQL_FENCE.findall(text)
+        if re.match(r"(?is)^(with|select)\b", _after_leading_comments(block))
+    ]
+    if candidates:
+        return candidates[-1]
+    if "```" not in text and re.match(
+        r"(?is)^(with|select)\b", _after_leading_comments(text)
+    ):
+        return text.strip()
     return None
 
 
@@ -177,8 +192,9 @@ def gold_verdict(task_id: str, output_text: str) -> tuple[bool, dict]:
     sql = extract_sql(output_text)
     if sql is None:
         return False, {"reason": "no SQL query found in output"}
-    if len(re.findall(r";", sql.strip().rstrip(";"))) > 0:
-        return False, {"reason": "multiple statements; prompt requires one query"}
+    # Multi-statement inputs are rejected by sqlite itself: conn.execute()
+    # raises ProgrammingError for more than one statement. No textual
+    # semicolon pre-check — comments and string literals may contain ';'.
     conn = build_db()
     try:
         actual = run_query(conn, sql)

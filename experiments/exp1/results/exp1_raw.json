@@ -1,6 +1,6 @@
 {
  "config": {
-  "generated_at": "2026-07-19T02:19:17.900715+00:00",
+  "generated_at": "2026-07-19T18:12:32.383489+00:00",
   "mock": true,
   "smoke": false,
   "gate_model": "mock",
@@ -648,7 +648,7 @@
     "gold_meta": {
      "provenance": "pinned reference",
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:reference:63aba1d5a7"
@@ -798,7 +798,7 @@
      "mutation": "sorted_keys",
      "expected": "preserve",
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:mutated:bb77fd6348"
@@ -812,7 +812,7 @@
      "mutation": "with_annotations",
      "expected": "preserve",
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:mutated:6bfa8a3d0c"
@@ -826,7 +826,7 @@
      "mutation": "no_schema_key",
      "expected": "preserve",
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:mutated:e6156f7e1c"
@@ -840,7 +840,7 @@
      "provenance": "pre-authored stand-in",
      "index": 0,
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:sampled:45c990e99a"
@@ -896,7 +896,7 @@
      "provenance": "pre-authored stand-in",
      "index": 3,
      "gold_result": {
-      "instances": 21
+      "instances": 33
      }
     },
     "output_id": "billing_schema:sampled:d3a6b01b69"
@@ -4808,6 +4808,7 @@
  "metrics": {
   "holistic": {
    "n": 41,
+   "degenerate": [],
    "spearman_rho": 0.4913231267254053,
    "rho_ci": [
     0.17557912205633458,
@@ -4826,6 +4827,7 @@
   },
   "decomposed": {
    "n": 41,
+   "degenerate": [],
    "spearman_rho": 0.45856234876750296,
    "rho_ci": [
     0.15262244474927822,

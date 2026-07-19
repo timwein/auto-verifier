@@ -162,34 +162,48 @@ FIXTURES: dict[str, tuple[str, list[list[str]]]] = {
 
 _PY_FENCE = re.compile(r"```python\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
+# The driver IMPORTS the candidate as a module (so any
+# `if __name__ == "__main__":` demo block in the candidate does not run) and
+# exchanges data via files (so candidate prints cannot corrupt the protocol).
 _DRIVER = """
-import json, sys
-fixtures = json.loads(sys.stdin.read())
+import json
+import sys
+sys.path.insert(0, ".")  # -I strips cwd; the candidate module lives here
+import candidate_module
+fixtures = json.load(open("fixtures.json", encoding="utf-8"))
 results = {}
 for label, text in fixtures.items():
     try:
-        results[label] = parse_csv(text)
+        results[label] = candidate_module.parse_csv(text)
     except Exception as exc:
         results[label] = {"__error__": f"{type(exc).__name__}: {exc}"}
-print(json.dumps(results))
+json.dump(results, open("results.json", "w", encoding="utf-8"))
 """
 
 
 def extract_python(text: str) -> Optional[str]:
-    blocks = _PY_FENCE.findall(text)
-    return blocks[-1].strip() if blocks else None
+    """Prefer the last block that defines parse_csv; outputs commonly append
+    a short usage-example block that must not shadow the implementation."""
+    blocks = [b.strip() for b in _PY_FENCE.findall(text)]
+    defining = [b for b in blocks if "def parse_csv" in b]
+    if defining:
+        return defining[-1]
+    return blocks[-1] if blocks else None
 
 
 def run_candidate(code: str, timeout: float = 10.0) -> tuple[Optional[dict], str]:
-    """Run candidate code + driver in a subprocess; returns (results, error)."""
+    """Import candidate as a module in a subprocess, run fixtures through
+    parse_csv via file-based IO; returns (results, error)."""
     with tempfile.TemporaryDirectory() as tmp:
-        script = Path(tmp) / "candidate.py"
-        script.write_text(code + "\n" + _DRIVER, encoding="utf-8")
-        payload = json.dumps({label: text for label, (text, _) in FIXTURES.items()})
+        (Path(tmp) / "candidate_module.py").write_text(code, encoding="utf-8")
+        (Path(tmp) / "driver.py").write_text(_DRIVER, encoding="utf-8")
+        (Path(tmp) / "fixtures.json").write_text(
+            json.dumps({label: text for label, (text, _) in FIXTURES.items()}),
+            encoding="utf-8",
+        )
         try:
             proc = subprocess.run(
-                [sys.executable, "-I", str(script)],
-                input=payload,
+                [sys.executable, "-I", "driver.py"],
                 capture_output=True,
                 text=True,
                 timeout=timeout,
@@ -197,12 +211,15 @@ def run_candidate(code: str, timeout: float = 10.0) -> tuple[Optional[dict], str
             )
         except subprocess.TimeoutExpired:
             return None, "timeout"
-    if proc.returncode != 0:
-        return None, (proc.stderr or "nonzero exit").strip()[-400:]
-    try:
-        return json.loads(proc.stdout.strip().splitlines()[-1]), ""
-    except (json.JSONDecodeError, IndexError):
-        return None, "unparseable driver output"
+        if proc.returncode != 0:
+            return None, (proc.stderr or "nonzero exit").strip()[-400:]
+        results_path = Path(tmp) / "results.json"
+        if not results_path.exists():
+            return None, "driver produced no results file"
+        try:
+            return json.loads(results_path.read_text(encoding="utf-8")), ""
+        except json.JSONDecodeError:
+            return None, "unparseable results file"
 
 
 def gold_verdict(task_id: str, output_text: str) -> tuple[bool, dict]:

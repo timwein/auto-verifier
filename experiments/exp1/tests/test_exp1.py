@@ -193,6 +193,154 @@ def test_verdict_rule():
     assert analyze.verdict(wide_ci)[0] == "AMBIGUOUS"
 
 
+def test_judge_prompts_render_safely():
+    """Regression: judge prompts legally contain literal braces (the schema
+    contract text); rendering must be literal substitution, not str.format."""
+    from ..gate import render_judge_prompt
+
+    for proxies in proxy_bank.build_proxy_bank().values():
+        for p in proxies:
+            if p.judge_prompt is None:
+                continue
+            rendered = render_judge_prompt(p.judge_prompt, "<<OUTPUT>>")
+            assert "<<OUTPUT>>" in rendered, p.proxy_id
+            assert "{output}" not in rendered, p.proxy_id
+
+
+def test_sql_gold_extraction_robustness():
+    """Regression: semicolons in comments, dialect-tagged fences, and DDL
+    echo blocks must not false-reject a correct query."""
+    from ..gold import sql_gold
+
+    ref = sql_gold.REFERENCE_QUERIES["sql_ltv_top10"]
+    commented = ref.replace("-- Top 10", "-- Top 10; net of refunds --")
+    assert sql_gold.gold_verdict(
+        "sql_ltv_top10", "```sql\n" + commented + "\n```")[0]
+    assert sql_gold.gold_verdict(
+        "sql_ltv_top10", "```sqlite\n" + ref + "\n```")[0]
+    echoed = ("```sql\n" + ref + "\n```\n\nSchema recap:\n```sql\n"
+              + sql_gold.DDL + "\n```")
+    assert sql_gold.gold_verdict("sql_ltv_top10", echoed)[0]
+    ok, meta = sql_gold.gold_verdict("sql_ltv_top10",
+                                     "```sql\nSELECT 1; SELECT 2;\n```")
+    assert not ok and "execution error" in meta["reason"]
+
+
+def test_schema_gold_ignores_trailing_example():
+    """Regression: an appended example-instance block must not shadow the
+    schema (it would otherwise vacuously accept everything)."""
+    import json as json_mod
+
+    from ..gold import schema_gold
+
+    example = json_mod.dumps(
+        {"subscription_id": "s", "tenant_id": "t", "status": "active",
+         "seats": 1, "plan": {"pricing_model": "seat",
+                              "price_per_seat_cents": 0,
+                              "included_usage_units": 0}})
+    out = (schema_gold.REFERENCE_OUTPUT
+           + "\n\nExample record:\n```json\n" + example + "\n```")
+    assert schema_gold.gold_verdict("billing_schema", out)[0]
+
+
+def test_schema_battery_clause_coverage():
+    """Regression: relaxing any single pinned clause must fail the battery."""
+    import json as json_mod
+
+    from ..gold import schema_gold
+
+    def relaxed(mutate):
+        schema = json_mod.loads(json_mod.dumps(schema_gold.REFERENCE_SCHEMA))
+        mutate(schema)
+        return "```json\n" + json_mod.dumps(schema) + "\n```"
+
+    relaxations = [
+        lambda s: s["required"].remove("subscription_id"),
+        lambda s: s["required"].remove("status"),
+        lambda s: s["required"].remove("seats"),
+        lambda s: s["properties"]["subscription_id"].pop("minLength"),
+        lambda s: s["properties"]["plan"]["properties"][
+            "price_per_seat_cents"].update(type="number"),
+        lambda s: s["properties"]["plan"]["properties"][
+            "included_usage_units"].pop("minimum"),
+        lambda s: s["properties"]["plan"]["required"].remove("pricing_model"),
+        lambda s: s["properties"]["plan"]["required"].remove(
+            "price_per_seat_cents"),
+        lambda s: s["properties"]["usage_records"].pop("type"),
+        lambda s: s["properties"]["usage_records"]["items"]["required"].remove(
+            "quantity"),
+        lambda s: s["properties"]["usage_records"]["items"]["properties"][
+            "unit"].pop("minLength"),
+    ]
+    for i, mutate in enumerate(relaxations):
+        ok, _ = schema_gold.gold_verdict("billing_schema", relaxed(mutate))
+        assert not ok, f"relaxation #{i} passed the battery — coverage gap"
+
+
+def test_csv_gold_tolerates_main_blocks_and_prints():
+    """Regression: __main__ demo blocks must not run; candidate stdout writes
+    and trailing usage-example blocks must not corrupt the verdict."""
+    from ..gold import csv_gold
+
+    with_main = (csv_gold.REFERENCE_OUTPUT[:-3]
+                 + '\nif __name__ == "__main__":\n'
+                 + "    raise SystemExit(1)\n```")
+    assert csv_gold.gold_verdict("csv_parser", with_main)[0]
+    noisy = csv_gold.REFERENCE_OUTPUT.replace(
+        "def parse_csv",
+        'import sys\nsys.stdout.write("dbg")\ndef parse_csv', 1)
+    assert csv_gold.gold_verdict("csv_parser", noisy)[0]
+    with_usage = (csv_gold.REFERENCE_OUTPUT
+                  + "\n\nUsage:\n```python\nprint(parse_csv('a,b'))\n```")
+    assert csv_gold.gold_verdict("csv_parser", with_usage)[0]
+
+
+def test_output_id_uniqueness():
+    from ..models import Origin as OriginEnum, Output
+
+    dup = [Output(task_id="t", text="same", origin=OriginEnum.SAMPLED),
+           Output(task_id="t", text="same", origin=OriginEnum.SAMPLED)]
+    population.ensure_unique_ids(dup)
+    assert dup[0].output_id != dup[1].output_id
+
+
+def test_degenerate_metrics_yield_invalid_verdict():
+    rows = [
+        {"proxy_id": f"p{i}", "task_id": "t", "intended_class": "valid",
+         "kind": "executable", "empirical_validity": v,
+         "balanced_accuracy": 0.5,
+         "gate": {"holistic": {"validity_score": 0.5, "sample_variance": 0.0,
+                               "subjudgments": {}}}}
+        for i, v in enumerate([0.9, 0.1, 0.7, -0.2])
+    ]
+    metrics = analyze.compute_metrics(rows, "holistic")
+    assert metrics["degenerate"]
+    call, reason = analyze.verdict(metrics)
+    assert call == "INVALID" and "undefined" in reason
+
+
+def test_empty_task_selection_fails_fast():
+    try:
+        run_exp1.main(["--mock", "--tasks", ""])
+        raise AssertionError("empty --tasks did not exit")
+    except SystemExit as exc:
+        assert "no tasks selected" in str(exc)
+
+
+def test_gate_cache_fingerprint_tracks_code():
+    from .. import gate as gate_module
+
+    original = gate_module._HOLISTIC_PROMPT
+    fp_before = gate_module._gate_fingerprint()
+    try:
+        gate_module._HOLISTIC_PROMPT = original + " EDITED"
+        fp_after = gate_module._gate_fingerprint()
+    finally:
+        gate_module._HOLISTIC_PROMPT = original
+    assert fp_before != fp_after
+    assert gate_module._gate_fingerprint() == fp_before
+
+
 ALL_TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
 
 if __name__ == "__main__":

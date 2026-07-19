@@ -863,7 +863,20 @@ def build_population(task: GroundedTask, include_sampled: bool = True) -> list[O
         verdict, meta = gold.gold_verdict(task, output.text)
         output.gold_verdict = verdict
         output.gold_meta.update(gold_result=meta)
+    ensure_unique_ids(outputs)
     return outputs
+
+
+def ensure_unique_ids(outputs: list[Output]) -> None:
+    """output_id is a content hash, so textually identical outputs (possible
+    with real temperature sampling) would collide and silently collapse
+    per_output_verdicts. Disambiguate in place."""
+    seen: dict[str, int] = {}
+    for output in outputs:
+        count = seen.get(output.output_id, 0)
+        seen[output.output_id] = count + 1
+        if count:
+            output.output_id = f"{output.output_id}#{count + 1}"
 
 
 def balance_report(outputs: list[Output]) -> dict:
@@ -894,7 +907,8 @@ def check_balance(task_id: str, outputs: list[Output]) -> dict:
 
 def sample_real_outputs(task: GroundedTask, client, model: str, n: int = 6) -> list[Output]:
     """Keyed mode only: generate true sampled outputs at varied temperature."""
-    temperatures = [0.0, 0.4, 0.7, 1.0, 1.0, 1.0][:n]
+    base = [0.0, 0.4, 0.7]
+    temperatures = (base + [1.0] * max(0, n - len(base)))[:n]
     outputs = []
     for i, temp in enumerate(temperatures):
         response = client.messages.create(
