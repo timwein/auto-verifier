@@ -1,9 +1,9 @@
 {
  "config": {
-  "generated_at": "2026-07-19T18:12:32.383489+00:00",
-  "mock": true,
+  "generated_at": "2026-07-19T20:03:56.917879+00:00",
+  "mock": false,
   "smoke": false,
-  "gate_model": "mock",
+  "gate_model": "claude-sonnet-4-6",
   "votes": 3,
   "variants": [
    "holistic",
@@ -1740,40 +1740,40 @@
     "sql_ltv_top10:reference:880b7a03c8": true,
     "sql_ltv_top10:mutated:754f33858a": false,
     "sql_ltv_top10:mutated:1095cce31e": false,
-    "sql_ltv_top10:mutated:5316e73d91": true,
-    "sql_ltv_top10:mutated:44f972729d": true,
-    "sql_ltv_top10:mutated:a5307a92f9": true,
-    "sql_ltv_top10:mutated:0f12e4d687": true,
+    "sql_ltv_top10:mutated:5316e73d91": false,
+    "sql_ltv_top10:mutated:44f972729d": false,
+    "sql_ltv_top10:mutated:a5307a92f9": false,
+    "sql_ltv_top10:mutated:0f12e4d687": false,
     "sql_ltv_top10:mutated:cd4cb7eb16": false,
-    "sql_ltv_top10:mutated:3c1286c4dd": true,
+    "sql_ltv_top10:mutated:3c1286c4dd": false,
     "sql_ltv_top10:mutated:47b64eb928": true,
     "sql_ltv_top10:mutated:c02a0d1a9a": true,
-    "sql_ltv_top10:mutated:442ae14ceb": true,
+    "sql_ltv_top10:mutated:442ae14ceb": false,
     "sql_ltv_top10:mutated:b003b63229": true,
     "sql_ltv_top10:mutated:13a059342e": false,
     "sql_ltv_top10:sampled:774c88bc0e": true,
     "sql_ltv_top10:sampled:67ae2098bd": true,
     "sql_ltv_top10:sampled:91745b8e45": false,
     "sql_ltv_top10:sampled:e6a25579f8": false,
-    "sql_ltv_top10:sampled:42a2f78f22": true,
+    "sql_ltv_top10:sampled:42a2f78f22": false,
     "sql_ltv_top10:sampled:c5a046c918": true
    },
-   "empirical_validity": 0.5345224838248488,
-   "balanced_accuracy": 0.75,
+   "empirical_validity": 0.898717034272917,
+   "balanced_accuracy": 0.9375,
    "n_outputs": 20
   },
   "sql_ltv_top10::llm_readability": {
    "proxy_id": "sql_ltv_top10::llm_readability",
    "per_output_verdicts": {
     "sql_ltv_top10:reference:880b7a03c8": true,
-    "sql_ltv_top10:mutated:754f33858a": true,
+    "sql_ltv_top10:mutated:754f33858a": false,
     "sql_ltv_top10:mutated:1095cce31e": true,
     "sql_ltv_top10:mutated:5316e73d91": true,
-    "sql_ltv_top10:mutated:44f972729d": true,
+    "sql_ltv_top10:mutated:44f972729d": false,
     "sql_ltv_top10:mutated:a5307a92f9": true,
-    "sql_ltv_top10:mutated:0f12e4d687": true,
+    "sql_ltv_top10:mutated:0f12e4d687": false,
     "sql_ltv_top10:mutated:cd4cb7eb16": true,
-    "sql_ltv_top10:mutated:3c1286c4dd": true,
+    "sql_ltv_top10:mutated:3c1286c4dd": false,
     "sql_ltv_top10:mutated:47b64eb928": true,
     "sql_ltv_top10:mutated:c02a0d1a9a": true,
     "sql_ltv_top10:mutated:442ae14ceb": true,
@@ -1786,8 +1786,8 @@
     "sql_ltv_top10:sampled:42a2f78f22": true,
     "sql_ltv_top10:sampled:c5a046c918": false
    },
-   "empirical_validity": -0.2809757434745082,
-   "balanced_accuracy": 0.4375,
+   "empirical_validity": 0.23570226039551584,
+   "balanced_accuracy": 0.6041666666666666,
    "n_outputs": 20
   },
   "sql_revenue_by_tier::exec_matches_ref": {
@@ -1988,10 +1988,10 @@
     "sql_revenue_by_tier:reference:decb6c5019": true,
     "sql_revenue_by_tier:mutated:f1978011cd": false,
     "sql_revenue_by_tier:mutated:3903f9cfa3": false,
-    "sql_revenue_by_tier:mutated:5f13127554": true,
-    "sql_revenue_by_tier:mutated:65b58c2cad": true,
-    "sql_revenue_by_tier:mutated:ec59e43021": true,
-    "sql_revenue_by_tier:mutated:a42c58cb26": true,
+    "sql_revenue_by_tier:mutated:5f13127554": false,
+    "sql_revenue_by_tier:mutated:65b58c2cad": false,
+    "sql_revenue_by_tier:mutated:ec59e43021": false,
+    "sql_revenue_by_tier:mutated:a42c58cb26": false,
     "sql_revenue_by_tier:mutated:4b3c0f1033": true,
     "sql_revenue_by_tier:mutated:ef0f27ea7c": true,
     "sql_revenue_by_tier:mutated:a4167742b1": true,
@@ -2002,17 +2002,17 @@
     "sql_revenue_by_tier:sampled:a9f10176bd": true,
     "sql_revenue_by_tier:sampled:cc92de3d41": false
    },
-   "empirical_validity": 0.5945883900105632,
-   "balanced_accuracy": 0.7777777777777778,
+   "empirical_validity": 1.0,
+   "balanced_accuracy": 1.0,
    "n_outputs": 16
   },
   "sql_revenue_by_tier::llm_readability": {
    "proxy_id": "sql_revenue_by_tier::llm_readability",
    "per_output_verdicts": {
     "sql_revenue_by_tier:reference:decb6c5019": true,
-    "sql_revenue_by_tier:mutated:f1978011cd": true,
+    "sql_revenue_by_tier:mutated:f1978011cd": false,
     "sql_revenue_by_tier:mutated:3903f9cfa3": true,
-    "sql_revenue_by_tier:mutated:5f13127554": true,
+    "sql_revenue_by_tier:mutated:5f13127554": false,
     "sql_revenue_by_tier:mutated:65b58c2cad": true,
     "sql_revenue_by_tier:mutated:ec59e43021": true,
     "sql_revenue_by_tier:mutated:a42c58cb26": true,
@@ -2026,8 +2026,8 @@
     "sql_revenue_by_tier:sampled:a9f10176bd": true,
     "sql_revenue_by_tier:sampled:cc92de3d41": true
    },
-   "empirical_validity": 0.0,
-   "balanced_accuracy": 0.5,
+   "empirical_validity": 0.3333333333333333,
+   "balanced_accuracy": 0.6111111111111112,
    "n_outputs": 16
   },
   "billing_schema::battery_accepts_rejects": {
@@ -2236,12 +2236,12 @@
     "billing_schema:reference:63aba1d5a7": true,
     "billing_schema:mutated:84f598ca0a": false,
     "billing_schema:mutated:480d17e446": false,
-    "billing_schema:mutated:f0a9db61e0": true,
+    "billing_schema:mutated:f0a9db61e0": false,
     "billing_schema:mutated:6355152517": false,
     "billing_schema:mutated:9a5acbc619": false,
-    "billing_schema:mutated:ae7eb924f7": true,
-    "billing_schema:mutated:5409392c30": true,
-    "billing_schema:mutated:c346a4b413": true,
+    "billing_schema:mutated:ae7eb924f7": false,
+    "billing_schema:mutated:5409392c30": false,
+    "billing_schema:mutated:c346a4b413": false,
     "billing_schema:mutated:bb77fd6348": true,
     "billing_schema:mutated:6bfa8a3d0c": true,
     "billing_schema:mutated:e6156f7e1c": true,
@@ -2251,33 +2251,33 @@
     "billing_schema:sampled:d3a6b01b69": true,
     "billing_schema:sampled:9da78fb305": false
    },
-   "empirical_validity": 0.6179143806533246,
-   "balanced_accuracy": 0.8181818181818181,
+   "empirical_validity": 1.0,
+   "balanced_accuracy": 1.0,
    "n_outputs": 17
   },
   "billing_schema::llm_professional": {
    "proxy_id": "billing_schema::llm_professional",
    "per_output_verdicts": {
-    "billing_schema:reference:63aba1d5a7": true,
-    "billing_schema:mutated:84f598ca0a": true,
-    "billing_schema:mutated:480d17e446": true,
-    "billing_schema:mutated:f0a9db61e0": true,
-    "billing_schema:mutated:6355152517": true,
-    "billing_schema:mutated:9a5acbc619": true,
-    "billing_schema:mutated:ae7eb924f7": true,
-    "billing_schema:mutated:5409392c30": true,
-    "billing_schema:mutated:c346a4b413": true,
-    "billing_schema:mutated:bb77fd6348": true,
-    "billing_schema:mutated:6bfa8a3d0c": true,
+    "billing_schema:reference:63aba1d5a7": false,
+    "billing_schema:mutated:84f598ca0a": false,
+    "billing_schema:mutated:480d17e446": false,
+    "billing_schema:mutated:f0a9db61e0": false,
+    "billing_schema:mutated:6355152517": false,
+    "billing_schema:mutated:9a5acbc619": false,
+    "billing_schema:mutated:ae7eb924f7": false,
+    "billing_schema:mutated:5409392c30": false,
+    "billing_schema:mutated:c346a4b413": false,
+    "billing_schema:mutated:bb77fd6348": false,
+    "billing_schema:mutated:6bfa8a3d0c": false,
     "billing_schema:mutated:e6156f7e1c": false,
-    "billing_schema:sampled:45c990e99a": true,
-    "billing_schema:sampled:f5a4ab48bd": true,
+    "billing_schema:sampled:45c990e99a": false,
+    "billing_schema:sampled:f5a4ab48bd": false,
     "billing_schema:sampled:06e646e566": false,
-    "billing_schema:sampled:d3a6b01b69": true,
+    "billing_schema:sampled:d3a6b01b69": false,
     "billing_schema:sampled:9da78fb305": false
    },
-   "empirical_validity": 0.018993429409939658,
-   "balanced_accuracy": 0.5075757575757576,
+   "empirical_validity": 0.0,
+   "balanced_accuracy": 0.5,
    "n_outputs": 17
   },
   "csv_parser::own_fixtures_pass": {
@@ -2459,23 +2459,23 @@
   "csv_parser::llm_contract_correct": {
    "proxy_id": "csv_parser::llm_contract_correct",
    "per_output_verdicts": {
-    "csv_parser:reference:80ca501fa2": true,
-    "csv_parser:mutated:cbe3433e1e": true,
-    "csv_parser:mutated:98952045cb": true,
-    "csv_parser:mutated:39d81b02bc": true,
-    "csv_parser:mutated:441d0d45c0": true,
-    "csv_parser:mutated:e8fcfdffd7": true,
-    "csv_parser:mutated:f7d178d6f2": true,
-    "csv_parser:mutated:8038716b17": true,
-    "csv_parser:mutated:4bb90ee77a": true,
-    "csv_parser:mutated:1656f6f2d5": true,
+    "csv_parser:reference:80ca501fa2": false,
+    "csv_parser:mutated:cbe3433e1e": false,
+    "csv_parser:mutated:98952045cb": false,
+    "csv_parser:mutated:39d81b02bc": false,
+    "csv_parser:mutated:441d0d45c0": false,
+    "csv_parser:mutated:e8fcfdffd7": false,
+    "csv_parser:mutated:f7d178d6f2": false,
+    "csv_parser:mutated:8038716b17": false,
+    "csv_parser:mutated:4bb90ee77a": false,
+    "csv_parser:mutated:1656f6f2d5": false,
     "csv_parser:sampled:06fec008e5": false,
     "csv_parser:sampled:f18930fffa": false,
-    "csv_parser:sampled:59e4a18b96": true,
+    "csv_parser:sampled:59e4a18b96": false,
     "csv_parser:sampled:a6579889ab": false
    },
-   "empirical_validity": 0.45226701686664544,
-   "balanced_accuracy": 0.6875,
+   "empirical_validity": 0.0,
+   "balanced_accuracy": 0.5,
    "n_outputs": 14
   },
   "csv_parser::llm_code_quality": {
@@ -2484,11 +2484,11 @@
     "csv_parser:reference:80ca501fa2": true,
     "csv_parser:mutated:cbe3433e1e": true,
     "csv_parser:mutated:98952045cb": true,
-    "csv_parser:mutated:39d81b02bc": true,
-    "csv_parser:mutated:441d0d45c0": true,
+    "csv_parser:mutated:39d81b02bc": false,
+    "csv_parser:mutated:441d0d45c0": false,
     "csv_parser:mutated:e8fcfdffd7": true,
     "csv_parser:mutated:f7d178d6f2": true,
-    "csv_parser:mutated:8038716b17": true,
+    "csv_parser:mutated:8038716b17": false,
     "csv_parser:mutated:4bb90ee77a": true,
     "csv_parser:mutated:1656f6f2d5": true,
     "csv_parser:sampled:06fec008e5": false,
@@ -2496,8 +2496,8 @@
     "csv_parser:sampled:59e4a18b96": false,
     "csv_parser:sampled:a6579889ab": false
    },
-   "empirical_validity": 0.22821773229381923,
-   "balanced_accuracy": 0.6041666666666667,
+   "empirical_validity": 0.28867513459481287,
+   "balanced_accuracy": 0.6458333333333333,
    "n_outputs": 14
   }
  },
@@ -2505,401 +2505,401 @@
   "holistic": {
    "sql_ltv_top10::exec_matches_ref": {
     "proxy_id": "sql_ltv_top10::exec_matches_ref",
-    "validity_score": 0.923462851069277,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.95,
+    "rationale": "This check compares the full result set (columns, order, and values) against a known-correct reference query on an independently seeded database, making it extremely hard for an incorrect query to pass by accident. The main residual risk is ties in lifetime_value_cents at the 10th position where arbitrary ordering could cause a correct-logic query to fail (false negative), or a reference implementation that itself has a subtle bug. There is also a small risk that the independently seeded data doesn't exercise edge cases like customers with no payments or mixed charge/refund scenarios, but these are minor given the check's structural completeness. Overall this is a very strong validity proxy.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.9459394590081507,
-     0.9206347036013927,
-     0.923462851069277
+     0.95,
+     0.95,
+     0.95
     ],
-    "sample_variance": 0.00012816966319264354
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::exec_top_row_matches": {
     "proxy_id": "sql_ltv_top10::exec_top_row_matches",
-    "validity_score": 0.9479144266336026,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.35,
+    "rationale": "The check only validates the single top row, meaning a query could return correct first-place data but have completely wrong rankings, wrong column names, wrong ordering logic, or incorrect lifetime value calculations for all other rows and still pass. A query that hard-codes or cherry-picks the top customer would pass trivially. Conversely, a correct query could fail if the reference database differs from the test database in ways that change who ranks first (e.g., tie-breaking behavior, different seed data). The check provides weak signal because it samples only one data point from a 10-row result, leaving the vast majority of correctness criteria unverified.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.9479144266336026,
-     0.9115762704055702,
-     0.9536906749670606
+     0.35,
+     0.35,
+     0.35
     ],
-    "sample_variance": 0.00034749441271461656
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::exec_returns_10_rows": {
     "proxy_id": "sql_ltv_top10::exec_returns_10_rows",
-    "validity_score": 0.5614247020779701,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "The check only verifies that the query executes without error and returns exactly 10 rows, which is a very weak proxy for correctness. Many incorrect queries would pass: wrong column names, wrong ordering, incorrect LTV calculation (e.g., summing all payments without distinguishing charge vs. refund), missing customers with zero payments, or returning arbitrary rows. A correct output could also fail if the database has fewer than 10 customers, though the task implies pre-seeded data likely has enough. The check captures almost none of the semantic requirements (correct LTV formula, correct ordering, correct column set).",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5834139789579004,
-     0.5614247020779701,
-     0.5487981694049199
+     0.15,
+     0.15,
+     0.15
     ],
-    "sample_variance": 0.00020457909956156175
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_order_desc_limit10": {
     "proxy_id": "sql_ltv_top10::text_order_desc_limit10",
-    "validity_score": 0.2879076913320245,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.1,
+    "rationale": "This check only inspects query syntax for ORDER BY DESC and LIMIT 10, which are trivially satisfiable by any query with those keywords regardless of correctness. A query could ORDER BY the wrong column (e.g., customer_id DESC), compute lifetime value incorrectly (e.g., summing all payments without distinguishing charges vs. refunds), omit customers with no payments, or return wrong columns \u2014 and still pass. Conversely, a correct query expressed with slightly different formatting or aliasing would still pass, so false negatives are rare, but false positives are extremely common. The check is almost entirely a surface-feature proxy with negligible causal link to true correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.2879076913320245,
-     0.2918403043555655,
-     0.24652224947151782
+     0.1,
+     0.1,
+     0.1
     ],
-    "sample_variance": 0.0004202162601839845
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_mentions_refund": {
     "proxy_id": "sql_ltv_top10::text_mentions_refund",
-    "validity_score": 0.2639089626525317,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check is almost entirely a surface-level syntactic heuristic with minimal causal link to correctness. A query could mention 'refund' in a comment or string literal while completely ignoring refunds in the actual computation (e.g., summing all payments regardless of type). Conversely, a correct query might handle refunds by storing charges as positive and refunds as negative via a CASE expression using 'charge'/'refund' logic without ever needing the literal string 'refund' to appear \u2014 though in practice it likely would. The check is necessary but far from sufficient: many plausible incorrect queries (wrong aggregation, missing customers with zero payments, wrong ordering) would still contain the string 'refund' and pass.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.2520014928146269,
-     0.2639089626525317,
-     0.3018382064047824
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0004515681545583837
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_has_group_by": {
     "proxy_id": "sql_ltv_top10::text_has_group_by",
-    "validity_score": 0.2548364708257924,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "The check is a syntactic surface-feature test that has only a loose causal link to correctness. A query could contain GROUP BY yet still be wrong in many ways: wrong aggregation logic (e.g., not differentiating charge vs. refund), wrong column names, missing LEFT JOIN for zero-payment customers, or wrong ordering/limit. Conversely, a correct query could theoretically avoid an explicit GROUP BY by using a subquery or CTE where the grouping happens inside but the outer query doesn't literally contain 'GROUP BY' at the top level \u2014 though in practice GROUP BY is almost always present. The check is necessary but far from sufficient, making it a weak proxy for true correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.24257180040994936,
-     0.30785338316062777,
-     0.2548364708257924
+     0.15,
+     0.15,
+     0.15
     ],
-    "sample_variance": 0.0008025444644847274
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::exec_no_error": {
     "proxy_id": "sql_ltv_top10::exec_no_error",
-    "validity_score": 0.5964703710159451,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check only verifies that the query runs without a SQL error, which is an extremely weak proxy for correctness. A query like 'SELECT customer_id, name, 0 AS lifetime_value_cents FROM customers LIMIT 10' would pass trivially despite being completely wrong. Virtually any syntactically valid SELECT query returning three columns would pass, including ones with wrong aggregation logic, missing customers, wrong ordering, or incorrect LTV calculation. The check catches only the most degenerate failures (syntax errors, missing tables) while allowing nearly all semantic errors through.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.6053061494034031,
-     0.5405143475557013,
-     0.5964703710159451
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0008230139030963878
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_under_20_lines": {
     "proxy_id": "sql_ltv_top10::text_under_20_lines",
-    "validity_score": 0.18195621143839236,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "Line count is a purely syntactic/surface measure with no causal link to query correctness. A query could be 5 lines long and return completely wrong results (e.g., summing all payments without distinguishing charges from refunds, or omitting customers with no payments), and it would still pass this check. Conversely, a perfectly correct query formatted verbosely with comments or extra whitespace could exceed 20 lines and fail. This check is essentially irrelevant to whether the output correctly solves the task.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.18195621143839236,
-     0.17962458681073615,
-     0.1825542679225454
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 1.597464042158034e-06
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_uses_cte": {
     "proxy_id": "sql_ltv_top10::text_uses_cte",
-    "validity_score": 0.1345502808747232,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "The check verifies a stylistic/structural feature (use of a WITH clause) rather than semantic correctness. A correct query can trivially be written without a CTE using a simple LEFT JOIN and GROUP BY, and would fail this check despite being perfectly correct. Conversely, a query using a WITH clause could still compute the wrong columns, wrong ordering, wrong aggregation logic, or wrong limit and pass the check. The check has essentially no causal link to whether the output correctly solves the task.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.1345502808747232,
-     0.12776252484362632,
-     0.14055842700194532
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 2.7322951541002097e-05
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::llm_ltv_semantics": {
     "proxy_id": "sql_ltv_top10::llm_ltv_semantics",
-    "validity_score": 0.412965795398449,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.55,
+    "rationale": "An LLM judge reading the query can verify structural intent (correct column names, COALESCE or CASE for zero-handling, SUM with conditional aggregation, LEFT JOIN, ORDER BY DESC, LIMIT 10) and will catch obvious omissions like missing customers with no payments or wrong column names. However, subtle SQL bugs\u2014such as double-counting due to a missing GROUP BY, incorrect handling of the refund sign (e.g., subtracting charges instead of refunds), or an INNER JOIN silently dropping zero-LTV customers\u2014may look plausible to an LLM judge that reads intent rather than executes logic. The check is purely static code review by an LLM, so it cannot catch runtime semantic errors that produce wrong numeric results while appearing structurally correct. This makes it a moderately useful but meaningfully confounded proxy for true correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.412965795398449,
-     0.4639516890919655,
-     0.4120450990838104
+     0.55,
+     0.45,
+     0.55
     ],
-    "sample_variance": 0.0005883003470783401
+    "sample_variance": 0.0022222222222222235
    },
    "sql_ltv_top10::llm_readability": {
     "proxy_id": "sql_ltv_top10::llm_readability",
-    "validity_score": 0.13469370961764218,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check evaluates stylistic and aesthetic properties (formatting, aliases, layout) rather than semantic correctness. A query could be beautifully formatted yet compute lifetime value incorrectly (e.g., summing all payments without distinguishing charges from refunds, or failing to include customers with no payments via LEFT JOIN). Conversely, a correct query could be written in a terse, unformatted style and fail this check. The check has virtually no causal link to whether the query actually produces the correct result set.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.13469370961764218,
-     0.189900379963196,
-     0.11119398476583744
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0010883011293017742
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::exec_matches_ref": {
     "proxy_id": "sql_revenue_by_tier::exec_matches_ref",
-    "validity_score": 0.9608771542764449,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.95,
+    "rationale": "The check compares the full result table (columns, order, and values) against a known-correct reference query on an independently seeded database, which is a strong end-to-end correctness criterion. An incorrect query would have to accidentally produce the exact same numeric net_revenue_cents values, tier labels, and ordering as the reference \u2014 practically impossible for most plausible mistakes (e.g., summing all payments without sign distinction, missing tiers with no payments, wrong ordering). The small residual uncertainty comes from the possibility that the independently seeded database happens to have degenerate data (e.g., no refunds, all tiers with equal revenue) that could mask certain classes of bugs, but this is unlikely if the seed is designed to exercise the full schema.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.9217959596802937,
-     0.9608771542764449,
-     0.9745336534978203
+     0.95,
+     0.95,
+     0.95
     ],
-    "sample_variance": 0.0004994560101374274
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::exec_returns_3_rows": {
     "proxy_id": "sql_revenue_by_tier::exec_returns_3_rows",
-    "validity_score": 0.5838025305359165,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.2,
+    "rationale": "The check only verifies that the query executes without error and returns exactly 3 rows (one per tier), which is a very weak proxy for correctness. Many incorrect queries would pass: wrong column names, wrong ordering (ascending instead of descending), incorrect net revenue calculation (e.g., summing all payments as charges, ignoring refunds, or double-counting), or even a query that returns the three tier names with net_revenue_cents = 0 for all. The check catches only the most catastrophic failures (syntax errors or wrong number of rows) while missing virtually all semantic errors in the revenue calculation and ordering logic.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5965433596974573,
-     0.5838025305359165,
-     0.5824460908520144
+     0.2,
+     0.2,
+     0.2
     ],
-    "sample_variance": 4.032240502670333e-05
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_order_desc": {
     "proxy_id": "sql_revenue_by_tier::text_order_desc",
-    "validity_score": 0.2795094072375236,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.1,
+    "rationale": "This check only verifies a surface syntactic feature of the query text, not the correctness of the output. A query could contain 'ORDER BY net_revenue_cents DESC' while computing completely wrong values (e.g., wrong aggregation logic, missing refund subtraction, wrong grouping) and still pass. Conversely, a correct query that uses a subquery or CTE where the ORDER BY appears in a different form would still pass. The check has essentially zero causal link to whether net revenue is computed correctly, tiers are grouped properly, or the correct columns are returned.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.2795094072375236,
-     0.23957323316707585,
-     0.30892423672576536
+     0.1,
+     0.1,
+     0.1
     ],
-    "sample_variance": 0.0008077435430894227
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_mentions_refund": {
     "proxy_id": "sql_revenue_by_tier::text_mentions_refund",
-    "validity_score": 0.28687965694276607,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.1,
+    "rationale": "This check only verifies that the string 'refund' appears somewhere in the query text, which is a pure surface-level syntactic feature with almost no causal link to correctness. A query could mention 'refund' in a comment while computing entirely wrong logic, or could correctly handle refunds via a CASE expression or arithmetic without ever literally containing the word 'refund' as a standalone string match. Conversely, many incorrect queries (wrong grouping, missing tiers, wrong ordering) would trivially pass by including 'refund' anywhere. The check is almost entirely confounded and fails to verify the actual computational logic required.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.28687965694276607,
-     0.3031236564538264,
-     0.25030509395997624
+     0.05,
+     0.1,
+     0.1
     ],
-    "sample_variance": 0.00048792963571268227
+    "sample_variance": 0.0005555555555555557
    },
    "sql_revenue_by_tier::text_group_by_tier": {
     "proxy_id": "sql_revenue_by_tier::text_group_by_tier",
-    "validity_score": 0.43559539469554914,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "The check only verifies a surface syntactic feature\u2014that GROUP BY signup_tier appears in the query text\u2014which is necessary but far from sufficient for correctness. Many incorrect queries would pass: e.g., one that sums all amounts without distinguishing charges from refunds, one that returns wrong column names, one that omits the ORDER BY or orders ascending, or one that fails to handle customers with no payments correctly. Conversely, a correct query using a subquery or CTE that groups internally might express the GROUP BY differently in text yet still be correct. The check is a weak necessary condition, not a strong proxy for true correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.4570788499263765,
-     0.43559539469554914,
-     0.4254970396904967
+     0.15,
+     0.1,
+     0.15
     ],
-    "sample_variance": 0.0001734362622486837
+    "sample_variance": 0.0005555555555555553
    },
    "sql_revenue_by_tier::exec_no_error": {
     "proxy_id": "sql_revenue_by_tier::exec_no_error",
-    "validity_score": 0.5630143011997022,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check only verifies that the query is syntactically valid and executable without runtime errors \u2014 it says nothing about whether the results are correct. A query like `SELECT signup_tier, 0 AS net_revenue_cents FROM customers GROUP BY signup_tier` would pass trivially despite being completely wrong. Conversely, a correct query would also pass, so the check cannot distinguish correct from incorrect outputs. The check captures essentially none of the semantic requirements: correct column names, correct net revenue calculation, correct aggregation logic, and correct ordering.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5630143011997022,
-     0.6007506841958387,
-     0.5307879458928453
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0008174841476497798
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_under_15_lines": {
     "proxy_id": "sql_revenue_by_tier::text_under_15_lines",
-    "validity_score": 0.127887666099213,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "Line count is almost entirely orthogonal to correctness. A query could be written in 3 lines yet be completely wrong (e.g., summing all amounts without distinguishing charges from refunds, or omitting tiers with no payments, or ordering ascending instead of descending), and it would still pass the check. Conversely, a perfectly correct query formatted verbosely across 16+ lines would fail the check despite being right. The check captures only a superficial stylistic property with no causal link to whether the query computes net revenue correctly, returns the right columns, or orders properly.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.13278351951920978,
-     0.127887666099213,
-     0.11729738572782313
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 4.177152876216304e-05
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_uppercase_keywords": {
     "proxy_id": "sql_revenue_by_tier::text_uppercase_keywords",
-    "validity_score": 0.13783664914496166,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "This check is almost entirely irrelevant to correctness. SQL keyword casing has no effect on query semantics or results in SQLite, so a query with lowercase keywords (e.g., 'select signup_tier, net_revenue_cents from ...') could be perfectly correct yet fail the check, while a query with uppercase keywords could be completely wrong in logic yet pass. The check tracks a pure stylistic surface feature with no causal link to whether the query correctly computes net revenue per tier, handles refunds properly, includes all tiers, or orders results correctly.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.16416508824894324,
-     0.13783664914496166,
-     0.1268054272459833
+     0.02,
+     0.02,
+     0.02
     ],
-    "sample_variance": 0.0002456243147214059
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::llm_net_revenue_semantics": {
     "proxy_id": "sql_revenue_by_tier::llm_net_revenue_semantics",
-    "validity_score": 0.46777162802819433,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.35,
+    "rationale": "An LLM judge reading a query can assess surface-level correctness (column names, ORDER BY direction, GROUP BY tier) but will struggle to catch subtle SQL errors that still look plausible: for example, a query that uses SUM(amount_cents) without sign-flipping refunds, or one that inner-joins customers to payments (dropping customers with no payments but still returning one row per tier if every tier has at least one paying customer), or incorrect CASE logic that accidentally double-counts. The judge has no ground truth to execute against and must reason purely from code inspection, so a confidently-written but logically wrong query (e.g., wrong sign handling for refunds, or missing tiers) could easily pass. Conversely, a correct query with unconventional but valid formatting might be flagged. The check captures structural intent but is a weak proxy for computational correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.46777162802819433,
-     0.4373608032491433,
-     0.4894369341059208
+     0.35,
+     0.35,
+     0.35
     ],
-    "sample_variance": 0.0004562363506884372
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::llm_readability": {
     "proxy_id": "sql_revenue_by_tier::llm_readability",
-    "validity_score": 0.11821923209545653,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "This check evaluates aesthetic formatting and readability, which has virtually no causal relationship to correctness. A beautifully formatted query could return wrong column names, incorrect aggregation logic (e.g., summing refunds instead of subtracting them), missing tiers with zero payments, or wrong ordering \u2014 all while passing the check. Conversely, a syntactically ugly but logically correct query would fail. The check is almost entirely confounded by surface presentation rather than semantic correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.11190693359866435,
-     0.11957289099916187,
-     0.11821923209545653
+     0.05,
+     0.02,
+     0.02
     ],
-    "sample_variance": 1.1160489734047555e-05
+    "sample_variance": 0.00020000000000000004
    },
    "billing_schema::battery_accepts_rejects": {
     "proxy_id": "billing_schema::battery_accepts_rejects",
-    "validity_score": 0.98,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.82,
+    "rationale": "This check is strong because it tests both acceptance and rejection of labeled instances, covering the full contract bidirectionally. The main confound is that the battery's quality depends entirely on how well the independently authored test cases cover the specification's edge cases\u2014a schema that is subtly wrong (e.g., missing 'additionalProperties: false', allowing fractional seats via 'number' instead of 'integer', or wrong enum values) might still pass if the battery lacks targeted invalid instances for those specific failure modes. A correct schema could theoretically fail if the battery itself contains mislabeled instances. The check is causally linked to correctness but is only as exhaustive as the test battery's coverage of the contract's ~10 distinct constraints.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.98,
-     0.98,
-     0.9361215203875028
+     0.82,
+     0.82,
+     0.82
     ],
-    "sample_variance": 0.00042784910513429483
+    "sample_variance": 0.0
    },
    "billing_schema::parses_as_schema": {
     "proxy_id": "billing_schema::parses_as_schema",
-    "validity_score": 0.25186113859104486,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.1,
+    "rationale": "The check only verifies that the output is a structurally valid JSON Schema draft 2020-12 document, which is an extremely weak proxy for correctness. Any minimally valid schema (e.g., `{}` or `{\"type\": \"object\"}`) would pass the check despite enforcing none of the required contract details like specific fields, enum values, type constraints, or additionalProperties restrictions. The check cannot distinguish between a schema that correctly enforces all the specified constraints and one that trivially accepts any input. Virtually every plausible incorrect output \u2014 wrong enums, missing required fields, wrong types, missing additionalProperties \u2014 would still pass this check.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.25186113859104486,
-     0.2658001509578434,
-     0.23626554390561433
+     0.1,
+     0.1,
+     0.15
     ],
-    "sample_variance": 0.00014553462812039652
+    "sample_variance": 0.0005555555555555553
    },
    "billing_schema::required_has_tenant": {
     "proxy_id": "billing_schema::required_has_tenant",
-    "validity_score": 0.29299372359714326,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check verifies only that 'tenant_id' appears in the top-level required array, which is a single necessary condition out of many. A schema could include tenant_id in required while being completely wrong in dozens of other ways: missing other required fields, allowing additional properties, having wrong types, wrong enum values, wrong constraints on seats or plan subfields, or a malformed usage_records definition. Conversely, a correct schema would pass this check, but the check is so narrow it provides almost no signal about overall correctness. It is essentially a surface-feature check that conflates the presence of one field name with full schema correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.29299372359714326,
-     0.3025914748182035,
-     0.2734454540823227
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0001470824660290911
+    "sample_variance": 0.0
    },
    "billing_schema::additional_props_false": {
     "proxy_id": "billing_schema::additional_props_false",
-    "validity_score": 0.47956724280248564,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "The check verifies only one specific constraint (additionalProperties: false at top level) out of many required by the task, so a schema that sets this correctly but fails dozens of other requirements (wrong status enum, missing plan subfields, wrong type constraints, etc.) would still pass the check. Conversely, a correct schema could technically use 'unevaluatedProperties: false' instead of 'additionalProperties: false' to achieve the same effect in draft 2020-12, causing a correct output to fail the check. The check captures a real requirement but is far too narrow to serve as a meaningful proxy for overall correctness, and it conflates surface-level keyword presence with semantic validity.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.46622160804835655,
-     0.47956724280248564,
-     0.4887130338881894
+     0.15,
+     0.15,
+     0.15
     ],
-    "sample_variance": 8.529063309807286e-05
+    "sample_variance": 0.0
    },
    "billing_schema::status_enum_exact": {
     "proxy_id": "billing_schema::status_enum_exact",
-    "validity_score": 0.420123920647922,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "This check verifies only one small detail of a large, multi-part schema specification. A schema could be completely wrong in many other ways \u2014 missing required fields, wrong types for seats or IDs, incorrect plan subschema, missing additionalProperties constraints, wrong usage_records structure \u2014 and still pass this check as long as the status enum is correct. Conversely, a correct schema would only fail if the enum values were misspelled or reordered (order doesn't matter in enums), making false negatives rare but false positives extremely common. The check is a weak partial proxy that covers perhaps 5-10% of the total correctness surface.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.420123920647922,
-     0.410564061366153,
-     0.43095563263188946
+     0.15,
+     0.15,
+     0.15
     ],
-    "sample_variance": 6.939256363071774e-05
+    "sample_variance": 0.0
    },
    "billing_schema::seats_integer_min1": {
     "proxy_id": "billing_schema::seats_integer_min1",
-    "validity_score": 0.42183224292747495,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.25,
+    "rationale": "This check verifies only one small slice of a large, multi-part schema contract. An output could pass this check while being completely wrong in many other ways: missing required fields, lacking additionalProperties/unevaluatedProperties constraints, mis-typing usage_records items, using wrong enum values for status or pricing_model, or omitting the plan object structure entirely. Conversely, a correct output would almost never fail this specific check, so false negatives are rare \u2014 but the check's coverage is so narrow that many incorrect outputs would sail through it. It is a necessary but far from sufficient condition for correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.4544226710229234,
-     0.4157263512736481,
-     0.42183224292747495
+     0.25,
+     0.25,
+     0.15
     ],
-    "sample_variance": 0.0002885358976078911
+    "sample_variance": 0.0022222222222222227
    },
    "billing_schema::nesting_depth": {
     "proxy_id": "billing_schema::nesting_depth",
-    "validity_score": 0.16361139140408754,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "Nesting depth is a purely structural/surface metric that has almost no causal relationship to schema correctness. A schema could nest four levels deep while missing required fields, using wrong types, omitting constraints like minimum values, or failing to enforce additionalProperties. Conversely, a correct schema might technically satisfy the depth requirement while still being semantically wrong in many ways. This check is almost entirely confounded by superficial formatting rather than actual contract enforcement.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.16361139140408754,
-     0.1743915200383383,
-     0.12228040583717648
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0005044477516210814
+    "sample_variance": 0.0
    },
    "billing_schema::has_annotations": {
     "proxy_id": "billing_schema::has_annotations",
     "validity_score": 0.02,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "rationale": "A schema can have a title or description annotation while being completely wrong in every substantive way \u2014 wrong field names, wrong types, missing required fields, incorrect constraints \u2014 and still pass this check. Conversely, a perfectly correct schema that omits a title/description annotation would fail this check despite being fully correct. The presence of a title/description annotation has essentially zero causal link to whether the schema enforces the specified contract correctly, making this check nearly irrelevant as a proxy for correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
@@ -2911,911 +2911,911 @@
    },
    "billing_schema::llm_contract_check": {
     "proxy_id": "billing_schema::llm_contract_check",
-    "validity_score": 0.825831235897688,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.55,
+    "rationale": "An LLM judge holistically evaluating schema correctness can catch many structural errors and missing constraints, but it is itself an LLM and prone to overlooking subtle JSON Schema mistakes \u2014 e.g., missing 'additionalProperties: false', wrong draft version declaration, 'type: integer' vs 'type: number' distinctions, or incorrect 'minimum' placements \u2014 that a mechanical validator would catch. Plausible incorrect outputs (e.g., a schema that omits 'additionalProperties: false' or uses 'exclusiveMinimum' incorrectly) could pass the judge if the judge focuses on high-level intent rather than precise keyword semantics. Conversely, a correct schema with unconventional but valid structuring might be flagged as wrong by an overly strict judge. The check has real signal but is confounded by the LLM judge's own reliability limitations on precise schema-validity details.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.825831235897688,
-     0.8058693995549971,
-     0.8485860532658609
+     0.55,
+     0.55,
+     0.55
     ],
-    "sample_variance": 0.00030455212532056955
+    "sample_variance": 0.0
    },
    "billing_schema::llm_professional": {
     "proxy_id": "billing_schema::llm_professional",
-    "validity_score": 0.16042418011706888,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check evaluates aesthetic and stylistic qualities (annotations, naming conventions, consistent formatting) rather than semantic correctness. A schema could look professionally authored while missing required fields, using wrong types, omitting additionalProperties constraints, or misspecifying enum values \u2014 all of which would make it functionally incorrect. Conversely, a minimally styled but fully correct schema might fail this check. The causal link between 'professional appearance' and 'correctly enforces the specified contract' is negligible.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.1299657335923905,
-     0.16383152862401484,
-     0.16042418011706888
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.00023180211796316354
+    "sample_variance": 0.0
    },
    "csv_parser::own_fixtures_pass": {
     "proxy_id": "csv_parser::own_fixtures_pass",
-    "validity_score": 0.9288326332575718,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.7,
+    "rationale": "This check is conceptually strong because it tests against expected outputs derived from the contract, covering multiple rule categories (delimiter detection, quoting, stripping, blank-line skipping). Its validity depends entirely on the quality of the fixture set: if the fixtures are comprehensive and correctly specify expected outputs per the exact contract rules (especially tie-breaking, whitespace-around-quotes handling, and multi-line quoted fields), it will catch most incorrect implementations. The main confound is fixture quality \u2014 a sparse or incorrectly authored fixture set could pass implementations that mishandle edge cases like tie-breaking (preferring ',' over ';'), escaped double-quotes inside quoted fields, or whitespace between quotes and delimiters. Since we cannot verify the fixture authorship quality a priori, the check is moderately-to-strongly valid but not guaranteed.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.9575518790929467,
-     0.9288326332575718,
-     0.9166120624371368
+     0.7,
+     0.7,
+     0.7
     ],
-    "sample_variance": 0.0002944673355934775
+    "sample_variance": 0.0
    },
    "csv_parser::simple_case_correct": {
     "proxy_id": "csv_parser::simple_case_correct",
-    "validity_score": 0.574004501878285,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.15,
+    "rationale": "A 'simple two-row comma CSV' tests almost none of the specified rules: it won't exercise semicolon/tab delimiter detection, quoted fields with embedded delimiters or newlines, escaped double-quotes, whitespace stripping rules, mixed row lengths, or blank-row skipping. An implementation that does nothing more than `return [line.split(',') for line in text.splitlines() if line.strip()]` would pass this check while failing nearly every nuanced rule. The check is far too narrow to distinguish a correct implementation from a trivially wrong one that handles only the simplest case.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5484856927251643,
-     0.574004501878285,
-     0.6083003752674676
+     0.15,
+     0.15,
+     0.15
     ],
-    "sample_variance": 0.000600579199972973
+    "sample_variance": 0.0
    },
    "csv_parser::runs_on_quoted_input": {
     "proxy_id": "csv_parser::runs_on_quoted_input",
-    "validity_score": 0.5370627182924801,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "This check only verifies that the function does not raise an exception, which is an extremely weak proxy for correctness. Nearly any implementation\u2014including one that returns an empty list, returns the raw input unsplit, or completely ignores quoting rules\u2014would pass as long as it doesn't crash. Virtually every plausible incorrect output would pass this check, while a correct output that happens to raise an exception (e.g., due to a minor bug) would fail it. The check has almost no causal link to whether the parsing rules are correctly implemented.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5356901665976481,
-     0.5612076223155502,
-     0.5370627182924801
+     0.05,
+     0.02,
+     0.02
     ],
-    "sample_variance": 0.00013733342608370535
+    "sample_variance": 0.00020000000000000004
    },
    "csv_parser::defines_and_runs": {
     "proxy_id": "csv_parser::defines_and_runs",
-    "validity_score": 0.5731593445230181,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check only verifies that the function exists, imports, and runs without error \u2014 it does not test any actual parsing behavior. A trivially incorrect implementation like `def parse_csv(text): return []` would pass the check, as would any function that returns garbage data without raising exceptions. The check captures essentially none of the task's correctness requirements (delimiter detection, quoting, stripping, row skipping, etc.). It is almost entirely irrelevant as a proxy for correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.5731593445230181,
-     0.5840276135630039,
-     0.5480883845170235
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.00022647783244079356
+    "sample_variance": 0.0
    },
    "csv_parser::text_handles_quotes": {
     "proxy_id": "csv_parser::text_handles_quotes",
-    "validity_score": 0.2462460285463012,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.1,
+    "rationale": "This check only verifies that the source code contains a reference to the '\"' character, which is a trivially weak surface-level syntactic check. Nearly any plausible implementation attempt would include '\"' somewhere (even a completely broken one), and a correct implementation could theoretically use ord(34) or other indirect references without the literal character. The check has almost no causal link to whether the function correctly handles quoted fields, delimiter detection, stripping rules, or any other aspect of the contract.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.2462460285463012,
-     0.23596224554021897,
-     0.2939815165810244
+     0.1,
+     0.1,
+     0.1
     ],
-    "sample_variance": 0.0006389632025484255
+    "sample_variance": 0.0
    },
    "csv_parser::text_strips_fields": {
     "proxy_id": "csv_parser::text_strips_fields",
-    "validity_score": 0.2599255242454646,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05,
+    "rationale": "This check only verifies that the string '.strip(' appears somewhere in the source code, which is a trivial surface-level syntactic feature with almost no causal link to correctness. A completely wrong implementation could include a single `.strip()` call anywhere and pass, while a correct implementation using `str.strip` via a different pattern (e.g., a regex or manual character removal) could fail. The check does not verify delimiter detection logic, quoted field handling, tie-breaking rules, or any of the other pinned behaviors. It is essentially irrelevant as a proxy for true correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.2599255242454646,
-     0.2955746311102004,
-     0.24223400090174613
+     0.05,
+     0.05,
+     0.05
     ],
-    "sample_variance": 0.0004921190721677499
+    "sample_variance": 0.0
    },
    "csv_parser::under_60_lines": {
     "proxy_id": "csv_parser::under_60_lines",
-    "validity_score": 0.17676615841378604,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "Line count is almost entirely irrelevant to functional correctness. A completely broken implementation (e.g., returning an empty list always, or splitting naively on commas ignoring all the rules) would easily pass the 60-line check, while a correct but verbose implementation with detailed comments or helper functions might fail it. The check measures code length, a surface feature with essentially no causal link to whether the function correctly handles delimiter detection, quoted fields, escaped quotes, whitespace stripping, or empty-row skipping.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.11873741608316486,
-     0.17676615841378604,
-     0.1792440103714457
+     0.02,
+     0.02,
+     0.05
     ],
-    "sample_variance": 0.0007816136265738136
+    "sample_variance": 0.00020000000000000004
    },
    "csv_parser::has_type_hints": {
     "proxy_id": "csv_parser::has_type_hints",
-    "validity_score": 0.1630589868065573,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "This check only verifies the presence of a type hint annotation on the function signature, which is a pure syntactic/metadata property with no relation to whether the function correctly parses CSV text. A completely broken implementation (e.g., one that always returns an empty list or crashes) would pass as long as it has `-> list` in its signature. Conversely, a perfectly correct implementation without a type hint would fail. The check has essentially zero causal link to correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.1768731099522843,
-     0.12452127715910817,
-     0.1630589868065573
+     0.02,
+     0.02,
+     0.02
     ],
-    "sample_variance": 0.0004907443844401197
+    "sample_variance": 0.0
    },
    "csv_parser::llm_contract_correct": {
     "proxy_id": "csv_parser::llm_contract_correct",
-    "validity_score": 0.8574364292219833,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.2,
+    "rationale": "An LLM judge evaluating code by reading it can be fooled by implementations that look correct but have subtle bugs \u2014 e.g., wrong tie-breaking order, off-by-one errors in quote parsing, or incorrect handling of whitespace around quoted fields. The judge is assessing surface plausibility of the code rather than executing it against edge cases, so a plausible-looking but subtly wrong implementation (e.g., one that strips inside quoted fields, or breaks ties as ';' > ',' > '\\t') could easily pass. Conversely, a correct but unusually structured implementation might trigger false skepticism. This check has low construct validity because it relies on LLM code comprehension rather than behavioral verification against the pinned contract's edge cases.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.8684942058470321,
-     0.8574364292219833,
-     0.8297889061178522
+     0.2,
+     0.2,
+     0.2
     ],
-    "sample_variance": 0.00026497335386762146
+    "sample_variance": 0.0
    },
    "csv_parser::llm_code_quality": {
     "proxy_id": "csv_parser::llm_code_quality",
-    "validity_score": 0.14169804564483884,
-    "rationale": "mock gate: deterministic keyword heuristic over the proxy definition (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.02,
+    "rationale": "The check evaluates code style, documentation, and naming conventions \u2014 none of which have any causal relationship to whether the function correctly implements the specified parsing rules. A completely incorrect implementation with wrong delimiter detection, broken quote handling, or improper stripping could pass trivially if it has a nice docstring and clean variable names. Conversely, a perfectly correct but terse/uncommented implementation would fail the check. This is essentially irrelevant to functional correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "holistic",
     "subjudgments": {},
     "per_sample_scores": [
-     0.12297467584092514,
-     0.1442366112662099,
-     0.14169804564483884
+     0.02,
+     0.02,
+     0.02
     ],
-    "sample_variance": 8.989764336189929e-05
+    "sample_variance": 0.0
    }
   },
   "decomposed": {
    "sql_ltv_top10::exec_matches_ref": {
     "proxy_id": "sql_ltv_top10::exec_matches_ref",
-    "validity_score": 0.955785836314888,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.9266666666666667,
+    "rationale": "Executing against an independent database with a reference query is strongly causally coupled to correctness\u2014if the output query produces identical rows, columns, and ordering to a known-correct query, it almost certainly solves the task correctly. The check is fully external, relying on actual execution against real data and comparison to an independent reference rather than surface inspection. Failure nearly entails wrongness, though edge cases exist where a correct query might differ in tie-breaking order for customers with equal LTV, meaning failure could occasionally flag a correct output if the reference and submitted query break ties differently (e.g., by customer_id vs. arbitrary order).",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.942966713447349,
-     "externality": 0.9772401347726678,
-     "contradiction": 0.9471506607246472
+     "causal_coupling": 0.93,
+     "externality": 1.0,
+     "contradiction": 0.85
     },
     "per_sample_scores": [
-     0.9453397175503601,
-     0.9781948655459242,
-     0.955785836314888
+     0.9266666666666667,
+     0.9266666666666667,
+     0.9266666666666667
     ],
-    "sample_variance": 0.000187860748681164
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::exec_top_row_matches": {
     "proxy_id": "sql_ltv_top10::exec_top_row_matches",
-    "validity_score": 0.944592027492183,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.5666666666666667,
+    "rationale": "The check executes against real data and compares to a known-correct reference, making it strongly external. However, it only validates the single top row, so a query could return the correct first row while having wrong column names, wrong ordering for ties, wrong LTV calculations for all other rows, or subtle schema mismatches that happen to cancel out for the top customer. A query that hardcodes or flukes the correct first row while being broadly wrong would still pass. Failure of the check does entail some wrongness (the top result is incorrect), but a correct query could theoretically fail if there are tie-breaking differences that don't affect correctness per se, slightly lowering the contradiction score.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.9524278314882955,
-     "externality": 0.9329549314135116,
-     "contradiction": 0.9327007469215199
+     "causal_coupling": 0.45,
+     "externality": 0.95,
+     "contradiction": 0.3
     },
     "per_sample_scores": [
-     0.944592027492183,
-     0.9576071048274034,
-     0.9293375850762251
+     0.49999999999999994,
+     0.5666666666666667,
+     0.5666666666666667
     ],
-    "sample_variance": 0.00013347288871397818
+    "sample_variance": 0.0009876543209876554
    },
    "sql_ltv_top10::exec_returns_10_rows": {
     "proxy_id": "sql_ltv_top10::exec_returns_10_rows",
-    "validity_score": 0.5603862525096753,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.35000000000000003,
+    "rationale": "The check executes the query against real data, providing genuine external evidence that the SQL is syntactically valid and produces rows, but it only verifies row count and absence of errors\u2014not correctness of the lifetime value calculation, column names/order, or ranking logic. A query returning 10 rows of garbage values, wrong aggregations, or misnamed columns would pass trivially. The contradiction score is near zero because a failing check (e.g., fewer than 10 rows due to fewer customers in the seed data, or a syntax error from an otherwise correct query) is compatible with a conceptually correct solution, and passing says almost nothing about semantic correctness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.5727332659351485,
-     "externality": 0.5517291623590815,
-     "contradiction": 0.5661518641086649
+     "causal_coupling": 0.15,
+     "externality": 0.85,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.5856084778289331,
-     0.5603862525096753,
-     0.5523479735344528
+     0.35000000000000003,
+     0.35000000000000003,
+     0.35000000000000003
     ],
-    "sample_variance": 0.00020078174720689548
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_order_desc_limit10": {
     "proxy_id": "sql_ltv_top10::text_order_desc_limit10",
-    "validity_score": 0.3022565438890806,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.13333333333333333,
+    "rationale": "A query can contain ORDER BY ... DESC and LIMIT 10 while still being completely wrong \u2014 e.g., ordering by the wrong column, computing lifetime value incorrectly (e.g., summing all payments without distinguishing charge vs. refund), or missing customers with no payments. The check only inspects the surface text of the query, not its execution against actual data, so it provides almost no external evidence of correctness. Failure does not entail wrongness either, since a correct query could theoretically use a subquery or CTE structure where the DESC and LIMIT appear in non-standard positions that a naive text search might miss.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.3080941180507872,
-     "externality": 0.30187203051333134,
-     "contradiction": 0.2954533937167035
+     "causal_coupling": 0.15,
+     "externality": 0.05,
+     "contradiction": 0.2
     },
     "per_sample_scores": [
-     0.30386238970961327,
-     0.24981651341383113,
-     0.3022565438890806
+     0.13333333333333333,
+     0.13333333333333333,
+     0.13333333333333333
     ],
-    "sample_variance": 0.0006303880312914888
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_mentions_refund": {
     "proxy_id": "sql_ltv_top10::text_mentions_refund",
-    "validity_score": 0.26460827868616715,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05000000000000001,
+    "rationale": "The check only scans the query text for the substring 'refund', which is a pure surface-form heuristic with no execution or semantic verification. A query could mention 'refund' in a comment or string literal while still computing lifetime value incorrectly (e.g., adding refunds instead of subtracting them, or filtering them out entirely). Conversely, a correct query might handle refunds via a CASE expression or sign-flip arithmetic without ever containing the literal word 'refund' in the way the check expects. This makes causal coupling extremely weak and the check nearly useless as a correctness gate.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.26605157864188117,
-     "externality": 0.2753101209656592,
-     "contradiction": 0.26972217573777824
+     "causal_coupling": 0.1,
+     "externality": 0.0,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.2613507185701011,
-     0.26460827868616715,
-     0.2849133849147661
+     0.05000000000000001,
+     0.06666666666666667,
+     0.05000000000000001
     ],
-    "sample_variance": 0.00010867869801494209
+    "sample_variance": 6.172839506172832e-05
    },
    "sql_ltv_top10::text_has_group_by": {
     "proxy_id": "sql_ltv_top10::text_has_group_by",
-    "validity_score": 0.2872619071736145,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.11666666666666665,
+    "rationale": "A GROUP BY clause is necessary for per-customer aggregation in typical approaches, but its presence doesn't guarantee correctness\u2014the query could group by the wrong column, use wrong aggregation logic, miss refunds, or fail to include customers with no payments. Conversely, a correct query could theoretically use window functions or a subquery structure that avoids a top-level GROUP BY, so failure doesn't strictly entail wrongness. The check is purely textual/surface-form, examining only the query string rather than executing it against data. This makes it a weak proxy for correctness with both false positives and false negatives.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.29222729039895984,
-     "externality": 0.27131385588117735,
-     "contradiction": 0.3013573436418915
+     "causal_coupling": 0.2,
+     "externality": 0.0,
+     "contradiction": 0.1
     },
     "per_sample_scores": [
-     0.2606041147693225,
-     0.28844522489353824,
-     0.2872619071736145
+     0.11666666666666665,
+     0.08333333333333333,
+     0.11666666666666665
     ],
-    "sample_variance": 0.00016524061662725808
+    "sample_variance": 0.0002469135802469135
    },
    "sql_ltv_top10::exec_no_error": {
     "proxy_id": "sql_ltv_top10::exec_no_error",
-    "validity_score": 0.5878329350747711,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.3166666666666667,
+    "rationale": "The check only verifies that the query executes without a SQL error, which is a very weak correctness signal \u2014 a query like `SELECT customer_id, name, 0 AS lifetime_value_cents FROM customers LIMIT 10` would pass trivially while being completely wrong. It does appeal to external evidence (actual execution against a database), so externality is reasonably high. However, 'check fails' (i.e., a SQL error) does not entail the output is wrong in any meaningful logical sense \u2014 a syntactically broken query could still represent a correct conceptual approach, and a passing query can be semantically incorrect in many ways (wrong aggregation logic, missing customers with no payments, wrong ordering, wrong column names).",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.557631308722224,
-     "externality": 0.5958694074083748,
-     "contradiction": 0.5848297413379955
+     "causal_coupling": 0.1,
+     "externality": 0.8,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.5878329350747711,
-     0.5996853606316771,
-     0.5535962510660594
+     0.3166666666666667,
+     0.3166666666666667,
+     0.3166666666666667
     ],
-    "sample_variance": 0.0003818707271162102
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_under_20_lines": {
     "proxy_id": "sql_ltv_top10::text_under_20_lines",
-    "validity_score": 0.15959494103280092,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.016666666666666666,
+    "rationale": "Line count has virtually no causal relationship to query correctness; a query can be wrong in one line or correct in 20+. The check inspects only the surface form (length) of the output text, with no execution against the database or comparison to expected results. A failing check (query over 20 lines) is entirely compatible with a fully correct query, since formatting and whitespace choices alone can push a correct query past the threshold.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.1448778341046716,
-     "externality": 0.16907934056107873,
-     "contradiction": 0.1870254756317068
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.1464434077799732,
-     0.1819802122420275,
-     0.15959494103280092
+     0.016666666666666666,
+     0.016666666666666666,
+     0.016666666666666666
     ],
-    "sample_variance": 0.000215214185042794
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::text_uses_cte": {
     "proxy_id": "sql_ltv_top10::text_uses_cte",
-    "validity_score": 0.14462504288987843,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.01,
+    "rationale": "The check only inspects surface syntax (presence of a WITH clause) and has essentially no causal relationship to correctness \u2014 a query can be perfectly correct without a CTE, and a query with a CTE can still return wrong results. The evidence is entirely internal to the output's text/structure, with no execution against data or comparison to a reference. Failing the check (no WITH clause) is fully compatible with a correct query, so failure does not entail wrongness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.13738106011119233,
-     "externality": 0.17387879352641267,
-     "contradiction": 0.17338463857383113
+     "causal_coupling": 0.03,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.13870420359743393,
-     0.17729553530938666,
-     0.14462504288987843
+     0.01,
+     0.01,
+     0.01
     ],
-    "sample_variance": 0.0002879675884624519
+    "sample_variance": 0.0
    },
    "sql_ltv_top10::llm_ltv_semantics": {
     "proxy_id": "sql_ltv_top10::llm_ltv_semantics",
-    "validity_score": 0.4502928678288496,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.21666666666666665,
+    "rationale": "An LLM judge inspecting the query's text can be fooled by plausible-looking SQL that has subtle bugs\u2014e.g., wrong JOIN type causing customers with no payments to be dropped, incorrect CASE logic, or off-by-one in LIMIT\u2014while still appearing semantically correct on a surface read. The check is almost entirely surface-form: it asks whether the query *looks* like it does the right thing, with no execution against actual data to verify results. Failure of the check does not strictly entail wrongness because a judge might flag a stylistically unusual but functionally correct query, and conversely the check can pass for queries with latent correctness issues that only manifest on edge-case data.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.4310676601764438,
-     "externality": 0.43249096345680094,
-     "contradiction": 0.48441053196657696
+     "causal_coupling": 0.25,
+     "externality": 0.1,
+     "contradiction": 0.3
     },
     "per_sample_scores": [
-     0.4475043493161997,
-     0.46755698563629383,
-     0.4502928678288496
+     0.21666666666666665,
+     0.21666666666666665,
+     0.21666666666666667
     ],
-    "sample_variance": 7.865931361674032e-05
+    "sample_variance": 1.7119377283442096e-34
    },
    "sql_ltv_top10::llm_readability": {
     "proxy_id": "sql_ltv_top10::llm_readability",
-    "validity_score": 0.14946132565835987,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.016666666666666666,
+    "rationale": "Formatting and readability have virtually no causal relationship to correctness: a beautifully formatted query can produce completely wrong results (wrong aggregation logic, missing customers with no payments, wrong column order, no LIMIT), while an ugly but correct query would fail the check. The check appeals only to the surface form of the SQL text itself, not to execution against the actual database or comparison to expected output rows. Critically, 'check fails' does not entail wrongness at all\u2014a correct query written in a compact or unconventional style could fail the formatting check while being perfectly correct.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.17702522130380974,
-     "externality": 0.15123382908320843,
-     "contradiction": 0.1257908225655069
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.17371866282938328,
-     0.13389464689354133,
-     0.14946132565835987
+     0.05000000000000001,
+     0.016666666666666666,
+     0.016666666666666666
     ],
-    "sample_variance": 0.00026852134885044
+    "sample_variance": 0.00024691358024691375
    },
    "sql_revenue_by_tier::exec_matches_ref": {
     "proxy_id": "sql_revenue_by_tier::exec_matches_ref",
-    "validity_score": 0.9405866667885768,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.9166666666666666,
+    "rationale": "The check executes the candidate query against a live database and compares its output to a known-correct reference, making it strongly causally coupled\u2014a wrong query would almost certainly produce different numeric results or ordering. The evidence is fully external: it relies on actual query execution and an independent reference answer, not just syntactic inspection. The main gap in contradiction is that the check uses a specific seed dataset, so a query that happens to produce correct results on that particular data but is logically wrong (e.g., coincidentally correct due to data distribution) could still pass; however, with a well-designed seed covering edge cases (customers with no payments, mixed tiers, etc.), this risk is low. Minor causal coupling gaps arise if the reference query itself has a subtle bug or if the seed data doesn't exercise all code paths.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.9155513033283762,
-     "externality": 0.9500866251718455,
-     "contradiction": 0.9522740466804882
+     "causal_coupling": 0.93,
+     "externality": 0.97,
+     "contradiction": 0.85
     },
     "per_sample_scores": [
-     0.9274082922789754,
-     0.9405866667885768,
-     0.9707580155601626
+     0.9166666666666666,
+     0.9166666666666666,
+     0.9166666666666666
     ],
-    "sample_variance": 0.0003292420388852769
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::exec_returns_3_rows": {
     "proxy_id": "sql_revenue_by_tier::exec_returns_3_rows",
-    "validity_score": 0.5693281478588458,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.4166666666666667,
+    "rationale": "The check executes the query against real data (high externality) and verifies structural correctness (3 rows, one per tier), but a query can return exactly 3 rows with correct tier labels while computing completely wrong net_revenue_cents values\u2014e.g., summing all payments without distinguishing charge vs. refund, or ignoring customers with no payments entirely. The check does not verify the actual numeric values of net_revenue_cents, the correct charge-minus-refund logic, or the descending ordering requirement. A failing check (e.g., wrong row count) does entail something is wrong, but passing the check is very compatible with incorrect revenue calculations, so causal_coupling and contradiction are both low.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.5503392530280025,
-     "externality": 0.5689531151295997,
-     "contradiction": 0.5755636958883992
+     "causal_coupling": 0.25,
+     "externality": 0.85,
+     "contradiction": 0.15
     },
     "per_sample_scores": [
-     0.5733080751549705,
-     0.5605086753898865,
-     0.5693281478588458
+     0.4166666666666667,
+     0.4166666666666667,
+     0.4166666666666667
     ],
-    "sample_variance": 2.8605283362178148e-05
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_order_desc": {
     "proxy_id": "sql_revenue_by_tier::text_order_desc",
-    "validity_score": 0.2618777899952942,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.03333333333333333,
+    "rationale": "The check only inspects the surface text of the query for an ORDER BY ... DESC clause, which is a trivially satisfiable syntactic requirement that says nothing about whether the query correctly computes net revenue per tier. A query could contain ORDER BY net_revenue_cents DESC yet compute completely wrong aggregations (e.g., summing all payments without distinguishing charges from refunds, or joining incorrectly). Conversely, a query using ORDER BY net_revenue_cents DESCENDING or a subquery approach might fail the literal string match while still being correct, so failure does not strictly entail wrongness. The check appeals entirely to the output's own text with zero external execution or data validation.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.2821872200007055,
-     "externality": 0.2351282182347794,
-     "contradiction": 0.28295725315179615
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.29741305386354516,
-     0.2618777899952942,
-     0.2556848722569842
+     0.06666666666666667,
+     0.03333333333333333,
+     0.03333333333333333
     ],
-    "sample_variance": 0.0003380387053877586
+    "sample_variance": 0.0002469135802469136
    },
    "sql_revenue_by_tier::text_mentions_refund": {
     "proxy_id": "sql_revenue_by_tier::text_mentions_refund",
-    "validity_score": 0.25326875107904634,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.049999999999999996,
+    "rationale": "A query can correctly compute net revenue by subtracting refund amounts without ever literally containing the string 'refund' (e.g., using CASE WHEN type != 'charge' THEN -amount_cents or other indirect logic), so passing the check does not guarantee correctness. Conversely, a query could mention 'refund' in a comment or incorrect context and still be wrong. The check is purely lexical/surface-form with zero external execution or data comparison. Failure of the check (no mention of 'refund') is fully compatible with a correct query, so contradiction is also near zero.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.26511303945330744,
-     "externality": 0.26982377170580996,
-     "contradiction": 0.24933356756794584
+     "causal_coupling": 0.1,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.25326875107904634,
-     0.2514852371241009,
-     0.2872012346681521
+     0.03333333333333333,
+     0.049999999999999996,
+     0.05000000000000001
     ],
-    "sample_variance": 0.0002700252050132321
+    "sample_variance": 6.172839506172842e-05
    },
    "sql_revenue_by_tier::text_group_by_tier": {
     "proxy_id": "sql_revenue_by_tier::text_group_by_tier",
-    "validity_score": 0.44599500352113086,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.11666666666666665,
+    "rationale": "Many correct queries could use GROUP BY on a different expression that still correctly groups by signup tier (e.g., grouping by a column alias, an expression, or a subquery result), so passing the check does not guarantee correctness and failing it does not guarantee incorrectness. Conversely, a query could contain 'GROUP BY signup_tier' textually but still be wrong due to incorrect aggregation logic (e.g., not handling charge/refund distinction, missing JOIN, wrong column references). The check is purely surface-level, inspecting only the query text without executing it against actual data, so externality is zero. The contradiction score is low because a correct query might legitimately not match the exact textual pattern checked.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.4290343450054141,
-     "externality": 0.448777739302902,
-     "contradiction": 0.4581791050285518
+     "causal_coupling": 0.2,
+     "externality": 0.0,
+     "contradiction": 0.15
     },
     "per_sample_scores": [
-     0.465936730032772,
-     0.44599500352113086,
-     0.4453303964456226
+     0.11666666666666665,
+     0.11666666666666665,
+     0.11666666666666665
     ],
-    "sample_variance": 9.14150158594206e-05
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::exec_no_error": {
     "proxy_id": "sql_revenue_by_tier::exec_no_error",
-    "validity_score": 0.5517868351490361,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.3166666666666667,
+    "rationale": "The check only verifies that the query executes without a SQL error, which is a very weak signal of correctness \u2014 a query like `SELECT signup_tier, 0 AS net_revenue_cents FROM customers GROUP BY signup_tier` would pass trivially while being wrong. It does use external execution against an actual database, giving it meaningful externality score, but execution success is nearly orthogonal to producing correct results (right columns, right arithmetic, right ordering, right grouping). Failure to execute does entail wrongness (a crashing query is wrong), but a passing check says almost nothing about correctness of the logic.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.5314605093005721,
-     "externality": 0.5903238564683879,
-     "contradiction": 0.5463536149115195
+     "causal_coupling": 0.05,
+     "externality": 0.85,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.5517868351490361,
-     0.5735806677778207,
-     0.5465390126569831
+     0.3166666666666667,
+     0.3166666666666667,
+     0.3166666666666667
     ],
-    "sample_variance": 0.0001370846548037657
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_under_15_lines": {
     "proxy_id": "sql_revenue_by_tier::text_under_15_lines",
-    "validity_score": 0.14355817131237705,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.016666666666666666,
+    "rationale": "Line count has essentially no causal relationship to correctness: a query can be 3 lines long and completely wrong (wrong aggregation logic, missing tiers, wrong ordering), or 20 lines long and perfectly correct. The check examines only the surface form (physical length) of the output text, with zero appeal to execution results, reference outputs, or external data. Failure of the check (query > 15 lines) is entirely compatible with a fully correct query, so contradiction is zero.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.13924654344777732,
-     "externality": 0.15309579056759734,
-     "contradiction": 0.16832938109951315
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.14355817131237705,
-     0.14103002851309646,
-     0.16295876992236796
+     0.016666666666666666,
+     0.016666666666666666,
+     0.016666666666666666
     ],
-    "sample_variance": 9.59604924704705e-05
+    "sample_variance": 0.0
    },
    "sql_revenue_by_tier::text_uppercase_keywords": {
     "proxy_id": "sql_revenue_by_tier::text_uppercase_keywords",
-    "validity_score": 0.14091680468469478,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.1503726323415462,
-     "externality": 0.13083294578381652,
-     "contradiction": 0.14641506937248985
-    },
-    "per_sample_scores": [
-     0.16233705017692499,
-     0.14091680468469478,
-     0.13149330583591015
-    ],
-    "sample_variance": 0.00016655175694159314
-   },
-   "sql_revenue_by_tier::llm_net_revenue_semantics": {
-    "proxy_id": "sql_revenue_by_tier::llm_net_revenue_semantics",
-    "validity_score": 0.456940444029621,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.4452531834773843,
-     "externality": 0.47947535169997146,
-     "contradiction": 0.4614274008319311
-    },
-    "per_sample_scores": [
-     0.456940444029621,
-     0.44007045142431833,
-     0.46735470699860904
-    ],
-    "sample_variance": 0.0001263871251037128
-   },
-   "sql_revenue_by_tier::llm_readability": {
-    "proxy_id": "sql_revenue_by_tier::llm_readability",
-    "validity_score": 0.14631455398078885,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.14493644269996708,
-     "externality": 0.146297201802092,
-     "contradiction": 0.14567212679322628
-    },
-    "per_sample_scores": [
-     0.1568331708992288,
-     0.14631455398078885,
-     0.14563525709842845
-    ],
-    "sample_variance": 2.627733551349227e-05
-   },
-   "billing_schema::battery_accepts_rejects": {
-    "proxy_id": "billing_schema::battery_accepts_rejects",
-    "validity_score": 0.9385689540025551,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.9244947787966801,
-     "externality": 0.9435376619998221,
-     "contradiction": 0.9172969949448708
-    },
-    "per_sample_scores": [
-     0.9385689540025551,
-     0.9574271899587693,
-     0.9284431452471243
-    ],
-    "sample_variance": 0.00014424887935316014
-   },
-   "billing_schema::parses_as_schema": {
-    "proxy_id": "billing_schema::parses_as_schema",
-    "validity_score": 0.27288912468036225,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.2900126361986652,
-     "externality": 0.2798776597459516,
-     "contradiction": 0.26053377615998824
-    },
-    "per_sample_scores": [
-     0.26534110051471305,
-     0.27288912468036225,
-     0.29533642335763893
-    ],
-    "sample_variance": 0.00016228591990704927
-   },
-   "billing_schema::required_has_tenant": {
-    "proxy_id": "billing_schema::required_has_tenant",
-    "validity_score": 0.2656946503950814,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.23265434283824973,
-     "externality": 0.24221437029824927,
-     "contradiction": 0.2773921792692021
-    },
-    "per_sample_scores": [
-     0.25507518228727283,
-     0.2710231612531988,
-     0.2656946503950814
-    ],
-    "sample_variance": 4.394490710616176e-05
-   },
-   "billing_schema::additional_props_false": {
-    "proxy_id": "billing_schema::additional_props_false",
-    "validity_score": 0.4386780177061473,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.4559236108059817,
-     "externality": 0.4321038880436923,
-     "contradiction": 0.4287377706772503
-    },
-    "per_sample_scores": [
-     0.4394880970263593,
-     0.42956179432405506,
-     0.4386780177061473
-    ],
-    "sample_variance": 2.025480473277925e-05
-   },
-   "billing_schema::status_enum_exact": {
-    "proxy_id": "billing_schema::status_enum_exact",
-    "validity_score": 0.4586558397351739,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.4670606504886087,
-     "externality": 0.45576789309404975,
-     "contradiction": 0.47040723720109257
-    },
-    "per_sample_scores": [
-     0.4517889517394645,
-     0.4586558397351739,
-     0.48138821660650927
-    ],
-    "sample_variance": 0.00016000350995950153
-   },
-   "billing_schema::seats_integer_min1": {
-    "proxy_id": "billing_schema::seats_integer_min1",
-    "validity_score": 0.45633842941210717,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.46750677424890613,
-     "externality": 0.4648156256915107,
-     "contradiction": 0.43469263377243017
-    },
-    "per_sample_scores": [
-     0.46546311363627435,
-     0.44791023514184874,
-     0.45633842941210717
-    ],
-    "sample_variance": 5.137754047645014e-05
-   },
-   "billing_schema::nesting_depth": {
-    "proxy_id": "billing_schema::nesting_depth",
-    "validity_score": 0.15485976905675136,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
-    "variant": "decomposed",
-    "subjudgments": {
-     "causal_coupling": 0.14273518976586297,
-     "externality": 0.18534294895719342,
-     "contradiction": 0.14232821834095016
-    },
-    "per_sample_scores": [
-     0.15485976905675136,
-     0.13737249478714214,
-     0.16610160483732703
-    ],
-    "sample_variance": 0.00013972726637484468
-   },
-   "billing_schema::has_annotations": {
-    "proxy_id": "billing_schema::has_annotations",
-    "validity_score": 0.02,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.006666666666666667,
+    "rationale": "The check only inspects surface formatting (keyword casing) and has no logical connection to query correctness; a query with lowercase keywords executes identically in SQLite and can be fully correct. Conversely, a query with uppercase keywords can be completely wrong in logic, grouping, or column ordering. The check appeals solely to the output's own text, not to execution results or any external reference. Failure of the check (lowercase keywords) is entirely compatible with a correct query, so failure does not entail wrongness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
      "causal_coupling": 0.02,
-     "externality": 0.02,
-     "contradiction": 0.02
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.02,
-     0.02,
-     0.02
+     0.006666666666666667,
+     0.006666666666666667,
+     0.006666666666666667
+    ],
+    "sample_variance": 0.0
+   },
+   "sql_revenue_by_tier::llm_net_revenue_semantics": {
+    "proxy_id": "sql_revenue_by_tier::llm_net_revenue_semantics",
+    "validity_score": 0.21666666666666665,
+    "rationale": "An LLM judge reading the query text can be fooled by plausible-looking SQL that has subtle bugs\u2014wrong CASE sign logic, missing NULLs for customers with no payments, incorrect GROUP BY, or off-by-one in ordering\u2014all of which would pass a surface-level textual review. The check is almost entirely based on reading the output's own SQL text and reasoning about it, not on executing it against actual data, so it scores very low on externality. Failure of the check does not strictly entail wrongness (the judge might flag a correct query as wrong due to stylistic concerns), and passage does not guarantee correctness, so contradiction is also low.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.25,
+     "externality": 0.1,
+     "contradiction": 0.3
+    },
+    "per_sample_scores": [
+     0.21666666666666665,
+     0.21666666666666665,
+     0.21666666666666665
+    ],
+    "sample_variance": 0.0
+   },
+   "sql_revenue_by_tier::llm_readability": {
+    "proxy_id": "sql_revenue_by_tier::llm_readability",
+    "validity_score": 0.02666666666666667,
+    "rationale": "Formatting and readability have essentially no causal relationship to correctness: a beautifully formatted query can produce wrong results (e.g., wrong aggregation logic, missing tiers, wrong column order) and an ugly query can be perfectly correct. The check appeals entirely to surface-level textual properties of the SQL string, with no execution against data or comparison to a reference result. A failing formatting check is also fully compatible with a correct query, since correctness is a semantic property independent of style.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.05
+    },
+    "per_sample_scores": [
+     0.03333333333333333,
+     0.02666666666666667,
+     0.016666666666666666
+    ],
+    "sample_variance": 4.691358024691358e-05
+   },
+   "billing_schema::battery_accepts_rejects": {
+    "proxy_id": "billing_schema::battery_accepts_rejects",
+    "validity_score": 0.7733333333333334,
+    "rationale": "The battery of labeled instances is external evidence (independently authored, not derived from the output itself), so externality is high. Causal coupling is strong because a schema that correctly accepts all valid instances and rejects all invalid ones in a comprehensive battery practically guarantees correctness of the contract\u2014though gaps in battery coverage (e.g., missing edge cases like fractional seats, empty strings, or extra top-level fields) could let a partially wrong schema pass. Contradiction is moderate: a failing check strongly suggests the schema is wrong, but it's possible a correct schema fails due to bugs in the test harness, mislabeled instances in the battery, or validator implementation quirks, meaning failure doesn't logically entail wrongness.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.82,
+     "externality": 0.95,
+     "contradiction": 0.55
+    },
+    "per_sample_scores": [
+     0.7733333333333334,
+     0.7733333333333334,
+     0.7066666666666667
+    ],
+    "sample_variance": 0.0009876543209876572
+   },
+   "billing_schema::parses_as_schema": {
+    "proxy_id": "billing_schema::parses_as_schema",
+    "validity_score": 0.18333333333333335,
+    "rationale": "A schema can be structurally valid JSON Schema (draft 2020-12) while completely failing to enforce any of the specific contract requirements\u2014wrong enum values, missing required fields, wrong types, no additionalProperties constraint, etc. The check is mostly surface-structural (is it parseable JSON that looks like a schema?) with only marginal external grounding via meta-schema validation. Failing the check does not entail the output is wrong in the task sense, since a correct schema could theoretically fail a loose structural check due to minor formatting issues, and conversely passing it says almost nothing about semantic correctness of the constraints.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.15,
+     "externality": 0.35,
+     "contradiction": 0.05
+    },
+    "per_sample_scores": [
+     0.18333333333333335,
+     0.18333333333333335,
+     0.16666666666666666
+    ],
+    "sample_variance": 6.172839506172857e-05
+   },
+   "billing_schema::required_has_tenant": {
+    "proxy_id": "billing_schema::required_has_tenant",
+    "validity_score": 0.35000000000000003,
+    "rationale": "The check only verifies one small fragment of the schema (presence of tenant_id in the required array), leaving the vast majority of the contract\u2014status enum, seats constraints, plan sub-object, usage_records structure, additionalProperties restriction, etc.\u2014completely unchecked, so a wrong schema easily passes. It does inspect the actual JSON structure of the output rather than just trusting claims, giving it slight externality, but it does not execute the schema against data or compare to a reference. Failure does fairly strongly entail wrongness (if tenant_id is missing from required, the schema is definitively wrong), but passing says almost nothing about overall correctness.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.05,
+     "externality": 0.15,
+     "contradiction": 0.85
+    },
+    "per_sample_scores": [
+     0.41,
+     0.3333333333333333,
+     0.35000000000000003
+    ],
+    "sample_variance": 0.0010839506172839498
+   },
+   "billing_schema::additional_props_false": {
+    "proxy_id": "billing_schema::additional_props_false",
+    "validity_score": 0.39999999999999997,
+    "rationale": "The check only verifies one narrow structural property (additionalProperties: false at the top level) out of the many constraints the task requires, so a schema can pass this check while being wrong in numerous other ways (missing required fields, wrong types, wrong enum values, etc.). The check is mostly surface-level, inspecting the schema text/structure rather than executing it against data, though it does compare against a specific required property value. Failure does fairly strongly entail wrongness for this specific requirement\u2014if additionalProperties is not false, the schema genuinely violates the contract\u2014but the check catching only one of many requirements means passing it is a very weak guarantee of overall correctness.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.15,
+     "externality": 0.2,
+     "contradiction": 0.85
+    },
+    "per_sample_scores": [
+     0.38999999999999996,
+     0.4333333333333333,
+     0.39999999999999997
+    ],
+    "sample_variance": 0.00034320987654320984
+   },
+   "billing_schema::status_enum_exact": {
+    "proxy_id": "billing_schema::status_enum_exact",
+    "validity_score": 0.3333333333333333,
+    "rationale": "The check only verifies one small slice of the schema (the status enum), so a schema can pass this check while being wrong in many other ways\u2014missing required fields, wrong types for seats or plan subfields, wrong additionalProperties handling, etc. The check is essentially a surface/structural inspection of the schema text rather than executing the schema against test instances, making it nearly fully internal. Failure does entail something wrong (the status enum is incorrect), but a passing check is far from sufficient to guarantee overall correctness given the many other contract requirements. The contradiction score is moderate because if the check fails, the status field is definitely wrong, but the converse does not hold.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.35,
+     "externality": 0.1,
+     "contradiction": 0.55
+    },
+    "per_sample_scores": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3666666666666667
+    ],
+    "sample_variance": 0.0002469135802469143
+   },
+   "billing_schema::seats_integer_min1": {
+    "proxy_id": "billing_schema::seats_integer_min1",
+    "validity_score": 0.5833333333333334,
+    "rationale": "If the schema correctly types seats as an integer with minimum 1, that specific field constraint is almost certainly correct, and a schema that passes this check is very likely to have that portion right. However, the check is narrow\u2014it only verifies one field out of many required constraints, so the overall schema could still be wrong in many other ways (e.g., missing additionalProperties, wrong status enum, incorrect plan subschema). The externality is low because the check inspects the schema's own JSON structure/text rather than executing it against test instances. Failure to include integer+minimum-1 for seats would indeed mean the output is wrong with respect to that specific requirement, giving high contradiction for that sub-constraint.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.82,
+     "externality": 0.3,
+     "contradiction": 0.78
+    },
+    "per_sample_scores": [
+     0.6666666666666666,
+     0.5633333333333334,
+     0.5833333333333334
+    ],
+    "sample_variance": 0.0020024691358024667
+   },
+   "billing_schema::nesting_depth": {
+    "proxy_id": "billing_schema::nesting_depth",
+    "validity_score": 0.07666666666666666,
+    "rationale": "Nesting depth is a purely structural proxy that has almost no causal relationship to correctness: a schema could be four levels deep yet omit required fields, use wrong types, or miss constraints entirely, while a correct schema trivially satisfies the depth requirement as a side effect. The check examines only the surface form of the JSON text (counting nesting levels) rather than executing the schema against valid/invalid instances or comparing it to a reference. Failure of the depth check does not entail wrongness\u2014a perfectly correct flat or shallowly nested schema variant could still enforce all the required constraints, so the contradiction score is near zero.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.08,
+     "externality": 0.1,
+     "contradiction": 0.05
+    },
+    "per_sample_scores": [
+     0.07666666666666666,
+     0.07666666666666666,
+     0.08333333333333333
+    ],
+    "sample_variance": 9.876543209876547e-06
+   },
+   "billing_schema::has_annotations": {
+    "proxy_id": "billing_schema::has_annotations",
+    "validity_score": 0.043333333333333335,
+    "rationale": "The presence of a title or description annotation is purely cosmetic metadata and has no causal relationship to whether the schema correctly enforces the specified contract (required fields, types, enums, constraints, additionalProperties, etc.). A schema could have a perfect title and description while being entirely wrong, or could be completely correct without any annotations at all. The check fails when the annotation is absent, yet a fully correct schema with no title/description would fail this check, meaning failure does not entail wrongness. The check only inspects the surface text of the JSON output for the presence of a key, making it nearly fully surface-form.",
+    "gate_model": "claude-sonnet-4-6",
+    "variant": "decomposed",
+    "subjudgments": {
+     "causal_coupling": 0.03,
+     "externality": 0.1,
+     "contradiction": 0.0
+    },
+    "per_sample_scores": [
+     0.043333333333333335,
+     0.043333333333333335,
+     0.043333333333333335
     ],
     "sample_variance": 0.0
    },
    "billing_schema::llm_contract_check": {
     "proxy_id": "billing_schema::llm_contract_check",
-    "validity_score": 0.8089552890118884,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.26666666666666666,
+    "rationale": "An LLM judge reading the schema text may be fooled by plausible-looking but subtly wrong constraints (e.g., 'minimum: 0' on a field that should be >=1, missing 'additionalProperties: false', wrong enum values) because it pattern-matches surface structure rather than formally evaluating semantics. The check is almost entirely surface-form: it asks another LLM to read the JSON text, with no execution against test instances that would actually probe the schema's enforcement behavior. Failure of the check does not logically entail the output is wrong\u2014a correct schema could be misjudged by the LLM judge\u2014and passing the check does not guarantee correctness since the judge may miss subtle errors like 'type: number' instead of 'type: integer' or an absent 'unevaluatedProperties'/'additionalProperties' keyword.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.7983183120210465,
-     "externality": 0.8234524146359071,
-     "contradiction": 0.7985796292891214
+     "causal_coupling": 0.35,
+     "externality": 0.2,
+     "contradiction": 0.25
     },
     "per_sample_scores": [
-     0.805495888277771,
-     0.822089951697758,
-     0.8089552890118884
+     0.25,
+     0.26666666666666666,
+     0.26666666666666666
     ],
-    "sample_variance": 5.109441756637105e-05
+    "sample_variance": 6.172839506172837e-05
    },
    "billing_schema::llm_professional": {
     "proxy_id": "billing_schema::llm_professional",
-    "validity_score": 0.15081630509676172,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05666666666666667,
+    "rationale": "Professional appearance (annotations, style, naming) is almost entirely orthogonal to whether the schema actually enforces the specified contract; a beautifully formatted schema can omit required fields, allow wrong types, or miss constraints entirely and still look polished. The check appeals solely to the surface form and aesthetic qualities of the output text, with no execution against test instances or comparison to a reference schema. Consequently, a schema that fails every structural requirement of the task could easily pass this check, and a schema that perfectly satisfies the contract could be written in a terse, unannotated style that fails it.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.1400334878335785,
-     "externality": 0.12972437529352598,
-     "contradiction": 0.16450327697547698
+     "causal_coupling": 0.05,
+     "externality": 0.1,
+     "contradiction": 0.02
     },
     "per_sample_scores": [
-     0.15197762612609916,
-     0.13096549161887547,
-     0.15081630509676172
+     0.05666666666666667,
+     0.05666666666666667,
+     0.05000000000000001
     ],
-    "sample_variance": 9.299036209074141e-05
+    "sample_variance": 9.876543209876526e-06
    },
    "csv_parser::own_fixtures_pass": {
     "proxy_id": "csv_parser::own_fixtures_pass",
-    "validity_score": 0.9453766650486218,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.8233333333333333,
+    "rationale": "Running the function against independently authored fixtures with known expected outputs provides strong causal coupling\u2014if the function produces wrong results, the assertions will likely fail, especially if fixtures cover edge cases like tie-breaking, quoted delimiters, and blank-line skipping. The evidence is largely external (execution against held-out test data with ground-truth expectations), though quality depends heavily on fixture coverage. Failure of the check does entail wrongness for the tested cases, but a failing check could also indicate a fixture error or an underspecified edge case rather than a contract violation, slightly weakening the contradiction score. Coverage gaps (e.g., missing fixtures for specific tie-break scenarios or nested newlines in quotes) mean a passing check doesn't fully guarantee correctness across all contract rules.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.9593332376818483,
-     "externality": 0.967003351519118,
-     "contradiction": 0.9418412154987086
+     "causal_coupling": 0.82,
+     "externality": 0.9,
+     "contradiction": 0.75
     },
     "per_sample_scores": [
-     0.9453766650486218,
-     0.9631756173578344,
-     0.9356274521658882
+     0.8233333333333333,
+     0.8233333333333333,
+     0.8233333333333333
     ],
-    "sample_variance": 0.0001300834733979159
+    "sample_variance": 0.0
    },
    "csv_parser::simple_case_correct": {
     "proxy_id": "csv_parser::simple_case_correct",
-    "validity_score": 0.5889403330423576,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.3833333333333333,
+    "rationale": "A 'simple two-row comma CSV' tests almost none of the pinned rules: no tie-breaking, no quoted fields, no embedded delimiters/newlines, no doubled quotes, no mixed whitespace, no empty rows, no ragged rows. A trivially wrong implementation that just does `text.splitlines()` and splits on commas would likely pass this check. While execution is external evidence, the test case is so narrow that passing it provides almost no guarantee of correctness across the full contract. Failure of this check does not entail wrongness because a correct implementation could conceivably fail on edge cases in the assertion while still being correct overall\u2014though for a simple case, failure does correlate with wrongness.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.582415544551894,
-     "externality": 0.6047193786117061,
-     "contradiction": 0.5767151212987293
+     "causal_coupling": 0.15,
+     "externality": 0.6,
+     "contradiction": 0.4
     },
     "per_sample_scores": [
-     0.5889403330423576,
-     0.5999240327975537,
-     0.5584375580776881
+     0.3666666666666667,
+     0.3833333333333333,
+     0.3833333333333333
     ],
-    "sample_variance": 0.00030802094728217826
+    "sample_variance": 6.172839506172796e-05
    },
    "csv_parser::runs_on_quoted_input": {
     "proxy_id": "csv_parser::runs_on_quoted_input",
-    "validity_score": 0.5756188568951607,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.13333333333333333,
+    "rationale": "The check only verifies that the function doesn't raise an exception on one quoted-field input, which means virtually any implementation that doesn't crash will pass\u2014even one that returns completely wrong parsed values. A function that returns `[[text]]` for all inputs would pass trivially. The check does execute the code (slight externality over pure static analysis), but it doesn't compare against any reference output. Failure to raise an exception says almost nothing about correctness of delimiter detection, quote handling, stripping rules, or any other pinned contract requirement.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.5791025019737666,
-     "externality": 0.552118577291751,
-     "contradiction": 0.5839647713801742
+     "causal_coupling": 0.05,
+     "externality": 0.3,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.5778120969160955,
-     0.5641563119632557,
-     0.5756188568951607
+     0.13333333333333333,
+     0.13333333333333333,
+     0.13333333333333333
     ],
-    "sample_variance": 3.585341119817529e-05
+    "sample_variance": 0.0
    },
    "csv_parser::defines_and_runs": {
     "proxy_id": "csv_parser::defines_and_runs",
-    "validity_score": 0.5757831755014564,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.18333333333333332,
+    "rationale": "A function can import and run without error while being completely wrong in its parsing logic\u2014e.g., it could return an empty list or use Python's built-in csv module with default settings, passing the check trivially. The check does execute the code (some external evidence), but it provides no test inputs or expected outputs to validate correctness against the five pinned rules. Failure of the check (syntax error or import error) does entail wrongness, but passing it is nearly meaningless for correctness, so causal coupling and contradiction scores are very low.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.5949332248011915,
-     "externality": 0.5862421956230519,
-     "contradiction": 0.5730026828784037
+     "causal_coupling": 0.05,
+     "externality": 0.35,
+     "contradiction": 0.15
     },
     "per_sample_scores": [
-     0.5757831755014564,
-     0.5815421488007707,
-     0.5720652819460721
+     0.18333333333333332,
+     0.18333333333333332,
+     0.16666666666666666
     ],
-    "sample_variance": 1.5199945703674283e-05
+    "sample_variance": 6.172839506172837e-05
    },
    "csv_parser::text_handles_quotes": {
     "proxy_id": "csv_parser::text_handles_quotes",
-    "validity_score": 0.26022658808860616,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.043333333333333335,
+    "rationale": "The check merely searches for the presence of the '\"' character in the source code, which is trivially satisfied by any string literal, comment, or docstring mentioning quotes\u2014even if the actual parsing logic is completely broken. A wrong implementation can easily pass by including a stray quote character somewhere, while a correct implementation using a library or alternative encoding might conceivably be flagged. The check is purely surface-level (no execution, no test cases, no external reference), and check failure does not entail wrongness since a correct implementation could theoretically reference quotes indirectly.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.25811142702310147,
-     "externality": 0.24555113776017706,
-     "contradiction": 0.2740141661195118
+     "causal_coupling": 0.08,
+     "externality": 0.0,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.29098215852110854,
-     0.26022658808860616,
-     0.2510394608899267
+     0.043333333333333335,
+     0.06,
+     0.03333333333333333
     ],
-    "sample_variance": 0.0002917475014277057
+    "sample_variance": 0.00012098765432098764
    },
    "csv_parser::text_strips_fields": {
     "proxy_id": "csv_parser::text_strips_fields",
-    "validity_score": 0.2731214037265446,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.016666666666666666,
+    "rationale": "The check only looks for the string `.strip(` in the source code, which is a pure surface/structural test with no execution or behavioral verification. A correct implementation could use `str.strip`, `lstrip`/`rstrip`, regex substitution, or manual character iteration to handle whitespace without ever calling `.strip(`. Conversely, a broken implementation could call `.strip(` in an irrelevant or incorrect context and still pass the check. Failure of this check is entirely compatible with a fully correct implementation that uses alternative whitespace-trimming mechanisms.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.2889928193155194,
-     "externality": 0.2558476696409862,
-     "contradiction": 0.2597653408976657
+     "causal_coupling": 0.05,
+     "externality": 0.0,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.27938109898847713,
-     0.2731214037265446,
-     0.24329901731572248
+     0.016666666666666666,
+     0.016666666666666666,
+     0.016666666666666666
     ],
-    "sample_variance": 0.0002478305704275538
+    "sample_variance": 0.0
    },
    "csv_parser::under_60_lines": {
     "proxy_id": "csv_parser::under_60_lines",
-    "validity_score": 0.16225130213399375,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.043333333333333335,
+    "rationale": "{\"causal_coupling\": 0.03, \"externality\": 0.1, \"contradiction\": 0.0}\n\nWait, I need to include rationale. Let me reconsider and provide the full object.\n\n{\"causal_coupling\": 0.03, \"externality\": 0.1, \"contradiction\": 0.0, \"rationale\": \"Line count has almost no causal relationship to correctness \u2014 a correct implementation could easily exceed 60 lines, and a wrong implementation could trivially be under 60 lines. The check only examines surface structure (line count) of the code, not its behavior, making it essentially a pure surface-form check with no external evidence. Failure of the check (code is over 60 lines) is entirely compatible with a fully correct output, so 'check fails' does not entail wrongness at all.\"}",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.15630323105638458,
-     "externality": 0.16454990131187952,
-     "contradiction": 0.16298502915841181
+     "causal_coupling": 0.03,
+     "externality": 0.1,
+     "contradiction": 0.0
     },
     "per_sample_scores": [
-     0.1699892208678623,
-     0.16225130213399375,
-     0.13625336832046822
+     0.5,
+     0.01,
+     0.043333333333333335
     ],
-    "sample_variance": 0.00020820841066710266
+    "sample_variance": 0.04997283950617284
    },
    "csv_parser::has_type_hints": {
     "proxy_id": "csv_parser::has_type_hints",
-    "validity_score": 0.1254998206507492,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.05666666666666667,
+    "rationale": "The check only verifies the presence of a type hint annotation on the function signature, which has essentially no relationship to whether the function correctly implements the complex CSV parsing logic. A function can have a perfectly correct return type hint while being completely wrong in its parsing behavior, and conversely a function without hints could be fully correct. The check is purely surface-level (inspecting source text/AST structure rather than executing the function), so externality is near zero. Failure of the check (missing type hint) is fully compatible with a correct implementation, so contradiction is also near zero.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.11967260441036726,
-     "externality": 0.1204870590219477,
-     "contradiction": 0.1447932523942537
+     "causal_coupling": 0.02,
+     "externality": 0.1,
+     "contradiction": 0.05
     },
     "per_sample_scores": [
-     0.1175279659671231,
-     0.1254998206507492,
-     0.16091624100325855
+     0.04,
+     0.05666666666666667,
+     0.05666666666666667
     ],
-    "sample_variance": 0.0003556017453659805
+    "sample_variance": 6.172839506172842e-05
    },
    "csv_parser::llm_contract_correct": {
     "proxy_id": "csv_parser::llm_contract_correct",
-    "validity_score": 0.8304683209553211,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.12666666666666668,
+    "rationale": "An LLM judge evaluating code text can easily be fooled by plausible-looking implementations that have subtle bugs in tie-breaking logic, quoted-field newline handling, or whitespace-stripping rules\u2014wrong code often reads as correct. The check relies almost entirely on surface-form code inspection by another LLM, with no execution against test cases or comparison to a reference implementation, making it nearly pure surface evaluation. Failure of the check does not logically entail wrongness, since a correct implementation might be written in an unusual style the judge misreads; conversely, a buggy implementation written in clean, idiomatic style might easily pass the judge's scrutiny.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.8467179340069924,
-     "externality": 0.8386864512340834,
-     "contradiction": 0.8203042727034316
+     "causal_coupling": 0.18,
+     "externality": 0.1,
+     "contradiction": 0.1
     },
     "per_sample_scores": [
-     0.8296426753295375,
-     0.858033265307243,
-     0.8304683209553211
+     0.12666666666666668,
+     0.15000000000000002,
+     0.11666666666666665
     ],
-    "sample_variance": 0.0001740592719006799
+    "sample_variance": 0.0001950617283950621
    },
    "csv_parser::llm_code_quality": {
     "proxy_id": "csv_parser::llm_code_quality",
-    "validity_score": 0.14145689190166466,
-    "rationale": "mock gate (decomposed): deterministic keyword heuristic per sub-judgment (offline pipeline validation only)",
-    "gate_model": "mock",
+    "validity_score": 0.04666666666666667,
+    "rationale": "The check evaluates code style and documentation quality, which has virtually no causal relationship to whether the function correctly implements the specified parsing rules. A beautifully documented function can be completely wrong, and a correct function can be undocumented. The check relies purely on surface-form text inspection by an LLM rather than any execution or comparison against expected outputs. Failing the style check is entirely compatible with a correct implementation, so contradiction is near zero.",
+    "gate_model": "claude-sonnet-4-6",
     "variant": "decomposed",
     "subjudgments": {
-     "causal_coupling": 0.119558523653438,
-     "externality": 0.1758645142209401,
-     "contradiction": 0.1289476378306159
+     "causal_coupling": 0.03,
+     "externality": 0.1,
+     "contradiction": 0.02
     },
     "per_sample_scores": [
-     0.14145689190166466,
-     0.13824990943731974,
-     0.16889514788493867
+     0.04666666666666667,
+     0.01,
+     0.049999999999999996
     ],
-    "sample_variance": 0.00018914147416018996
+    "sample_variance": 0.000328395061728395
    }
   }
  },
@@ -3829,17 +3829,17 @@
    "balanced_accuracy": 1.0,
    "gate": {
     "holistic": {
-     "validity_score": 0.923462851069277,
-     "sample_variance": 0.00012816966319264354,
+     "validity_score": 0.95,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.955785836314888,
-     "sample_variance": 0.000187860748681164,
+     "validity_score": 0.9266666666666667,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.942966713447349,
-      "externality": 0.9772401347726678,
-      "contradiction": 0.9471506607246472
+      "causal_coupling": 0.93,
+      "externality": 1.0,
+      "contradiction": 0.85
      }
     }
    }
@@ -3853,17 +3853,17 @@
    "balanced_accuracy": 0.9166666666666667,
    "gate": {
     "holistic": {
-     "validity_score": 0.9479144266336026,
-     "sample_variance": 0.00034749441271461656,
+     "validity_score": 0.35,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.944592027492183,
-     "sample_variance": 0.00013347288871397818,
+     "validity_score": 0.5666666666666667,
+     "sample_variance": 0.0009876543209876554,
      "subjudgments": {
-      "causal_coupling": 0.9524278314882955,
-      "externality": 0.9329549314135116,
-      "contradiction": 0.9327007469215199
+      "causal_coupling": 0.45,
+      "externality": 0.95,
+      "contradiction": 0.3
      }
     }
    }
@@ -3877,17 +3877,17 @@
    "balanced_accuracy": 0.5416666666666666,
    "gate": {
     "holistic": {
-     "validity_score": 0.5614247020779701,
-     "sample_variance": 0.00020457909956156175,
+     "validity_score": 0.15,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5603862525096753,
-     "sample_variance": 0.00020078174720689548,
+     "validity_score": 0.35000000000000003,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.5727332659351485,
-      "externality": 0.5517291623590815,
-      "contradiction": 0.5661518641086649
+      "causal_coupling": 0.15,
+      "externality": 0.85,
+      "contradiction": 0.05
      }
     }
    }
@@ -3901,17 +3901,17 @@
    "balanced_accuracy": 0.625,
    "gate": {
     "holistic": {
-     "validity_score": 0.2879076913320245,
-     "sample_variance": 0.0004202162601839845,
+     "validity_score": 0.1,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.3022565438890806,
-     "sample_variance": 0.0006303880312914888,
+     "validity_score": 0.13333333333333333,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.3080941180507872,
-      "externality": 0.30187203051333134,
-      "contradiction": 0.2954533937167035
+      "causal_coupling": 0.15,
+      "externality": 0.05,
+      "contradiction": 0.2
      }
     }
    }
@@ -3925,17 +3925,17 @@
    "balanced_accuracy": 0.5833333333333334,
    "gate": {
     "holistic": {
-     "validity_score": 0.2639089626525317,
-     "sample_variance": 0.0004515681545583837,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.26460827868616715,
-     "sample_variance": 0.00010867869801494209,
+     "validity_score": 0.05000000000000001,
+     "sample_variance": 6.172839506172832e-05,
      "subjudgments": {
-      "causal_coupling": 0.26605157864188117,
-      "externality": 0.2753101209656592,
-      "contradiction": 0.26972217573777824
+      "causal_coupling": 0.1,
+      "externality": 0.0,
+      "contradiction": 0.05
      }
     }
    }
@@ -3949,17 +3949,17 @@
    "balanced_accuracy": 0.4375,
    "gate": {
     "holistic": {
-     "validity_score": 0.2548364708257924,
-     "sample_variance": 0.0008025444644847274,
+     "validity_score": 0.15,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.2872619071736145,
-     "sample_variance": 0.00016524061662725808,
+     "validity_score": 0.11666666666666665,
+     "sample_variance": 0.0002469135802469135,
      "subjudgments": {
-      "causal_coupling": 0.29222729039895984,
-      "externality": 0.27131385588117735,
-      "contradiction": 0.3013573436418915
+      "causal_coupling": 0.2,
+      "externality": 0.0,
+      "contradiction": 0.1
      }
     }
    }
@@ -3973,17 +3973,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.5964703710159451,
-     "sample_variance": 0.0008230139030963878,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5878329350747711,
-     "sample_variance": 0.0003818707271162102,
+     "validity_score": 0.3166666666666667,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.557631308722224,
-      "externality": 0.5958694074083748,
-      "contradiction": 0.5848297413379955
+      "causal_coupling": 0.1,
+      "externality": 0.8,
+      "contradiction": 0.05
      }
     }
    }
@@ -3997,17 +3997,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.18195621143839236,
-     "sample_variance": 1.597464042158034e-06,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.15959494103280092,
-     "sample_variance": 0.000215214185042794,
+     "validity_score": 0.016666666666666666,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.1448778341046716,
-      "externality": 0.16907934056107873,
-      "contradiction": 0.1870254756317068
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4021,17 +4021,17 @@
    "balanced_accuracy": 0.5625,
    "gate": {
     "holistic": {
-     "validity_score": 0.1345502808747232,
-     "sample_variance": 2.7322951541002097e-05,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14462504288987843,
-     "sample_variance": 0.0002879675884624519,
+     "validity_score": 0.01,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.13738106011119233,
-      "externality": 0.17387879352641267,
-      "contradiction": 0.17338463857383113
+      "causal_coupling": 0.03,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4041,21 +4041,21 @@
    "task_id": "sql_ltv_top10",
    "intended_class": "valid",
    "kind": "llm_judged",
-   "empirical_validity": 0.5345224838248488,
-   "balanced_accuracy": 0.75,
+   "empirical_validity": 0.898717034272917,
+   "balanced_accuracy": 0.9375,
    "gate": {
     "holistic": {
-     "validity_score": 0.412965795398449,
-     "sample_variance": 0.0005883003470783401,
+     "validity_score": 0.55,
+     "sample_variance": 0.0022222222222222235,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.4502928678288496,
-     "sample_variance": 7.865931361674032e-05,
+     "validity_score": 0.21666666666666665,
+     "sample_variance": 1.7119377283442096e-34,
      "subjudgments": {
-      "causal_coupling": 0.4310676601764438,
-      "externality": 0.43249096345680094,
-      "contradiction": 0.48441053196657696
+      "causal_coupling": 0.25,
+      "externality": 0.1,
+      "contradiction": 0.3
      }
     }
    }
@@ -4065,21 +4065,21 @@
    "task_id": "sql_ltv_top10",
    "intended_class": "irrelevant",
    "kind": "llm_judged",
-   "empirical_validity": -0.2809757434745082,
-   "balanced_accuracy": 0.4375,
+   "empirical_validity": 0.23570226039551584,
+   "balanced_accuracy": 0.6041666666666666,
    "gate": {
     "holistic": {
-     "validity_score": 0.13469370961764218,
-     "sample_variance": 0.0010883011293017742,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14946132565835987,
-     "sample_variance": 0.00026852134885044,
+     "validity_score": 0.016666666666666666,
+     "sample_variance": 0.00024691358024691375,
      "subjudgments": {
-      "causal_coupling": 0.17702522130380974,
-      "externality": 0.15123382908320843,
-      "contradiction": 0.1257908225655069
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4093,17 +4093,17 @@
    "balanced_accuracy": 1.0,
    "gate": {
     "holistic": {
-     "validity_score": 0.9608771542764449,
-     "sample_variance": 0.0004994560101374274,
+     "validity_score": 0.95,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.9405866667885768,
-     "sample_variance": 0.0003292420388852769,
+     "validity_score": 0.9166666666666666,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.9155513033283762,
-      "externality": 0.9500866251718455,
-      "contradiction": 0.9522740466804882
+      "causal_coupling": 0.93,
+      "externality": 0.97,
+      "contradiction": 0.85
      }
     }
    }
@@ -4117,17 +4117,17 @@
    "balanced_accuracy": 0.5555555555555556,
    "gate": {
     "holistic": {
-     "validity_score": 0.5838025305359165,
-     "sample_variance": 4.032240502670333e-05,
+     "validity_score": 0.2,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5693281478588458,
-     "sample_variance": 2.8605283362178148e-05,
+     "validity_score": 0.4166666666666667,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.5503392530280025,
-      "externality": 0.5689531151295997,
-      "contradiction": 0.5755636958883992
+      "causal_coupling": 0.25,
+      "externality": 0.85,
+      "contradiction": 0.15
      }
     }
    }
@@ -4141,17 +4141,17 @@
    "balanced_accuracy": 0.6111111111111112,
    "gate": {
     "holistic": {
-     "validity_score": 0.2795094072375236,
-     "sample_variance": 0.0008077435430894227,
+     "validity_score": 0.1,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.2618777899952942,
-     "sample_variance": 0.0003380387053877586,
+     "validity_score": 0.03333333333333333,
+     "sample_variance": 0.0002469135802469136,
      "subjudgments": {
-      "causal_coupling": 0.2821872200007055,
-      "externality": 0.2351282182347794,
-      "contradiction": 0.28295725315179615
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.05
      }
     }
    }
@@ -4165,17 +4165,17 @@
    "balanced_accuracy": 0.5555555555555556,
    "gate": {
     "holistic": {
-     "validity_score": 0.28687965694276607,
-     "sample_variance": 0.00048792963571268227,
+     "validity_score": 0.1,
+     "sample_variance": 0.0005555555555555557,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.25326875107904634,
-     "sample_variance": 0.0002700252050132321,
+     "validity_score": 0.049999999999999996,
+     "sample_variance": 6.172839506172842e-05,
      "subjudgments": {
-      "causal_coupling": 0.26511303945330744,
-      "externality": 0.26982377170580996,
-      "contradiction": 0.24933356756794584
+      "causal_coupling": 0.1,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4189,17 +4189,17 @@
    "balanced_accuracy": 0.4841269841269841,
    "gate": {
     "holistic": {
-     "validity_score": 0.43559539469554914,
-     "sample_variance": 0.0001734362622486837,
+     "validity_score": 0.15,
+     "sample_variance": 0.0005555555555555553,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.44599500352113086,
-     "sample_variance": 9.14150158594206e-05,
+     "validity_score": 0.11666666666666665,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.4290343450054141,
-      "externality": 0.448777739302902,
-      "contradiction": 0.4581791050285518
+      "causal_coupling": 0.2,
+      "externality": 0.0,
+      "contradiction": 0.15
      }
     }
    }
@@ -4213,17 +4213,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.5630143011997022,
-     "sample_variance": 0.0008174841476497798,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5517868351490361,
-     "sample_variance": 0.0001370846548037657,
+     "validity_score": 0.3166666666666667,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.5314605093005721,
-      "externality": 0.5903238564683879,
-      "contradiction": 0.5463536149115195
+      "causal_coupling": 0.05,
+      "externality": 0.85,
+      "contradiction": 0.05
      }
     }
    }
@@ -4237,17 +4237,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.127887666099213,
-     "sample_variance": 4.177152876216304e-05,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14355817131237705,
-     "sample_variance": 9.59604924704705e-05,
+     "validity_score": 0.016666666666666666,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.13924654344777732,
-      "externality": 0.15309579056759734,
-      "contradiction": 0.16832938109951315
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4261,17 +4261,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.13783664914496166,
-     "sample_variance": 0.0002456243147214059,
+     "validity_score": 0.02,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14091680468469478,
-     "sample_variance": 0.00016655175694159314,
+     "validity_score": 0.006666666666666667,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.1503726323415462,
-      "externality": 0.13083294578381652,
-      "contradiction": 0.14641506937248985
+      "causal_coupling": 0.02,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4281,21 +4281,21 @@
    "task_id": "sql_revenue_by_tier",
    "intended_class": "valid",
    "kind": "llm_judged",
-   "empirical_validity": 0.5945883900105632,
-   "balanced_accuracy": 0.7777777777777778,
+   "empirical_validity": 1.0,
+   "balanced_accuracy": 1.0,
    "gate": {
     "holistic": {
-     "validity_score": 0.46777162802819433,
-     "sample_variance": 0.0004562363506884372,
+     "validity_score": 0.35,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.456940444029621,
-     "sample_variance": 0.0001263871251037128,
+     "validity_score": 0.21666666666666665,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.4452531834773843,
-      "externality": 0.47947535169997146,
-      "contradiction": 0.4614274008319311
+      "causal_coupling": 0.25,
+      "externality": 0.1,
+      "contradiction": 0.3
      }
     }
    }
@@ -4305,21 +4305,21 @@
    "task_id": "sql_revenue_by_tier",
    "intended_class": "irrelevant",
    "kind": "llm_judged",
-   "empirical_validity": 0.0,
-   "balanced_accuracy": 0.5,
+   "empirical_validity": 0.3333333333333333,
+   "balanced_accuracy": 0.6111111111111112,
    "gate": {
     "holistic": {
-     "validity_score": 0.11821923209545653,
-     "sample_variance": 1.1160489734047555e-05,
+     "validity_score": 0.02,
+     "sample_variance": 0.00020000000000000004,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14631455398078885,
-     "sample_variance": 2.627733551349227e-05,
+     "validity_score": 0.02666666666666667,
+     "sample_variance": 4.691358024691358e-05,
      "subjudgments": {
-      "causal_coupling": 0.14493644269996708,
-      "externality": 0.146297201802092,
-      "contradiction": 0.14567212679322628
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.05
      }
     }
    }
@@ -4333,17 +4333,17 @@
    "balanced_accuracy": 0.7727272727272727,
    "gate": {
     "holistic": {
-     "validity_score": 0.98,
-     "sample_variance": 0.00042784910513429483,
+     "validity_score": 0.82,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.9385689540025551,
-     "sample_variance": 0.00014424887935316014,
+     "validity_score": 0.7733333333333334,
+     "sample_variance": 0.0009876543209876572,
      "subjudgments": {
-      "causal_coupling": 0.9244947787966801,
-      "externality": 0.9435376619998221,
-      "contradiction": 0.9172969949448708
+      "causal_coupling": 0.82,
+      "externality": 0.95,
+      "contradiction": 0.55
      }
     }
    }
@@ -4357,17 +4357,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.25186113859104486,
-     "sample_variance": 0.00014553462812039652,
+     "validity_score": 0.1,
+     "sample_variance": 0.0005555555555555553,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.27288912468036225,
-     "sample_variance": 0.00016228591990704927,
+     "validity_score": 0.18333333333333335,
+     "sample_variance": 6.172839506172857e-05,
      "subjudgments": {
-      "causal_coupling": 0.2900126361986652,
-      "externality": 0.2798776597459516,
-      "contradiction": 0.26053377615998824
+      "causal_coupling": 0.15,
+      "externality": 0.35,
+      "contradiction": 0.05
      }
     }
    }
@@ -4381,17 +4381,17 @@
    "balanced_accuracy": 0.5454545454545454,
    "gate": {
     "holistic": {
-     "validity_score": 0.29299372359714326,
-     "sample_variance": 0.0001470824660290911,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.2656946503950814,
-     "sample_variance": 4.394490710616176e-05,
+     "validity_score": 0.35000000000000003,
+     "sample_variance": 0.0010839506172839498,
      "subjudgments": {
-      "causal_coupling": 0.23265434283824973,
-      "externality": 0.24221437029824927,
-      "contradiction": 0.2773921792692021
+      "causal_coupling": 0.05,
+      "externality": 0.15,
+      "contradiction": 0.85
      }
     }
    }
@@ -4405,17 +4405,17 @@
    "balanced_accuracy": 0.5909090909090909,
    "gate": {
     "holistic": {
-     "validity_score": 0.47956724280248564,
-     "sample_variance": 8.529063309807286e-05,
+     "validity_score": 0.15,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.4386780177061473,
-     "sample_variance": 2.025480473277925e-05,
+     "validity_score": 0.39999999999999997,
+     "sample_variance": 0.00034320987654320984,
      "subjudgments": {
-      "causal_coupling": 0.4559236108059817,
-      "externality": 0.4321038880436923,
-      "contradiction": 0.4287377706772503
+      "causal_coupling": 0.15,
+      "externality": 0.2,
+      "contradiction": 0.85
      }
     }
    }
@@ -4429,17 +4429,17 @@
    "balanced_accuracy": 0.5454545454545454,
    "gate": {
     "holistic": {
-     "validity_score": 0.420123920647922,
-     "sample_variance": 6.939256363071774e-05,
+     "validity_score": 0.15,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.4586558397351739,
-     "sample_variance": 0.00016000350995950153,
+     "validity_score": 0.3333333333333333,
+     "sample_variance": 0.0002469135802469143,
      "subjudgments": {
-      "causal_coupling": 0.4670606504886087,
-      "externality": 0.45576789309404975,
-      "contradiction": 0.47040723720109257
+      "causal_coupling": 0.35,
+      "externality": 0.1,
+      "contradiction": 0.55
      }
     }
    }
@@ -4453,17 +4453,17 @@
    "balanced_accuracy": 0.6363636363636364,
    "gate": {
     "holistic": {
-     "validity_score": 0.42183224292747495,
-     "sample_variance": 0.0002885358976078911,
+     "validity_score": 0.25,
+     "sample_variance": 0.0022222222222222227,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.45633842941210717,
-     "sample_variance": 5.137754047645014e-05,
+     "validity_score": 0.5833333333333334,
+     "sample_variance": 0.0020024691358024667,
      "subjudgments": {
-      "causal_coupling": 0.46750677424890613,
-      "externality": 0.4648156256915107,
-      "contradiction": 0.43469263377243017
+      "causal_coupling": 0.82,
+      "externality": 0.3,
+      "contradiction": 0.78
      }
     }
    }
@@ -4477,17 +4477,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.16361139140408754,
-     "sample_variance": 0.0005044477516210814,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.15485976905675136,
-     "sample_variance": 0.00013972726637484468,
+     "validity_score": 0.07666666666666666,
+     "sample_variance": 9.876543209876547e-06,
      "subjudgments": {
-      "causal_coupling": 0.14273518976586297,
-      "externality": 0.18534294895719342,
-      "contradiction": 0.14232821834095016
+      "causal_coupling": 0.08,
+      "externality": 0.1,
+      "contradiction": 0.05
      }
     }
    }
@@ -4506,12 +4506,12 @@
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.02,
+     "validity_score": 0.043333333333333335,
      "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.02,
-      "externality": 0.02,
-      "contradiction": 0.02
+      "causal_coupling": 0.03,
+      "externality": 0.1,
+      "contradiction": 0.0
      }
     }
    }
@@ -4521,21 +4521,21 @@
    "task_id": "billing_schema",
    "intended_class": "valid",
    "kind": "llm_judged",
-   "empirical_validity": 0.6179143806533246,
-   "balanced_accuracy": 0.8181818181818181,
+   "empirical_validity": 1.0,
+   "balanced_accuracy": 1.0,
    "gate": {
     "holistic": {
-     "validity_score": 0.825831235897688,
-     "sample_variance": 0.00030455212532056955,
+     "validity_score": 0.55,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.8089552890118884,
-     "sample_variance": 5.109441756637105e-05,
+     "validity_score": 0.26666666666666666,
+     "sample_variance": 6.172839506172837e-05,
      "subjudgments": {
-      "causal_coupling": 0.7983183120210465,
-      "externality": 0.8234524146359071,
-      "contradiction": 0.7985796292891214
+      "causal_coupling": 0.35,
+      "externality": 0.2,
+      "contradiction": 0.25
      }
     }
    }
@@ -4545,21 +4545,21 @@
    "task_id": "billing_schema",
    "intended_class": "irrelevant",
    "kind": "llm_judged",
-   "empirical_validity": 0.018993429409939658,
-   "balanced_accuracy": 0.5075757575757576,
+   "empirical_validity": 0.0,
+   "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.16042418011706888,
-     "sample_variance": 0.00023180211796316354,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.15081630509676172,
-     "sample_variance": 9.299036209074141e-05,
+     "validity_score": 0.05666666666666667,
+     "sample_variance": 9.876543209876526e-06,
      "subjudgments": {
-      "causal_coupling": 0.1400334878335785,
-      "externality": 0.12972437529352598,
-      "contradiction": 0.16450327697547698
+      "causal_coupling": 0.05,
+      "externality": 0.1,
+      "contradiction": 0.02
      }
     }
    }
@@ -4573,17 +4573,17 @@
    "balanced_accuracy": 0.8125,
    "gate": {
     "holistic": {
-     "validity_score": 0.9288326332575718,
-     "sample_variance": 0.0002944673355934775,
+     "validity_score": 0.7,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.9453766650486218,
-     "sample_variance": 0.0001300834733979159,
+     "validity_score": 0.8233333333333333,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.9593332376818483,
-      "externality": 0.967003351519118,
-      "contradiction": 0.9418412154987086
+      "causal_coupling": 0.82,
+      "externality": 0.9,
+      "contradiction": 0.75
      }
     }
    }
@@ -4597,17 +4597,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.574004501878285,
-     "sample_variance": 0.000600579199972973,
+     "validity_score": 0.15,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5889403330423576,
-     "sample_variance": 0.00030802094728217826,
+     "validity_score": 0.3833333333333333,
+     "sample_variance": 6.172839506172796e-05,
      "subjudgments": {
-      "causal_coupling": 0.582415544551894,
-      "externality": 0.6047193786117061,
-      "contradiction": 0.5767151212987293
+      "causal_coupling": 0.15,
+      "externality": 0.6,
+      "contradiction": 0.4
      }
     }
    }
@@ -4621,17 +4621,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.5370627182924801,
-     "sample_variance": 0.00013733342608370535,
+     "validity_score": 0.02,
+     "sample_variance": 0.00020000000000000004,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5756188568951607,
-     "sample_variance": 3.585341119817529e-05,
+     "validity_score": 0.13333333333333333,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.5791025019737666,
-      "externality": 0.552118577291751,
-      "contradiction": 0.5839647713801742
+      "causal_coupling": 0.05,
+      "externality": 0.3,
+      "contradiction": 0.05
      }
     }
    }
@@ -4645,17 +4645,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.5731593445230181,
-     "sample_variance": 0.00022647783244079356,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.5757831755014564,
-     "sample_variance": 1.5199945703674283e-05,
+     "validity_score": 0.18333333333333332,
+     "sample_variance": 6.172839506172837e-05,
      "subjudgments": {
-      "causal_coupling": 0.5949332248011915,
-      "externality": 0.5862421956230519,
-      "contradiction": 0.5730026828784037
+      "causal_coupling": 0.05,
+      "externality": 0.35,
+      "contradiction": 0.15
      }
     }
    }
@@ -4669,17 +4669,17 @@
    "balanced_accuracy": 0.625,
    "gate": {
     "holistic": {
-     "validity_score": 0.2462460285463012,
-     "sample_variance": 0.0006389632025484255,
+     "validity_score": 0.1,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.26022658808860616,
-     "sample_variance": 0.0002917475014277057,
+     "validity_score": 0.043333333333333335,
+     "sample_variance": 0.00012098765432098764,
      "subjudgments": {
-      "causal_coupling": 0.25811142702310147,
-      "externality": 0.24555113776017706,
-      "contradiction": 0.2740141661195118
+      "causal_coupling": 0.08,
+      "externality": 0.0,
+      "contradiction": 0.05
      }
     }
    }
@@ -4693,17 +4693,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.2599255242454646,
-     "sample_variance": 0.0004921190721677499,
+     "validity_score": 0.05,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.2731214037265446,
-     "sample_variance": 0.0002478305704275538,
+     "validity_score": 0.016666666666666666,
+     "sample_variance": 0.0,
      "subjudgments": {
-      "causal_coupling": 0.2889928193155194,
-      "externality": 0.2558476696409862,
-      "contradiction": 0.2597653408976657
+      "causal_coupling": 0.05,
+      "externality": 0.0,
+      "contradiction": 0.0
      }
     }
    }
@@ -4717,17 +4717,17 @@
    "balanced_accuracy": 0.3125,
    "gate": {
     "holistic": {
-     "validity_score": 0.17676615841378604,
-     "sample_variance": 0.0007816136265738136,
+     "validity_score": 0.02,
+     "sample_variance": 0.00020000000000000004,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.16225130213399375,
-     "sample_variance": 0.00020820841066710266,
+     "validity_score": 0.043333333333333335,
+     "sample_variance": 0.04997283950617284,
      "subjudgments": {
-      "causal_coupling": 0.15630323105638458,
-      "externality": 0.16454990131187952,
-      "contradiction": 0.16298502915841181
+      "causal_coupling": 0.03,
+      "externality": 0.1,
+      "contradiction": 0.0
      }
     }
    }
@@ -4741,17 +4741,17 @@
    "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.1630589868065573,
-     "sample_variance": 0.0004907443844401197,
+     "validity_score": 0.02,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.1254998206507492,
-     "sample_variance": 0.0003556017453659805,
+     "validity_score": 0.05666666666666667,
+     "sample_variance": 6.172839506172842e-05,
      "subjudgments": {
-      "causal_coupling": 0.11967260441036726,
-      "externality": 0.1204870590219477,
-      "contradiction": 0.1447932523942537
+      "causal_coupling": 0.02,
+      "externality": 0.1,
+      "contradiction": 0.05
      }
     }
    }
@@ -4761,21 +4761,21 @@
    "task_id": "csv_parser",
    "intended_class": "valid",
    "kind": "llm_judged",
-   "empirical_validity": 0.45226701686664544,
-   "balanced_accuracy": 0.6875,
+   "empirical_validity": 0.0,
+   "balanced_accuracy": 0.5,
    "gate": {
     "holistic": {
-     "validity_score": 0.8574364292219833,
-     "sample_variance": 0.00026497335386762146,
+     "validity_score": 0.2,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.8304683209553211,
-     "sample_variance": 0.0001740592719006799,
+     "validity_score": 0.12666666666666668,
+     "sample_variance": 0.0001950617283950621,
      "subjudgments": {
-      "causal_coupling": 0.8467179340069924,
-      "externality": 0.8386864512340834,
-      "contradiction": 0.8203042727034316
+      "causal_coupling": 0.18,
+      "externality": 0.1,
+      "contradiction": 0.1
      }
     }
    }
@@ -4785,21 +4785,21 @@
    "task_id": "csv_parser",
    "intended_class": "irrelevant",
    "kind": "llm_judged",
-   "empirical_validity": 0.22821773229381923,
-   "balanced_accuracy": 0.6041666666666667,
+   "empirical_validity": 0.28867513459481287,
+   "balanced_accuracy": 0.6458333333333333,
    "gate": {
     "holistic": {
-     "validity_score": 0.14169804564483884,
-     "sample_variance": 8.989764336189929e-05,
+     "validity_score": 0.02,
+     "sample_variance": 0.0,
      "subjudgments": {}
     },
     "decomposed": {
-     "validity_score": 0.14145689190166466,
-     "sample_variance": 0.00018914147416018996,
+     "validity_score": 0.04666666666666667,
+     "sample_variance": 0.000328395061728395,
      "subjudgments": {
-      "causal_coupling": 0.119558523653438,
-      "externality": 0.1758645142209401,
-      "contradiction": 0.1289476378306159
+      "causal_coupling": 0.03,
+      "externality": 0.1,
+      "contradiction": 0.02
      }
     }
    }
@@ -4809,40 +4809,40 @@
   "holistic": {
    "n": 41,
    "degenerate": [],
-   "spearman_rho": 0.4913231267254053,
+   "spearman_rho": 0.5454077448622018,
    "rho_ci": [
-    0.17557912205633458,
-    0.7145845771625251
+    0.23790014016744063,
+    0.7713902377127404
    ],
    "rho_bootstrap_skipped": 0,
-   "auroc": 0.9166666666666666,
+   "auroc": 1.0,
    "auroc_ci": [
-    0.7801767676767677,
+    1.0,
     1.0
    ],
    "auroc_bootstrap_skipped": 1,
-   "confounded_recall": 0.65,
+   "confounded_recall": 1.0,
    "confounded_crux_n": 20,
-   "mean_sample_variance": 0.0003581933878805412
+   "mean_sample_variance": 0.0001636856368563686
   },
   "decomposed": {
    "n": 41,
    "degenerate": [],
-   "spearman_rho": 0.45856234876750296,
+   "spearman_rho": 0.3675692674234226,
    "rho_ci": [
-    0.15262244474927822,
-    0.7033536847602371
+    0.06396389072654818,
+    0.6106315947299781
    ],
    "rho_bootstrap_skipped": 0,
-   "auroc": 0.9242424242424242,
+   "auroc": 0.8939393939393939,
    "auroc_ci": [
-    0.7983193277310925,
+    0.7634060196560196,
     1.0
    ],
    "auroc_bootstrap_skipped": 1,
-   "confounded_recall": 0.65,
+   "confounded_recall": 0.95,
    "confounded_crux_n": 20,
-   "mean_sample_variance": 0.00017292482600154827
+   "mean_sample_variance": 0.0014026498042758204
   }
  }
 }
